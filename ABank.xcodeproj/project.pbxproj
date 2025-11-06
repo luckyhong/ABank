@@ -6,7 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		520939AE30DBDFB692AD23C4 /* Pods_ABank.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93782B8372A9592C6EF146FC /* Pods_ABank.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		41287A80D0E068ED4A2E34A2 /* Pods-ABank.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ABank.release.xcconfig"; path = "Target Support Files/Pods-ABank/Pods-ABank.release.xcconfig"; sourceTree = "<group>"; };
+		93782B8372A9592C6EF146FC /* Pods_ABank.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ABank.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7000D724B79A5412398A23D /* Pods-ABank.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ABank.debug.xcconfig"; path = "Target Support Files/Pods-ABank/Pods-ABank.debug.xcconfig"; sourceTree = "<group>"; };
 		D4BDEA4A2EAF12D6001D244A /* ABank.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ABank.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -36,17 +43,28 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				520939AE30DBDFB692AD23C4 /* Pods_ABank.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9B52D21548C12181E162D4CF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				93782B8372A9592C6EF146FC /* Pods_ABank.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		D4BDEA412EAF12D6001D244A = {
 			isa = PBXGroup;
 			children = (
 				D4BDEA4C2EAF12D6001D244A /* ABank */,
 				D4BDEA4B2EAF12D6001D244A /* Products */,
+				FADD129C2228980FBCCFC033 /* Pods */,
+				9B52D21548C12181E162D4CF /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,6 +76,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		FADD129C2228980FBCCFC033 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C7000D724B79A5412398A23D /* Pods-ABank.debug.xcconfig */,
+				41287A80D0E068ED4A2E34A2 /* Pods-ABank.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -65,9 +92,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D4BDEA5D2EAF12D7001D244A /* Build configuration list for PBXNativeTarget "ABank" */;
 			buildPhases = (
+				10A9A971199D5586A6C947E9 /* [CP] Check Pods Manifest.lock */,
 				D4BDEA462EAF12D6001D244A /* Sources */,
 				D4BDEA472EAF12D6001D244A /* Frameworks */,
 				D4BDEA482EAF12D6001D244A /* Resources */,
+				DA86247CF795F88ABECB9E11 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -77,8 +106,6 @@
 				D4BDEA4C2EAF12D6001D244A /* ABank */,
 			);
 			name = ABank;
-			packageProductDependencies = (
-			);
 			productName = ABank;
 			productReference = D4BDEA4A2EAF12D6001D244A /* ABank.app */;
 			productType = "com.apple.product-type.application";
@@ -127,6 +154,52 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		10A9A971199D5586A6C947E9 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ABank-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DA86247CF795F88ABECB9E11 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ABank/Pods-ABank-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ABank/Pods-ABank-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ABank/Pods-ABank-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		D4BDEA462EAF12D6001D244A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -140,12 +213,14 @@
 /* Begin XCBuildConfiguration section */
 		D4BDEA5E2EAF12D7001D244A /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C7000D724B79A5412398A23D /* Pods-ABank.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DX4MURAK7P;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ABank/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -153,6 +228,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -172,12 +248,14 @@
 		};
 		D4BDEA5F2EAF12D7001D244A /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 41287A80D0E068ED4A2E34A2 /* Pods-ABank.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DX4MURAK7P;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ABank/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -185,6 +263,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
