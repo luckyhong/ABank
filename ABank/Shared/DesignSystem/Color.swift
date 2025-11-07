@@ -9,7 +9,7 @@ import UIKit
 
 extension UIColor {
     // MARK: - 主题色（参考农业银行绿色系）
-    static let abankPrimary = UIColor(red: 0.0, green: 0.6, blue: 0.2, alpha: 1.0) // 农业银行绿
+    static let abankPrimary = UIColor(red: 0.0/255.0, green: 136.0/255.0, blue: 102.0/255.0, alpha: 1.0) // 农业银行绿
     static let abankPrimaryDark = UIColor(red: 0.0, green: 0.5, blue: 0.15, alpha: 1.0)
     
     // MARK: - 背景色
