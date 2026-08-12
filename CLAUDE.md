@@ -1,21 +1,25 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+本文件为 Claude Code (claude.ai/code) 在此仓库中工作时提供指引。
 
-## Project status
+## 仓库现状
 
-This repository currently contains only a `README.md` — there is no Xcode project, source code, dependency manifest, or build tooling yet. There are no build/lint/test commands to document because none exist in the repo. Do not assume a project layout (e.g. `.xcodeproj`, `Package.swift`, `Podfile`, folder structure) is present until it has actually been added — check the working tree before relying on anything described below.
+当前仓库**只有一个 `README.md`**，尚未包含 Xcode 工程、源代码、依赖清单或任何构建工具链。因此这里没有可以记录的 build / lint / test 命令——它们还不存在。
 
-## Project purpose (from README.md)
+在实际添加之前，**不要假设**仓库里存在某种工程结构（例如 `.xcodeproj`、`Package.swift`、`Podfile`、某种目录划分）。动手之前请先查看工作区的真实文件情况。
 
-ABank is a learning-only iOS project: a **frontend-UI-layer-only** implementation of a bank app, built to practice going from zero to a working UI/interaction structure. It does not implement real banking functionality — all data is intended to be fake/mocked. The stated goal is to build iOS development skill in:
+## 项目定位（来自 README.md）
 
-- App architecture
-- Modularization
-- UI layout
-- Naming conventions
+ABank 是一个**纯前端 UI 层实现**的 iOS 学习型项目，用于自学和演示如何从 0 到 1 搭建一个银行类 App 的界面与交互结构。项目不涉及真实银行业务，界面与逻辑**全部使用假数据模拟**。
 
-## Working in this repo
+其目标是提升 iOS 开发在以下四个方面的实战能力：
 
-- When the project is scaffolded (Xcode project/workspace, Swift Package, etc. added), update this file with real build/run/test commands (e.g. `xcodebuild` invocations, scheme names, how to run a single test) and the actual module/architecture layout.
-- Since this is explicitly a UI-only learning project with fake data, do not add real networking, persistence of sensitive data, or backend integration — that would be out of scope for the stated goal.
+- 架构设计
+- 模块化
+- UI 布局
+- 命名规范
+
+## 在此仓库中工作
+
+- 当工程被真正搭建起来之后（新增 Xcode 工程 / workspace、Swift Package 等），请回来更新本文件，补充**真实可用的**构建、运行、测试命令（例如具体的 `xcodebuild` 调用、scheme 名称、如何单独跑某一个测试），以及实际的模块划分与架构说明。
+- 由于本项目明确定位为「仅 UI 层 + 假数据」的学习项目，**不要**引入真实的网络请求、敏感数据持久化或后端集成——这些超出了项目既定目标的范围。
