@@ -102,8 +102,10 @@ final class MyLoanViewController: BaseViewController {
             self?.showToast(titles[safe: index] ?? "功能")
         }
         contractSection.onContractTapped = { [weak self] id in
-            let name = self?.pageData.contracts.first(where: { $0.id == id })?.name ?? "合同"
-            self?.showToast(name)
+            guard let self,
+                  let contract = FinanceLedgerStore.shared.loanContract(id: id) else { return }
+            let controller = LoanDetailViewController(contract: contract)
+            self.navigationController?.pushViewController(controller, animated: true)
         }
         contractSection.onToggleDetail = { [weak self] id in
             FinanceLedgerStore.shared.toggleLoanDetailExpanded(id: id)

@@ -118,7 +118,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         headerTitleLabel.numberOfLines = 2
         headerTitleLabel.textAlignment = .center
 
-        amountLabel.font = .systemFont(ofSize: 36, weight: .semibold)
+        amountLabel.font = .systemFont(ofSize: 32, weight: .medium)
         amountLabel.textColor = .abankTextPrimary
         amountLabel.textAlignment = .center
 

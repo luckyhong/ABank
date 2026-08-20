@@ -12,7 +12,7 @@ extension Notification.Name {
 final class FinanceLedgerStore {
     static let shared = FinanceLedgerStore()
 
-    private let defaultsKey = "abank.financeLedger.record.v3"
+    private let defaultsKey = "abank.financeLedger.record.v4"
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
@@ -335,6 +335,10 @@ final class FinanceLedgerStore {
         }
     }
 
+    func loanContract(id: String) -> LoanContract? {
+        load().loanContracts.first(where: { $0.id == id })
+    }
+
     func toggleLoanDetailExpanded(id: String) {
         var record = load()
         guard let index = record.loanContracts.firstIndex(where: { $0.id == id }) else { return }
@@ -366,7 +370,19 @@ final class FinanceLedgerStore {
                     expiryDate: "2047-09-14",
                     monthlyDue: 0,
                     availableLimit: 0,
-                    isDetailExpanded: true
+                    isDetailExpanded: true,
+                    contractNumber: "26135145400007286",
+                    signingDate: "2017-09-15",
+                    disbursementDateText: "2017年10月9日",
+                    loanAmount: 670_000,
+                    annualRatePercent: 3.2,
+                    pricingMethod: "浮动利率",
+                    pricingBenchmark: "LPR",
+                    floatingRange: "-30bp",
+                    repricingCycle: "3个月",
+                    repricingDatesText: "1月9日,4月9日,7月9日,10月9日",
+                    maturityDateText: "2037年10月8日",
+                    statusText: "正常"
                 )
             ],
             assetLiabilityAnnouncement: "美好生活，从一点一滴存钱开始~",

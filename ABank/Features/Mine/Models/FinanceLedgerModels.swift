@@ -182,6 +182,102 @@ struct LoanContract: Codable, Equatable, Identifiable {
     var monthlyDue: Double
     var availableLimit: Double
     var isDetailExpanded: Bool
+    /// 合同合约号
+    var contractNumber: String
+    /// 合同签订日期 yyyy-MM-dd
+    var signingDate: String
+    /// 贷款发放日展示文案
+    var disbursementDateText: String
+    /// 贷款金额
+    var loanAmount: Double
+    /// 贷款年化利率，如 3.2
+    var annualRatePercent: Double
+    /// 利率定价方式
+    var pricingMethod: String
+    /// 利率定价基准
+    var pricingBenchmark: String
+    /// 利率浮动幅度
+    var floatingRange: String
+    /// 重定价周期
+    var repricingCycle: String
+    /// 重定价日
+    var repricingDatesText: String
+    /// 贷款到期日展示文案
+    var maturityDateText: String
+    /// 贷款状态
+    var statusText: String
+
+    var usedLimit: Double {
+        max(0, contractLimit - availableLimit)
+    }
+
+    init(
+        id: String,
+        name: String,
+        unpaidPrincipal: Double,
+        contractLimit: Double,
+        expiryDate: String,
+        monthlyDue: Double,
+        availableLimit: Double,
+        isDetailExpanded: Bool,
+        contractNumber: String = "",
+        signingDate: String = "",
+        disbursementDateText: String = "",
+        loanAmount: Double? = nil,
+        annualRatePercent: Double = 0,
+        pricingMethod: String = "",
+        pricingBenchmark: String = "",
+        floatingRange: String = "",
+        repricingCycle: String = "",
+        repricingDatesText: String = "",
+        maturityDateText: String = "",
+        statusText: String = "正常"
+    ) {
+        self.id = id
+        self.name = name
+        self.unpaidPrincipal = unpaidPrincipal
+        self.contractLimit = contractLimit
+        self.expiryDate = expiryDate
+        self.monthlyDue = monthlyDue
+        self.availableLimit = availableLimit
+        self.isDetailExpanded = isDetailExpanded
+        self.contractNumber = contractNumber
+        self.signingDate = signingDate
+        self.disbursementDateText = disbursementDateText
+        self.loanAmount = loanAmount ?? contractLimit
+        self.annualRatePercent = annualRatePercent
+        self.pricingMethod = pricingMethod
+        self.pricingBenchmark = pricingBenchmark
+        self.floatingRange = floatingRange
+        self.repricingCycle = repricingCycle
+        self.repricingDatesText = repricingDatesText
+        self.maturityDateText = maturityDateText
+        self.statusText = statusText
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        unpaidPrincipal = try container.decode(Double.self, forKey: .unpaidPrincipal)
+        contractLimit = try container.decode(Double.self, forKey: .contractLimit)
+        expiryDate = try container.decode(String.self, forKey: .expiryDate)
+        monthlyDue = try container.decode(Double.self, forKey: .monthlyDue)
+        availableLimit = try container.decode(Double.self, forKey: .availableLimit)
+        isDetailExpanded = try container.decodeIfPresent(Bool.self, forKey: .isDetailExpanded) ?? false
+        contractNumber = try container.decodeIfPresent(String.self, forKey: .contractNumber) ?? ""
+        signingDate = try container.decodeIfPresent(String.self, forKey: .signingDate) ?? ""
+        disbursementDateText = try container.decodeIfPresent(String.self, forKey: .disbursementDateText) ?? ""
+        loanAmount = try container.decodeIfPresent(Double.self, forKey: .loanAmount) ?? contractLimit
+        annualRatePercent = try container.decodeIfPresent(Double.self, forKey: .annualRatePercent) ?? 0
+        pricingMethod = try container.decodeIfPresent(String.self, forKey: .pricingMethod) ?? ""
+        pricingBenchmark = try container.decodeIfPresent(String.self, forKey: .pricingBenchmark) ?? ""
+        floatingRange = try container.decodeIfPresent(String.self, forKey: .floatingRange) ?? ""
+        repricingCycle = try container.decodeIfPresent(String.self, forKey: .repricingCycle) ?? ""
+        repricingDatesText = try container.decodeIfPresent(String.self, forKey: .repricingDatesText) ?? ""
+        maturityDateText = try container.decodeIfPresent(String.self, forKey: .maturityDateText) ?? ""
+        statusText = try container.decodeIfPresent(String.self, forKey: .statusText) ?? "正常"
+    }
 }
 
 // MARK: - 派生快照
