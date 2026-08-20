@@ -1,155 +1,143 @@
-## ABank（iOS 学习型项目 - 纯前端 UI 层）
+# ABank（iOS 学习型项目 · 纯前端 UI）
 
-ABank 是一个纯前端 UI 层实现的 iOS 学习型项目，用于自学并展示如何从 0 到 1 搭建一个银行类 App 的界面与交互结构。项目不涉及真实银行业务，仅使用假数据模拟界面与逻辑，旨在帮助 iOS 开发者在以下方面提升实战能力：
+ABank 是一个纯前端 UI 层实现的 iOS 学习项目，用于从 0 到 1 搭建银行类 App 的界面与交互结构。项目不接入真实银行业务，全部使用本地假数据，侧重模块化、设计系统与可维护的页面结构。
 
-- **架构**：模块拆分、依赖边界、可测试性与可扩展性
-- **模块化**：功能模块、组件复用、资源管理
-- **UI 布局**：Auto Layout/Storyboard/代码布局实践与约束管理
-- **命名规范**：统一的类型、变量、资源与文件命名规则
+- **架构**：按功能域拆分模块，统一基类与设计系统
+- **布局**：纯代码 + SnapKit Auto Layout
+- **数据**：`MockDataProvider` / 本地 Store 驱动界面
+- **目标**：可读、可扩展，方便练习与二次开发
 
+## 项目定位
 
-### 项目定位与范围
-- **仅 UI/交互层**：不接入真实网络/支付/风控等服务
-- **假数据驱动**：通过本地 JSON/内存模型模拟接口数据
-- **学习优先**：重视代码可读性与可维护性，适度留白给练习
+| 范围 | 说明 |
+|------|------|
+| 仅 UI / 交互层 | 不接入真实网络、支付、风控 |
+| 假数据驱动 | 内存模型 + Store 模拟业务数据 |
+| 学习优先 | 重视命名、分层与组件复用 |
 
+## 技术栈
 
-### 目标功能（示例）
-- 启动与登录引导（纯前端校验）
-- 首页账户概览（余额、账单条目假数据）
-- 转账/卡片管理/交易明细列表（分页与筛选交互）
-- 通知中心与设置页（本地化与深浅色模式）
+- **语言 / 平台**：Swift 5 · iOS 15.6+
+- **布局**：纯代码（SnapKit `~> 5.6`）
+- **依赖管理**：CocoaPods
+- **工程入口**：`ABank.xcworkspace`（勿直接打开 `.xcodeproj`）
 
+## 主框架（TabBar）
 
-### 架构建议（可按需调整）
-- 分层建议：`UI`（View/ViewController） + `Presentation`（ViewModel/Presenter） + `DataProvider`（本地假数据）
-- 事件流：`View` -> `ViewModel` -> `DataProvider` -> 更新 `ViewModel State` -> 绑定刷新 `View`
-- 导航管理：集中管理页面路由与参数，避免在 `ViewController` 中散落跳转逻辑
+| Tab | 模块 | 状态 |
+|-----|------|------|
+| 首页 | `Features/Home` | ✅ 已完成 |
+| 财富 | `Features/Finance` | ✅ 已完成 |
+| 生活 | `Features/Life` | ✅ 已完成 |
+| 资讯 | `Features/News` | ✅ 已完成 |
+| 我的 | `Features/Mine` | ✅ 核心流程已完成 |
 
+> `Features/Transfer` 仍为占位页，可从首页等入口扩展。
 
-### 模块化建议
-- `Features/`：按功能域拆分（如 `Home`、`Transfer`、`Cards`、`Settings`）
-- `Shared/`：可复用组件（如 `UIComponents`、`DesignSystem`、`Utilities`、`NetworkingMocks`）
-- `Resources/`：图片、颜色、字符串、本地化等
+## 功能概览
 
-### 当前项目结构
+### 首页 Home
+账户概览、搜索栏、公告滚动、快捷入口、宫格菜单、热门活动、财富精选、网点服务、消保宣导等区块。
 
-项目已完全迁移到纯代码布局，采用模块化架构：
+### 财富 Finance（Wealth）
+登录引导卡、功能宫格、热点、精选产品、稳健增长、收益先行、热门存款、债券指数、闲钱专区、理财学习等分区展示。
+
+### 生活 Life
+搜索、Banner、生活服务宫格、多彩活动、瀑布流内容等。
+
+### 资讯 News
+推荐 / 关注 Tab、搜索、Feed 列表、话题与 Banner 等资讯流 UI。
+
+### 我的 Mine（当前重点）
+个人中心首页，并串联以下子模块：
+
+| 子模块 | 能力 |
+|--------|------|
+| **客户信息** `CustomerInfo` | 资料展示与编辑、修改手机号、涉税身份申报（本地 Store） |
+| **资产负债** `AssetLiability` | 汇总卡片、分类列表、提示与公告 |
+| **收支明细** `IncomeExpense` | 列表、详情、日期 / 账户 / 分类筛选与选择面板 |
+| **我的贷款** `MyLoan` | 贷款概览、合同列表、贷款详情、应还明细、还款详情、提前还款、用款记录、筛选与日期选择 |
+| **财务账本** `FinanceLedger` | `FinanceLedgerStore` 统一提供资产负债、月度流水等聚合数据 |
+
+## 项目结构
 
 ```
 ABank/
-├── Core/                    # 核心控制器
-│   └── MainTabBarController.swift  # TabBar主框架（首页、财富、生活、乡村振兴、我的）
-├── Features/                # 功能模块
-│   ├── Home/               # 首页模块（已完成）
-│   │   ├── HomeViewController.swift
-│   │   └── Views/
-│   │       ├── AccountCardView.swift      # 账户卡片
-│   │       ├── QuickActionsView.swift     # 快捷功能
-│   │       └── NoticeView.swift           # 公告栏
-│   ├── Finance/            # 财富模块（基础占位）
-│   │   └── FinanceViewController.swift（类名：WealthViewController）
-│   ├── Life/               # 生活模块（基础占位）
-│   │   └── LifeViewController.swift
-│   ├── Rural/              # 乡村振兴模块（基础占位）
-│   │   └── RuralRevitalizationViewController.swift
-│   └── Mine/               # 我的模块（待完善）
-├── Shared/                 # 共享资源
-│   ├── DesignSystem/       # 设计系统
-│   │   ├── Color.swift     # 颜色规范（参考农业银行绿色系）
-│   │   ├── Font.swift      # 字体规范
-│   │   └── Spacing.swift   # 间距规范
-│   └── Utilities/          # 工具类扩展
-│       ├── UIView+Extensions.swift
-│       └── String+Extensions.swift
-├── Data/                   # 数据层
-│   └── MockDataProvider.swift  # 假数据提供者
-└── Assets.xcassets/        # 资源文件
+├── Core/
+│   ├── Base/BaseViewController.swift      # 导航 / Loading / Toast 基类
+│   └── MainTabBarController.swift         # 五 Tab 主框架
+├── Features/
+│   ├── Home/                              # 首页
+│   ├── Finance/                           # 财富（WealthViewController）
+│   ├── Life/                              # 生活
+│   ├── News/                              # 资讯
+│   ├── Mine/                              # 我的
+│   │   ├── Views/                         # 个人中心卡片组件
+│   │   ├── Models/                        # 业务模型
+│   │   ├── CustomerInfo/                  # 客户信息
+│   │   ├── AssetLiability/                # 资产负债
+│   │   ├── IncomeExpense/                 # 收支明细
+│   │   ├── MyLoan/                        # 我的贷款
+│   │   └── FinanceLedger/                 # 财务数据 Store
+│   └── Transfer/                          # 转账（占位）
+├── Shared/
+│   ├── DesignSystem/                      # Color / Font / Spacing / CornerRadius
+│   └── Utilities/                         # UIView、String 扩展
+├── Data/
+│   └── MockDataProvider.swift             # 假数据入口
+└── Assets.xcassets/
 ```
 
-**技术栈**：
-- ✅ 纯代码布局（SnapKit）
-- ✅ CocoaPods 依赖管理
-- ✅ 模块化架构设计
-- ✅ 设计系统统一管理
- - ✅ 基类控制器（`BaseViewController`）统一导航、Loading、Toast
+## 架构说明
 
+- **分层**：`ViewController` + 自定义 `View` + `Models` + `MockDataProvider` / `*Store`
+- **设计系统**：统一农业银行风格绿色系颜色、字体、间距与圆角
+- **导航**：各 Tab 内嵌 `UINavigationController`，子页通过 `push` 进入
+- **状态**：客户信息、财务账本等使用本地 Store，在页面 `viewWillAppear` 时刷新展示
 
-### 命名规范（建议）
-- 类型名使用 `PascalCase`，实例/变量使用 `camelCase`
-- 视图后缀：`View`、`Cell`、`Header`；控制器后缀：`ViewController`
-- ViewModel 以 `SomethingViewModel` 命名，状态以 `State` 命名，事件以 `Action` 命名
-- 资源命名具备语义且可检索，如颜色 `Color.primaryBackground`，图片 `img_card_visa`
+## 运行方式
 
+1. **安装依赖**（首次或 Podfile 变更后）：
 
-### 假数据策略
-- 使用本地 `JSON` 文件与 `MockDataProvider` 提供数据
-- 分层模拟：列表分页、空态、错误态（本地触发不同分支）
-- 保持模型与 UI 解耦：`Decodable` 模型 -> `ViewModel` 映射
+```bash
+cd /path/to/ABank
+export LANG=en_US.UTF-8   # 如遇编码问题
+pod install
+```
 
+2. **打开工程**：使用 `ABank.xcworkspace`（不要用 `.xcodeproj`）。
 
-### 运行方式
+3. **运行**：选择模拟器或真机，`Cmd + R`。全部数据来自本地，无需网络。
 
-**重要**：项目已迁移到纯代码布局，使用 CocoaPods 管理依赖。
+> `pod install` 失败多为网络问题，可重试或配置代理。
 
-1. **安装依赖**（首次运行必须执行）：
-   ```bash
-   cd /Users/hanjihong/workspace/ABank
-   export LANG=en_US.UTF-8  # 如果遇到编码问题
-   pod install
-   ```
+## 命名规范
 
-2. **打开项目**：
-   - 必须使用 `ABank.xcworkspace` 打开（不是 `.xcodeproj`）
-   - 在 Xcode 中：File -> Open -> 选择 `ABank.xcworkspace`
+- 类型：`PascalCase`；变量 / 属性：`camelCase`
+- 视图后缀：`View`、`Cell`、`Header`；控制器：`ViewController`
+- Store：`SomethingStore`；模型按业务域放在对应 `Models/`
+- 颜色等设计 token：`abank*` 前缀（如 `.abankPrimary`）
 
-3. **运行项目**：
-   - 选择目标设备（模拟器或真机）
-   - 按 `Cmd + R` 运行
-   - 所有数据来自本地假数据，运行不依赖网络
+## 开发进度
 
-> 如果 `pod install` 失败，可能是网络问题，请稍后重试或使用代理。
+### 已完成
+- [x] 工程骨架、CocoaPods、SnapKit、设计系统、基类控制器
+- [x] TabBar：首页 / 财富 / 生活 / 资讯 / 我的
+- [x] 首页、财富、生活、资讯完整 UI
+- [x] 我的：个人中心、客户信息、资产负债、收支明细、我的贷款（含还款 / 提前还款 / 用款记录等）
+- [x] 财务账本 Store 与假数据驱动
 
+### 待完善
+- [ ] 转账模块完整流程
+- [ ] 登录 / 注册引导
+- [ ] 深色模式、本地化、无障碍
+- [ ] 更多空态 / 错误态假数据场景
+- [ ] 动画与微交互打磨
 
-### 代码风格
-- 保持清晰的分层边界与依赖方向
-- 减少控制器体积：将状态与业务 UI 逻辑沉淀到 ViewModel/Presenter
-- 仅为非显而易见的逻辑添加注释；命名应自解释
+## 贡献
 
+欢迎通过 Issue / PR 讨论架构与实现，目标是把 UI 做对、把结构搭好。
 
-### 开发进度
+## 免责声明
 
-#### ✅ 已完成（v0.2）
-- [x] 项目框架搭建（纯代码布局）
-- [x] CocoaPods 集成（SnapKit）
-- [x] 设计系统（颜色、字体、间距）
-- [x] TabBar 主框架（首页、财富、生活、乡村振兴、我的）
- - [x] 首页模块完整实现
-  - [x] 账户卡片（余额显示/隐藏）
-  - [x] 快捷功能（8个功能入口）
-  - [x] 公告栏
-- [x] 假数据提供层（MockDataProvider）
-
-#### 🚧 进行中 / 待完善
-- [ ] 转账模块详细实现
-- [ ] 理财模块（产品列表、详情）
-- [ ] 我的模块（个人中心、设置）
-- [ ] 交易记录列表（分页、筛选）
-- [ ] 更多假数据场景
-
-#### 📋 计划中
-- [ ] 登录/注册流程
-- [ ] 动画过渡与交互反馈
-- [ ] 深色模式支持
-- [ ] 本地化（多语言）
-- [ ] 无障碍支持
-
-
-### 贡献
-欢迎通过 Issue/PR 讨论架构与实现方式，目标是让更多初学者从中学到“如何把 UI 做对、把结构搭好”。
-
-
-### 免责声明
 本项目仅供学习交流，不包含任何真实银行业务与数据。
-
-
