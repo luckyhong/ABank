@@ -445,6 +445,299 @@ final class MockDataProvider {
         )
     }
 
+    // MARK: - 资讯
+
+    func getNewsPageData() -> NewsPageData {
+        NewsPageData(
+            searchPlaceholders: ["资讯热榜", "话题广场", "公积金", "基金理财"],
+            messageBadge: 322,
+            categories: ["热点", "服务", "三农", "基金", "黄金", "保险", "房产"],
+            heroBanners: [
+                NewsHeroBannerItem(
+                    tag: "#热点关注",
+                    title: "公积金新政发布",
+                    subtitle: "住房公积金提取范围迎重大变化！官方详解",
+                    backgroundColor: UIColor(red: 0.42, green: 0.72, blue: 0.92, alpha: 1),
+                    accentColor: UIColor(red: 1.0, green: 0.85, blue: 0.45, alpha: 1),
+                    systemIcon: "house.fill"
+                ),
+                NewsHeroBannerItem(
+                    tag: "#市场观察",
+                    title: "A股震荡整理",
+                    subtitle: "机构：短期关注政策面与流动性变化",
+                    backgroundColor: UIColor(red: 0.15, green: 0.45, blue: 0.72, alpha: 1),
+                    accentColor: .white,
+                    systemIcon: "chart.line.uptrend.xyaxis"
+                ),
+                NewsHeroBannerItem(
+                    tag: "#理财攻略",
+                    title: "财富轻攻略",
+                    subtitle: "理财干货，一看就会",
+                    backgroundColor: UIColor(red: 0.95, green: 0.55, blue: 0.35, alpha: 1),
+                    accentColor: .white,
+                    systemIcon: "book.fill"
+                ),
+                NewsHeroBannerItem(
+                    tag: "#农银财富",
+                    title: "匠心守护 智富未来",
+                    subtitle: "中国农业银行发布2026中期策略报告",
+                    backgroundColor: UIColor(red: 0.0, green: 0.55, blue: 0.42, alpha: 1),
+                    accentColor: UIColor(red: 1.0, green: 0.92, blue: 0.65, alpha: 1),
+                    systemIcon: "leaf.fill"
+                )
+            ],
+            flashNews: NewsFlashItem(
+                time: "10:55",
+                headline: "【折叠屏概念震荡拉升 科森科技涨停】财联社8月20日电，折叠屏概念盘..."
+            ),
+            hotVideos: [
+                NewsVideoItem(
+                    title: "防范“圆梦卡”诈骗",
+                    overlayTitle: "防范 ‘圆梦卡’ 诈骗",
+                    backgroundColor: UIColor(red: 0.18, green: 0.28, blue: 0.38, alpha: 1),
+                    systemIcon: "person.fill",
+                    iconTint: UIColor(red: 0.85, green: 0.72, blue: 0.52, alpha: 1)
+                ),
+                NewsVideoItem(
+                    title: "你的公积金还能这么用！",
+                    overlayTitle: "",
+                    backgroundColor: UIColor(red: 0.55, green: 0.76, blue: 0.92, alpha: 1),
+                    systemIcon: "house.fill",
+                    iconTint: UIColor(red: 0.95, green: 0.82, blue: 0.35, alpha: 1)
+                ),
+                NewsVideoItem(
+                    title: "全年经营分析会",
+                    overlayTitle: "",
+                    backgroundColor: UIColor(red: 0.42, green: 0.48, blue: 0.58, alpha: 1),
+                    systemIcon: "person.3.fill",
+                    iconTint: UIColor.white.withAlphaComponent(0.85)
+                ),
+                NewsVideoItem(
+                    title: "黄金市场观察",
+                    overlayTitle: "",
+                    backgroundColor: UIColor(red: 0.45, green: 0.38, blue: 0.22, alpha: 1),
+                    systemIcon: "chart.bar.fill",
+                    iconTint: UIColor(red: 1.0, green: 0.82, blue: 0.35, alpha: 1)
+                )
+            ],
+            hotRankItems: [
+                NewsHotRankItem(rank: 1, title: "A股全线下跌，午后跌幅加大，谁砸的？", badge: nil),
+                NewsHotRankItem(rank: 2, title: "美股收涨！医药龙头暴涨近180%，存...", badge: .new),
+                NewsHotRankItem(rank: 3, title: "闪崩！全球抛售潮加剧", badge: .hot)
+            ],
+            interactiveTopic: NewsInteractiveTopic(
+                question: "暑期档影片大比拼，您更喜欢哪一部？",
+                participantCount: 1303,
+                description: "今年暑期档电影类型丰富，从动作大片到温情治愈，您最期待哪一部？",
+                options: ["《功夫女足》", "《蜘蛛侠：崭新之日》", "《八仙！》"]
+            ),
+            followSuggestions: [
+                NewsFollowSuggestion(name: "远程银行中心", systemIcon: "building.columns.fill", tintColor: .abankPrimary),
+                NewsFollowSuggestion(name: "掌银全攻略", systemIcon: "iphone", tintColor: .abankOrange),
+                NewsFollowSuggestion(name: "农银财富", systemIcon: "chart.pie.fill", tintColor: .abankTeal),
+                NewsFollowSuggestion(name: "财经全视角", systemIcon: "newspaper.fill", tintColor: .abankHighlight)
+            ],
+            trendingItems: [
+                NewsTrendingItem(title: "中央媒体看辽宁 | 央视新闻：一条路牵动万家企业"),
+                NewsTrendingItem(title: "一周展望：美联储纪要携手PMI来袭，市场如何走？"),
+                NewsTrendingItem(title: "暑期消费回暖，文旅板块迎来修复行情")
+            ],
+            pkPoll: NewsPKPoll(
+                question: "您选燃油车还是新能源车呢？",
+                participantCount: 18765,
+                leftOption: "燃油车",
+                rightOption: "新能源车"
+            ),
+            initialFeed: makeInitialNewsFeed(),
+            totalFeedPages: 5
+        )
+    }
+
+    func loadMoreNewsFeed(page: Int, category: String) -> NewsFeedPageResult {
+        let hasMore = page < 5
+        let items = makeNewsFeedPage(page: page, category: category)
+        return NewsFeedPageResult(items: items, hasMore: hasMore)
+    }
+
+    private func makeInitialNewsFeed() -> [NewsFeedEntry] {
+        [
+            .strip(NewsFeedStripItem(
+                id: "strip-1",
+                brand: "金融界",
+                headline: "美联储利率决议前瞻：通胀担忧与政策分歧成关注焦点",
+                brandColor: UIColor(red: 0.85, green: 0.15, blue: 0.15, alpha: 1)
+            )),
+            .article(NewsArticleItem(
+                id: "article-1",
+                title: "美国财政部宣布扩大国债回购规模，美债收益率显著下跌",
+                source: "金融市场日报",
+                readCount: 902,
+                date: "08-20",
+                thumbnailBackground: UIColor(red: 0.92, green: 0.95, blue: 1.0, alpha: 1),
+                systemIcon: "flag.fill",
+                iconTint: UIColor(red: 0.20, green: 0.40, blue: 0.75, alpha: 1)
+            )),
+            .article(NewsArticleItem(
+                id: "article-2",
+                title: "7月国民经济运行总体平稳，新质生产力加快培育",
+                source: "中新经纬",
+                readCount: 651,
+                date: "08-20",
+                thumbnailBackground: UIColor(red: 0.90, green: 0.96, blue: 0.94, alpha: 1),
+                systemIcon: "chart.bar.doc.horizontal.fill",
+                iconTint: .abankPrimary
+            )),
+            .article(NewsArticleItem(
+                id: "article-3",
+                title: "商务部：中方愿与各方一道维护多边贸易体制",
+                source: "财经全视角",
+                readCount: 328,
+                date: "08-20",
+                thumbnailBackground: UIColor(red: 1.0, green: 0.96, blue: 0.90, alpha: 1),
+                systemIcon: "globe.asia.australia.fill",
+                iconTint: .abankOrange
+            )),
+            .topic(NewsFeedTopicItem(
+                id: "topic-1",
+                tag: "专题",
+                title: "投资小喇叭 | 普及金融知识，理性稳健投资",
+                bannerTitle: "投资小喇叭",
+                bannerSubtitle: "每日市场速递，把握投资脉搏",
+                backgroundColor: UIColor(red: 1.0, green: 0.55, blue: 0.20, alpha: 1),
+                systemIcon: "megaphone.fill",
+                iconTint: UIColor.white.withAlphaComponent(0.9)
+            )),
+            .article(NewsArticleItem(
+                id: "article-4",
+                title: "风口财评 | 演出票请给退改留好缓冲带",
+                source: "财经全视角",
+                readCount: 147,
+                date: "08-20",
+                thumbnailBackground: UIColor(red: 0.94, green: 0.92, blue: 0.98, alpha: 1),
+                systemIcon: "ticket.fill",
+                iconTint: UIColor(red: 0.45, green: 0.30, blue: 0.65, alpha: 1)
+            )),
+            .banner(NewsFeedBannerItem(
+                id: "banner-2",
+                title: "农银财富 | 稳健增值之选",
+                subtitle: "专业投研 安心托付",
+                backgroundColor: UIColor(red: 0.0, green: 0.58, blue: 0.45, alpha: 1),
+                systemIcon: "leaf.fill",
+                iconTint: UIColor.white.withAlphaComponent(0.9)
+            )),
+            .video(NewsFeedVideoItem(
+                id: "video-1",
+                title: "市场分析：美国20年期国债需求略显疲软",
+                backgroundColor: UIColor(red: 0.18, green: 0.22, blue: 0.32, alpha: 1),
+                systemIcon: "chart.line.uptrend.xyaxis",
+                iconTint: UIColor(red: 1.0, green: 0.78, blue: 0.30, alpha: 1)
+            )),
+            .article(NewsArticleItem(
+                id: "article-5",
+                title: "经纬早班车 | 美股三大指数小幅上涨，Moderna飙涨近17%",
+                source: "中新经纬",
+                readCount: 851,
+                date: "08-20",
+                thumbnailBackground: UIColor(red: 0.88, green: 0.94, blue: 1.0, alpha: 1),
+                systemIcon: "sunrise.fill",
+                iconTint: UIColor(red: 0.95, green: 0.55, blue: 0.20, alpha: 1)
+            )),
+            .article(NewsArticleItem(
+                id: "article-6",
+                title: "华尔街最担心的事要发生了?",
+                source: "财经全视角",
+                readCount: 10,
+                date: "08-20",
+                thumbnailBackground: UIColor(red: 0.92, green: 0.92, blue: 0.96, alpha: 1),
+                systemIcon: "exclamationmark.triangle.fill",
+                iconTint: .abankHighlight
+            )),
+            .article(NewsArticleItem(
+                id: "article-7",
+                title: "2026.08.20星期四",
+                source: "财经全视角",
+                readCount: 579,
+                date: "08-20",
+                thumbnailBackground: UIColor(red: 0.95, green: 0.93, blue: 0.90, alpha: 1),
+                systemIcon: "calendar",
+                iconTint: .abankOrange
+            )),
+            .topic(NewsFeedTopicItem(
+                id: "topic-2",
+                tag: "专题",
+                title: "财富轻攻略 | 解锁理财实用手册",
+                bannerTitle: "财富轻攻略",
+                bannerSubtitle: "理财干货，一看就会",
+                backgroundColor: UIColor(red: 1.0, green: 0.72, blue: 0.52, alpha: 1),
+                systemIcon: "book.closed.fill",
+                iconTint: UIColor.white.withAlphaComponent(0.9)
+            ))
+        ]
+    }
+
+    private func makeNewsFeedPage(page: Int, category: String) -> [NewsFeedEntry] {
+        let titles = [
+            "【\(category)】央行公开市场开展7000亿元逆回购操作",
+            "【\(category)】多家银行下调存款利率，储户如何配置资产",
+            "【\(category)】新能源汽车销量持续走高，产业链迎机遇",
+            "【\(category)】房地产支持政策再加码，一线城市成交回暖",
+            "【\(category)】基金二季报披露完毕，权益类仓位稳中有升",
+            "【\(category)】黄金价格高位震荡，短期关注美联储表态"
+        ]
+        let sources = ["财经全视角", "金融市场日报", "中新经纬", "金融界"]
+        let icons = ["chart.bar.fill", "yensign.circle.fill", "building.2.fill", "leaf.fill"]
+        let colors: [UIColor] = [
+            UIColor(red: 0.90, green: 0.96, blue: 0.94, alpha: 1),
+            UIColor(red: 0.94, green: 0.92, blue: 0.98, alpha: 1),
+            UIColor(red: 1.0, green: 0.96, blue: 0.90, alpha: 1),
+            UIColor(red: 0.88, green: 0.94, blue: 1.0, alpha: 1)
+        ]
+        let tints: [UIColor] = [.abankPrimary, .abankOrange, .abankTeal, .abankHighlight]
+
+        var entries: [NewsFeedEntry] = []
+        let baseIndex = (page - 1) * 6
+
+        for i in 0..<6 {
+            let idx = baseIndex + i
+            let title = titles[i % titles.count]
+            entries.append(.article(NewsArticleItem(
+                id: "page-\(page)-article-\(i)",
+                title: title,
+                source: sources[i % sources.count],
+                readCount: 50 + (idx * 37) % 900,
+                date: "08-20",
+                thumbnailBackground: colors[i % colors.count],
+                systemIcon: icons[i % icons.count],
+                iconTint: tints[i % tints.count]
+            )))
+        }
+
+        if page == 2 {
+            entries.insert(.topic(NewsFeedTopicItem(
+                id: "page-2-topic",
+                tag: "专题",
+                title: "匠心守护，智富未来 | 中国农业银行发布中期策略",
+                bannerTitle: "农银财富",
+                bannerSubtitle: "匠心守护 智富未来",
+                backgroundColor: UIColor(red: 0.0, green: 0.55, blue: 0.42, alpha: 1),
+                systemIcon: "leaf.circle.fill",
+                iconTint: UIColor.white.withAlphaComponent(0.9)
+            )), at: 2)
+        }
+
+        if page == 3 {
+            entries.insert(.video(NewsFeedVideoItem(
+                id: "page-3-video",
+                title: "美联储利率决议前瞻：通胀担忧与政策分歧成关注焦点",
+                backgroundColor: UIColor(red: 0.22, green: 0.28, blue: 0.38, alpha: 1),
+                systemIcon: "play.rectangle.fill",
+                iconTint: .white
+            )), at: 1)
+        }
+
+        return entries
+    }
+
     // MARK: - 我的
 
     func getMinePageData() -> MinePageData {

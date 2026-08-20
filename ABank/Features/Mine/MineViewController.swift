@@ -92,7 +92,7 @@ final class MineViewController: BaseViewController {
         customerManagerCard.snp.makeConstraints { make in
             make.top.equalTo(orderCard.snp.bottom).offset(sectionSpacing)
             make.leading.trailing.equalToSuperview().inset(horizontalInset)
-            make.bottom.equalToSuperview().offset(-Spacing.xl)
+            make.bottom.equalToSuperview().offset(-Spacing.pageBottom)
         }
     }
 

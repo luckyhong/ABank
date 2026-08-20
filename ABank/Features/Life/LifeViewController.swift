@@ -91,7 +91,7 @@ final class LifeViewController: BaseViewController {
         loadFinishedLabel.snp.makeConstraints { make in
             make.top.equalTo(masonryGrid.snp.bottom).offset(20)
             make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-Spacing.xl)
+            make.bottom.equalToSuperview().offset(-Spacing.pageBottom)
         }
 
         loadFinishedLabel.font = .systemFont(ofSize: 13)
@@ -133,12 +133,6 @@ final class LifeViewController: BaseViewController {
         headerHeightConstraint?.update(offset: headerContentHeight + safeTop)
         searchBarTopConstraint?.update(offset: safeTop + 2)
         contentTopConstraint?.update(offset: headerContentHeight + safeTop + 8)
-
-        let bottomInset = tabBarController?.tabBar.frame.height ?? 49
-        if scrollView.contentInset.bottom != bottomInset {
-            scrollView.contentInset.bottom = bottomInset
-            scrollView.verticalScrollIndicatorInsets.bottom = bottomInset
-        }
     }
 
     override func setupBindings() {

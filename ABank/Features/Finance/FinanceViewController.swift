@@ -120,7 +120,7 @@ final class WealthViewController: BaseViewController {
         studySection.snp.makeConstraints { make in
             make.top.equalTo(bondIndex.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(inset)
-            make.bottom.equalToSuperview().offset(-Spacing.xl)
+            make.bottom.equalToSuperview().offset(-Spacing.pageBottom)
         }
 
         headerBackground.backgroundColor = .white
@@ -158,12 +158,6 @@ final class WealthViewController: BaseViewController {
         headerHeightConstraint?.update(offset: headerContentHeight + safeTop)
         searchBarTopConstraint?.update(offset: safeTop + 2)
         contentTopConstraint?.update(offset: headerContentHeight + safeTop + 8)
-
-        let bottomInset = tabBarController?.tabBar.frame.height ?? 49
-        if scrollView.contentInset.bottom != bottomInset {
-            scrollView.contentInset.bottom = bottomInset
-            scrollView.verticalScrollIndicatorInsets.bottom = bottomInset
-        }
     }
 
     override func setupBindings() {

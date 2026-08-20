@@ -145,7 +145,7 @@ final class HomeViewController: BaseViewController {
         consumerProtection.snp.makeConstraints { make in
             make.top.equalTo(infoSection.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
-            make.bottom.equalToSuperview().offset(-24)
+            make.bottom.equalToSuperview().offset(-Spacing.pageBottom)
         }
 
         headerBackground.backgroundColor = .white
@@ -189,12 +189,6 @@ final class HomeViewController: BaseViewController {
         heroTopConstraint?.update(offset: headerContentHeight + safeTop + 4)
         topBackgroundHeightConstraint?.update(offset: headerContentHeight + safeTop + 210)
         topBackgroundGradient.frame = topBackgroundView.bounds
-
-        let bottomInset = tabBarController?.tabBar.frame.height ?? 49
-        if scrollView.contentInset.bottom != bottomInset {
-            scrollView.contentInset.bottom = bottomInset
-            scrollView.verticalScrollIndicatorInsets.bottom = bottomInset
-        }
 
         if !hasSetInitialOffset {
             hasSetInitialOffset = true
