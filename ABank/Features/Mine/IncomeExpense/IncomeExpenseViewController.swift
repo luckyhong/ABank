@@ -231,13 +231,18 @@ extension IncomeExpenseViewController: UITableViewDataSource, UITableViewDelegat
         let accountLabel = FinanceLedgerStore.shared.accountCardLabel(for: tx.accountId)
         let isLast = indexPath.row == sections[indexPath.section].transactions.count - 1
         cell.configure(transaction: tx, accountLabel: accountLabel, isLast: isLast)
-        cell.onTap = { [weak self] in self?.showToast(tx.title) }
+        cell.onTap = { [weak self] in self?.openDetail(for: tx) }
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let tx = sections[indexPath.section].transactions[indexPath.row]
-        showToast(tx.title)
+        openDetail(for: tx)
+    }
+
+    private func openDetail(for transaction: LedgerTransaction) {
+        let controller = IncomeExpenseDetailViewController(transaction: transaction)
+        navigationController?.pushViewController(controller, animated: true)
     }
 }

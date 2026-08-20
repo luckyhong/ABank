@@ -29,7 +29,8 @@ final class IncomeExpenseTransactionCell: UITableViewCell {
 
     func configure(transaction: LedgerTransaction, accountLabel: String, isLast: Bool) {
         titleLabel.text = transaction.title
-        subtitleLabel.text = "\(accountLabel) \(transaction.time)"
+        let displayTime = String(transaction.time.prefix(5))
+        subtitleLabel.text = "\(accountLabel) \(displayTime)"
 
         let prefix = transaction.direction == .income ? "+ ¥ " : "- ¥ "
         amountLabel.text = prefix + transaction.amount.abankPlainAmountString()

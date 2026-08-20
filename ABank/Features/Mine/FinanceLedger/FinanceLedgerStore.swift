@@ -12,7 +12,7 @@ extension Notification.Name {
 final class FinanceLedgerStore {
     static let shared = FinanceLedgerStore()
 
-    private let defaultsKey = "abank.financeLedger.record.v2"
+    private let defaultsKey = "abank.financeLedger.record.v3"
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
@@ -55,10 +55,35 @@ final class FinanceLedgerStore {
 
     func monthlyFlow(for month: String) -> MonthlyFlowSummary {
         let record = load()
-        let txs = record.transactions.filter { $0.date.hasPrefix(month) }
+        let txs = record.transactions.filter { $0.date.hasPrefix(month) && $0.includeInFlow }
         let expense = txs.filter { $0.direction == .expense }.reduce(0) { $0 + $1.amount }
         let income = txs.filter { $0.direction == .income }.reduce(0) { $0 + $1.amount }
         return MonthlyFlowSummary(expense: expense, income: income)
+    }
+
+    func transaction(id: String) -> LedgerTransaction? {
+        load().transactions.first(where: { $0.id == id })
+    }
+
+    func updateTransactionDetail(
+        id: String,
+        includeInFlow: Bool? = nil,
+        categoryId: String? = nil,
+        note: String? = nil
+    ) {
+        update { record in
+            guard let index = record.transactions.firstIndex(where: { $0.id == id }) else { return }
+            if let includeInFlow { record.transactions[index].includeInFlow = includeInFlow }
+            if let categoryId { record.transactions[index].categoryId = categoryId }
+            if let note { record.transactions[index].note = note }
+        }
+    }
+
+    func updateTransactionLedger(id: String, ledgerId: String?) {
+        update { record in
+            guard let index = record.transactions.firstIndex(where: { $0.id == id }) else { return }
+            record.transactions[index].ledgerId = ledgerId
+        }
     }
 
     func mineAssetLiability() -> MineAssetLiability {
@@ -153,8 +178,9 @@ final class FinanceLedgerStore {
             return lhs.time > rhs.time
         }
 
-        let expense = txs.filter { $0.direction == .expense }.reduce(0) { $0 + $1.amount }
-        let income = txs.filter { $0.direction == .income }.reduce(0) { $0 + $1.amount }
+        let flowTxs = txs.filter(\.includeInFlow)
+        let expense = flowTxs.filter { $0.direction == .expense }.reduce(0) { $0 + $1.amount }
+        let income = flowTxs.filter { $0.direction == .income }.reduce(0) { $0 + $1.amount }
 
         let grouped = Dictionary(grouping: txs) { tx -> Int in
             Int(tx.date.split(separator: "-").last ?? "0") ?? 0
@@ -351,16 +377,73 @@ final class FinanceLedgerStore {
     }
 
     private static func seedTransactions(accountId: String) -> [LedgerTransaction] {
-        [
-            LedgerTransaction(id: "tx_001", accountId: accountId, date: "2026-08-01", time: "09:12", title: "ATM取款", direction: .expense, amount: 1934.91, balanceAfter: 0, iconKey: "banknote", categoryId: "cash_withdraw"),
-            LedgerTransaction(id: "tx_002", accountId: accountId, date: "2026-08-02", time: "11:30", title: "转账-收入", direction: .income, amount: 3000, balanceAfter: 0, iconKey: "arrow.down.left", categoryId: "transfer_in"),
-            LedgerTransaction(id: "tx_003", accountId: accountId, date: "2026-08-10", time: "09:30", title: "工资", direction: .income, amount: 14_116.04, balanceAfter: 0, iconKey: "yensign.circle", categoryId: "salary"),
-            LedgerTransaction(id: "tx_004", accountId: accountId, date: "2026-08-10", time: "14:22", title: "微信支付", direction: .expense, amount: 571, balanceAfter: 0, iconKey: "message", categoryId: "third_party_out"),
-            LedgerTransaction(id: "tx_005", accountId: accountId, date: "2026-08-10", time: "16:45", title: "转账-欧梦瑶", direction: .expense, amount: 11_500, balanceAfter: 0, iconKey: "person.crop.circle", categoryId: "transfer_out"),
-            LedgerTransaction(id: "tx_006", accountId: accountId, date: "2026-08-11", time: "18:06", title: "财付通", direction: .income, amount: 89, balanceAfter: 0, iconKey: "creditcard", categoryId: "third_party_in"),
-            LedgerTransaction(id: "tx_007", accountId: accountId, date: "2026-08-15", time: "19:58", title: "支付宝", direction: .expense, amount: 10, balanceAfter: 0, iconKey: "a.circle", categoryId: "third_party_out"),
-            LedgerTransaction(id: "tx_008", accountId: accountId, date: "2026-08-15", time: "20:14", title: "抖音支付(河南...", direction: .expense, amount: 39, balanceAfter: 0, iconKey: "music.note", categoryId: "other_expense"),
-            LedgerTransaction(id: "tx_009", accountId: accountId, date: "2026-08-12", time: "10:20", title: "手工记账-餐饮", direction: .expense, amount: 68, balanceAfter: 0, iconKey: "pencil", categoryId: "other_expense", isManual: true)
+        let card = "6230****8472"
+        return [
+            LedgerTransaction(
+                id: "tx_001", accountId: accountId, date: "2026-08-01", time: "09:12:08",
+                title: "ATM取款", direction: .expense, amount: 1934.91, balanceAfter: 0,
+                iconKey: "banknote", categoryId: "cash_withdraw",
+                counterpartyName: "中国农业银行ATM", counterpartyAccount: "ATM****1201",
+                summary: "ATM取款", postscript: "现金支取", cardNumber: card, transactionType: "取现"
+            ),
+            LedgerTransaction(
+                id: "tx_002", accountId: accountId, date: "2026-08-02", time: "11:30:15",
+                title: "转账-收入", direction: .income, amount: 3000, balanceAfter: 0,
+                iconKey: "arrow.down.left", categoryId: "transfer_in",
+                counterpartyName: "张三", counterpartyAccount: "6228****3312",
+                summary: "转账", postscript: "还款", cardNumber: card, transactionType: "转账"
+            ),
+            LedgerTransaction(
+                id: "tx_003", accountId: accountId, date: "2026-08-10", time: "17:24:24",
+                title: "工资", direction: .income, amount: 14_116.04, balanceAfter: 0,
+                iconKey: "yensign.circle", categoryId: "salary",
+                counterpartyName: "安星达（西安）科技有限公司", counterpartyAccount: "26-1****0898",
+                summary: "工资", postscript: "7月工资", cardNumber: card, transactionType: "转账"
+            ),
+            LedgerTransaction(
+                id: "tx_004", accountId: accountId, date: "2026-08-10", time: "14:22:03",
+                title: "微信支付", direction: .expense, amount: 571, balanceAfter: 0,
+                iconKey: "message", categoryId: "third_party_out",
+                counterpartyName: "财付通支付科技有限公司", counterpartyAccount: "1000****8899",
+                summary: "微信支付", postscript: "消费", cardNumber: card, transactionType: "转账"
+            ),
+            LedgerTransaction(
+                id: "tx_005", accountId: accountId, date: "2026-08-10", time: "16:45:41",
+                title: "转账-欧梦瑶", direction: .expense, amount: 11_500, balanceAfter: 0,
+                iconKey: "person.crop.circle", categoryId: "transfer_out",
+                counterpartyName: "欧梦瑶", counterpartyAccount: "6217****5521",
+                summary: "转账", postscript: "生活费", cardNumber: card, transactionType: "转账"
+            ),
+            LedgerTransaction(
+                id: "tx_006", accountId: accountId, date: "2026-08-11", time: "18:06:12",
+                title: "财付通", direction: .income, amount: 89, balanceAfter: 0,
+                iconKey: "creditcard", categoryId: "third_party_in",
+                counterpartyName: "财付通支付科技有限公司", counterpartyAccount: "1000****8899",
+                summary: "财付通", postscript: "退款", cardNumber: card, transactionType: "转账"
+            ),
+            LedgerTransaction(
+                id: "tx_007", accountId: accountId, date: "2026-08-15", time: "19:58:06",
+                title: "支付宝", direction: .expense, amount: 10, balanceAfter: 0,
+                iconKey: "a.circle", categoryId: "third_party_out",
+                counterpartyName: "支付宝（中国）网络技术有限公司", counterpartyAccount: "2088****1024",
+                summary: "支付宝", postscript: "消费", cardNumber: card, transactionType: "转账"
+            ),
+            LedgerTransaction(
+                id: "tx_008", accountId: accountId, date: "2026-08-15", time: "20:14:19",
+                title: "抖音支付(河南好莱坞影院管理有限公司)", direction: .expense, amount: 39, balanceAfter: 0,
+                iconKey: "music.note", categoryId: "third_party_out",
+                counterpartyName: "河南好莱坞影院管理有限公司", counterpartyAccount: "7020****6346",
+                summary: "抖音支付",
+                postscript: "NA|202608150012342178 4127400300000|河南好莱坞影院管理有限公司",
+                cardNumber: card, transactionType: "转账"
+            ),
+            LedgerTransaction(
+                id: "tx_009", accountId: accountId, date: "2026-08-12", time: "10:20:00",
+                title: "手工记账-餐饮", direction: .expense, amount: 68, balanceAfter: 0,
+                iconKey: "pencil", categoryId: "other_expense", isManual: true,
+                counterpartyName: "手工记账", counterpartyAccount: "-",
+                summary: "餐饮", postscript: "午餐", cardNumber: card, transactionType: "记账"
+            )
         ]
     }
 }

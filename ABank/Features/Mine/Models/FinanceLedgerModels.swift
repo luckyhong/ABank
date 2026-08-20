@@ -39,7 +39,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
     let id: String
     let accountId: String
     let date: String          // yyyy-MM-dd
-    let time: String          // HH:mm
+    let time: String          // HH:mm 或 HH:mm:ss
     var title: String
     var direction: LedgerTransactionDirection
     var amount: Double        // 正数
@@ -49,6 +49,24 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
     var categoryId: String
     /// 是否手工记账
     var isManual: Bool
+    /// 是否计入收支汇总
+    var includeInFlow: Bool
+    /// 对方户名
+    var counterpartyName: String
+    /// 对方账户（可脱敏）
+    var counterpartyAccount: String
+    /// 交易摘要
+    var summary: String
+    /// 交易附言
+    var postscript: String
+    /// 交易卡号（可脱敏）
+    var cardNumber: String
+    /// 交易类型展示文案，如「转账」
+    var transactionType: String
+    /// 归属账本 id，空表示未选择
+    var ledgerId: String?
+    /// 用户备注
+    var note: String
 
     init(
         id: String,
@@ -61,7 +79,16 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         balanceAfter: Double,
         iconKey: String,
         categoryId: String,
-        isManual: Bool = false
+        isManual: Bool = false,
+        includeInFlow: Bool = true,
+        counterpartyName: String = "",
+        counterpartyAccount: String = "",
+        summary: String? = nil,
+        postscript: String = "",
+        cardNumber: String = "",
+        transactionType: String = "转账",
+        ledgerId: String? = nil,
+        note: String = ""
     ) {
         self.id = id
         self.accountId = accountId
@@ -74,6 +101,15 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         self.iconKey = iconKey
         self.categoryId = categoryId
         self.isManual = isManual
+        self.includeInFlow = includeInFlow
+        self.counterpartyName = counterpartyName
+        self.counterpartyAccount = counterpartyAccount
+        self.summary = summary ?? title
+        self.postscript = postscript
+        self.cardNumber = cardNumber
+        self.transactionType = transactionType
+        self.ledgerId = ledgerId
+        self.note = note
     }
 
     init(from decoder: Decoder) throws {
@@ -89,6 +125,49 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         iconKey = try container.decode(String.self, forKey: .iconKey)
         categoryId = try container.decodeIfPresent(String.self, forKey: .categoryId) ?? "other_expense"
         isManual = try container.decodeIfPresent(Bool.self, forKey: .isManual) ?? false
+        includeInFlow = try container.decodeIfPresent(Bool.self, forKey: .includeInFlow) ?? true
+        counterpartyName = try container.decodeIfPresent(String.self, forKey: .counterpartyName) ?? ""
+        counterpartyAccount = try container.decodeIfPresent(String.self, forKey: .counterpartyAccount) ?? ""
+        summary = try container.decodeIfPresent(String.self, forKey: .summary) ?? title
+        postscript = try container.decodeIfPresent(String.self, forKey: .postscript) ?? ""
+        cardNumber = try container.decodeIfPresent(String.self, forKey: .cardNumber) ?? ""
+        transactionType = try container.decodeIfPresent(String.self, forKey: .transactionType) ?? "转账"
+        ledgerId = try container.decodeIfPresent(String.self, forKey: .ledgerId)
+        note = try container.decodeIfPresent(String.self, forKey: .note) ?? ""
+    }
+
+    var datetimeText: String {
+        if time.count >= 8 {
+            return "\(date) \(time)"
+        }
+        return "\(date) \(time):00"
+    }
+
+    var categoryTitle: String {
+        IncomeExpenseFilterCatalog.title(for: categoryId) ?? categoryId
+    }
+
+    var signedAmountText: String {
+        let sign = direction == .income ? "+" : "-"
+        return "\(sign)\(amount.abankPlainAmountString())"
+    }
+}
+
+struct LedgerBookOption: Equatable, Identifiable {
+    let id: String
+    let title: String
+}
+
+enum LedgerBookCatalog {
+    static let options: [LedgerBookOption] = [
+        .init(id: "daily", title: "日常账本"),
+        .init(id: "family", title: "家庭账本"),
+        .init(id: "business", title: "生意账本")
+    ]
+
+    static func title(for id: String?) -> String? {
+        guard let id else { return nil }
+        return options.first(where: { $0.id == id })?.title
     }
 }
 
@@ -225,6 +304,26 @@ enum IncomeExpenseFilterCatalog {
     static let transferCategoryIds: Set<String> = Set(
         transferGroup.options.filter { !$0.isAll }.map(\.id)
     )
+
+    static func title(for categoryId: String) -> String? {
+        for group in allGroups {
+            if let option = group.options.first(where: { $0.id == categoryId && !$0.isAll }) {
+                return option.title
+            }
+        }
+        return nil
+    }
+
+    static func selectableOptions(for direction: LedgerTransactionDirection) -> [IncomeExpenseCategoryOption] {
+        let groups: [IncomeExpenseCategoryGroup]
+        switch direction {
+        case .income:
+            groups = [incomeGroup, transferGroup]
+        case .expense:
+            groups = [expenseGroup, transferGroup]
+        }
+        return groups.flatMap { $0.options.filter { !$0.isAll } }
+    }
 }
 
 struct IncomeExpenseQuery: Equatable {
