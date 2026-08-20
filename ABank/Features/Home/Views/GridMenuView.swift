@@ -8,107 +8,111 @@
 import UIKit
 import SnapKit
 
-struct GridMenuItem {
-    let title: String
-    let systemIcon: String
-}
-
 final class GridMenuView: UIView {
-    
-    private let items: [GridMenuItem]
-    private let columns = 4
-    
-    init(items: [GridMenuItem]) {
-        self.items = items
-        super.init(frame: .zero)
+
+    var onItemTapped: ((Int) -> Void)?
+
+    private let stack = UIStackView()
+    private let columns = 5
+    private var items: [HomeGridItem] = []
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setupUI()
     }
-    
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-    
-    private func setupUI() {
-        let container = UIView()
-        container.backgroundColor = .abankCardBackground
-        container.layer.cornerRadius = 14
-        container.layer.masksToBounds = true
-        addSubview(container)
-        container.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.alignment = .fill
-        stack.distribution = .fillEqually
-        stack.spacing = Spacing.md
-        stack.isLayoutMarginsRelativeArrangement = true
-        stack.layoutMargins = UIEdgeInsets(top: Spacing.md, left: Spacing.lg, bottom: Spacing.md, right: Spacing.lg)
-        container.addSubview(stack)
-        stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure(with items: [HomeGridItem]) {
+        self.items = items
+        stack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+
         let rows = Int(ceil(Double(items.count) / Double(columns)))
         for row in 0..<rows {
-            let hStack = UIStackView()
-            hStack.axis = .horizontal
-            hStack.alignment = .fill
-            hStack.distribution = .fillEqually
-            hStack.spacing = 0
-            stack.addArrangedSubview(hStack)
-            
+            let rowStack = UIStackView()
+            rowStack.axis = .horizontal
+            rowStack.distribution = .fillEqually
+            rowStack.alignment = .top
+            stack.addArrangedSubview(rowStack)
+
             let start = row * columns
             let end = min(start + columns, items.count)
-            let rowItems = items[start..<end]
-            for item in rowItems {
-                hStack.addArrangedSubview(cellView(title: item.title, icon: item.systemIcon))
+            for index in start..<end {
+                rowStack.addArrangedSubview(makeCell(item: items[index], index: index))
             }
-            if rowItems.count < columns {
-                // 填充占位，保持等宽
-                for _ in 0..<(columns - rowItems.count) {
-                    hStack.addArrangedSubview(UIView())
+            if end - start < columns {
+                for _ in 0..<(columns - (end - start)) {
+                    rowStack.addArrangedSubview(UIView())
                 }
             }
         }
     }
-    
-    private func cellView(title: String, icon: String) -> UIView {
-        let wrap = UIView()
-        let iconContainer = UIView()
-        iconContainer.backgroundColor = UIColor.abankPrimary.withAlphaComponent(0.08)
-        iconContainer.layer.cornerRadius = 18
-        
-        let iconView = UIImageView(image: UIImage(systemName: icon))
-        iconView.tintColor = .abankPrimary
-        iconView.contentMode = .scaleAspectFit
-        
-        let titleLabel = UILabel()
-        titleLabel.text = title
-        titleLabel.font = .abankSubheadline()
-        titleLabel.textColor = .abankTextPrimary
-        titleLabel.textAlignment = .center
-        titleLabel.numberOfLines = 1
-        
-        wrap.addSubview(iconContainer)
-        wrap.addSubview(titleLabel)
-        iconContainer.addSubview(iconView)
-        
-        iconContainer.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+
+    private func setupUI() {
+        backgroundColor = .clear
+        stack.axis = .vertical
+        stack.spacing = 18
+        addSubview(stack)
+        stack.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
+
+    private func makeCell(item: HomeGridItem, index: Int) -> UIView {
+        let wrap = UIControl()
+        wrap.tag = index
+        wrap.addTarget(self, action: #selector(itemTapped(_:)), for: .touchUpInside)
+
+        let icon = UIImageView(image: UIImage(systemName: item.systemIcon))
+        icon.tintColor = .abankTextPrimary
+        icon.contentMode = .scaleAspectFit
+
+        let title = UILabel()
+        title.text = item.title
+        title.font = .systemFont(ofSize: 12)
+        title.textColor = .abankTextPrimary
+        title.textAlignment = .center
+        title.adjustsFontSizeToFitWidth = true
+        title.minimumScaleFactor = 0.8
+
+        wrap.addSubview(icon)
+        wrap.addSubview(title)
+
+        icon.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(2)
             make.centerX.equalToSuperview()
-            make.size.equalTo(CGSize(width: 48, height: 48))
+            make.size.equalTo(30)
         }
-        iconView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.size.equalTo(24)
-        }
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(iconContainer.snp.bottom).offset(Spacing.sm)
+        title.snp.makeConstraints { make in
+            make.top.equalTo(icon.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview()
-            make.bottom.lessThanOrEqualToSuperview()
+            make.bottom.equalToSuperview()
         }
+
+        if let badge = item.badge {
+            let badgeLabel = UILabel()
+            badgeLabel.text = badge
+            badgeLabel.font = .systemFont(ofSize: 8, weight: .bold)
+            badgeLabel.textColor = .white
+            badgeLabel.backgroundColor = .abankBadge
+            badgeLabel.textAlignment = .center
+            badgeLabel.layer.cornerRadius = 6
+            badgeLabel.layer.masksToBounds = true
+            wrap.addSubview(badgeLabel)
+            badgeLabel.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.centerX.equalTo(icon.snp.trailing)
+                make.height.equalTo(12)
+                make.width.greaterThanOrEqualTo(24)
+            }
+        }
+
         return wrap
     }
+
+    @objc private func itemTapped(_ sender: UIControl) {
+        onItemTapped?(sender.tag)
+    }
 }
-
-

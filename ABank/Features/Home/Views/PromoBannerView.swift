@@ -8,28 +8,15 @@
 import UIKit
 import SnapKit
 
-struct PromoBannerItem {
-    let imageURL: URL?
-    let localImageName: String?
-    
-    init(imageURL: URL) {
-        self.imageURL = imageURL
-        self.localImageName = nil
-    }
-    
-    init(localImageName: String) {
-        self.localImageName = localImageName
-        self.imageURL = nil
-    }
-}
-
 final class PromoBannerView: UIView {
+
     private let collectionView: UICollectionView
     private let pageControl = UIPageControl()
-    private var items: [PromoBannerItem] = []
-    private var autoScrollTimer: Timer?
-    private var currentIndex: Int = 0
-    
+    private let adTag = AdTagLabel()
+    private var items: [HomePromoBannerItem] = []
+    private var timer: Timer?
+    private var currentIndex = 0
+
     override init(frame: CGRect) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -39,106 +26,96 @@ final class PromoBannerView: UIView {
         super.init(frame: frame)
         setupUI()
     }
-    
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-    
-    deinit {
-        autoScrollTimer?.invalidate()
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
-    
-    func configure(with items: [PromoBannerItem]) {
+
+    deinit {
+        timer?.invalidate()
+    }
+
+    func configure(with items: [HomePromoBannerItem]) {
         self.items = items
         pageControl.numberOfPages = items.count
         pageControl.isHidden = items.count <= 1
         collectionView.reloadData()
-        resetAutoScroll()
+        restartTimer()
     }
-    
+
     private func setupUI() {
-        layer.cornerRadius = 12
-        layer.masksToBounds = true
         backgroundColor = .abankCardBackground
-        
-        collectionView.register(PromoBannerCell.self, forCellWithReuseIdentifier: PromoBannerCell.reuseIdentifier)
+        layer.cornerRadius = CornerRadius.md
+        clipsToBounds = true
+
+        collectionView.backgroundColor = .clear
         collectionView.isPagingEnabled = true
         collectionView.showsHorizontalScrollIndicator = false
-        collectionView.backgroundColor = .clear
         collectionView.dataSource = self
         collectionView.delegate = self
+        collectionView.register(PromoBannerCell.self, forCellWithReuseIdentifier: PromoBannerCell.reuseIdentifier)
+
+        pageControl.currentPageIndicatorTintColor = .abankTextSecondary
+        pageControl.pageIndicatorTintColor = UIColor.abankTextTertiary.withAlphaComponent(0.35)
+        pageControl.transform = CGAffineTransform(scaleX: 0.65, y: 0.65)
+
         addSubview(collectionView)
+        addSubview(pageControl)
+        addSubview(adTag)
+
         collectionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.height.equalTo(160)
+            make.height.equalTo(112)
         }
-        
-        pageControl.currentPageIndicatorTintColor = .abankPrimary
-        pageControl.pageIndicatorTintColor = UIColor.abankTextTertiary.withAlphaComponent(0.3)
-        pageControl.addTarget(self, action: #selector(pageControlChanged(_:)), for: .valueChanged)
-        addSubview(pageControl)
         pageControl.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().offset(-Spacing.sm)
             make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-4)
+        }
+        adTag.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-8)
+            make.bottom.equalToSuperview().offset(-8)
         }
     }
-    
-    private func resetAutoScroll() {
-        autoScrollTimer?.invalidate()
+
+    private func restartTimer() {
+        timer?.invalidate()
         guard items.count > 1 else { return }
-        autoScrollTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 4.0, repeats: true) { [weak self] _ in
             self?.scrollToNext()
         }
     }
-    
+
     private func scrollToNext() {
         guard items.count > 1 else { return }
         currentIndex = (currentIndex + 1) % items.count
-        let indexPath = IndexPath(item: currentIndex, section: 0)
-        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+        collectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredHorizontally, animated: true)
         pageControl.currentPage = currentIndex
-    }
-    
-    @objc private func pageControlChanged(_ sender: UIPageControl) {
-        let index = sender.currentPage
-        currentIndex = index
-        let indexPath = IndexPath(item: index, section: 0)
-        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
-        resetAutoScroll()
     }
 }
 
-extension PromoBannerView: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+extension PromoBannerView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return items.count
+        items.count
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PromoBannerCell.reuseIdentifier, for: indexPath) as? PromoBannerCell else {
-            return UICollectionViewCell()
-        }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PromoBannerCell.reuseIdentifier, for: indexPath) as! PromoBannerCell
         cell.configure(with: items[indexPath.item])
         return cell
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return collectionView.bounds.size
+        collectionView.bounds.size
     }
-    
+
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        autoScrollTimer?.invalidate()
+        timer?.invalidate()
     }
-    
+
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let page = Int(round(scrollView.contentOffset.x / max(scrollView.bounds.width, 1)))
         currentIndex = page
         pageControl.currentPage = page
-        resetAutoScroll()
-    }
-    
-    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        let page = Int(round(scrollView.contentOffset.x / max(scrollView.bounds.width, 1)))
-        currentIndex = page
-        pageControl.currentPage = page
+        restartTimer()
     }
 }
-
-

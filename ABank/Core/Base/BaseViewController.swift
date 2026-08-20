@@ -36,6 +36,7 @@ class BaseViewController: UIViewController {
         configureNavigationAppearance()
         setupLoading()
         setupUI()
+        setupNavigationBar()
         setupBindings()
     }
     
