@@ -155,7 +155,8 @@ final class MineViewController: BaseViewController {
         }
 
         assetLiabilityCard.onTap = { [weak self] in
-            self?.showToast("资产负债")
+            let controller = AssetLiabilityViewController()
+            self?.navigationController?.pushViewController(controller, animated: true)
         }
         assetLiabilityCard.onBillTapped = { [weak self] in
             self?.showToast("月度账单")
