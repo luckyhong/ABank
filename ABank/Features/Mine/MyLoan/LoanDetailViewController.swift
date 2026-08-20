@@ -70,10 +70,10 @@ final class LoanDetailViewController: BaseViewController {
         scrollView.alwaysBounceVertical = true
 
         totalAmountLabel.font = amountFont
-        totalAmountLabel.textColor = .abankTextPrimary
+        totalAmountLabel.textColor = .abankAmount
         totalAmountLabel.textAlignment = .center
         usedAmountLabel.font = amountFont
-        usedAmountLabel.textColor = .abankTextPrimary
+        usedAmountLabel.textColor = .abankAmount
         usedAmountLabel.textAlignment = .center
 
         totalTitleLabel.text = "总额度(元)"
@@ -144,8 +144,16 @@ final class LoanDetailViewController: BaseViewController {
             make.height.equalTo(44)
         }
 
-        actionBar.onPrepayTapped = { [weak self] in self?.showToast("提前还款") }
-        actionBar.onUsageTapped = { [weak self] in self?.showToast("使用记录") }
+        actionBar.onPrepayTapped = { [weak self] in
+            guard let self else { return }
+            let controller = LoanPrepaymentViewController(contractId: self.contractId)
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
+        actionBar.onUsageTapped = { [weak self] in
+            guard let self else { return }
+            let controller = LoanUsageRecordsViewController(contractId: self.contractId)
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
 
         applyContract()
     }
@@ -203,7 +211,10 @@ final class LoanDetailViewController: BaseViewController {
     }
 
     @objc private func serviceTapped() { showToast("客服") }
-    @objc private func repaymentDetailTapped() { showToast("还款详情") }
+    @objc private func repaymentDetailTapped() {
+        let controller = LoanRepaymentDetailViewController(contractId: contractId)
+        navigationController?.pushViewController(controller, animated: true)
+    }
 }
 
 // MARK: - Gauge
@@ -239,7 +250,7 @@ private final class LoanAvailableGaugeView: UIView {
 
         valueLabel.font = UIFont(name: "TimesNewRomanPSMT", size: 28)
             ?? .systemFont(ofSize: 28, weight: .regular)
-        valueLabel.textColor = UIColor(red: 80 / 255, green: 80 / 255, blue: 80 / 255, alpha: 1)
+        valueLabel.textColor = .abankAmount
         valueLabel.textAlignment = .center
 
         addSubview(titleLabel)

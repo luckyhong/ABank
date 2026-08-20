@@ -59,11 +59,11 @@ final class IncomeExpenseSummaryCardView: UIView {
         gradientLayer.endPoint = CGPoint(x: 1, y: 1)
         card.layer.insertSublayer(gradientLayer, at: 0)
 
-        monthNumberLabel.font = .systemFont(ofSize: 32, weight: .bold)
-        monthNumberLabel.textColor = .abankTextPrimary
+        monthNumberLabel.font = .systemFont(ofSize: 32, weight: .regular)
+        monthNumberLabel.textColor = .abankAmount
 
-        monthUnitLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        monthUnitLabel.textColor = .abankTextPrimary
+        monthUnitLabel.font = .systemFont(ofSize: 16, weight: .regular)
+        monthUnitLabel.textColor = .abankAmount
 
         let infoConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .regular)
         infoButton.setImage(UIImage(systemName: "info.circle", withConfiguration: infoConfig), for: .normal)
@@ -81,8 +81,8 @@ final class IncomeExpenseSummaryCardView: UIView {
         analysisButton.addTarget(self, action: #selector(analysisTapped), for: .touchUpInside)
 
         [expenseAmountLabel, incomeAmountLabel].forEach {
-            $0.font = .systemFont(ofSize: 24, weight: .bold)
-            $0.textColor = .abankTextPrimary
+            $0.font = .systemFont(ofSize: 24, weight: .regular)
+            $0.textColor = .abankAmount
             $0.adjustsFontSizeToFitWidth = true
             $0.minimumScaleFactor = 0.7
         }

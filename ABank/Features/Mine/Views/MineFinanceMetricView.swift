@@ -47,8 +47,8 @@ final class MineFinanceMetricView: UIView {
             $0.textColor = .abankTextSecondary
         }
         [leftAmountLabel, rightAmountLabel].forEach {
-            $0.font = .systemFont(ofSize: 22, weight: .bold)
-            $0.textColor = .abankTextPrimary
+            $0.font = .systemFont(ofSize: 22, weight: .regular)
+            $0.textColor = .abankAmount
             $0.adjustsFontSizeToFitWidth = true
             $0.minimumScaleFactor = 0.7
         }

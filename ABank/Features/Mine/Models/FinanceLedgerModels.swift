@@ -463,6 +463,166 @@ struct MyLoanPageData {
     let tip: String
 }
 
+// MARK: - 贷款还款详情 / 使用记录
+
+enum LoanRepaymentTab: Int, Equatable {
+    case plan = 0
+    case detail = 1
+}
+
+enum LoanRepaymentQuickRange: Equatable {
+    case threeMonths
+    case oneYear
+    case custom
+}
+
+enum LoanRepaymentSortOrder: Equatable {
+    /// 由近及远
+    case nearToFar
+    /// 由远及近
+    case farToNear
+}
+
+struct LoanRepaymentFilter: Equatable {
+    var quickRange: LoanRepaymentQuickRange
+    var startDate: String   // yyyy-MM-dd
+    var endDate: String     // yyyy-MM-dd
+    var sortOrder: LoanRepaymentSortOrder
+
+    static func `default`(referenceDate: Date = Date()) -> LoanRepaymentFilter {
+        let calendar = Calendar.current
+        let end = referenceDate
+        let start = calendar.date(byAdding: .month, value: -3, to: end) ?? end
+        return LoanRepaymentFilter(
+            quickRange: .threeMonths,
+            startDate: Self.string(from: start),
+            endDate: Self.string(from: end),
+            sortOrder: .nearToFar
+        )
+    }
+
+    mutating func applyQuickRange(_ range: LoanRepaymentQuickRange, referenceDate: Date = Date()) {
+        quickRange = range
+        let calendar = Calendar.current
+        let end = referenceDate
+        let months = range == .oneYear ? -12 : -3
+        let start = calendar.date(byAdding: .month, value: months, to: end) ?? end
+        // 计划含近未来期次：结束日向后延伸同等跨度
+        let futureEnd = calendar.date(byAdding: .month, value: abs(months), to: end) ?? end
+        startDate = Self.string(from: start)
+        endDate = Self.string(from: futureEnd)
+        sortOrder = .nearToFar
+    }
+
+    mutating func applyCustom(start: String, end: String, sortOrder: LoanRepaymentSortOrder) {
+        quickRange = .custom
+        startDate = start
+        endDate = end
+        self.sortOrder = sortOrder
+    }
+
+    static func string(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
+    }
+
+    static func date(from string: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.date(from: string)
+    }
+}
+
+struct LoanRepaymentPlanItem: Equatable, Identifiable {
+    let id: String
+    let contractNumber: String
+    let period: Int
+    let date: String
+    let repaymentAmount: Double
+    let principal: Double
+    let interest: Double
+    let balance: Double
+}
+
+struct LoanRepaymentDetailItem: Equatable, Identifiable {
+    let id: String
+    let contractNumber: String
+    let date: String
+    let principal: Double
+    let interest: Double
+    let penalty: Double
+    let compoundInterest: Double
+}
+
+struct LoanUsageRecord: Equatable, Identifiable {
+    let id: String
+    let title: String
+    let dateTime: String   // yyyy-MM-dd HH:mm
+    let totalAmount: Double
+    let principal: Double
+    let interest: Double
+    let penalty: Double
+    let compoundPenalty: Double
+}
+
+struct LoanRepaymentPageData {
+    let planItems: [LoanRepaymentPlanItem]
+    let detailItems: [LoanRepaymentDetailItem]
+}
+
+struct LoanUsageRecordsPageData {
+    let records: [LoanUsageRecord]
+    let hasMore: Bool
+}
+
+// MARK: - 提前还款 / 本月·下月应还
+
+struct LoanPrepaymentInfo: Equatable {
+    let voucherNumber: String
+    let contractNumber: String
+    let maturityDate: String
+    let usageDate: String
+    let annualRatePercent: Double
+    let unpaidPrincipal: Double
+}
+
+enum LoanDuePeriod: Equatable {
+    case thisMonth
+    case nextMonth
+
+    var title: String {
+        switch self {
+        case .thisMonth: return "本月应还"
+        case .nextMonth: return "下月应还"
+        }
+    }
+
+    var amountCaption: String {
+        switch self {
+        case .thisMonth: return "应还合计(元)"
+        case .nextMonth: return "待还合计(元)"
+        }
+    }
+}
+
+struct LoanDueInstallment: Equatable, Identifiable {
+    let id: String
+    let date: String
+    let amount: Double
+    let loanName: String
+    let contractNumber: String
+}
+
+struct LoanDuePageData: Equatable {
+    let period: LoanDuePeriod
+    let totalAmount: Double
+    let installments: [LoanDueInstallment]
+    let tip: String
+}
+
 extension FinanceLedgerRecord {
     static let defaultAccountId = "acct_8472"
     static let defaultLoanId = "loan_housing"

@@ -55,8 +55,8 @@ final class MyLoanSummaryView: UIView {
     private func setupUI() {
         backgroundColor = .white
 
-        monthlyDueAmountLabel.font = .systemFont(ofSize: 32, weight: .medium)
-        monthlyDueAmountLabel.textColor = .abankTextPrimary
+        monthlyDueAmountLabel.font = .systemFont(ofSize: 32, weight: .regular)
+        monthlyDueAmountLabel.textColor = .abankAmount
         monthlyDueAmountLabel.textAlignment = .center
 
         monthlyDueTitleLabel.text = "本月应还(元)"
@@ -73,8 +73,8 @@ final class MyLoanSummaryView: UIView {
         repaymentButton.contentEdgeInsets = UIEdgeInsets(top: 5, left: 12, bottom: 5, right: 12)
         repaymentButton.addTarget(self, action: #selector(repaymentTapped), for: .touchUpInside)
 
-        unpaidAmountLabel.font = .systemFont(ofSize: 18, weight: .medium)
-        unpaidAmountLabel.textColor = .abankTextPrimary
+        unpaidAmountLabel.font = .systemFont(ofSize: 18, weight: .regular)
+        unpaidAmountLabel.textColor = .abankAmount
         unpaidAmountLabel.textAlignment = .center
 
         unpaidTitleLabel.text = "未还本金总计(元)"
@@ -92,7 +92,7 @@ final class MyLoanSummaryView: UIView {
         unpaidTitleRow.addArrangedSubview(unpaidTitleLabel)
         unpaidTitleRow.addArrangedSubview(eyeButton)
 
-        availableAmountLabel.font = .systemFont(ofSize: 18, weight: .medium)
+        availableAmountLabel.font = .systemFont(ofSize: 18, weight: .regular)
         availableAmountLabel.textColor = UIColor(red: 240 / 255, green: 170 / 255, blue: 70 / 255, alpha: 1)
         availableAmountLabel.textAlignment = .center
 

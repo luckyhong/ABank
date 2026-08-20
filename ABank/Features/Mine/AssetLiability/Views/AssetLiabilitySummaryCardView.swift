@@ -56,8 +56,8 @@ final class AssetLiabilitySummaryCardView: UIView {
         card.addShadow(color: .black, opacity: 0.06, offset: CGSize(width: 0, height: 2), radius: 8)
 
         [assetsAmountLabel, liabilitiesAmountLabel].forEach {
-            $0.font = .systemFont(ofSize: 26, weight: .bold)
-            $0.textColor = .abankTextPrimary
+            $0.font = .systemFont(ofSize: 26, weight: .regular)
+            $0.textColor = .abankAmount
             $0.adjustsFontSizeToFitWidth = true
             $0.minimumScaleFactor = 0.65
         }

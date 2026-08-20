@@ -30,6 +30,8 @@ extension UIColor {
     static let abankTextPrimary = UIColor(red: 34 / 255, green: 34 / 255, blue: 34 / 255, alpha: 1)
     static let abankTextSecondary = UIColor(red: 102 / 255, green: 102 / 255, blue: 102 / 255, alpha: 1)
     static let abankTextTertiary = UIColor(red: 153 / 255, green: 153 / 255, blue: 153 / 255, alpha: 1)
+    /// 大额金额展示色（略浅于主文字，避免过粗过黑）
+    static let abankAmount = UIColor(red: 88 / 255, green: 88 / 255, blue: 88 / 255, alpha: 1)
 
     // MARK: - 功能色
     static let abankSuccess = UIColor(red: 0 / 255, green: 179 / 255, blue: 102 / 255, alpha: 1)

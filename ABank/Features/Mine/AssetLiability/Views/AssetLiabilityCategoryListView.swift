@@ -121,8 +121,8 @@ private final class AssetLiabilityCategoryHeaderView: UIControl {
         infoIcon.tintColor = UIColor(red: 190 / 255, green: 190 / 255, blue: 190 / 255, alpha: 1)
         infoIcon.contentMode = .scaleAspectFit
 
-        amountLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        amountLabel.textColor = .abankTextPrimary
+        amountLabel.font = .systemFont(ofSize: 16, weight: .regular)
+        amountLabel.textColor = .abankAmount
 
         let arrowConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .medium)
         arrowIcon.image = UIImage(systemName: "chevron.right", withConfiguration: arrowConfig)
@@ -198,7 +198,8 @@ private final class AssetLiabilityItemRowView: UIControl {
         } else {
             amountLabel.text = item.amount.abankPlainAmountString()
         }
-        amountLabel.font = .systemFont(ofSize: isLoanItem ? 16 : 15, weight: .medium)
+        amountLabel.font = .systemFont(ofSize: isLoanItem ? 16 : 15, weight: .regular)
+        amountLabel.textColor = .abankAmount
 
         subtitleLabel.text = item.subtitle
         subtitleLabel.isHidden = item.subtitle == nil
@@ -220,7 +221,7 @@ private final class AssetLiabilityItemRowView: UIControl {
     }
 
     private func setupUI() {
-        amountLabel.textColor = .abankTextPrimary
+        amountLabel.textColor = .abankAmount
         amountLabel.textAlignment = .right
 
         subtitleLabel.font = .systemFont(ofSize: 12)

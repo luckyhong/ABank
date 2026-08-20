@@ -74,7 +74,7 @@ final class MineAssetStatsCardView: UIView {
         let wrap = UIView()
         let valueLabel = UILabel()
         valueLabel.text = "\(stat.value)"
-        valueLabel.font = .systemFont(ofSize: 28, weight: .bold)
+        valueLabel.font = .systemFont(ofSize: 28, weight: .regular)
         valueLabel.textColor = UIColor(red: 0.95, green: 0.82, blue: 0.55, alpha: 1)
         valueLabel.textAlignment = .center
 

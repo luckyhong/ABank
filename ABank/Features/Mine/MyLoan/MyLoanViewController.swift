@@ -92,7 +92,10 @@ final class MyLoanViewController: BaseViewController {
             make.bottom.equalToSuperview().offset(-Spacing.pageBottom - 24)
         }
 
-        summaryView.onRepaymentDetailTapped = { [weak self] in self?.showToast("应还详情") }
+        summaryView.onRepaymentDetailTapped = { [weak self] in
+            let controller = LoanDueViewController(period: .thisMonth)
+            self?.navigationController?.pushViewController(controller, animated: true)
+        }
         summaryView.onEyeTapped = { [weak self] in
             // summaryView 内部已切换；此处同步 VC 状态，供 reload 后恢复
             self?.isAmountVisible.toggle()

@@ -12,7 +12,7 @@ extension Notification.Name {
 final class FinanceLedgerStore {
     static let shared = FinanceLedgerStore()
 
-    private let defaultsKey = "abank.financeLedger.record.v4"
+    private let defaultsKey = "abank.financeLedger.record.v5"
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
@@ -346,6 +346,243 @@ final class FinanceLedgerStore {
         save(record)
     }
 
+    // MARK: - 贷款还款 / 使用记录
+
+    func loanRepaymentPageData(
+        contractId: String,
+        filter: LoanRepaymentFilter
+    ) -> LoanRepaymentPageData {
+        let contract = loanContract(id: contractId)
+        let contractNumber = contract?.contractNumber.isEmpty == false
+            ? (contract?.contractNumber ?? "")
+            : "26135157700004774"
+
+        let plans = Self.seedRepaymentPlans(contractNumber: contractNumber)
+            .filter { Self.isDate($0.date, in: filter) }
+            .sorted { lhs, rhs in
+                filter.sortOrder == .nearToFar
+                    ? lhs.date > rhs.date || (lhs.date == rhs.date && lhs.period > rhs.period)
+                    : lhs.date < rhs.date || (lhs.date == rhs.date && lhs.period < rhs.period)
+            }
+
+        let details = Self.seedRepaymentDetails(contractNumber: contractNumber)
+            .filter { Self.isDate($0.date, in: filter) }
+            .sorted { lhs, rhs in
+                filter.sortOrder == .nearToFar ? lhs.date > rhs.date : lhs.date < rhs.date
+            }
+
+        return LoanRepaymentPageData(planItems: plans, detailItems: details)
+    }
+
+    func loanUsageRecordsPageData(
+        contractId: String,
+        page: Int,
+        pageSize: Int = 10
+    ) -> LoanUsageRecordsPageData {
+        _ = contractId
+        let all = Self.seedUsageRecords()
+        let start = max(0, page * pageSize)
+        guard start < all.count else {
+            return LoanUsageRecordsPageData(records: [], hasMore: false)
+        }
+        let end = min(all.count, start + pageSize)
+        let slice = Array(all[start..<end])
+        return LoanUsageRecordsPageData(records: slice, hasMore: end < all.count)
+    }
+
+    func loanPrepaymentInfo(contractId: String) -> LoanPrepaymentInfo? {
+        guard let contract = loanContract(id: contractId) else { return nil }
+        return LoanPrepaymentInfo(
+            voucherNumber: "610220170047751",
+            contractNumber: contract.contractNumber.isEmpty
+                ? "26135157700004774"
+                : contract.contractNumber,
+            maturityDate: "2037-10-08",
+            usageDate: "2017-10-09",
+            annualRatePercent: contract.annualRatePercent,
+            unpaidPrincipal: contract.unpaidPrincipal
+        )
+    }
+
+    func loanDuePageData(period: LoanDuePeriod) -> LoanDuePageData {
+        let tip = "温馨提示：以上内容仅供参考，如需了解详情请联系您的客户经理。"
+        let contracts = load().loanContracts
+        switch period {
+        case .thisMonth:
+            // 参考日 2026-08：本月已还清，应还为 0
+            return LoanDuePageData(
+                period: .thisMonth,
+                totalAmount: contracts.reduce(0) { $0 + $1.monthlyDue },
+                installments: [],
+                tip: tip
+            )
+        case .nextMonth:
+            let items: [LoanDueInstallment] = contracts.map { contract in
+                LoanDueInstallment(
+                    id: "due_next_\(contract.id)",
+                    date: "2026-09-09",
+                    amount: 2_934.91,
+                    loanName: contract.name,
+                    contractNumber: contract.contractNumber.isEmpty
+                        ? "26135157700004774"
+                        : contract.contractNumber
+                )
+            }
+            let total = items.reduce(0) { $0 + $1.amount }
+            return LoanDuePageData(
+                period: .nextMonth,
+                totalAmount: total,
+                installments: items,
+                tip: tip
+            )
+        }
+    }
+
+    private static func isDate(_ date: String, in filter: LoanRepaymentFilter) -> Bool {
+        date >= filter.startDate && date <= filter.endDate
+    }
+
+    private static func seedRepaymentPlans(contractNumber: String) -> [LoanRepaymentPlanItem] {
+        let payment = 2_934.91
+        var balance = 334_420.99
+        var principal = 2_037.71
+        let calendar = Calendar(identifier: .gregorian)
+        var components = DateComponents(year: 2026, month: 6, day: 9)
+        var items: [LoanRepaymentPlanItem] = []
+
+        for period in 104...120 {
+            guard let date = calendar.date(from: components) else { break }
+            let roundedPrincipal = (principal * 100).rounded() / 100
+            let roundedInterest = ((payment - roundedPrincipal) * 100).rounded() / 100
+            balance = max(0, ((balance - roundedPrincipal) * 100).rounded() / 100)
+            items.append(
+                LoanRepaymentPlanItem(
+                    id: "plan_\(period)",
+                    contractNumber: contractNumber,
+                    period: period,
+                    date: LoanRepaymentFilter.string(from: date),
+                    repaymentAmount: payment,
+                    principal: roundedPrincipal,
+                    interest: roundedInterest,
+                    balance: balance
+                )
+            )
+            principal += 5.45
+            if let next = calendar.date(byAdding: .month, value: 1, to: date) {
+                components = calendar.dateComponents([.year, .month, .day], from: next)
+            }
+        }
+
+        let overrides: [(Int, String, Double, Double, Double, Double)] = [
+            (107, "2026-09-09", 2_934.91, 2_054.06, 880.85, 328_264.87),
+            (108, "2026-10-09", 2_934.91, 2_059.54, 875.37, 326_205.33),
+            (109, "2026-11-09", 2_934.91, 2_065.03, 869.88, 324_140.30)
+        ]
+        for item in overrides {
+            guard let idx = items.firstIndex(where: { $0.period == item.0 }) else { continue }
+            items[idx] = LoanRepaymentPlanItem(
+                id: items[idx].id,
+                contractNumber: contractNumber,
+                period: item.0,
+                date: item.1,
+                repaymentAmount: item.2,
+                principal: item.3,
+                interest: item.4,
+                balance: item.5
+            )
+        }
+        return items
+    }
+
+    private static func seedRepaymentDetails(contractNumber: String) -> [LoanRepaymentDetailItem] {
+        let rows: [(String, Double, Double)] = [
+            ("2026-03-09", 2_021.45, 913.46),
+            ("2026-04-09", 2_026.84, 908.07),
+            ("2026-05-09", 2_032.26, 902.65),
+            ("2026-06-09", 2_037.71, 897.20),
+            ("2026-07-09", 2_043.15, 891.76),
+            ("2026-08-09", 2_048.60, 886.31),
+            ("2025-12-09", 2_005.12, 929.79),
+            ("2025-09-09", 1_988.40, 946.51)
+        ]
+        return rows.enumerated().map { index, row in
+            LoanRepaymentDetailItem(
+                id: "detail_\(index)",
+                contractNumber: contractNumber,
+                date: row.0,
+                principal: row.1,
+                interest: row.2,
+                penalty: 0,
+                compoundInterest: 0
+            )
+        }
+    }
+
+    private static func seedUsageRecords() -> [LoanUsageRecord] {
+        [
+            LoanUsageRecord(
+                id: "usage_001", title: "还款", dateTime: "2026-08-09 00:48",
+                totalAmount: 2_934.91, principal: 2_048.60, interest: 886.31,
+                penalty: 0, compoundPenalty: 0
+            ),
+            LoanUsageRecord(
+                id: "usage_002", title: "还款", dateTime: "2026-07-09 00:48",
+                totalAmount: 2_934.91, principal: 2_043.15, interest: 891.76,
+                penalty: 0, compoundPenalty: 0
+            ),
+            LoanUsageRecord(
+                id: "usage_003", title: "还款", dateTime: "2026-06-09 00:48",
+                totalAmount: 2_934.91, principal: 2_037.71, interest: 897.20,
+                penalty: 0, compoundPenalty: 0
+            ),
+            LoanUsageRecord(
+                id: "usage_004", title: "还款", dateTime: "2026-05-09 00:48",
+                totalAmount: 2_934.91, principal: 2_032.26, interest: 902.65,
+                penalty: 0, compoundPenalty: 0
+            ),
+            LoanUsageRecord(
+                id: "usage_005", title: "还款", dateTime: "2026-04-09 00:48",
+                totalAmount: 2_934.91, principal: 2_026.84, interest: 908.07,
+                penalty: 0, compoundPenalty: 0
+            ),
+            LoanUsageRecord(
+                id: "usage_006", title: "还款", dateTime: "2026-03-09 00:48",
+                totalAmount: 2_934.91, principal: 2_021.45, interest: 913.46,
+                penalty: 0, compoundPenalty: 0
+            ),
+            LoanUsageRecord(
+                id: "usage_007", title: "还款", dateTime: "2026-02-09 00:48",
+                totalAmount: 2_934.91, principal: 2_016.08, interest: 918.83,
+                penalty: 0, compoundPenalty: 0
+            ),
+            LoanUsageRecord(
+                id: "usage_008", title: "还款", dateTime: "2026-01-09 00:48",
+                totalAmount: 2_934.91, principal: 2_010.72, interest: 924.19,
+                penalty: 0, compoundPenalty: 0
+            ),
+            LoanUsageRecord(
+                id: "usage_009", title: "还款", dateTime: "2025-12-09 00:48",
+                totalAmount: 2_934.91, principal: 2_005.12, interest: 929.79,
+                penalty: 0, compoundPenalty: 0
+            ),
+            LoanUsageRecord(
+                id: "usage_010", title: "还款", dateTime: "2025-11-09 00:48",
+                totalAmount: 2_934.91, principal: 1_999.80, interest: 935.11,
+                penalty: 0, compoundPenalty: 0
+            ),
+            LoanUsageRecord(
+                id: "usage_011", title: "还款", dateTime: "2025-10-09 00:48",
+                totalAmount: 2_934.91, principal: 1_994.20, interest: 940.71,
+                penalty: 0, compoundPenalty: 0
+            ),
+            LoanUsageRecord(
+                id: "usage_012", title: "还款", dateTime: "2025-09-09 00:48",
+                totalAmount: 2_934.91, principal: 1_988.40, interest: 946.51,
+                penalty: 0, compoundPenalty: 0
+            )
+        ]
+    }
+
     // MARK: - 种子数据
 
     static func makeSeedRecord() -> FinanceLedgerRecord {
@@ -371,7 +608,7 @@ final class FinanceLedgerStore {
                     monthlyDue: 0,
                     availableLimit: 0,
                     isDetailExpanded: true,
-                    contractNumber: "26135145400007286",
+                    contractNumber: "26135157700004774",
                     signingDate: "2017-09-15",
                     disbursementDateText: "2017年10月9日",
                     loanAmount: 670_000,
