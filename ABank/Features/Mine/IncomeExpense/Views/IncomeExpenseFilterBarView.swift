@@ -15,6 +15,7 @@ final class IncomeExpenseFilterBarView: UIView {
     private let monthButton = IncomeExpenseFilterButton(alignment: .leading)
     private let accountButton = IncomeExpenseFilterButton(alignment: .center)
     private let filterButton = IncomeExpenseFilterButton(alignment: .trailing)
+    private let stackView = UIStackView()
     private let bottomLine = UIView()
 
     override init(frame: CGRect) {
@@ -26,49 +27,55 @@ final class IncomeExpenseFilterBarView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(month: String, account: String) {
+    func configure(month: String, account: String, filterActive: Bool = false) {
         monthButton.setTitle(month)
         accountButton.setTitle(account)
-        filterButton.setTitle("筛选")
+        filterButton.setTitle(filterActive ? "已筛选" : "筛选")
+        filterButton.setHighlighted(filterActive)
     }
 
     private func setupUI() {
         backgroundColor = .white
+        isUserInteractionEnabled = true
         bottomLine.backgroundColor = .abankSeparator
 
-        addSubview(monthButton)
-        addSubview(accountButton)
-        addSubview(filterButton)
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        stackView.alignment = .fill
+        stackView.spacing = 0
+        stackView.isUserInteractionEnabled = true
+
+        addSubview(stackView)
+        stackView.addArrangedSubview(monthButton)
+        stackView.addArrangedSubview(accountButton)
+        stackView.addArrangedSubview(filterButton)
         addSubview(bottomLine)
 
-        monthButton.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(Spacing.md)
+        stackView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(Spacing.md)
             make.top.bottom.equalToSuperview()
             make.height.equalTo(44)
-        }
-        accountButton.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.bottom.equalToSuperview()
-        }
-        filterButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-Spacing.md)
-            make.top.bottom.equalToSuperview()
         }
         bottomLine.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
             make.height.equalTo(0.5)
         }
 
-        monthButton.onTap = { [weak self] in self?.onMonthTapped?() }
-        accountButton.onTap = { [weak self] in self?.onAccountTapped?() }
-        filterButton.onTap = { [weak self] in self?.onFilterTapped?() }
+        monthButton.addTarget(self, action: #selector(monthTapped), for: .touchUpInside)
+        accountButton.addTarget(self, action: #selector(accountTapped), for: .touchUpInside)
+        filterButton.addTarget(self, action: #selector(filterTapped), for: .touchUpInside)
     }
+
+    @objc private func monthTapped() { onMonthTapped?() }
+    @objc private func accountTapped() { onAccountTapped?() }
+    @objc private func filterTapped() { onFilterTapped?() }
 }
 
 private final class IncomeExpenseFilterButton: UIControl {
-    enum Alignment { case leading, center, trailing }
 
-    var onTap: (() -> Void)?
+    enum Alignment {
+        case leading, center, trailing
+    }
 
     private let titleLabel = UILabel()
     private let arrowView = UIImageView()
@@ -76,6 +83,8 @@ private final class IncomeExpenseFilterButton: UIControl {
 
     init(alignment: Alignment) {
         super.init(frame: .zero)
+        isUserInteractionEnabled = true
+
         titleLabel.font = .systemFont(ofSize: 15)
         titleLabel.textColor = .abankTextPrimary
 
@@ -96,20 +105,29 @@ private final class IncomeExpenseFilterButton: UIControl {
         contentStack.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             switch alignment {
-            case .leading: make.leading.equalToSuperview()
-            case .center: make.centerX.equalToSuperview()
-            case .trailing: make.trailing.equalToSuperview()
+            case .leading:
+                make.leading.equalToSuperview()
+            case .center:
+                make.centerX.equalToSuperview()
+            case .trailing:
+                make.trailing.equalToSuperview()
             }
         }
         arrowView.snp.makeConstraints { make in
             make.size.equalTo(8)
         }
-        addTarget(self, action: #selector(tapped), for: .touchUpInside)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    func setTitle(_ title: String) { titleLabel.text = title }
+    func setTitle(_ title: String) {
+        titleLabel.text = title
+    }
 
-    @objc private func tapped() { onTap?() }
+    func setHighlighted(_ highlighted: Bool) {
+        titleLabel.textColor = highlighted ? .abankOrange : .abankTextPrimary
+        arrowView.tintColor = highlighted
+            ? .abankOrange
+            : UIColor(red: 170 / 255, green: 170 / 255, blue: 170 / 255, alpha: 1)
+    }
 }

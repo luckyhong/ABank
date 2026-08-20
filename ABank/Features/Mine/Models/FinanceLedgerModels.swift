@@ -45,6 +45,51 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
     var amount: Double        // 正数
     var balanceAfter: Double
     var iconKey: String
+    /// 业务分类，对应筛选面板标签 id
+    var categoryId: String
+    /// 是否手工记账
+    var isManual: Bool
+
+    init(
+        id: String,
+        accountId: String,
+        date: String,
+        time: String,
+        title: String,
+        direction: LedgerTransactionDirection,
+        amount: Double,
+        balanceAfter: Double,
+        iconKey: String,
+        categoryId: String,
+        isManual: Bool = false
+    ) {
+        self.id = id
+        self.accountId = accountId
+        self.date = date
+        self.time = time
+        self.title = title
+        self.direction = direction
+        self.amount = amount
+        self.balanceAfter = balanceAfter
+        self.iconKey = iconKey
+        self.categoryId = categoryId
+        self.isManual = isManual
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        accountId = try container.decode(String.self, forKey: .accountId)
+        date = try container.decode(String.self, forKey: .date)
+        time = try container.decode(String.self, forKey: .time)
+        title = try container.decode(String.self, forKey: .title)
+        direction = try container.decode(LedgerTransactionDirection.self, forKey: .direction)
+        amount = try container.decode(Double.self, forKey: .amount)
+        balanceAfter = try container.decode(Double.self, forKey: .balanceAfter)
+        iconKey = try container.decode(String.self, forKey: .iconKey)
+        categoryId = try container.decodeIfPresent(String.self, forKey: .categoryId) ?? "other_expense"
+        isManual = try container.decodeIfPresent(Bool.self, forKey: .isManual) ?? false
+    }
 }
 
 // MARK: - 贷款合同
@@ -78,6 +123,141 @@ struct IncomeExpensePageData {
     let accountFilter: String
     let summary: MonthlyFlowSummary
     let dayGroups: [IncomeExpenseDayGroup]
+}
+
+// MARK: - 收支筛选
+
+enum IncomeExpenseDateMode: Equatable {
+    case month(String)                    // yyyy-MM
+    case custom(start: String, end: String) // yyyy-MM-dd
+}
+
+enum IncomeExpenseAccountFilter: Equatable {
+    case all
+    case excludeManual
+    case debitCard(id: String)
+    case manual
+
+    var displayTitle: String {
+        switch self {
+        case .all: return "全部账户"
+        case .excludeManual: return "不含手工记账"
+        case .debitCard: return "借记卡"
+        case .manual: return "手工记账"
+        }
+    }
+}
+
+struct IncomeExpenseCategoryOption: Equatable {
+    let id: String
+    let title: String
+    let isAll: Bool
+}
+
+struct IncomeExpenseCategoryGroup: Equatable {
+    let title: String
+    let options: [IncomeExpenseCategoryOption]
+}
+
+struct IncomeExpenseAdvancedFilter: Equatable {
+    var minAmount: Double?
+    var maxAmount: Double?
+    /// 各组已选分类 id；空集合表示不限该组
+    var selectedCategoryIds: Set<String>
+
+    static let empty = IncomeExpenseAdvancedFilter(
+        minAmount: nil,
+        maxAmount: nil,
+        selectedCategoryIds: []
+    )
+
+    var isActive: Bool {
+        minAmount != nil || maxAmount != nil || !selectedCategoryIds.isEmpty
+    }
+}
+
+enum IncomeExpenseFilterCatalog {
+    static let incomeGroup = IncomeExpenseCategoryGroup(
+        title: "收入",
+        options: [
+            .init(id: "income_all", title: "全部收入", isAll: true),
+            .init(id: "salary", title: "工资福利", isAll: false),
+            .init(id: "transfer_in", title: "他人转入", isAll: false),
+            .init(id: "third_party_in", title: "三方转入", isAll: false),
+            .init(id: "cash_deposit", title: "现金存入", isAll: false)
+        ]
+    )
+
+    static let expenseGroup = IncomeExpenseCategoryGroup(
+        title: "支出",
+        options: [
+            .init(id: "expense_all", title: "全部支出", isAll: true),
+            .init(id: "transfer_out", title: "转账给他人", isAll: false),
+            .init(id: "third_party_out", title: "三方转出", isAll: false),
+            .init(id: "cash_withdraw", title: "现金取出", isAll: false),
+            .init(id: "other_expense", title: "其他支出", isAll: false)
+        ]
+    )
+
+    static let transferGroup = IncomeExpenseCategoryGroup(
+        title: "本人资金往来",
+        options: [
+            .init(id: "self_all", title: "全部往来", isAll: true),
+            .init(id: "self_transfer", title: "转账给自己", isAll: false),
+            .init(id: "abc_credit_repay", title: "还农行信用卡", isAll: false),
+            .init(id: "wealth_product", title: "理财产品", isAll: false),
+            .init(id: "fund", title: "基金", isAll: false)
+        ]
+    )
+
+    static let allGroups: [IncomeExpenseCategoryGroup] = [incomeGroup, expenseGroup, transferGroup]
+
+    static let allCategoryIds: Set<String> = Set(
+        allGroups.flatMap { $0.options.filter { !$0.isAll }.map(\.id) }
+    )
+
+    static let incomeCategoryIds: Set<String> = Set(
+        incomeGroup.options.filter { !$0.isAll }.map(\.id)
+    )
+    static let expenseCategoryIds: Set<String> = Set(
+        expenseGroup.options.filter { !$0.isAll }.map(\.id)
+    )
+    static let transferCategoryIds: Set<String> = Set(
+        transferGroup.options.filter { !$0.isAll }.map(\.id)
+    )
+}
+
+struct IncomeExpenseQuery: Equatable {
+    var dateMode: IncomeExpenseDateMode = .month("2026-08")
+    var accountFilter: IncomeExpenseAccountFilter = .all
+    var advancedFilter: IncomeExpenseAdvancedFilter = .empty
+
+    var filterBarMonthText: String {
+        switch dateMode {
+        case .month(let month):
+            return month
+        case .custom(let start, let end):
+            let s = String(start.prefix(7))
+            let e = String(end.prefix(7))
+            return s == e ? s : "\(s)~\(e)"
+        }
+    }
+
+    var monthLabel: String {
+        switch dateMode {
+        case .month(let month):
+            let number = Int(month.split(separator: "-").last.map(String.init) ?? "8") ?? 8
+            return "\(number)月"
+        case .custom(let start, let end):
+            let startMonth = String(start.prefix(7))
+            let endMonth = String(end.prefix(7))
+            if startMonth == endMonth,
+               let number = Int(startMonth.split(separator: "-").last.map(String.init) ?? "") {
+                return "\(number)月"
+            }
+            return "自定义"
+        }
+    }
 }
 
 struct MyLoanPageData {

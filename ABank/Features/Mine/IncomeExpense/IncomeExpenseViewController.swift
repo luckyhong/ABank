@@ -8,7 +8,7 @@ import SnapKit
 
 final class IncomeExpenseViewController: BaseViewController {
 
-    private let filterAccountId: String?
+    private var query: IncomeExpenseQuery
     private var pageData: IncomeExpensePageData
 
     private let filterBar = IncomeExpenseFilterBarView()
@@ -16,10 +16,15 @@ final class IncomeExpenseViewController: BaseViewController {
     private let tableView = UITableView(frame: .zero, style: .plain)
 
     private var sections: [IncomeExpenseDayGroup] = []
+    private weak var activeSheet: UIView?
 
     init(accountId: String? = nil) {
-        self.filterAccountId = accountId
-        self.pageData = FinanceLedgerStore.shared.incomeExpensePageData(accountId: accountId)
+        var initial = IncomeExpenseQuery()
+        if let accountId {
+            initial.accountFilter = .debitCard(id: accountId)
+        }
+        self.query = initial
+        self.pageData = FinanceLedgerStore.shared.incomeExpensePageData(query: initial)
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }
@@ -87,31 +92,107 @@ final class IncomeExpenseViewController: BaseViewController {
             make.leading.trailing.bottom.equalToSuperview()
         }
 
-        filterBar.onMonthTapped = { [weak self] in self?.showToast("选择月份") }
-        filterBar.onAccountTapped = { [weak self] in self?.showToast("选择账户") }
-        filterBar.onFilterTapped = { [weak self] in self?.showToast("筛选") }
+        bindFilterBarActions()
         summaryCard.onAnalysisTapped = { [weak self] in self?.showToast("分析") }
 
         applyPageData()
     }
 
+    private func bindFilterBarActions() {
+        filterBar.onMonthTapped = { [weak self] in
+            self?.showDatePicker()
+        }
+        filterBar.onAccountTapped = { [weak self] in
+            self?.showAccountPicker()
+        }
+        filterBar.onFilterTapped = { [weak self] in
+            self?.showAdvancedFilter()
+        }
+    }
+
     private func reloadData() {
-        pageData = FinanceLedgerStore.shared.incomeExpensePageData(
-            month: pageData.month,
-            accountId: filterAccountId
-        )
+        pageData = FinanceLedgerStore.shared.incomeExpensePageData(query: query)
         applyPageData()
     }
 
     private func applyPageData() {
         sections = pageData.dayGroups
-        filterBar.configure(month: pageData.month, account: pageData.accountFilter)
+        filterBar.configure(
+            month: pageData.month,
+            account: pageData.accountFilter,
+            filterActive: query.advancedFilter.isActive
+        )
         summaryCard.configure(
             monthLabelText: pageData.monthLabel,
             expense: pageData.summary.expense,
             income: pageData.summary.income
         )
         tableView.reloadData()
+    }
+
+    // MARK: - Panels
+
+    private func hostViewForSheet() -> UIView {
+        navigationController?.view ?? view
+    }
+
+    private func dismissActiveSheet() {
+        activeSheet?.removeFromSuperview()
+        activeSheet = nil
+    }
+
+    private func showDatePicker() {
+        dismissActiveSheet()
+        let sheet = IncomeExpenseDatePickerSheet()
+        sheet.onConfirm = { [weak self] mode in
+            guard let self else { return }
+            self.query.dateMode = mode
+            self.activeSheet = nil
+            self.reloadData()
+        }
+        sheet.onCancel = { [weak self] in
+            self?.activeSheet = nil
+        }
+        sheet.onLegacyDetailTapped = { [weak self] in
+            self?.showToast("跳转至明细")
+        }
+        sheet.present(in: hostViewForSheet(), mode: query.dateMode)
+        activeSheet = sheet
+    }
+
+    private func showAccountPicker() {
+        dismissActiveSheet()
+        let sheet = IncomeExpenseAccountPickerSheet()
+        sheet.onSelect = { [weak self] filter in
+            guard let self else { return }
+            self.query.accountFilter = filter
+            self.activeSheet = nil
+            self.reloadData()
+        }
+        sheet.onCancel = { [weak self] in
+            self?.activeSheet = nil
+        }
+        sheet.present(
+            in: hostViewForSheet(),
+            options: FinanceLedgerStore.shared.accountFilterOptions(),
+            selected: query.accountFilter
+        )
+        activeSheet = sheet
+    }
+
+    private func showAdvancedFilter() {
+        dismissActiveSheet()
+        let controller = IncomeExpenseFilterViewController(filter: query.advancedFilter)
+        controller.onConfirm = { [weak self] filter in
+            guard let self else { return }
+            self.query.advancedFilter = filter
+            self.reloadData()
+        }
+        // 与日期/账户一致：以弹框方式呈现筛选面板
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        nav.navigationBar.tintColor = .abankTextPrimary
+        present(nav, animated: true)
     }
 
     @objc private func backTapped() {
