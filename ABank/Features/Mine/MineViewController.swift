@@ -38,6 +38,12 @@ final class MineViewController: BaseViewController {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
         refreshProfileFromStore()
+        refreshFinanceCardsFromStore()
+    }
+
+    private func refreshFinanceCardsFromStore() {
+        assetLiabilityCard.configure(with: FinanceLedgerStore.shared.mineAssetLiability())
+        monthlyFlowCard.configure(with: FinanceLedgerStore.shared.mineMonthlyFlow())
     }
 
     private func refreshProfileFromStore() {
@@ -122,8 +128,8 @@ final class MineViewController: BaseViewController {
     private func bindData() {
         profileHeader.configure(with: pageData.profile)
         assetStatsCard.configure(with: pageData.assetStats)
-        assetLiabilityCard.configure(with: pageData.assetLiability)
-        monthlyFlowCard.configure(with: pageData.monthlyFlow)
+        assetLiabilityCard.configure(with: FinanceLedgerStore.shared.mineAssetLiability())
+        monthlyFlowCard.configure(with: FinanceLedgerStore.shared.mineMonthlyFlow())
         branchCard.configure(with: pageData.branch)
         securityCard.configure(with: pageData.securityItems)
         customerManagerCard.configure(with: pageData.customerManager)
@@ -163,7 +169,8 @@ final class MineViewController: BaseViewController {
         }
 
         monthlyFlowCard.onTap = { [weak self] in
-            self?.showToast("本月收支")
+            let controller = IncomeExpenseViewController()
+            self?.navigationController?.pushViewController(controller, animated: true)
         }
         monthlyFlowCard.onBillTapped = { [weak self] in
             self?.showToast("7月份账单")

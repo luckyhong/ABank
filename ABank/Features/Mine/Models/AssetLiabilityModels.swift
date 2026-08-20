@@ -22,12 +22,14 @@ struct AssetLiabilityPageData {
 }
 
 struct AssetLiabilityCategory {
+    let id: String
     let title: String
     let totalAmount: Double?
     let items: [AssetLiabilityItem]
 }
 
 struct AssetLiabilityItem {
+    let id: String
     let title: String
     let amount: Double
     let showsCurrencySymbol: Bool

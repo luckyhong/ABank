@@ -755,18 +755,8 @@ final class MockDataProvider {
                 MineAssetStat(value: 3, label: "积分"),
                 MineAssetStat(value: 0, label: "礼券")
             ],
-            assetLiability: MineAssetLiability(
-                assets: 2660.66,
-                liabilities: 10318.93,
-                billNotice: "您的月度账单已出，请查看"
-            ),
-            monthlyFlow: MineMonthlyFlow(
-                expense: 15054.91,
-                income: 17205.04,
-                billSectionTitle: "月度账单",
-                billNotice: "您的7月份账单已出",
-                hasBillBadge: true
-            ),
+            assetLiability: FinanceLedgerStore.shared.mineAssetLiability(),
+            monthlyFlow: FinanceLedgerStore.shared.mineMonthlyFlow(),
             branch: MineBranchInfo(
                 name: "西安沣东新城支行",
                 distance: "2552米",
@@ -794,50 +784,7 @@ final class MockDataProvider {
     // MARK: - 资产负债
 
     func getAssetLiabilityPageData() -> AssetLiabilityPageData {
-        AssetLiabilityPageData(
-            totalAssets: 2660.66,
-            totalLiabilities: 330_318.93,
-            dataTimestamp: "2026-08-20 13:41:58",
-            announcement: "美好生活，从一点一滴存钱开始~",
-            assetCategories: [
-                AssetLiabilityCategory(
-                    title: "活期",
-                    totalAmount: 2660.66,
-                    items: [
-                        AssetLiabilityItem(
-                            title: "尾号8472 (人民币)",
-                            amount: 2660.66,
-                            showsCurrencySymbol: true,
-                            subtitle: nil,
-                            showsMenu: true
-                        )
-                    ]
-                )
-            ],
-            liabilityCategories: [
-                AssetLiabilityCategory(
-                    title: "贷款",
-                    totalAmount: nil,
-                    items: [
-                        AssetLiabilityItem(
-                            title: "个人住房贷款",
-                            amount: 330_318.93,
-                            showsCurrencySymbol: false,
-                            subtitle: "贷款余额",
-                            showsMenu: false
-                        )
-                    ]
-                )
-            ],
-            assetTips: [
-                "资产负债视图展示的是您在中国农业银行的资产信息，包含存款、理财、基金等，包含未签约掌银的账户，数据仅供参考。其中，外币资产折算成人民币统计。",
-                "如有疑问，请联系我行客服电话95599或亲临农行网点。"
-            ],
-            liabilityTips: [
-                "负债视图功能展示您在农业银行的信用卡和个人贷款相关负债信息，统计范围不限于掌上银行签约账户，所有数据仅供参考，不作为对账依据。如果您有外币负债，将被折算成人民币计入负债总额。",
-                "如有疑问，请联系我行客服电话95599或亲临农行网点。"
-            ]
-        )
+        FinanceLedgerStore.shared.assetLiabilityPageData()
     }
 
     // MARK: - 账户信息（其他模块复用）

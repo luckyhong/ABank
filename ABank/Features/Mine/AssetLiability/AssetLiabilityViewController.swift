@@ -8,7 +8,7 @@ import SnapKit
 
 final class AssetLiabilityViewController: BaseViewController {
 
-    private let pageData = MockDataProvider.shared.getAssetLiabilityPageData()
+    private var pageData = FinanceLedgerStore.shared.assetLiabilityPageData()
     private var selectedTab: AssetLiabilityTab = .assets
 
     private let topBackgroundView = UIView()
@@ -82,6 +82,7 @@ final class AssetLiabilityViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
+        reloadFromStore()
     }
 
     override func viewDidLayoutSubviews() {
@@ -152,12 +153,10 @@ final class AssetLiabilityViewController: BaseViewController {
         }
         summaryCard.onWealthCheckupTapped = { [weak self] in self?.showToast("财富体检") }
         categoryList.onCategoryTapped = { [weak self] index in
-            let title = self?.currentCategories[safe: index]?.title ?? "分类"
-            self?.showToast(title)
+            self?.handleCategoryTap(at: index)
         }
         categoryList.onItemTapped = { [weak self] ci, ii in
-            let title = self?.currentCategories[safe: ci]?.items[safe: ii]?.title ?? "详情"
-            self?.showToast(title)
+            self?.handleItemTap(categoryIndex: ci, itemIndex: ii)
         }
         categoryList.onItemMenuTapped = { [weak self] _, _ in self?.showToast("更多操作") }
         tipsView.onPhoneTapped = { [weak self] in self?.showToast("拨打客服 95599") }
@@ -169,6 +168,11 @@ final class AssetLiabilityViewController: BaseViewController {
 
     private var currentTips: [String] {
         selectedTab == .assets ? pageData.assetTips : pageData.liabilityTips
+    }
+
+    private func reloadFromStore() {
+        pageData = FinanceLedgerStore.shared.assetLiabilityPageData()
+        bindData()
     }
 
     private func bindData() {
@@ -189,6 +193,32 @@ final class AssetLiabilityViewController: BaseViewController {
 
     private func refreshCategoryList() {
         categoryList.configure(categories: currentCategories)
+    }
+
+    private func handleCategoryTap(at index: Int) {
+        guard let category = currentCategories[safe: index] else { return }
+        navigate(for: category.id)
+    }
+
+    private func handleItemTap(categoryIndex: Int, itemIndex: Int) {
+        guard let category = currentCategories[safe: categoryIndex],
+              let item = category.items[safe: itemIndex] else { return }
+        navigate(for: category.id, itemId: item.id)
+    }
+
+    private func navigate(for categoryId: String, itemId: String? = nil) {
+        switch categoryId {
+        case FinanceLedgerRecord.demandDepositCategoryId:
+            // 分类行进全部账户；子项（尾号）带账户筛选
+            navigationController?.pushViewController(
+                IncomeExpenseViewController(accountId: itemId),
+                animated: true
+            )
+        case FinanceLedgerRecord.loanCategoryId:
+            navigationController?.pushViewController(MyLoanViewController(), animated: true)
+        default:
+            showToast("详情")
+        }
     }
 
     @objc private func backTapped() {
