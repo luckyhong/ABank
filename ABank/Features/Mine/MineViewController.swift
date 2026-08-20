@@ -34,6 +34,24 @@ final class MineViewController: BaseViewController {
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+        refreshProfileFromStore()
+    }
+
+    private func refreshProfileFromStore() {
+        let record = CustomerInfoStore.shared.load()
+        let profile = pageData.profile
+        profileHeader.configure(with: MineProfileInfo(
+            displayName: record.maskedName,
+            lastLoginDevice: profile.lastLoginDevice,
+            lastLoginTime: profile.lastLoginTime,
+            vipLevel: profile.vipLevel,
+            benefitsTitle: profile.benefitsTitle
+        ))
+    }
+
     override func setupUI() {
         view.backgroundColor = .abankBackground
 
@@ -125,6 +143,10 @@ final class MineViewController: BaseViewController {
             self?.showToast("更多")
         }
 
+        profileHeader.onAvatarTapped = { [weak self] in
+            let controller = CustomerInfoViewController()
+            self?.navigationController?.pushViewController(controller, animated: true)
+        }
         profileHeader.onBenefitsTapped = { [weak self] in
             self?.showToast("权益中心")
         }

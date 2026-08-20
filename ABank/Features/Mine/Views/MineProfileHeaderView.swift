@@ -10,6 +10,7 @@ final class MineProfileHeaderView: UIView {
 
     var onBenefitsTapped: (() -> Void)?
     var onVIPTapped: (() -> Void)?
+    var onAvatarTapped: (() -> Void)?
 
     private let avatarView = UIView()
     private let avatarIcon = UIImageView(image: UIImage(systemName: "person.fill"))
@@ -41,6 +42,8 @@ final class MineProfileHeaderView: UIView {
         avatarView.backgroundColor = UIColor(red: 0.85, green: 0.92, blue: 0.98, alpha: 1)
         avatarView.layer.cornerRadius = 28
         avatarView.clipsToBounds = true
+        avatarView.isUserInteractionEnabled = true
+        avatarView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(avatarTapped)))
         avatarIcon.tintColor = UIColor(red: 0.45, green: 0.65, blue: 0.85, alpha: 1)
         avatarIcon.contentMode = .scaleAspectFit
         avatarView.addSubview(avatarIcon)
@@ -125,4 +128,5 @@ final class MineProfileHeaderView: UIView {
 
     @objc private func benefitsTapped() { onBenefitsTapped?() }
     @objc private func vipTapped() { onVIPTapped?() }
+    @objc private func avatarTapped() { onAvatarTapped?() }
 }
