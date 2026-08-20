@@ -159,6 +159,190 @@ final class MockDataProvider {
         )
     }
 
+    // MARK: - 财富
+
+    func getWealthPageData() -> WealthPageData {
+        WealthPageData(
+            searchPlaceholder: "存款证明",
+            messageBadge: 322,
+            greeting: WealthGreeting(
+                message: "上午好，点击查看持仓",
+                loginTitle: "登录"
+            ),
+            gridItems: [
+                WealthGridItem(title: "存款", systemIcon: "house.fill"),
+                WealthGridItem(title: "理财产品", systemIcon: "circle.grid.3x3.fill"),
+                WealthGridItem(title: "基金", systemIcon: "chart.line.uptrend.xyaxis"),
+                WealthGridItem(title: "贵金属", systemIcon: "square.stack.3d.up.fill"),
+                WealthGridItem(title: "债券", systemIcon: "chart.bar.fill"),
+                WealthGridItem(title: "保险", systemIcon: "shield.fill"),
+                WealthGridItem(title: "证券期货", systemIcon: "doc.text.fill"),
+                WealthGridItem(title: "外汇", systemIcon: "dollarsign.arrow.circlepath"),
+                WealthGridItem(title: "个人养老金", systemIcon: "house.and.flag.fill"),
+                WealthGridItem(title: "全部", systemIcon: "ellipsis.circle")
+            ],
+            hotspot: WealthHotspot(
+                tag: "热点",
+                headline: "美国财政部宣布扩大国债回购规模，美债收益率显著下跌"
+            ),
+            productTabs: [
+                WealthProductTab(
+                    title: "日日悦享",
+                    product: WealthFeaturedProduct(
+                        name: "农银理财农银匠心·天天利理财产品2号",
+                        yieldRate: "2.40%",
+                        yieldLabel: "成立以来年化 ⓘ",
+                        yieldDateRange: "2024/09/05-2026/08/19",
+                        riskLevel: "中低风险",
+                        riskLabel: "风险等级",
+                        holdingPeriod: "最低持有1天",
+                        holdingLabel: "最短持有期限",
+                        actionTitle: "立即购买",
+                        disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
+                        isAd: true
+                    )
+                ),
+                WealthProductTab(
+                    title: "低波稳健",
+                    product: WealthFeaturedProduct(
+                        name: "农银理财农银安心·天天利理财产品（票息优选）",
+                        yieldRate: "1.90%",
+                        yieldLabel: "成立以来年化 ⓘ",
+                        yieldDateRange: "2025/07/25-2026/08/19",
+                        riskLevel: "中低风险",
+                        riskLabel: "风险等级",
+                        holdingPeriod: "最低持有1天",
+                        holdingLabel: "最短持有期限",
+                        actionTitle: "立即购买",
+                        disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
+                        isAd: true
+                    )
+                ),
+                WealthProductTab(
+                    title: "业绩优选",
+                    product: WealthFeaturedProduct(
+                        name: "农银理财农银匠心·灵动180天理财产品（量化多元增强）",
+                        yieldRate: "2.96%",
+                        yieldLabel: "成立以来年化 ⓘ",
+                        yieldDateRange: "2026/04/21-2026/08/18",
+                        riskLevel: "中低风险",
+                        riskLabel: "风险等级",
+                        holdingPeriod: "最低持有180天",
+                        holdingLabel: "最短持有期限",
+                        actionTitle: "立即购买",
+                        disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
+                        isAd: true
+                    )
+                )
+            ],
+            spareMoneyFeatured: WealthSpareMoneyFeatured(
+                title: "农银时时付",
+                tag: "理财",
+                descriptions: ["现金管理类产品", "信用卡一键还款"],
+                yieldRate: "0.90%",
+                yieldLabel: "近7日年化",
+                actionTitle: "查看详情"
+            ),
+            spareMoneySides: [
+                WealthSpareMoneySide(
+                    title: "农银快e宝2号",
+                    tag: "基金",
+                    subtitle: "最高20万元快赎额度",
+                    yieldPrefix: "最高近7日年化",
+                    yieldRate: "1.37%",
+                    yieldLabel: ""
+                ),
+                WealthSpareMoneySide(
+                    title: "农银快e宝",
+                    tag: "基金",
+                    subtitle: "支持自动还款",
+                    yieldPrefix: "近7日年化",
+                    yieldRate: "0.71%",
+                    yieldLabel: ""
+                )
+            ],
+            steadyProducts: [
+                WealthSteadyProduct(
+                    name: "农银理财农银安心·天天利理财产品（票息优选）",
+                    yieldRate: "1.90%",
+                    yieldLabel: "成立以来年化 ⓘ",
+                    yieldDateRange: "2025/07/25-2026/08/19",
+                    holdingPeriod: "最低持有1天",
+                    purchaseInfo: "1.00元起购 | 中低风险",
+                    isHot: true,
+                    disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎"
+                ),
+                WealthSteadyProduct(
+                    name: "农银理财农银匠心·灵动180天理财产品（量化多元增强）",
+                    yieldRate: "2.96%",
+                    yieldLabel: "成立以来年化 ⓘ",
+                    yieldDateRange: "2026/04/21-2026/08/18",
+                    holdingPeriod: "最低持有180天",
+                    purchaseInfo: "1.00元起购 | 中低风险",
+                    isHot: false,
+                    disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎"
+                )
+            ],
+            fundItems: [
+                WealthFundItem(
+                    name: "申万菱信乐享混合",
+                    yieldRate: "113.61%",
+                    yieldLabel: "近一年涨幅",
+                    category: "混合型",
+                    isSelected: true
+                ),
+                WealthFundItem(
+                    name: "易方达科讯",
+                    yieldRate: "82.25%",
+                    yieldLabel: "近一年涨幅",
+                    category: "混合型",
+                    isSelected: false
+                )
+            ],
+            depositItems: [
+                WealthDepositItem(
+                    name: "金穗2026年第29期个人大额存单（可转让）",
+                    rate: "0.95%",
+                    rateLabel: "年利率",
+                    term: "6个月",
+                    minPurchase: "200,000.00元起购"
+                ),
+                WealthDepositItem(
+                    name: "金穗2026年第30期个人大额存单（可转让）",
+                    rate: "1.05%",
+                    rateLabel: "年利率",
+                    term: "1年",
+                    minPurchase: "200,000.00元起购"
+                )
+            ],
+            bondIndex: WealthBondIndex(
+                name: "中债-农行乡村振兴债券指数",
+                yieldRate: "1.55%",
+                yieldLabel: "收益率",
+                indexValue: "117.68",
+                indexLabel: "指数值",
+                asOfDate: "截至日期：2026-08-19"
+            ),
+            studyBanner: WealthStudyBanner(
+                title: "低价旅游背后的养老骗局",
+                brand: "农银汇理基金",
+                isAd: true
+            ),
+            studyCards: [
+                WealthStudyCard(
+                    title: "住房公积金提取和使用范围拓宽",
+                    backgroundColor: UIColor(red: 1.0, green: 0.96, blue: 0.88, alpha: 1),
+                    actionTitle: "GO"
+                ),
+                WealthStudyCard(
+                    title: "如何看待宏观数据与微观感受的'温差'",
+                    backgroundColor: UIColor(red: 0.88, green: 0.94, blue: 1.0, alpha: 1),
+                    actionTitle: "GO"
+                )
+            ]
+        )
+    }
+
     // MARK: - 我的
 
     func getMinePageData() -> MinePageData {
