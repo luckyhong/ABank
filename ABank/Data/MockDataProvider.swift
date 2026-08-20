@@ -159,6 +159,59 @@ final class MockDataProvider {
         )
     }
 
+    // MARK: - 我的
+
+    func getMinePageData() -> MinePageData {
+        MinePageData(
+            profile: MineProfileInfo(
+                displayName: "*继宏",
+                lastLoginDevice: "上次登录 iPhone 15",
+                lastLoginTime: "2026-08-13 21:03:30",
+                vipLevel: "二星客户",
+                benefitsTitle: "权益中心"
+            ),
+            assetStats: [
+                MineAssetStat(value: 1, label: "银行卡"),
+                MineAssetStat(value: 0, label: "小豆"),
+                MineAssetStat(value: 3, label: "积分"),
+                MineAssetStat(value: 0, label: "礼券")
+            ],
+            assetLiability: MineAssetLiability(
+                assets: 2660.66,
+                liabilities: 10318.93,
+                billNotice: "您的月度账单已出，请查看"
+            ),
+            monthlyFlow: MineMonthlyFlow(
+                expense: 15054.91,
+                income: 17205.04,
+                billSectionTitle: "月度账单",
+                billNotice: "您的7月份账单已出",
+                hasBillBadge: true
+            ),
+            branch: MineBranchInfo(
+                name: "西安沣东新城支行",
+                distance: "2552米",
+                services: [
+                    MineGridItem(title: "我要开卡", systemIcon: "creditcard.badge.plus"),
+                    MineGridItem(title: "纪念币预约", systemIcon: "bitcoinsign.circle"),
+                    MineGridItem(title: "同号换卡", systemIcon: "iphone.and.arrow.forward"),
+                    MineGridItem(title: "网点查询", systemIcon: "building.columns")
+                ]
+            ),
+            securityItems: [
+                MineGridItem(title: "登录设置", systemIcon: "door.left.hand.open"),
+                MineGridItem(title: "转账设置", systemIcon: "shield.lefthalf.filled"),
+                MineGridItem(title: "支付设置", systemIcon: "lock.shield"),
+                MineGridItem(title: "登录设备", systemIcon: "iphone")
+            ],
+            customerManager: MineCustomerManager(
+                name: "*凡柳",
+                role: "客户经理",
+                branch: "西安兴庆路支行营业室"
+            )
+        )
+    }
+
     // MARK: - 账户信息（其他模块复用）
 
     struct AccountInfo {
