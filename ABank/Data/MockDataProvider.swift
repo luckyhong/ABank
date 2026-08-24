@@ -875,4 +875,90 @@ final class MockDataProvider {
         ]
         return Array(transactions.prefix(limit))
     }
+
+    // MARK: - 转账
+
+    func getTransferPageData() -> TransferPageData {
+        TransferPageData(
+            noticeText: "警惕高息理财陷阱",
+            primaryActions: [
+                TransferPrimaryAction(title: "账号转账", systemIcon: "creditcard.fill", badge: nil),
+                TransferPrimaryAction(title: "手机号转账", systemIcon: "iphone", badge: "免卡号")
+            ],
+            secondaryActions: [
+                TransferSecondaryAction(title: "转账记录", systemIcon: "doc.text"),
+                TransferSecondaryAction(title: "转账设置", systemIcon: "gearshape")
+            ],
+            functionItems: [
+                TransferFunctionItem(title: "信用卡还款", systemIcon: "creditcard"),
+                TransferFunctionItem(title: "预约转账", systemIcon: "clock"),
+                TransferFunctionItem(title: "向多人转账", systemIcon: "person.3"),
+                TransferFunctionItem(title: "他行卡转入", systemIcon: "arrow.uturn.left"),
+                TransferFunctionItem(title: "跨境服务", systemIcon: "airplane"),
+                TransferFunctionItem(title: "公益捐款", systemIcon: "heart"),
+                TransferFunctionItem(title: "手机号收款", systemIcon: "iphone.gen1"),
+                TransferFunctionItem(title: "转账撤销", systemIcon: "arrow.uturn.backward")
+            ],
+            recentPartners: [
+                TransferPartner(
+                    id: "p1",
+                    name: "韩继宏",
+                    avatarSystemIcon: "person.crop.circle.fill",
+                    avatarTintHex: "4A90D9",
+                    accounts: [
+                        TransferAccount(
+                            id: "a1",
+                            bankName: "中国农业银行",
+                            maskedNumber: "6230****8472",
+                            bankColorHex: "009882",
+                            bankSymbol: "农"
+                        ),
+                        TransferAccount(
+                            id: "a2",
+                            bankName: "中国工商银行",
+                            maskedNumber: "6222****9517",
+                            bankColorHex: "C8102E",
+                            bankSymbol: "工"
+                        )
+                    ],
+                    lastTransferDate: nil,
+                    isExpanded: false
+                ),
+                TransferPartner(
+                    id: "p2",
+                    name: "欧梦瑶",
+                    avatarSystemIcon: nil,
+                    avatarTintHex: nil,
+                    accounts: [
+                        TransferAccount(
+                            id: "a3",
+                            bankName: "中国建设银行",
+                            maskedNumber: "6217****0593",
+                            bankColorHex: "003B8E",
+                            bankSymbol: "建"
+                        )
+                    ],
+                    lastTransferDate: "08-10",
+                    isExpanded: false
+                ),
+                TransferPartner(
+                    id: "p3",
+                    name: "俞增林",
+                    avatarSystemIcon: nil,
+                    avatarTintHex: nil,
+                    accounts: [
+                        TransferAccount(
+                            id: "a4",
+                            bankName: "中国建设银行",
+                            maskedNumber: "6227****1081",
+                            bankColorHex: "003B8E",
+                            bankSymbol: "建"
+                        )
+                    ],
+                    lastTransferDate: "2022-06-22",
+                    isExpanded: false
+                )
+            ]
+        )
+    }
 }
