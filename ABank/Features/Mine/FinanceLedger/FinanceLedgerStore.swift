@@ -12,7 +12,7 @@ extension Notification.Name {
 final class FinanceLedgerStore {
     static let shared = FinanceLedgerStore()
 
-    private let defaultsKey = "abank.financeLedger.record.v7"
+    private let defaultsKey = "abank.financeLedger.record.v8"
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
@@ -658,7 +658,7 @@ final class FinanceLedgerStore {
         return [
             LedgerTransaction(
                 id: "tx_001", accountId: accountId, date: "2026-08-01", time: "09:12:08",
-                title: "ATM取款", direction: .expense, amount: 1934.91, balanceAfter: 0,
+                title: "ATM取款", direction: .expense, amount: 2934.91, balanceAfter: 0,
                 iconKey: "banknote", categoryId: "cash_withdraw",
                 counterpartyName: "中国农业银行ATM", counterpartyAccount: "ATM****1201",
                 summary: "ATM取款", postscript: "现金支取", cardNumber: card, transactionType: "取现"
@@ -699,8 +699,8 @@ final class FinanceLedgerStore {
                 summary: "财付通", postscript: "退款", cardNumber: card, transactionType: "转账"
             ),
             LedgerTransaction(
-                id: "tx_007", accountId: accountId, date: "2026-08-15", time: "19:58:06",
-                title: "支付宝", direction: .expense, amount: 10, balanceAfter: 0,
+                id: "tx_007", accountId: accountId, date: "2026-08-15", time: "13:23:08",
+                title: "支付宝(支付宝-消费)", direction: .expense, amount: 10, balanceAfter: 0,
                 iconKey: "a.circle", categoryId: "third_party_out",
                 counterpartyName: "支付宝（中国）网络技术有限公司", counterpartyAccount: "2088****1024",
                 summary: "支付宝", postscript: "消费", cardNumber: card, transactionType: "转账",
@@ -725,7 +725,7 @@ final class FinanceLedgerStore {
             ),
             LedgerTransaction(
                 id: "tx_010", accountId: accountId, date: "2026-08-20", time: "17:26:12",
-                title: "支付宝 (刘涵)", direction: .expense, amount: 40, balanceAfter: 0,
+                title: "支付宝(刘涵)", direction: .expense, amount: 40, balanceAfter: 0,
                 iconKey: "a.circle", categoryId: "third_party_out",
                 counterpartyName: "刘涵", counterpartyAccount: "2088****4178",
                 summary: "支付宝（刘涵）", postscript: "转账", cardNumber: card, transactionType: "转账",
@@ -741,7 +741,7 @@ final class FinanceLedgerStore {
             ),
             LedgerTransaction(
                 id: "tx_012", accountId: accountId, date: "2026-08-22", time: "13:33:12",
-                title: "支付宝 (刘涵)", direction: .expense, amount: 141, balanceAfter: 0,
+                title: "支付宝(刘涵)", direction: .expense, amount: 141, balanceAfter: 0,
                 iconKey: "a.circle", categoryId: "third_party_out",
                 counterpartyName: "刘涵", counterpartyAccount: "2088****4178",
                 summary: "支付宝（刘涵）",

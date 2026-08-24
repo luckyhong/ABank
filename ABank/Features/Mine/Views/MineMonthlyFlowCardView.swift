@@ -22,6 +22,7 @@ final class MineMonthlyFlowCardView: UIView {
     private let billNoticeLabel = UILabel()
     private let billBadge = UIView()
     private let billChevron = UIImageView(image: UIImage(systemName: "chevron.right"))
+    private let contentControl = UIControl()
 
     private var isAmountVisible = true
     private var data: MineMonthlyFlow?
@@ -85,9 +86,11 @@ final class MineMonthlyFlowCardView: UIView {
             self?.updateAmounts()
             self?.onEyeTapped?()
         }
+        contentControl.addTarget(self, action: #selector(contentTapped), for: .touchUpInside)
 
         addSubview(card)
-        [header, metrics, ratioBar, separator, billRow].forEach { card.addSubview($0) }
+        [header, metrics, ratioBar, separator, billRow, contentControl].forEach { card.addSubview($0) }
+        card.bringSubviewToFront(header)
         [billSectionLabel, billNoticeLabel, billBadge, billChevron].forEach { billRow.addSubview($0) }
 
         card.snp.makeConstraints { make in
@@ -103,6 +106,10 @@ final class MineMonthlyFlowCardView: UIView {
         ratioBar.snp.makeConstraints { make in
             make.top.equalTo(metrics.snp.bottom).offset(Spacing.md)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
+        }
+        contentControl.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(separator.snp.top)
         }
         separator.snp.makeConstraints { make in
             make.top.equalTo(ratioBar.snp.bottom).offset(Spacing.md)
@@ -134,5 +141,6 @@ final class MineMonthlyFlowCardView: UIView {
         }
     }
 
+    @objc private func contentTapped() { onTap?() }
     @objc private func billTapped() { onBillTapped?() }
 }

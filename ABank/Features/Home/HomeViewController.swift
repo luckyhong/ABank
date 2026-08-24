@@ -251,7 +251,7 @@ final class HomeViewController: BaseViewController {
             case "我的账户":
                 self.navigationController?.pushViewController(MyAccountViewController(), animated: true)
             case "收支":
-                self.showToast("本月收入 ¥12,986.32")
+                self.navigationController?.pushViewController(IncomeExpenseViewController(), animated: true)
             default:
                 self.showToast("打开\(item.title)")
             }

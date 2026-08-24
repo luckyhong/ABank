@@ -35,10 +35,10 @@ final class IncomeExpenseTransactionCell: UITableViewCell {
         let prefix = transaction.direction == .income ? "+ ¥ " : "- ¥ "
         amountLabel.text = prefix + transaction.amount.abankPlainAmountString()
         amountLabel.textColor = transaction.direction == .income
-            ? UIColor(red: 220 / 255, green: 130 / 255, blue: 30 / 255, alpha: 1)
+            ? UIColor(red: 245 / 255, green: 166 / 255, blue: 35 / 255, alpha: 1)
             : .abankTextPrimary
 
-        balanceLabel.text = "余额：¥ \(transaction.balanceAfter.abankPlainAmountString())"
+        balanceLabel.text = "余额: ¥ \(transaction.balanceAfter.abankPlainAmountString())"
 
         let style = iconStyle(for: transaction)
         iconBackground.backgroundColor = style.background
@@ -56,38 +56,27 @@ final class IncomeExpenseTransactionCell: UITableViewCell {
     }
 
     private func iconStyle(for tx: LedgerTransaction) -> IconStyle {
+        if tx.direction == .income {
+            return IconStyle(
+                symbol: "arrow.down.left",
+                tint: .white,
+                background: UIColor(red: 240 / 255, green: 180 / 255, blue: 50 / 255, alpha: 1)
+            )
+        }
         switch tx.iconKey {
-        case "music.note": // 抖音
+        case "music.note":
             return IconStyle(
                 symbol: "play.rectangle.fill",
                 tint: .white,
                 background: UIColor(red: 20 / 255, green: 180 / 255, blue: 140 / 255, alpha: 1)
             )
-        case "a.circle": // 支付宝
+        case "a.circle", "creditcard", "message", "person.crop.circle", "banknote":
             return IconStyle(
-                symbol: "a.circle.fill",
-                tint: .white,
-                background: UIColor(red: 20 / 255, green: 150 / 255, blue: 230 / 255, alpha: 1)
-            )
-        case "creditcard": // 财付通
-            return IconStyle(
-                symbol: "creditcard.fill",
+                symbol: "arrow.up.right",
                 tint: .white,
                 background: UIColor(red: 30 / 255, green: 190 / 255, blue: 100 / 255, alpha: 1)
             )
-        case "person.crop.circle": // 转账
-            return IconStyle(
-                symbol: "person.fill",
-                tint: .white,
-                background: UIColor(red: 70 / 255, green: 150 / 255, blue: 230 / 255, alpha: 1)
-            )
-        case "message": // 微信
-            return IconStyle(
-                symbol: "message.fill",
-                tint: .white,
-                background: UIColor(red: 40 / 255, green: 190 / 255, blue: 90 / 255, alpha: 1)
-            )
-        case "yensign.circle": // 工资
+        case "yensign.circle":
             return IconStyle(
                 symbol: "yensign.circle.fill",
                 tint: .white,
@@ -95,9 +84,9 @@ final class IncomeExpenseTransactionCell: UITableViewCell {
             )
         default:
             return IconStyle(
-                symbol: tx.iconKey,
+                symbol: "arrow.up.right",
                 tint: .white,
-                background: .abankTeal
+                background: UIColor(red: 30 / 255, green: 190 / 255, blue: 100 / 255, alpha: 1)
             )
         }
     }

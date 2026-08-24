@@ -77,6 +77,8 @@ final class MineCardHeaderView: UIView {
         }
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        tap.cancelsTouchesInView = false
+        tap.delegate = self
         addGestureRecognizer(tap)
         isUserInteractionEnabled = true
     }
@@ -84,4 +86,10 @@ final class MineCardHeaderView: UIView {
     @objc private func handleTap() { onTap?() }
     @objc private func eyeTapped() { onEyeTapped?() }
     @objc private func refreshTapped() { onRefreshTapped?() }
+}
+
+extension MineCardHeaderView: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        !(touch.view is UIControl)
+    }
 }
