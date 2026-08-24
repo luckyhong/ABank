@@ -10,21 +10,11 @@ final class AccountDetailQueryHeaderView: UIView {
 
     var onCurrencyTapped: (() -> Void)?
 
-    private let logoView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor(red: 0 / 255, green: 168 / 255, blue: 98 / 255, alpha: 1)
-        view.layer.cornerRadius = 14
+    private let logoView: UIImageView = {
+        let view = UIImageView(image: UIImage(named: "abc_bank_logo"))
+        view.contentMode = .scaleAspectFit
         view.clipsToBounds = true
         return view
-    }()
-
-    private let logoLabel: UILabel = {
-        let label = UILabel()
-        label.text = "农"
-        label.font = .systemFont(ofSize: 13, weight: .bold)
-        label.textColor = .white
-        label.textAlignment = .center
-        return label
     }()
 
     private let cardNumberLabel: UILabel = {
@@ -66,17 +56,13 @@ final class AccountDetailQueryHeaderView: UIView {
         backgroundColor = .white
 
         addSubview(logoView)
-        logoView.addSubview(logoLabel)
         addSubview(cardNumberLabel)
         addSubview(currencyButton)
 
         logoView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(16)
             make.centerY.equalToSuperview()
-            make.size.equalTo(28)
-        }
-        logoLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+            make.size.equalTo(20)
         }
         cardNumberLabel.snp.makeConstraints { make in
             make.leading.equalTo(logoView.snp.trailing).offset(8)
