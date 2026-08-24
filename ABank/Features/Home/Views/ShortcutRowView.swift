@@ -61,10 +61,12 @@ final class ShortcutRowView: UIView {
         wrap.addTarget(self, action: #selector(itemTapped(_:)), for: .touchUpInside)
 
         let iconBox = UIView()
+        iconBox.isUserInteractionEnabled = false
         iconBox.backgroundColor = item.backgroundColor
         iconBox.layer.cornerRadius = 12
 
         let icon = UIImageView(image: UIImage(systemName: item.systemIcon))
+        icon.isUserInteractionEnabled = false
         icon.tintColor = .white
         icon.contentMode = .scaleAspectFit
 
@@ -73,6 +75,7 @@ final class ShortcutRowView: UIView {
         title.font = .systemFont(ofSize: 12)
         title.textColor = .abankTextPrimary
         title.textAlignment = .center
+        title.isUserInteractionEnabled = false
 
         wrap.addSubview(iconBox)
         wrap.addSubview(title)

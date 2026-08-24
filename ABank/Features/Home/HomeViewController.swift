@@ -73,6 +73,11 @@ final class HomeViewController: BaseViewController {
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
     override func setupUI() {
         view.backgroundColor = .abankBackground
 
@@ -244,7 +249,7 @@ final class HomeViewController: BaseViewController {
             case "转账":
                 self.navigationController?.pushViewController(TransferViewController(), animated: true)
             case "我的账户":
-                self.showToast("尾号7890 储蓄卡")
+                self.navigationController?.pushViewController(MyAccountViewController(), animated: true)
             case "收支":
                 self.showToast("本月收入 ¥12,986.32")
             default:

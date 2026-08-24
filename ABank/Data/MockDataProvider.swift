@@ -787,6 +787,27 @@ final class MockDataProvider {
         FinanceLedgerStore.shared.assetLiabilityPageData()
     }
 
+    // MARK: - 我的账户
+
+    func getMyAccountPageData() -> MyAccountPageData {
+        MyAccountPageData(
+            debitCards: [
+                MyAccountDebitCard(
+                    accountClass: "I类",
+                    maskedNumber: "6230 **** 8472",
+                    availableBalance: 2519.66,
+                    actions: [
+                        MyAccountDebitAction(title: "查询明细", badge: nil),
+                        MyAccountDebitAction(title: "我要转账", badge: nil),
+                        MyAccountDebitAction(title: "活钱理财", badge: "时时付")
+                    ]
+                )
+            ],
+            creditAdImageName: "my_account_credit_ad",
+            creditAdTitle: "神骏贺岁 福运相随"
+        )
+    }
+
     // MARK: - 账户信息（其他模块复用）
 
     struct AccountInfo {
