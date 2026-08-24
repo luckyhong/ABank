@@ -14,6 +14,7 @@ struct MyAccountPageData {
 struct MyAccountDebitCard {
     let accountClass: String
     let maskedNumber: String
+    let fullNumber: String
     let availableBalance: Double
     let actions: [MyAccountDebitAction]
 }
@@ -126,4 +127,25 @@ struct AccountDetailQueryPageData {
     let maskedNumber: String
     let currencyTitle: String
     let transactions: [LedgerTransaction]
+}
+
+// MARK: - 借记卡详情
+
+struct DebitCardDetailInfoItem: Equatable {
+    let title: String
+    let value: String
+}
+
+struct DebitCardDetailPageData {
+    let accountClass: String
+    let maskedNumber: String
+    let fullNumber: String
+    let infoItems: [DebitCardDetailInfoItem]
+    let actions: [String]
+    let currencyTitle: String
+    let availableBalance: Double
+    let accountBalance: Double
+    let cashRemittanceMark: String
+    let interestRateText: String
+    let openDateText: String
 }

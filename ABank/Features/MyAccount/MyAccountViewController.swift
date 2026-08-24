@@ -121,6 +121,14 @@ final class MyAccountViewController: BaseViewController {
                 AccountDetailQueryViewController(maskedNumber: masked),
                 animated: true
             )
+        case .details:
+            let detailData = MockDataProvider.shared.getDebitCardDetailPageData(
+                card: pageData.debitCards.first
+            )
+            navigationController?.pushViewController(
+                DebitCardDetailViewController(pageData: detailData),
+                animated: true
+            )
         default:
             showToast(action.rawValue)
         }

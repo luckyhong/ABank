@@ -795,6 +795,7 @@ final class MockDataProvider {
                 MyAccountDebitCard(
                     accountClass: "I类",
                     maskedNumber: "6230 **** 8472",
+                    fullNumber: "6230 4800 1234 8472",
                     availableBalance: 2519.66,
                     actions: [
                         MyAccountDebitAction(title: "查询明细", badge: nil),
@@ -805,6 +806,31 @@ final class MockDataProvider {
             ],
             creditAdImageName: "my_account_credit_ad",
             creditAdTitle: "神骏贺岁 福运相随"
+        )
+    }
+
+    func getDebitCardDetailPageData(
+        card: MyAccountDebitCard? = nil
+    ) -> DebitCardDetailPageData {
+        let source = card ?? getMyAccountPageData().debitCards.first!
+        return DebitCardDetailPageData(
+            accountClass: source.accountClass,
+            maskedNumber: source.maskedNumber,
+            fullNumber: source.fullNumber,
+            infoItems: [
+                .init(title: "注册渠道", value: "网点注册"),
+                .init(title: "开户网点", value: "农行西安东关正街支行"),
+                .init(title: "卡状态", value: "正常户"),
+                .init(title: "账户状态", value: "正常户"),
+                .init(title: "默认账户", value: "否")
+            ],
+            actions: ["挂失", "改密", "密码解锁", "更多"],
+            currencyTitle: "人民币活期",
+            availableBalance: source.availableBalance,
+            accountBalance: source.availableBalance,
+            cashRemittanceMark: "本币",
+            interestRateText: "0.05000%",
+            openDateText: "2017/08/09"
         )
     }
 
