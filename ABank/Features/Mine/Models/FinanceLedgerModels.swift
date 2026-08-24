@@ -63,6 +63,8 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
     var cardNumber: String
     /// 交易类型展示文案，如「转账」
     var transactionType: String
+    /// 交易渠道，如「电子商务」
+    var channel: String
     /// 归属账本 id，空表示未选择
     var ledgerId: String?
     /// 用户备注
@@ -87,6 +89,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         postscript: String = "",
         cardNumber: String = "",
         transactionType: String = "转账",
+        channel: String = "手机银行",
         ledgerId: String? = nil,
         note: String = ""
     ) {
@@ -108,6 +111,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         self.postscript = postscript
         self.cardNumber = cardNumber
         self.transactionType = transactionType
+        self.channel = channel
         self.ledgerId = ledgerId
         self.note = note
     }
@@ -132,8 +136,20 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         postscript = try container.decodeIfPresent(String.self, forKey: .postscript) ?? ""
         cardNumber = try container.decodeIfPresent(String.self, forKey: .cardNumber) ?? ""
         transactionType = try container.decodeIfPresent(String.self, forKey: .transactionType) ?? "转账"
+        channel = try container.decodeIfPresent(String.self, forKey: .channel) ?? Self.defaultChannel(for: categoryId)
         ledgerId = try container.decodeIfPresent(String.self, forKey: .ledgerId)
         note = try container.decodeIfPresent(String.self, forKey: .note) ?? ""
+    }
+
+    private static func defaultChannel(for categoryId: String) -> String {
+        switch categoryId {
+        case "third_party_out", "third_party_in":
+            return "电子商务"
+        case "cash_withdraw", "cash_deposit":
+            return "ATM"
+        default:
+            return "手机银行"
+        }
     }
 
     var datetimeText: String {

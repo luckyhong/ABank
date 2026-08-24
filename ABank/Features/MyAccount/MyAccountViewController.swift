@@ -116,7 +116,11 @@ final class MyAccountViewController: BaseViewController {
         case .transfer:
             navigationController?.pushViewController(TransferViewController(), animated: true)
         case .queryDetail:
-            navigationController?.pushViewController(IncomeExpenseViewController(), animated: true)
+            let masked = pageData.debitCards.first?.maskedNumber ?? "6230 **** 8472"
+            navigationController?.pushViewController(
+                AccountDetailQueryViewController(maskedNumber: masked),
+                animated: true
+            )
         default:
             showToast(action.rawValue)
         }

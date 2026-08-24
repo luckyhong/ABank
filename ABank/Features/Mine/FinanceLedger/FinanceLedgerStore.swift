@@ -12,7 +12,7 @@ extension Notification.Name {
 final class FinanceLedgerStore {
     static let shared = FinanceLedgerStore()
 
-    private let defaultsKey = "abank.financeLedger.record.v5"
+    private let defaultsKey = "abank.financeLedger.record.v7"
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
@@ -286,6 +286,30 @@ final class FinanceLedgerStore {
 
     func accountCardLabel(for accountId: String) -> String {
         load().accounts.first(where: { $0.id == accountId })?.cardLabel ?? "借记卡"
+    }
+
+    func accountDetailQueryPageData(
+        accountId: String = FinanceLedgerRecord.defaultAccountId,
+        filter: AccountDetailQueryFilter,
+        maskedNumber: String = "6230 **** 8472"
+    ) -> AccountDetailQueryPageData {
+        let record = load()
+        var txs = record.transactions.filter { $0.accountId == accountId && !$0.isManual }
+        txs = txs.filter { $0.date >= filter.startDate && $0.date <= filter.endDate }
+        txs = txs.filter { matchesAdvanced($0, filter: filter.advancedFilter) }
+        // 外币视图暂无独立流水，展示为空列表以区分本币
+        if filter.currency == .foreign {
+            txs = []
+        }
+        txs.sort { lhs, rhs in
+            if lhs.date != rhs.date { return lhs.date > rhs.date }
+            return lhs.time > rhs.time
+        }
+        return AccountDetailQueryPageData(
+            maskedNumber: maskedNumber,
+            currencyTitle: filter.currency.title,
+            transactions: txs
+        )
     }
 
     // MARK: - 重算
@@ -593,8 +617,8 @@ final class FinanceLedgerStore {
                     id: accountId,
                     tailNumber: "8472",
                     currency: "人民币",
-                    balance: 2660.66,
-                    openingBalance: -489.47
+                    balance: 2519.66,
+                    openingBalance: -421.47
                 )
             ],
             transactions: seedTransactions(accountId: accountId),
@@ -679,7 +703,8 @@ final class FinanceLedgerStore {
                 title: "支付宝", direction: .expense, amount: 10, balanceAfter: 0,
                 iconKey: "a.circle", categoryId: "third_party_out",
                 counterpartyName: "支付宝（中国）网络技术有限公司", counterpartyAccount: "2088****1024",
-                summary: "支付宝", postscript: "消费", cardNumber: card, transactionType: "转账"
+                summary: "支付宝", postscript: "消费", cardNumber: card, transactionType: "转账",
+                channel: "电子商务"
             ),
             LedgerTransaction(
                 id: "tx_008", accountId: accountId, date: "2026-08-15", time: "20:14:19",
@@ -688,14 +713,40 @@ final class FinanceLedgerStore {
                 counterpartyName: "河南好莱坞影院管理有限公司", counterpartyAccount: "7020****6346",
                 summary: "抖音支付",
                 postscript: "NA|202608150012342178 4127400300000|河南好莱坞影院管理有限公司",
-                cardNumber: card, transactionType: "转账"
+                cardNumber: card, transactionType: "转账", channel: "电子商务"
             ),
             LedgerTransaction(
                 id: "tx_009", accountId: accountId, date: "2026-08-12", time: "10:20:00",
                 title: "手工记账-餐饮", direction: .expense, amount: 68, balanceAfter: 0,
                 iconKey: "pencil", categoryId: "other_expense", isManual: true,
                 counterpartyName: "手工记账", counterpartyAccount: "-",
-                summary: "餐饮", postscript: "午餐", cardNumber: card, transactionType: "记账"
+                summary: "餐饮", postscript: "午餐", cardNumber: card, transactionType: "记账",
+                channel: "手工记账"
+            ),
+            LedgerTransaction(
+                id: "tx_010", accountId: accountId, date: "2026-08-20", time: "17:26:12",
+                title: "支付宝 (刘涵)", direction: .expense, amount: 40, balanceAfter: 0,
+                iconKey: "a.circle", categoryId: "third_party_out",
+                counterpartyName: "刘涵", counterpartyAccount: "2088****4178",
+                summary: "支付宝（刘涵）", postscript: "转账", cardNumber: card, transactionType: "转账",
+                channel: "电子商务"
+            ),
+            LedgerTransaction(
+                id: "tx_011", accountId: accountId, date: "2026-08-22", time: "11:10:58",
+                title: "支付宝", direction: .income, amount: 40, balanceAfter: 0,
+                iconKey: "a.circle", categoryId: "third_party_in",
+                counterpartyName: "支付宝（中国）网络技术有限公司", counterpartyAccount: "2088****1024",
+                summary: "支付宝", postscript: "退款", cardNumber: card, transactionType: "转账",
+                channel: "电子商务"
+            ),
+            LedgerTransaction(
+                id: "tx_012", accountId: accountId, date: "2026-08-22", time: "13:33:12",
+                title: "支付宝 (刘涵)", direction: .expense, amount: 141, balanceAfter: 0,
+                iconKey: "a.circle", categoryId: "third_party_out",
+                counterpartyName: "刘涵", counterpartyAccount: "2088****4178",
+                summary: "支付宝（刘涵）",
+                postscript: "NA2026082299951364850581090311202刘涵",
+                cardNumber: card, transactionType: "转账", channel: "电子商务"
             )
         ]
     }
