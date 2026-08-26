@@ -1,25 +1,47 @@
 # CLAUDE.md
 
-本文件为 Claude Code (claude.ai/code) 在此仓库中工作时提供指引。
+本文件为在此仓库中工作的 AI 助手提供指引。
 
 ## 仓库现状
 
-当前仓库**只有一个 `README.md`**，尚未包含 Xcode 工程、源代码、依赖清单或任何构建工具链。因此这里没有可以记录的 build / lint / test 命令——它们还不存在。
+ABank 已是可运行的 UIKit + CocoaPods 工程：
 
-在实际添加之前，**不要假设**仓库里存在某种工程结构（例如 `.xcodeproj`、`Package.swift`、`Podfile`、某种目录划分）。动手之前请先查看工作区的真实文件情况。
+- 入口：打开 **`ABank.xcworkspace`**（勿直接打开 `.xcodeproj`）
+- 依赖：`Podfile` 中 SnapKit `~> 5.6`；首次或变更后执行 `pod install`
+- 平台：App Target **iOS 15.6+**，Swift 5
+- 源码根目录：`ABank/`（`Core` / `Features` / `Shared` / `Data` / `Assets.xcassets`）
 
-## 项目定位（来自 README.md）
+动手前请以工作区真实文件为准，不要假设不存在的工具链（如尚未引入的 SPM、测试 Target 等）。
 
-ABank 是一个**纯前端 UI 层实现**的 iOS 学习型项目，用于自学和演示如何从 0 到 1 搭建一个银行类 App 的界面与交互结构。项目不涉及真实银行业务，界面与逻辑**全部使用假数据模拟**。
+## 项目定位
 
-其目标是提升 iOS 开发在以下四个方面的实战能力：
+纯前端 UI 学习项目：银行类 App 的界面与交互结构，**全部假数据**（`MockDataProvider`、本地 `*Store`）。不涉及真实银行业务。
 
-- 架构设计
-- 模块化
-- UI 布局
-- 命名规范
+重点能力练习：架构设计、模块化、UI 布局、命名规范。
 
-## 在此仓库中工作
+**不要**引入真实网络请求、敏感数据持久化或后端集成——超出项目既定范围。
 
-- 当工程被真正搭建起来之后（新增 Xcode 工程 / workspace、Swift Package 等），请回来更新本文件，补充**真实可用的**构建、运行、测试命令（例如具体的 `xcodebuild` 调用、scheme 名称、如何单独跑某一个测试），以及实际的模块划分与架构说明。
-- 由于本项目明确定位为「仅 UI 层 + 假数据」的学习项目，**不要**引入真实的网络请求、敏感数据持久化或后端集成——这些超出了项目既定目标的范围。
+## 常用命令
+
+```bash
+# 安装 / 更新 Pods
+export LANG=en_US.UTF-8
+pod install
+
+# 用 Xcode 打开
+open ABank.xcworkspace
+```
+
+若需命令行构建，在本机配置好签名与模拟器后可使用 `xcodebuild`，scheme 一般为 `ABank`（以 Xcode 中实际 scheme 为准）。当前仓库**未**配置独立测试 Target / CI——新增后再补充此处说明。
+
+## 模块速览
+
+| 区域 | 说明 |
+|------|------|
+| `Core/` | `BaseViewController`、`MainTabBarController`（五 Tab） |
+| `Features/Home` · `Finance` · `Life` · `News` · `Mine` | 五个主 Tab |
+| `Features/Transfer` · `MyAccount` | 二级业务页（从首页等入口进入） |
+| `Shared/DesignSystem` | Color / Font / Spacing / CornerRadius（`abank*`） |
+| `Data/MockDataProvider.swift` | 假数据入口 |
+
+文档：英文 [README.md](README.md)（默认）· 中文 [README.zh-CN.md](README.zh-CN.md)。
