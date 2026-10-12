@@ -85,8 +85,7 @@ final class AssetLiabilitySummaryCardView: UIView {
         timestampLabel.font = .systemFont(ofSize: 11)
         timestampLabel.textColor = .abankTextTertiary
 
-        let checkupConfig = UIImage.SymbolConfiguration(pointSize: 10, weight: .medium)
-        wealthCheckupButton.setImage(UIImage(systemName: "circle.hexagongrid.fill", withConfiguration: checkupConfig), for: .normal)
+        wealthCheckupButton.setImage(UIImage.abankAsset("abc_mine_detail_wealth_checkup", fallback: "circle.hexagongrid.fill", pointSize: 10), for: .normal)
         wealthCheckupButton.setTitle(" 财富体检", for: .normal)
         wealthCheckupButton.titleLabel?.font = .systemFont(ofSize: 12)
         wealthCheckupButton.tintColor = .abankTeal

@@ -248,8 +248,7 @@ private final class MyLoanContractCardView: UIView {
         titleLabel.font = .systemFont(ofSize: 14)
         titleLabel.textColor = .abankTextPrimary
 
-        let infoConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .regular)
-        let info = UIImageView(image: UIImage(systemName: "info.circle", withConfiguration: infoConfig))
+        let info = UIImageView(image: UIImage.abankAsset("abc_mine_detail_info", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13))
         info.tintColor = UIColor(red: 190 / 255, green: 190 / 255, blue: 190 / 255, alpha: 1)
         info.isUserInteractionEnabled = false
 

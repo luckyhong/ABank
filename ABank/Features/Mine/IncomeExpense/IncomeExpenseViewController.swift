@@ -54,9 +54,9 @@ final class IncomeExpenseViewController: BaseViewController {
             target: self,
             action: #selector(backTapped)
         )
-        let searchConfig = UIImage.SymbolConfiguration(pointSize: 16, weight: .regular)
+
         let searchItem = UIBarButtonItem(
-            image: UIImage(systemName: "magnifyingglass", withConfiguration: searchConfig),
+            image: UIImage.abankAsset("abc_mine_detail_toolbar_search", fallback: "magnifyingglass", renderingMode: .alwaysTemplate, pointSize: 18),
             style: .plain,
             target: self,
             action: #selector(searchTapped)

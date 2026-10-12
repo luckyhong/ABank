@@ -65,8 +65,7 @@ final class IncomeExpenseSummaryCardView: UIView {
         monthUnitLabel.font = .systemFont(ofSize: 16, weight: .regular)
         monthUnitLabel.textColor = .abankAmount
 
-        let infoConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .regular)
-        infoButton.setImage(UIImage(systemName: "info.circle", withConfiguration: infoConfig), for: .normal)
+        infoButton.setImage(UIImage.abankAsset("abc_mine_detail_info", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13), for: .normal)
         infoButton.tintColor = UIColor(red: 180 / 255, green: 180 / 255, blue: 180 / 255, alpha: 1)
         infoButton.isUserInteractionEnabled = false
 

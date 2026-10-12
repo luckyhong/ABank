@@ -1,0 +1,66 @@
+[
+  {
+    "asset": "abc_mine_detail_amount_eye_open",
+    "source": "LHEyeOpenIcon.png",
+    "sha256": "4e251fbe2d76d293fce6dc544646567033ac2fdaee4c04b96fb5f20c1c9a7e02",
+    "width": 60,
+    "height": 60,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_detail_amount_eye_closed",
+    "source": "LHEyeCloseicon.png",
+    "sha256": "b16cd8e2c79e4ee1474e3c13565f25b269f76a2567c65a0aa2e9609e47f040e7",
+    "width": 60,
+    "height": 60,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_detail_info",
+    "source": "ABCFortune_Star_TipIcon.png",
+    "sha256": "e62230c38a1d3f8161ffd7e75d03d71b072a7be88bd24296d12d704472ea2de3",
+    "width": 60,
+    "height": 60,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_detail_wealth_checkup",
+    "source": "wealth_test_native500.png",
+    "sha256": "60579279db81ce18a80997236cfe7c7213ee12da494a77a6b052715c9a5c4b89",
+    "width": 192,
+    "height": 192,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_detail_toolbar_service",
+    "source": "Assets/客服_黑_Normal@2x.png",
+    "sha256": "0065dd0a5174d33a22f50f650c6f5df18883a18cd1e8ee3de6a788ce7497c50e",
+    "width": 48,
+    "height": 48,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_mine_detail_toolbar_service",
+    "source": "Assets/客服_黑_Normal@3x.png",
+    "sha256": "497004eb1a71f20119db0495b35f5d561b6c2ebcffd2755f4e906c9f721e5c91",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_detail_toolbar_search",
+    "source": "Assets/huinong_nav_searchbar_search_black_Normal@2x.png",
+    "sha256": "2fc8105517db1445b483ff5c73e2cd3a72391e592f7dd2edaf5cc10af6087c7b",
+    "width": 54,
+    "height": 54,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_mine_detail_toolbar_search",
+    "source": "Assets/huinong_nav_searchbar_search_black_Normal@3x.png",
+    "sha256": "9c875f04c52da434f5b9fc1cd6c062609fb6eb0ec763f8a169e3d5714926632f",
+    "width": 81,
+    "height": 81,
+    "scale": "3x"
+  }
+]

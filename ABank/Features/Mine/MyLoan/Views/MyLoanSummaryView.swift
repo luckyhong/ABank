@@ -43,9 +43,9 @@ final class MyLoanSummaryView: UIView {
     func setAmountVisible(_ visible: Bool) {
         isAmountVisible = visible
         updateUnpaidDisplay()
-        let eyeConfig = UIImage.SymbolConfiguration(pointSize: 12, weight: .regular)
+
         let name = visible ? "eye" : "eye.slash"
-        eyeButton.setImage(UIImage(systemName: name, withConfiguration: eyeConfig), for: .normal)
+        eyeButton.setImage(UIImage.abankAsset(isAmountVisible ? "abc_mine_detail_amount_eye_open" : "abc_mine_detail_amount_eye_closed", fallback: name, renderingMode: .alwaysTemplate, pointSize: 12), for: .normal)
     }
 
     private func updateUnpaidDisplay() {
@@ -81,8 +81,7 @@ final class MyLoanSummaryView: UIView {
         unpaidTitleLabel.font = .systemFont(ofSize: 12)
         unpaidTitleLabel.textColor = .abankTextSecondary
 
-        let eyeConfig = UIImage.SymbolConfiguration(pointSize: 12, weight: .regular)
-        eyeButton.setImage(UIImage(systemName: "eye", withConfiguration: eyeConfig), for: .normal)
+        eyeButton.setImage(UIImage.abankAsset("abc_mine_detail_amount_eye_open", fallback: "eye", renderingMode: .alwaysTemplate, pointSize: 12), for: .normal)
         eyeButton.tintColor = .abankTextTertiary
         eyeButton.addTarget(self, action: #selector(eyeTapped), for: .touchUpInside)
 
