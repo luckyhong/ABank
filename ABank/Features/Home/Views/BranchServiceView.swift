@@ -46,7 +46,7 @@ final class BranchServiceView: UIView {
 
     private func setupUI() {
         let refresh = UIButton(type: .system)
-        refresh.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
+        refresh.setImage(UIImage.abankAsset("abc_home_branch_refresh", fallback: "arrow.clockwise"), for: .normal)
         refresh.tintColor = .abankPrimary
         refresh.addAction(UIAction { [weak self] _ in self?.onRefreshTapped?() }, for: .touchUpInside)
         header.addAccessory(refresh)
@@ -55,15 +55,15 @@ final class BranchServiceView: UIView {
         card.layer.cornerRadius = CornerRadius.lg
         card.addShadow(color: .black, opacity: 0.06, offset: CGSize(width: 0, height: 2), radius: 8)
 
-        logoView.backgroundColor = .abankPrimary
+        logoView.backgroundColor = .clear
         logoView.layer.cornerRadius = 12
-        let logoIcon = UIImageView(image: UIImage(systemName: "building.columns.fill"))
+        let logoIcon = UIImageView(image: UIImage.abankAsset("abc_home_branch_logo", fallback: "building.columns.fill"))
         logoIcon.tintColor = .white
         logoIcon.contentMode = .scaleAspectFit
         logoView.addSubview(logoIcon)
         logoIcon.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.size.equalTo(14)
+            make.size.equalTo(24)
         }
 
         nameLabel.font = .systemFont(ofSize: 15, weight: .semibold)
@@ -171,7 +171,7 @@ final class BranchServiceView: UIView {
 
     private func makeService(item: HomeBranchServiceItem) -> UIView {
         let wrap = UIView()
-        let icon = UIImageView(image: UIImage(systemName: item.systemIcon))
+        let icon = UIImageView(image: UIImage.abankAsset(item.imageName, fallback: item.systemIcon))
         icon.tintColor = .abankTextSecondary
         icon.contentMode = .scaleAspectFit
         let title = UILabel()

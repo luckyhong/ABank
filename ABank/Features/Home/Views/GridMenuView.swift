@@ -65,7 +65,7 @@ final class GridMenuView: UIView {
         wrap.tag = index
         wrap.addTarget(self, action: #selector(itemTapped(_:)), for: .touchUpInside)
 
-        let icon = UIImageView(image: UIImage(systemName: item.systemIcon))
+        let icon = UIImageView(image: UIImage.abankAsset(item.imageName, fallback: item.systemIcon))
         icon.tintColor = .abankTextPrimary
         icon.contentMode = .scaleAspectFit
 

@@ -29,20 +29,20 @@ final class MainTabBarController: UITabBarController {
 
     private func setupViewControllers() {
         viewControllers = [
-            wrap(HomeViewController(), title: "首页", icon: "house.fill"),
-            wrap(WealthViewController(), title: "财富", icon: "yensign.circle"),
-            wrap(LifeViewController(), title: "生活", icon: "bag"),
-            wrap(NewsViewController(), title: "资讯", icon: "globe"),
-            wrap(MineViewController(), title: "我的", icon: "person")
+            wrap(HomeViewController(), title: "首页", icon: "house.fill", asset: "home"),
+            wrap(WealthViewController(), title: "财富", icon: "yensign.circle", asset: "wealth"),
+            wrap(LifeViewController(), title: "生活", icon: "bag", asset: "life"),
+            wrap(NewsViewController(), title: "资讯", icon: "globe", asset: "news"),
+            wrap(MineViewController(), title: "我的", icon: "person", asset: "mine")
         ]
     }
 
-    private func wrap(_ root: UIViewController, title: String, icon: String) -> UINavigationController {
+    private func wrap(_ root: UIViewController, title: String, icon: String, asset: String) -> UINavigationController {
         let nav = UINavigationController(rootViewController: root)
         nav.tabBarItem = UITabBarItem(
             title: title,
-            image: UIImage(systemName: icon),
-            selectedImage: UIImage(systemName: icon)
+            image: UIImage.abankAsset("abc_tab_\(asset)_normal", fallback: icon),
+            selectedImage: UIImage.abankAsset("abc_tab_\(asset)_selected", fallback: icon)
         )
         return nav
     }

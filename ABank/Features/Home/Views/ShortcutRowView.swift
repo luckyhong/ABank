@@ -62,10 +62,11 @@ final class ShortcutRowView: UIView {
 
         let iconBox = UIView()
         iconBox.isUserInteractionEnabled = false
-        iconBox.backgroundColor = item.backgroundColor
+        let hasArtwork = UIImage(named: item.imageName) != nil
+        iconBox.backgroundColor = hasArtwork ? .clear : item.backgroundColor
         iconBox.layer.cornerRadius = 12
 
-        let icon = UIImageView(image: UIImage(systemName: item.systemIcon))
+        let icon = UIImageView(image: UIImage.abankAsset(item.imageName, fallback: item.systemIcon))
         icon.isUserInteractionEnabled = false
         icon.tintColor = .white
         icon.contentMode = .scaleAspectFit
@@ -88,7 +89,7 @@ final class ShortcutRowView: UIView {
         }
         icon.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.size.equalTo(20)
+            make.size.equalTo(hasArtwork ? 42 : 20)
         }
         title.snp.makeConstraints { make in
             make.top.equalTo(iconBox.snp.bottom).offset(10)

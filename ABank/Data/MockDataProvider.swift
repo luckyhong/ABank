@@ -41,22 +41,22 @@ final class MockDataProvider {
                 )
             ],
             shortcuts: [
-                HomeShortcutItem(title: "我的账户", systemIcon: "person.fill", backgroundColor: UIColor(red: 0.0, green: 0.68, blue: 0.58, alpha: 1)),
-                HomeShortcutItem(title: "转账", systemIcon: "arrow.left.arrow.right", backgroundColor: UIColor(red: 1.0, green: 0.58, blue: 0.18, alpha: 1)),
-                HomeShortcutItem(title: "收支", systemIcon: "list.bullet.rectangle", backgroundColor: UIColor(red: 0.12, green: 0.62, blue: 0.52, alpha: 1)),
-                HomeShortcutItem(title: "扫一扫", systemIcon: "qrcode.viewfinder", backgroundColor: UIColor(red: 1.0, green: 0.62, blue: 0.28, alpha: 1))
+                HomeShortcutItem(title: "我的账户", imageName: "abc_home_account", systemIcon: "person.fill", backgroundColor: UIColor(red: 0.0, green: 0.68, blue: 0.58, alpha: 1)),
+                HomeShortcutItem(title: "转账", imageName: "abc_home_transfer", systemIcon: "arrow.left.arrow.right", backgroundColor: UIColor(red: 1.0, green: 0.58, blue: 0.18, alpha: 1)),
+                HomeShortcutItem(title: "收支", imageName: "abc_home_income", systemIcon: "list.bullet.rectangle", backgroundColor: UIColor(red: 0.12, green: 0.62, blue: 0.52, alpha: 1)),
+                HomeShortcutItem(title: "扫一扫", imageName: "abc_home_scan", systemIcon: "qrcode.viewfinder", backgroundColor: UIColor(red: 1.0, green: 0.62, blue: 0.28, alpha: 1))
             ],
             gridItems: [
-                HomeGridItem(title: "信用卡", systemIcon: "creditcard", badge: nil),
-                HomeGridItem(title: "养老社区", systemIcon: "house", badge: nil),
-                HomeGridItem(title: "普惠金融", systemIcon: "yensign.circle", badge: "NEW"),
-                HomeGridItem(title: "存款", systemIcon: "banknote", badge: nil),
-                HomeGridItem(title: "理财产品", systemIcon: "chart.line.uptrend.xyaxis", badge: nil),
-                HomeGridItem(title: "贷款", systemIcon: "bag.fill", badge: nil),
-                HomeGridItem(title: "生活缴费", systemIcon: "bolt.fill", badge: nil),
-                HomeGridItem(title: "热门活动", systemIcon: "megaphone.fill", badge: nil),
-                HomeGridItem(title: "城市专区", systemIcon: "building.2.fill", badge: nil),
-                HomeGridItem(title: "全部", systemIcon: "ellipsis.circle", badge: nil)
+                HomeGridItem(title: "信用卡", imageName: "abc_home_credit", systemIcon: "creditcard", badge: nil),
+                HomeGridItem(title: "养老社区", imageName: "abc_home_pension_community", systemIcon: "house", badge: nil),
+                HomeGridItem(title: "普惠金融", imageName: "abc_home_inclusive", systemIcon: "yensign.circle", badge: "NEW"),
+                HomeGridItem(title: "存款", imageName: "abc_home_deposit", systemIcon: "banknote", badge: nil),
+                HomeGridItem(title: "理财产品", imageName: "abc_home_wealth", systemIcon: "chart.line.uptrend.xyaxis", badge: nil),
+                HomeGridItem(title: "贷款", imageName: "abc_home_loan", systemIcon: "bag.fill", badge: nil),
+                HomeGridItem(title: "生活缴费", imageName: "abc_home_payment", systemIcon: "bolt.fill", badge: nil),
+                HomeGridItem(title: "热门活动", imageName: "abc_home_activity", systemIcon: "megaphone.fill", badge: nil),
+                HomeGridItem(title: "城市专区", imageName: "abc_home_city", systemIcon: "building.2.fill", badge: nil),
+                HomeGridItem(title: "全部", imageName: "abc_home_all", systemIcon: "ellipsis.circle", badge: nil)
             ],
             notices: [
                 HomeNoticeItem(tag: "待办", text: "您的月度账单已出，请查看"),
@@ -107,9 +107,9 @@ final class MockDataProvider {
                 distance: "距您约2552米",
                 address: "陕西省西安市沣东新城大明宫·沣东一路88号",
                 services: [
-                    HomeBranchServiceItem(title: "我要开卡", systemIcon: "creditcard.fill"),
-                    HomeBranchServiceItem(title: "纪念币预约", systemIcon: "bitcoinsign.circle"),
-                    HomeBranchServiceItem(title: "同号换卡", systemIcon: "arrow.triangle.2.circlepath")
+                    HomeBranchServiceItem(title: "我要开卡", imageName: "abc_home_branch_open", systemIcon: "creditcard.fill"),
+                    HomeBranchServiceItem(title: "纪念币预约", imageName: "abc_home_branch_coin", systemIcon: "bitcoinsign.circle"),
+                    HomeBranchServiceItem(title: "同号换卡", imageName: "abc_home_branch_replace", systemIcon: "arrow.triangle.2.circlepath")
                 ]
             ),
             infoMarket: HomeInfoMarketItem(

@@ -7,12 +7,14 @@ import UIKit
 
 struct HomeShortcutItem {
     let title: String
+    let imageName: String
     let systemIcon: String
     let backgroundColor: UIColor
 }
 
 struct HomeGridItem {
     let title: String
+    let imageName: String
     let systemIcon: String
     let badge: String?
 }
@@ -90,6 +92,7 @@ struct HomeBranchInfo {
 
 struct HomeBranchServiceItem {
     let title: String
+    let imageName: String
     let systemIcon: String
 }
 
