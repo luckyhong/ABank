@@ -61,6 +61,9 @@ final class NewsArticleCell: UITableViewCell {
             make.trailing.equalToSuperview().offset(-Spacing.md)
             make.centerY.equalToSuperview()
             make.size.equalTo(CGSize(width: 108, height: 72))
+            // Single-line titles must still leave space around the fixed-height thumbnail.
+            make.top.greaterThanOrEqualToSuperview().offset(14)
+            make.bottom.lessThanOrEqualToSuperview().offset(-14)
         }
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(Spacing.md)
