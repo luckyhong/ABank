@@ -11,6 +11,7 @@ final class WealthHotspotView: UIView {
     var onTap: (() -> Void)?
 
     private let tagLabel = UILabel()
+    private let tagImage = UIImageView(image: UIImage(named: "abc_wealth_hotspot"))
     private let headlineLabel = UILabel()
 
     override init(frame: CGRect) {
@@ -24,6 +25,9 @@ final class WealthHotspotView: UIView {
 
     func configure(with hotspot: WealthHotspot) {
         tagLabel.text = hotspot.tag
+        tagImage.isHidden = hotspot.tag != "热点"
+        tagLabel.isHidden = !tagImage.isHidden
+        tagImage.accessibilityLabel = hotspot.tag
         headlineLabel.text = hotspot.headline
     }
 
@@ -37,6 +41,10 @@ final class WealthHotspotView: UIView {
         headlineLabel.lineBreakMode = .byTruncatingTail
 
         addSubview(tagLabel)
+        addSubview(tagImage)
+        tagImage.contentMode = .scaleAspectFit
+        tagImage.isAccessibilityElement = true
+        tagImage.snp.makeConstraints { $0.edges.equalTo(tagLabel) }
         addSubview(headlineLabel)
 
         tagLabel.snp.makeConstraints { make in

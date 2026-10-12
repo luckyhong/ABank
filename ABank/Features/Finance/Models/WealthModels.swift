@@ -7,6 +7,7 @@ import UIKit
 
 struct WealthGridItem {
     let title: String
+    let imageName: String
     let systemIcon: String
 }
 

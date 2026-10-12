@@ -118,20 +118,15 @@ final class WealthSteadyGrowthView: UIView {
         }
 
         if product.isHot {
-            let ribbon = UILabel()
-            ribbon.text = "热销"
-            ribbon.font = .systemFont(ofSize: 9, weight: .bold)
-            ribbon.textColor = .white
-            ribbon.textAlignment = .center
-            ribbon.backgroundColor = .abankHighlight
+            let ribbon = UIImageView(image: UIImage(named: "abc_wealth_ribbon_hot"))
+            ribbon.contentMode = .scaleAspectFit
+            ribbon.isAccessibilityElement = true
+            ribbon.accessibilityLabel = "热销"
             card.addSubview(ribbon)
             ribbon.snp.makeConstraints { make in
                 make.top.trailing.equalToSuperview()
-                make.width.equalTo(36)
-                make.height.equalTo(36)
+                make.size.equalTo(42)
             }
-            ribbon.transform = CGAffineTransform(rotationAngle: .pi / 4)
-                .translatedBy(x: 8, y: -4)
         }
 
         if let disclaimer = product.disclaimer {

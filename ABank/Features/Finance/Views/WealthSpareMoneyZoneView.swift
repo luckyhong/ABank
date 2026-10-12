@@ -76,7 +76,7 @@ final class WealthSpareMoneyZoneView: UIView {
 
     private func buildFeaturedCard(_ item: WealthSpareMoneyFeatured) {
         featuredCard.subviews.forEach { $0.removeFromSuperview() }
-        styleInnerCard(featuredCard, bg: UIColor(red: 0.98, green: 0.97, blue: 0.94, alpha: 1))
+        styleInnerCard(featuredCard, imageName: "abc_wealth_spare_featured_background", bg: UIColor(red: 0.98, green: 0.97, blue: 0.94, alpha: 1))
 
         let title = UILabel()
         title.text = item.title
@@ -147,7 +147,7 @@ final class WealthSpareMoneyZoneView: UIView {
         let wrap = UIControl()
         wrap.tag = index
         wrap.addAction(UIAction { [weak self] _ in self?.onSideTapped?(index) }, for: .touchUpInside)
-        styleInnerCard(wrap, bg: UIColor(red: 1.0, green: 0.98, blue: 0.94, alpha: 1))
+        styleInnerCard(wrap, imageName: index == 0 ? "abc_wealth_spare_keb2_background" : "abc_wealth_spare_keb_background", bg: UIColor(red: 1.0, green: 0.98, blue: 0.94, alpha: 1))
 
         let title = UILabel()
         title.text = item.title
@@ -200,9 +200,14 @@ final class WealthSpareMoneyZoneView: UIView {
         return wrap
     }
 
-    private func styleInnerCard(_ view: UIView, bg: UIColor) {
+    private func styleInnerCard(_ view: UIView, imageName: String, bg: UIColor) {
         view.backgroundColor = bg
         view.layer.cornerRadius = CornerRadius.md
         view.clipsToBounds = true
+        let artwork = UIImageView(image: UIImage(named: imageName))
+        artwork.contentMode = .scaleToFill
+        artwork.isUserInteractionEnabled = false
+        view.insertSubview(artwork, at: 0)
+        artwork.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 }

@@ -13,10 +13,12 @@ struct LifeBannerItem {
     let accentColor: UIColor
     let systemIcon: String
     let isAd: Bool
+    var artworkName: String? = nil
 }
 
 struct LifeGridItem {
     let title: String
+    var imageName: String? = nil
     let systemIcon: String
     let tintColor: UIColor
 }
@@ -27,6 +29,7 @@ struct LifeActivityCard {
     let backgroundColor: UIColor
     let systemIcon: String
     let isAd: Bool
+    var artworkName: String? = nil
 }
 
 struct LifePromoBanner {
@@ -35,6 +38,7 @@ struct LifePromoBanner {
     let backgroundColor: UIColor
     let systemIcon: String
     let isAd: Bool
+    var artworkName: String? = nil
 }
 
 struct LifeFeedItem {

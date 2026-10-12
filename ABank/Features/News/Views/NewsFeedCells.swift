@@ -28,7 +28,7 @@ final class NewsArticleCell: UITableViewCell {
         titleLabel.text = item.title
         metaLabel.text = "\(item.source)  \(item.readCount)阅读  \(item.date)"
         thumbView.backgroundColor = item.thumbnailBackground
-        thumbIcon.image = UIImage(systemName: item.systemIcon)
+        thumbIcon.image = UIImage(named: "abc_news_placeholder_article")
         thumbIcon.tintColor = item.iconTint
     }
 
@@ -46,7 +46,8 @@ final class NewsArticleCell: UITableViewCell {
 
         thumbView.layer.cornerRadius = CornerRadius.sm
         thumbView.clipsToBounds = true
-        thumbIcon.contentMode = .scaleAspectFit
+        thumbIcon.contentMode = .scaleAspectFill
+        thumbIcon.clipsToBounds = true
 
         separator.backgroundColor = .abankSeparator
 
@@ -73,8 +74,7 @@ final class NewsArticleCell: UITableViewCell {
             make.bottom.lessThanOrEqualToSuperview().offset(-14)
         }
         thumbIcon.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.size.equalTo(28)
+            make.edges.equalToSuperview()
         }
         separator.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(Spacing.md)
@@ -346,7 +346,7 @@ final class NewsFeedVideoCell: UITableViewCell {
     func configure(with item: NewsFeedVideoItem) {
         titleLabel.text = item.title
         coverView.backgroundColor = item.backgroundColor
-        iconView.image = UIImage(systemName: item.systemIcon)
+        iconView.image = UIImage(named: "abc_news_placeholder_video_horizontal")
         iconView.tintColor = item.iconTint
     }
 
@@ -356,14 +356,17 @@ final class NewsFeedVideoCell: UITableViewCell {
         contentView.backgroundColor = .white
 
         tagLabel.text = "视频"
+        NewsResourceArtwork.apply("abc_news_tag_video", to: tagLabel)
         tagLabel.font = .systemFont(ofSize: 10, weight: .bold)
-        tagLabel.textColor = UIColor(red: 0.20, green: 0.45, blue: 0.85, alpha: 1)
+        tagLabel.textColor = .clear
         tagLabel.backgroundColor = UIColor(red: 0.92, green: 0.96, blue: 1.0, alpha: 1)
         tagLabel.textAlignment = .center
         tagLabel.layer.cornerRadius = 3
         tagLabel.layer.borderWidth = 0.5
         tagLabel.layer.borderColor = UIColor(red: 0.55, green: 0.75, blue: 0.95, alpha: 1).cgColor
         tagLabel.clipsToBounds = true
+        tagLabel.backgroundColor = .clear
+        tagLabel.layer.borderWidth = 0
 
         titleLabel.font = .systemFont(ofSize: 16, weight: .medium)
         titleLabel.textColor = .abankTextPrimary
@@ -371,7 +374,8 @@ final class NewsFeedVideoCell: UITableViewCell {
 
         coverView.layer.cornerRadius = CornerRadius.md
         coverView.clipsToBounds = true
-        iconView.contentMode = .scaleAspectFit
+        iconView.contentMode = .scaleAspectFill
+        iconView.clipsToBounds = true
         playIcon.tintColor = UIColor.white.withAlphaComponent(0.9)
         playIcon.contentMode = .scaleAspectFit
 
@@ -402,8 +406,7 @@ final class NewsFeedVideoCell: UITableViewCell {
             make.bottom.equalToSuperview().offset(-12)
         }
         iconView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.size.equalTo(48)
+            make.edges.equalToSuperview()
         }
         playIcon.snp.makeConstraints { make in
             make.trailing.bottom.equalToSuperview().inset(12)

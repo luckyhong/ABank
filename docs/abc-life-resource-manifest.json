@@ -1,0 +1,362 @@
+[
+  {
+    "asset": "abc_life_menu_payment",
+    "source": "Assets/home_life_menu_recharge_Normal@2x.png",
+    "sha256": "a1ce605994c03bb3b301333929c31dd4ad563107b484f4b4863e47029ee91b77",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_menu_payment",
+    "source": "Assets/home_life_menu_recharge_Normal@3x.png",
+    "sha256": "58368af72f09e6bf03bbd145fe51906986d6bd4f220c2d5a1caffdd15f651702",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_mobile",
+    "source": "Assets/home_life_menu_phoneRecharge_Normal@2x.png",
+    "sha256": "5e2c2f55ec96efb4c8d45bdd89b24240b234a1a0c2fd20ee1d670c1da79af90d",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_menu_mobile",
+    "source": "Assets/home_life_menu_phoneRecharge_Normal@3x.png",
+    "sha256": "56f06810f8f73d3e176c34ab470322d5a359a5dcdbe0f81b0048ac0d250a2db1",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_government",
+    "source": "Assets/home_life_menu_people_Normal@2x.png",
+    "sha256": "c42dc9179d0e25e7649cd0d75b9d78a3d2edc8970ed58e6255918735add94c19",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_menu_government",
+    "source": "Assets/home_life_menu_people_Normal@3x.png",
+    "sha256": "349e75555e19e67c1208234388d72e9bbb55a1f4a85a175f2d59b37d2c0d1761",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_social",
+    "source": "Assets/home_life_menu_social_Normal@2x.png",
+    "sha256": "b410a71c4d4fd4495ab6d910abdb1ba856fcab4d5d569a29a7455f1b6bbbc769",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_menu_social",
+    "source": "Assets/home_life_menu_social_Normal@3x.png",
+    "sha256": "d3a504ff55a91d08a2cebcdad13eeef6f04589a8bbb1a15a06c730d999e89576",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_beans",
+    "source": "Assets/home_life_menu_xiaodou_Normal@2x.png",
+    "sha256": "f3f771ae4c507b355d165583088ec34be468865491d45a80f95c90d94d022151",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_menu_beans",
+    "source": "Assets/home_life_menu_xiaodou_Normal@3x.png",
+    "sha256": "20af0ded86d27129495b3632285c94dbffd78bfa4cb64893456bd791b447d6c4",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_campus",
+    "source": "Assets/home_life_menu_school_Normal@2x.png",
+    "sha256": "b55f6f2eeff79ca2afd6a6420201c79bea72d0361896840ed453c6bc4c56f3ba",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_menu_campus",
+    "source": "Assets/home_life_menu_school_Normal@3x.png",
+    "sha256": "0e0c195373923926ff24a74bc5c56653f0c8b8ec6a8f44980c97b04ba05fe53b",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_cafeteria",
+    "source": "Assets/home_life_menu_cafeteria_Normal@2x.png",
+    "sha256": "600dda0cee581b14bd93ca33b5ccadad30aa1a0c8ce630df2ac17700a689ee70",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_menu_cafeteria",
+    "source": "Assets/home_life_menu_cafeteria_Normal@3x.png",
+    "sha256": "c1b91f1921d51e09169296c2b07be4aac494892fee025331146603f134b48ecd",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_party",
+    "source": "party_dues_webview_native500.png",
+    "sha256": "60629e0d3cddccb4365918c20deb10da740bf9d9b37a9c74b08b135d3041a0fd",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_car",
+    "source": "car_zone_native500.png",
+    "sha256": "6b1c71b201a85f21c29a41bf9c6aa65604b7b90d86ec98afe65c8e20f1d40ba7",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_market",
+    "source": "Assets/home_life_menu_shop_Normal@2x.png",
+    "sha256": "84ccf88d053233f305952aec546094324c3acb23e909103a8f268280a2d055b7",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_menu_market",
+    "source": "Assets/home_life_menu_shop_Normal@3x.png",
+    "sha256": "e7f982727c5c3eb64e146fe591e53647a1498946f8d61c045d9a2be2757bf355",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_hospital",
+    "source": "hospitalizing_service_native500.png",
+    "sha256": "32f4fe79041a667c4130d43b30ff78effd257ebffe65185c44cdd03cba904b09",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_provident",
+    "source": "XM_AccmFund_native500.png",
+    "sha256": "3e26269be683a03f49f59673487e10af03e5eea8e654f77e6685d0adb2bec263",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_transport",
+    "source": "nb_etc_bus_native500.png",
+    "sha256": "33221a5f48c74ee09401194943e548e1d8cbf6f13fce79a1f3f15041eb51e3d1",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_points",
+    "source": "credit_pointmall_webview_native500.png",
+    "sha256": "29a563550b50bf480d137827353b53b56362b565c13867c85c517ef500eeb09a",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_menu_all",
+    "source": "homepage_more_native500.png",
+    "sha256": "b63823b7dc359f55f6c469159043a4709e1cc0ae3f417a7a275c1409f57e33a8",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_toolbar_orders",
+    "source": "Assets/订单_黑_Normal@2x.png",
+    "sha256": "03d3de2e9f846e3cf5cd73f911f2acbeec8d8bbe77bc975f032a51a1c0c00b10",
+    "width": 48,
+    "height": 48,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_toolbar_orders",
+    "source": "Assets/订单_黑_Normal@3x.png",
+    "sha256": "9a8522c0a6ba5a2ab29afdfb867fe204c7521ed7c8935a2b12d7a3da7a06a3f9",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_toolbar_coupons",
+    "source": "Assets/卡券_黑_Normal@2x.png",
+    "sha256": "7a4cebd271194cae89af2352bd25a200cbd12b9fc2dc97923e9713a12274ea81",
+    "width": 48,
+    "height": 48,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_toolbar_coupons",
+    "source": "Assets/卡券_黑_Normal@3x.png",
+    "sha256": "6f96013c7cf90bc2d1bacd0a1aa921ab57492ca1f3520ac5240fbc1fe54d289d",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_toolbar_location",
+    "source": "Assets/定位_黑_Normal@2x.png",
+    "sha256": "42188c0569e36b9166d872bdbe26c10e87b47bcc64e1f1369a1ebd1e98c07f72",
+    "width": 48,
+    "height": 48,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_toolbar_location",
+    "source": "Assets/定位_黑_Normal@3x.png",
+    "sha256": "72e40a39926e60f4cdfea4cc0d1930e93a41676e94c66040f0686ebea439bc0b",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_toolbar_search",
+    "source": "Assets/huinong_nav_searchbar_search_black_Normal@2x.png",
+    "sha256": "2fc8105517db1445b483ff5c73e2cd3a72391e592f7dd2edaf5cc10af6087c7b",
+    "width": 54,
+    "height": 54,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_toolbar_search",
+    "source": "Assets/huinong_nav_searchbar_search_black_Normal@3x.png",
+    "sha256": "9c875f04c52da434f5b9fc1cd6c062609fb6eb0ec763f8a169e3d5714926632f",
+    "width": 81,
+    "height": 81,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_toolbar_microphone",
+    "source": "Assets/huinong_nav_searchbar_voice_black_Normal@2x.png",
+    "sha256": "29a6b72ed75a0c44724015548d4461cc5517a5a53f00d7a1a0b6c204d5ff1ce9",
+    "width": 54,
+    "height": 54,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_toolbar_microphone",
+    "source": "Assets/huinong_nav_searchbar_voice_black_Normal@3x.png",
+    "sha256": "09e8d7a0e33455ce6363751f08019ecfedf47af938f916384da02af60f9ee900",
+    "width": 81,
+    "height": 81,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_activity_beans",
+    "source": "Assets/home_life_xiaodou_Normal@2x.png",
+    "sha256": "5517974a270543cc5e2ea8251584da9bb5b6acb100c50a2f7f3d9992be3c99ad",
+    "width": 323,
+    "height": 346,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_activity_beans",
+    "source": "Assets/home_life_xiaodou_Normal@3x.png",
+    "sha256": "deb3b61d673b873d78336052427bdbd4ba1f303dd1ef7487e9236ba157b6874b",
+    "width": 485,
+    "height": 519,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_activity_rural",
+    "source": "Assets/home_life_xiangcun_Normal@2x.png",
+    "sha256": "606074959655fd64438e3d38cabc38fa6499b7a899cbbbae15c66df612013193",
+    "width": 323,
+    "height": 161,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_activity_rural",
+    "source": "Assets/home_life_xiangcun_Normal@3x.png",
+    "sha256": "2a2df226824d5387e4fedb61312fa7902f99279ff6cf1f17b5cb699d28382cab",
+    "width": 485,
+    "height": 242,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_activity_offers",
+    "source": "Assets/home_life_youhui_Normal@2x.png",
+    "sha256": "0ff7a48ae6bde8e5de16dfa5146333d722ef8c6bda244c58c97143324b1b1138",
+    "width": 323,
+    "height": 161,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_activity_offers",
+    "source": "Assets/home_life_youhui_Normal@3x.png",
+    "sha256": "612bf3dd13c990cda6be6a5898b571fdc5b10eb7f5f368815a32eed8f9211b04",
+    "width": 485,
+    "height": 242,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_banner_payment",
+    "source": "Assets/home_life_topAd_first_Normal@2x.png",
+    "sha256": "f829a8e117053de6fbd022c63cb070de59669f1a35de6b204074a2f3df0dc0d6",
+    "width": 670,
+    "height": 244,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_banner_payment",
+    "source": "Assets/home_life_topAd_first_Normal@3x.png",
+    "sha256": "d6d4f770334b2de5a02c09f6e397b353ca03288b0cc81b27c04b96035b212156",
+    "width": 1005,
+    "height": 366,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_banner_events",
+    "source": "Assets/home_life_topAd_second_Normal@2x.png",
+    "sha256": "9a42d46882700b2cb8095eb5601a998215f69aa606881051bea4d11b2cc88eb2",
+    "width": 670,
+    "height": 244,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_banner_events",
+    "source": "Assets/home_life_topAd_second_Normal@3x.png",
+    "sha256": "35068521a7d135f5e28f671bf0c4a804eb641c7dec419895980194e479ca23c1",
+    "width": 1005,
+    "height": 366,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_life_promo_food",
+    "source": "Assets/home_life_meishi_Normal@2x.png",
+    "sha256": "c803b41a4983d24b015a264dd289040314417692fc0446f843787d977e76fa72",
+    "width": 670,
+    "height": 200,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_life_promo_food",
+    "source": "Assets/home_life_meishi_Normal@3x.png",
+    "sha256": "13a1c2a86f6e2e8ad2e1f47b1fcd9ad7496980fdae50044443ef2789c76a7c0b",
+    "width": 1005,
+    "height": 300,
+    "scale": "3x"
+  }
+]

@@ -170,16 +170,16 @@ final class MockDataProvider {
                 loginTitle: "登录"
             ),
             gridItems: [
-                WealthGridItem(title: "存款", systemIcon: "house.fill"),
-                WealthGridItem(title: "理财产品", systemIcon: "circle.grid.3x3.fill"),
-                WealthGridItem(title: "基金", systemIcon: "chart.line.uptrend.xyaxis"),
-                WealthGridItem(title: "贵金属", systemIcon: "square.stack.3d.up.fill"),
-                WealthGridItem(title: "债券", systemIcon: "chart.bar.fill"),
-                WealthGridItem(title: "保险", systemIcon: "shield.fill"),
-                WealthGridItem(title: "证券期货", systemIcon: "doc.text.fill"),
-                WealthGridItem(title: "外汇", systemIcon: "dollarsign.arrow.circlepath"),
-                WealthGridItem(title: "个人养老金", systemIcon: "house.and.flag.fill"),
-                WealthGridItem(title: "全部", systemIcon: "ellipsis.circle")
+                WealthGridItem(title: "存款", imageName: "abc_wealth_menu_deposit", systemIcon: "house.fill"),
+                WealthGridItem(title: "理财产品", imageName: "abc_wealth_menu_wealth", systemIcon: "circle.grid.3x3.fill"),
+                WealthGridItem(title: "基金", imageName: "abc_wealth_menu_fund", systemIcon: "chart.line.uptrend.xyaxis"),
+                WealthGridItem(title: "贵金属", imageName: "abc_wealth_menu_metals", systemIcon: "square.stack.3d.up.fill"),
+                WealthGridItem(title: "债券", imageName: "abc_wealth_menu_bonds", systemIcon: "chart.bar.fill"),
+                WealthGridItem(title: "保险", imageName: "abc_wealth_menu_insurance", systemIcon: "shield.fill"),
+                WealthGridItem(title: "证券期货", imageName: "abc_wealth_menu_securities", systemIcon: "doc.text.fill"),
+                WealthGridItem(title: "外汇", imageName: "abc_wealth_menu_forex", systemIcon: "dollarsign.arrow.circlepath"),
+                WealthGridItem(title: "个人养老金", imageName: "abc_wealth_menu_pension", systemIcon: "house.and.flag.fill"),
+                WealthGridItem(title: "全部", imageName: "abc_wealth_menu_all", systemIcon: "ellipsis.circle")
             ],
             hotspot: WealthHotspot(
                 tag: "热点",
@@ -351,56 +351,59 @@ final class MockDataProvider {
             searchPlaceholders: ["本地优惠", "实物贵金属", "生活缴费", "手机充值"],
             banners: [
                 LifeBannerItem(
-                    title: "1元秒杀美酒",
-                    subtitle: "每周都有特惠商品",
+                    title: "生活缴费",
+                    subtitle: "快速到账便捷生活",
                     actionTitle: "立即参与 >",
                     backgroundColor: UIColor(red: 1.0, green: 0.96, blue: 0.90, alpha: 1),
                     accentColor: UIColor(red: 0.55, green: 0.35, blue: 0.20, alpha: 1),
                     systemIcon: "wineglass.fill",
-                    isAd: true
+                    isAd: true,
+                    artworkName: "abc_life_banner_payment"
                 ),
                 LifeBannerItem(
-                    title: "掌银生活节",
+                    title: "热门活动",
                     subtitle: "精彩活动进行中",
                     actionTitle: "立即参与 >",
                     backgroundColor: UIColor(red: 1.0, green: 0.94, blue: 0.88, alpha: 1),
                     accentColor: UIColor(red: 0.85, green: 0.35, blue: 0.20, alpha: 1),
                     systemIcon: "gift.fill",
-                    isAd: true
+                    isAd: true,
+                    artworkName: "abc_life_banner_events"
                 )
             ],
             gridPages: [
                 [
-                    LifeGridItem(title: "生活缴费", systemIcon: "drop.fill", tintColor: .abankPrimary),
-                    LifeGridItem(title: "手机充值", systemIcon: "iphone", tintColor: .abankOrange),
-                    LifeGridItem(title: "政务民生", systemIcon: "person.fill", tintColor: .abankTeal),
-                    LifeGridItem(title: "社保医保", systemIcon: "person.text.rectangle", tintColor: .abankPrimary),
-                    LifeGridItem(title: "小豆乐园", systemIcon: "leaf.fill", tintColor: .abankSuccess),
-                    LifeGridItem(title: "校园", systemIcon: "graduationcap.fill", tintColor: .abankPrimary),
-                    LifeGridItem(title: "食堂", systemIcon: "fork.knife", tintColor: .abankOrange),
-                    LifeGridItem(title: "党费", systemIcon: "flag.fill", tintColor: .abankHighlight),
-                    LifeGridItem(title: "车主服务", systemIcon: "car.fill", tintColor: .abankTeal),
-                    LifeGridItem(title: "农银商城", systemIcon: "storefront.fill", tintColor: .abankPrimary)
+                    LifeGridItem(title: "生活缴费", imageName: "abc_life_menu_payment", systemIcon: "drop.fill", tintColor: .abankPrimary),
+                    LifeGridItem(title: "手机充值", imageName: "abc_life_menu_mobile", systemIcon: "iphone", tintColor: .abankOrange),
+                    LifeGridItem(title: "政务民生", imageName: "abc_life_menu_government", systemIcon: "person.fill", tintColor: .abankTeal),
+                    LifeGridItem(title: "社保医保", imageName: "abc_life_menu_social", systemIcon: "person.text.rectangle", tintColor: .abankPrimary),
+                    LifeGridItem(title: "小豆乐园", imageName: "abc_life_menu_beans", systemIcon: "leaf.fill", tintColor: .abankSuccess),
+                    LifeGridItem(title: "校园", imageName: "abc_life_menu_campus", systemIcon: "graduationcap.fill", tintColor: .abankPrimary),
+                    LifeGridItem(title: "食堂", imageName: "abc_life_menu_cafeteria", systemIcon: "fork.knife", tintColor: .abankOrange),
+                    LifeGridItem(title: "党费", imageName: "abc_life_menu_party", systemIcon: "flag.fill", tintColor: .abankHighlight),
+                    LifeGridItem(title: "车主服务", imageName: "abc_life_menu_car", systemIcon: "car.fill", tintColor: .abankTeal),
+                    LifeGridItem(title: "农银商城", imageName: "abc_life_menu_market", systemIcon: "storefront.fill", tintColor: .abankPrimary)
                 ],
                 [
                     LifeGridItem(title: "美团外卖", systemIcon: "bag.fill", tintColor: .abankOrange),
                     LifeGridItem(title: "电影演出", systemIcon: "film.fill", tintColor: .abankPrimary),
                     LifeGridItem(title: "酒店旅行", systemIcon: "airplane", tintColor: .abankTeal),
                     LifeGridItem(title: "快递寄件", systemIcon: "shippingbox.fill", tintColor: .abankOrange),
-                    LifeGridItem(title: "医疗挂号", systemIcon: "cross.case.fill", tintColor: .abankPrimary),
-                    LifeGridItem(title: "公积金", systemIcon: "building.columns.fill", tintColor: .abankTeal),
-                    LifeGridItem(title: "交通出行", systemIcon: "bus.fill", tintColor: .abankPrimary),
-                    LifeGridItem(title: "积分商城", systemIcon: "star.fill", tintColor: .abankOrange),
+                    LifeGridItem(title: "医疗挂号", imageName: "abc_life_menu_hospital", systemIcon: "cross.case.fill", tintColor: .abankPrimary),
+                    LifeGridItem(title: "公积金", imageName: "abc_life_menu_provident", systemIcon: "building.columns.fill", tintColor: .abankTeal),
+                    LifeGridItem(title: "交通出行", imageName: "abc_life_menu_transport", systemIcon: "bus.fill", tintColor: .abankPrimary),
+                    LifeGridItem(title: "积分商城", imageName: "abc_life_menu_points", systemIcon: "star.fill", tintColor: .abankOrange),
                     LifeGridItem(title: "爱心公益", systemIcon: "heart.fill", tintColor: .abankHighlight),
-                    LifeGridItem(title: "全部", systemIcon: "ellipsis.circle", tintColor: .abankTextSecondary)
+                    LifeGridItem(title: "全部", imageName: "abc_life_menu_all", systemIcon: "ellipsis.circle", tintColor: .abankTextSecondary)
                 ]
             ],
             colorfulFeatured: LifeActivityCard(
                 title: "小豆乐园",
-                subtitle: "小豆兑好礼",
+                subtitle: "每日签到抽小豆",
                 backgroundColor: UIColor(red: 1.0, green: 0.96, blue: 0.92, alpha: 1),
                 systemIcon: "calendar",
-                isAd: true
+                isAd: true,
+                    artworkName: "abc_life_activity_beans"
             ),
             colorfulSides: [
                 LifeActivityCard(
@@ -408,28 +411,31 @@ final class MockDataProvider {
                     subtitle: "好农品 货真价实",
                     backgroundColor: UIColor(red: 0.94, green: 0.98, blue: 0.94, alpha: 1),
                     systemIcon: "basket.fill",
-                    isAd: true
+                    isAd: true,
+                    artworkName: "abc_life_activity_rural"
                 ),
                 LifeActivityCard(
-                    title: "茶影优惠享",
-                    subtitle: "瑞幸咖啡低至6元起",
+                    title: "优惠专区",
+                    subtitle: "返现有好礼",
                     backgroundColor: UIColor(red: 1.0, green: 0.97, blue: 0.94, alpha: 1),
                     systemIcon: "cup.and.saucer.fill",
-                    isAd: true
+                    isAd: true,
+                    artworkName: "abc_life_activity_offers"
                 )
             ],
             promoBanner: LifePromoBanner(
-                title: "海量权益 一键直达",
-                subtitle: "限时秒杀 | 热门卡券 | 积分抵扣",
+                title: "美食生活",
+                subtitle: "饭票 | 影票 | 生活圈",
                 backgroundColor: UIColor(red: 1.0, green: 0.94, blue: 0.92, alpha: 1),
                 systemIcon: "gift.fill",
-                isAd: true
+                isAd: true,
+                    artworkName: "abc_life_promo_food"
             ),
             feedItems: [
                 LifeFeedItem(title: "天天返现（8月）", subtitle: "单笔满18元享随机返现", imageBackground: UIColor(red: 0.90, green: 0.97, blue: 0.94, alpha: 1), imageHeight: 120, systemIcon: "yensign.circle.fill", iconTint: .abankHighlight, isAd: true),
                 LifeFeedItem(title: "茶影优惠享", subtitle: "瑞幸咖啡低至6元起", imageBackground: UIColor(red: 0.95, green: 0.98, blue: 1.0, alpha: 1), imageHeight: 100, systemIcon: "cup.and.saucer.fill", iconTint: UIColor(red: 0.55, green: 0.32, blue: 0.18, alpha: 1), isAd: false),
                 LifeFeedItem(title: "逛九州享好礼", subtitle: "惊喜盲盒等你抽", imageBackground: UIColor(red: 0.92, green: 0.96, blue: 0.90, alpha: 1), imageHeight: 110, systemIcon: "building.2.fill", iconTint: .abankPrimary, isAd: true),
-                LifeFeedItem(title: "美食聚\"惠\"", subtitle: "好农品 来掌银", imageBackground: UIColor(red: 1.0, green: 0.96, blue: 0.90, alpha: 1), imageHeight: 90, systemIcon: "takeoutbag.and.cup.and.straw.fill", iconTint: .abankOrange, isAd: true),
+                LifeFeedItem(title: "美食聚\"惠\"", subtitle: "饭票 | 影票 | 生活圈", imageBackground: UIColor(red: 1.0, green: 0.96, blue: 0.90, alpha: 1), imageHeight: 90, systemIcon: "takeoutbag.and.cup.and.straw.fill", iconTint: .abankOrange, isAd: true),
                 LifeFeedItem(title: "潮玩盲盒开开乐", subtitle: "最高抽16元刷卡金券", imageBackground: UIColor(red: 0.88, green: 0.94, blue: 1.0, alpha: 1), imageHeight: 115, systemIcon: "cube.fill", iconTint: .abankPrimary, isAd: true),
                 LifeFeedItem(title: "线上消费 笔笔有积分", subtitle: "消费1元累计1积分", imageBackground: UIColor(red: 0.85, green: 0.92, blue: 1.0, alpha: 1), imageHeight: 105, systemIcon: "creditcard.fill", iconTint: .abankPrimary, isAd: false),
                 LifeFeedItem(title: "农夫山泉", subtitle: "天然好水送到家", imageBackground: UIColor(red: 0.90, green: 0.96, blue: 1.0, alpha: 1), imageHeight: 100, systemIcon: "drop.fill", iconTint: UIColor(red: 0.2, green: 0.55, blue: 0.9, alpha: 1), isAd: true),

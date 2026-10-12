@@ -124,7 +124,7 @@ private final class LifeGridPageCell: UICollectionViewCell {
     private func makeCell(item: LifeGridItem, index: Int, onTap: @escaping (Int) -> Void) -> UIView {
         let wrap = UIControl()
         wrap.addAction(UIAction { _ in onTap(index) }, for: .touchUpInside)
-        let icon = UIImageView(image: UIImage(systemName: item.systemIcon))
+        let icon = UIImageView(image: item.imageName.flatMap { UIImage.abankAsset($0, fallback: item.systemIcon) } ?? UIImage(systemName: item.systemIcon))
         icon.tintColor = item.tintColor
         icon.contentMode = .scaleAspectFit
         let title = UILabel()

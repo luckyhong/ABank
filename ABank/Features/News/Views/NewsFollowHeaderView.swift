@@ -286,7 +286,7 @@ final class NewsTrendingListView: UIView {
 private final class NewsTrendingRowView: UIView {
     init(title: String) {
         super.init(frame: .zero)
-        let flame = UIImageView(image: UIImage(systemName: "flame.fill"))
+        let flame = UIImageView(image: UIImage.abankAsset("abc_news_topic_hot", fallback: "flame.fill"))
         flame.tintColor = .abankHighlight
         flame.contentMode = .scaleAspectFit
 

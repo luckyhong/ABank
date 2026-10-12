@@ -11,7 +11,7 @@ final class WealthLoginCardView: UIView {
     var onLoginTapped: (() -> Void)?
 
     private let card = UIView()
-    private let gradientLayer = CAGradientLayer()
+    private let backgroundImage = UIImageView(image: UIImage(named: "abc_wealth_login_background"))
     private let messageLabel = UILabel()
     private let loginButton = UIButton(type: .system)
 
@@ -24,11 +24,6 @@ final class WealthLoginCardView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        gradientLayer.frame = card.bounds
-    }
-
     func configure(with greeting: WealthGreeting) {
         messageLabel.text = greeting.message
         loginButton.setTitle(greeting.loginTitle, for: .normal)
@@ -37,13 +32,10 @@ final class WealthLoginCardView: UIView {
     private func setupUI() {
         card.layer.cornerRadius = CornerRadius.lg
         card.clipsToBounds = true
-        gradientLayer.colors = [
-            UIColor(red: 1.0, green: 0.94, blue: 0.88, alpha: 1).cgColor,
-            UIColor.white.cgColor
-        ]
-        gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
-        gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
-        card.layer.insertSublayer(gradientLayer, at: 0)
+        backgroundImage.contentMode = .scaleToFill
+        backgroundImage.isUserInteractionEnabled = false
+        card.addSubview(backgroundImage)
+        backgroundImage.snp.makeConstraints { $0.edges.equalToSuperview() }
 
         messageLabel.font = .systemFont(ofSize: 16, weight: .medium)
         messageLabel.textColor = .abankTextPrimary

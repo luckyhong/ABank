@@ -17,8 +17,8 @@ final class WealthSearchBarView: UIView {
     private let serviceItem = IconLabelItemView()
     private let messageItem = IconLabelItemView()
     private let searchContainer = UIView()
-    private let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-    private let micIcon = UIImageView(image: UIImage(systemName: "mic"))
+    private let searchIcon = UIImageView(image: UIImage.abankAsset("abc_wealth_toolbar_search", fallback: "magnifyingglass", renderingMode: .alwaysTemplate))
+    private let micIcon = UIImageView(image: UIImage.abankAsset("abc_wealth_toolbar_microphone", fallback: "mic", renderingMode: .alwaysTemplate))
     private let searchLabel = UILabel()
     private let badgeLabel = UILabel()
 
@@ -38,14 +38,16 @@ final class WealthSearchBarView: UIView {
     }
 
     private func setupUI() {
-        scanItem.configure(systemIcon: "qrcode.viewfinder", title: "扫一扫")
-        serviceItem.configure(systemIcon: "headphones", title: "客服")
-        messageItem.configure(systemIcon: "envelope", title: "消息")
+        scanItem.configure(imageName: "abc_wealth_toolbar_scan", systemIcon: "qrcode.viewfinder", title: "扫一扫")
+        serviceItem.configure(imageName: "abc_wealth_toolbar_service", systemIcon: "headphones", title: "客服")
+        messageItem.configure(imageName: "abc_wealth_toolbar_message", systemIcon: "envelope", title: "消息")
 
         searchContainer.backgroundColor = UIColor(white: 0.95, alpha: 1)
         searchContainer.layer.cornerRadius = CornerRadius.search
         searchIcon.tintColor = .abankTextTertiary
         micIcon.tintColor = .abankTextTertiary
+        searchIcon.contentMode = .scaleAspectFit
+        micIcon.contentMode = .scaleAspectFit
         searchLabel.font = .systemFont(ofSize: 14)
         searchLabel.textColor = .abankTextTertiary
 
@@ -148,8 +150,8 @@ private final class IconLabelItemView: UIControl {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(systemIcon: String, title: String) {
-        iconView.image = UIImage(systemName: systemIcon)
+    func configure(imageName: String, systemIcon: String, title: String) {
+        iconView.image = UIImage.abankAsset(imageName, fallback: systemIcon, renderingMode: .alwaysTemplate)
         titleLabel.text = title
     }
 

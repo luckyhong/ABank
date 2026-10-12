@@ -17,8 +17,8 @@ final class NewsSearchBarView: UIView {
     private let serviceItem = NewsIconItemView()
     private let messageItem = NewsIconItemView()
     private let searchContainer = UIView()
-    private let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-    private let micIcon = UIImageView(image: UIImage(systemName: "mic"))
+    private let searchIcon = UIImageView(image: UIImage.abankAsset("abc_news_toolbar_search", fallback: "magnifyingglass", renderingMode: .alwaysTemplate))
+    private let micIcon = UIImageView(image: UIImage.abankAsset("abc_news_toolbar_microphone", fallback: "mic", renderingMode: .alwaysTemplate))
     private let searchLabel = UILabel()
     private let badgeLabel = UILabel()
 
@@ -49,9 +49,9 @@ final class NewsSearchBarView: UIView {
     private func setupUI() {
         backgroundColor = .white
 
-        scanItem.configure(systemIcon: "viewfinder", title: "扫一扫")
-        serviceItem.configure(systemIcon: "headphones", title: "客服")
-        messageItem.configure(systemIcon: "envelope", title: "消息")
+        scanItem.configure(imageName: "abc_news_toolbar_scan", systemIcon: "viewfinder", title: "扫一扫")
+        serviceItem.configure(imageName: "abc_news_toolbar_service", systemIcon: "headphones", title: "客服")
+        messageItem.configure(imageName: "abc_news_toolbar_message", systemIcon: "envelope", title: "消息")
 
         searchContainer.backgroundColor = UIColor(red: 0.945, green: 0.945, blue: 0.95, alpha: 1)
         searchContainer.layer.cornerRadius = 18
@@ -171,8 +171,8 @@ private final class NewsIconItemView: UIControl {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    func configure(systemIcon: String, title: String) {
-        iconView.image = UIImage(systemName: systemIcon)
+    func configure(imageName: String, systemIcon: String, title: String) {
+        iconView.image = UIImage.abankAsset(imageName, fallback: systemIcon, renderingMode: .alwaysTemplate)
         titleLabel.text = title
     }
 }

@@ -14,10 +14,18 @@ final class SectionHeaderView: UIView {
     private let accessoryStack = UIStackView()
     private let chevronView = UIImageView(image: UIImage(systemName: "chevron.right"))
 
-    init(title: String, showsChevron: Bool = true) {
+    init(title: String, showsChevron: Bool = true, imageName: String? = nil) {
         super.init(frame: .zero)
         titleLabel.text = title
         setupUI(showsChevron: showsChevron)
+        if let imageName, let image = UIImage(named: imageName) {
+            titleLabel.textColor = .clear
+            let artwork = UIImageView(image: image)
+            artwork.contentMode = .scaleAspectFit
+            artwork.isUserInteractionEnabled = false
+            titleLabel.addSubview(artwork)
+            artwork.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
     }
 
     required init?(coder: NSCoder) {

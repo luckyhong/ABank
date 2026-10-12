@@ -108,20 +108,15 @@ final class WealthIncomeAdvanceView: UIView {
         }
 
         if item.isSelected {
-            let ribbon = UILabel()
-            ribbon.text = "优选"
-            ribbon.font = .systemFont(ofSize: 9, weight: .bold)
-            ribbon.textColor = .white
-            ribbon.textAlignment = .center
-            ribbon.backgroundColor = .abankHighlight
+            let ribbon = UIImageView(image: UIImage(named: "abc_wealth_ribbon_selected"))
+            ribbon.contentMode = .scaleAspectFit
+            ribbon.isAccessibilityElement = true
+            ribbon.accessibilityLabel = "优选"
             row.addSubview(ribbon)
             ribbon.snp.makeConstraints { make in
                 make.top.trailing.equalToSuperview()
-                make.width.equalTo(36)
-                make.height.equalTo(36)
+                make.size.equalTo(42)
             }
-            ribbon.transform = CGAffineTransform(rotationAngle: .pi / 4)
-                .translatedBy(x: 8, y: -4)
         }
         return row
     }

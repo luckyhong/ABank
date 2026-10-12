@@ -1,0 +1,258 @@
+[
+  {
+    "asset": "abc_wealth_menu_deposit",
+    "source": "deposit_index_native500.png",
+    "sha256": "205a94ae3dc2bd97ccd06326168a55bafd39def73b87a0a887a76940b522569d",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_menu_wealth",
+    "source": "home_finance_native500.png",
+    "sha256": "6229650706300cfa408ae42177d56583ca31d1bf3cb340d6ac9e5c3a94102995",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_menu_fund",
+    "source": "home_fund_native500.png",
+    "sha256": "061b15c4c1805711151897e75801b1c0688545386cea0ea0b7d42fa6b6f5f6d4",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_menu_metals",
+    "source": "precious_metal_zone_native500.png",
+    "sha256": "436b87ba4e81390d9898b2f1d495cab409c763ff7d94f9c8e868f87a54bfdba0",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_menu_bonds",
+    "source": "bond_zone_native500.png",
+    "sha256": "e80b4ce0986d3946072b55aec5a6fe407924f2166c503d0a3c33c18638e23fc9",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_menu_insurance",
+    "source": "insurance_plan_native500.png",
+    "sha256": "08dbfde895b66d28897b75331d4d67c058c3f97a3a385019edf0bee411c24e6a",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_menu_securities",
+    "source": "securities_native500.png",
+    "sha256": "d32fc676ff644a271ae2e33f5337de03722eeb8257df842e0daa2063f799c858",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_menu_forex",
+    "source": "foreign_exchange_zone_native500.png",
+    "sha256": "09ccd9f283e5c2c8758562f6c8629c96da779942b1c569ac395ba415fffe6b8a",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_menu_pension",
+    "source": "pension_zone_native500.png",
+    "sha256": "c7d461c47d29b4b664f2f04b4371cb300c924b35d98e5d894eaf39b176f61b62",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_menu_all",
+    "source": "homepage_more_native500.png",
+    "sha256": "b63823b7dc359f55f6c469159043a4709e1cc0ae3f417a7a275c1409f57e33a8",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_header_spare_money",
+    "source": "ABCFortune_CurrentDepositZone_Title_Img.png",
+    "sha256": "30a951982d6968123b1361cd3ae3f85c92dc442ac290224d8bfb8670d5182f1b",
+    "width": 246,
+    "height": 84,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_header_steady_growth",
+    "source": "ABCFortune_Finance_Title_Img.png",
+    "sha256": "a33ea11c9cd6dec582279e2aa29d370fdba2a4cc6f98b28a28a3c6881a8fb8b7",
+    "width": 246,
+    "height": 84,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_header_income_advance",
+    "source": "ABCFortune_Fund_Title_Img.png",
+    "sha256": "e4f837268ccb52289147d9b873da6a1ce2babb430452eae0768d5ec3c24e456f",
+    "width": 246,
+    "height": 84,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_header_deposits",
+    "source": "ABCFortune_FixDeposit_Title_Img.png",
+    "sha256": "809a28c37fc07b37b2ba6ad5aa2760c16f2a35d65041c564dad5f2f23e6888dc",
+    "width": 246,
+    "height": 84,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_header_bonds",
+    "source": "ABCFortune_Bond_Title_Img.png",
+    "sha256": "2f12fe15b8e51c586a550758c1dd1fc9fcdcb7976464252963001c6ac8c4355e",
+    "width": 246,
+    "height": 84,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_hotspot",
+    "source": "ABCFortune_News_financial_img.png",
+    "sha256": "362d6558af12ae6b48311a366caf830b0cea945e76d24f7671cc61194ce73963",
+    "width": 135,
+    "height": 138,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_login_background",
+    "source": "ABCFortune_Position_small_bg_img.png",
+    "sha256": "bdbc8663a472bd6ffd14f13673ca27cce3e51a0172e84cd2a6fe692159e4bb22",
+    "width": 1005,
+    "height": 366,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_ribbon_hot",
+    "source": "ABCFortune_HotSell.png",
+    "sha256": "a95fe2d00dbd717c0e57d72c1607b34e33871a6c53a187c8b969a58adc5cc7a0",
+    "width": 144,
+    "height": 144,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_ribbon_selected",
+    "source": "ABCFortune_FirstSelect.png",
+    "sha256": "7afb18be408c7679d9fdadb5ba8ce681cbecfecae561f4a520a7345b5bfc584a",
+    "width": 146,
+    "height": 144,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_spare_featured_background",
+    "source": "ABCFortune_CurrentDepositZone_SSF_bg.png",
+    "sha256": "9edddc337a0b73f8e7cdb9d5e90a900d5f5cd92225f03584e61c4ed55e093cae",
+    "width": 485,
+    "height": 600,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_spare_keb2_background",
+    "source": "ABCFortune_CurrentDepositZone_KEB2_bg.png",
+    "sha256": "db6f3d3aec6260c3b4fd506abdb1f3df7961ed4c9d58b11ad2fde1f8060e301c",
+    "width": 485,
+    "height": 282,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_spare_keb_background",
+    "source": "ABCFortune_CurrentDepositZone_KEB_bg.png",
+    "sha256": "55c68b465f64f72c8a3afc347c6beddaba40f15a9b9f55e4ab172fcfb092f918",
+    "width": 485,
+    "height": 282,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_toolbar_scan",
+    "source": "Assets/扫一扫_黑_Normal@2x.png",
+    "sha256": "8fd74c775594a423f284961d01da8e952f06c777daec47f93729c782c826322b",
+    "width": 48,
+    "height": 48,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_wealth_toolbar_scan",
+    "source": "Assets/扫一扫_黑_Normal@3x.png",
+    "sha256": "0c9517247a3ac4abc192246e8ee11c5d4535f513a771a17f00f960de63e6687f",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_toolbar_service",
+    "source": "Assets/客服_黑_Normal@2x.png",
+    "sha256": "0065dd0a5174d33a22f50f650c6f5df18883a18cd1e8ee3de6a788ce7497c50e",
+    "width": 48,
+    "height": 48,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_wealth_toolbar_service",
+    "source": "Assets/客服_黑_Normal@3x.png",
+    "sha256": "497004eb1a71f20119db0495b35f5d561b6c2ebcffd2755f4e906c9f721e5c91",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_toolbar_message",
+    "source": "Assets/消息_黑_Normal@2x.png",
+    "sha256": "e892d5a70ae0750213fa4dbaa721e1897491e0d8ade90873c0879e9e85d7482b",
+    "width": 48,
+    "height": 48,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_wealth_toolbar_message",
+    "source": "Assets/消息_黑_Normal@3x.png",
+    "sha256": "e73628a32f2caf775a6165063508694f8ceada9f0df118c7955fc5deb4358b9d",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_toolbar_search",
+    "source": "Assets/huinong_nav_searchbar_search_black_Normal@2x.png",
+    "sha256": "2fc8105517db1445b483ff5c73e2cd3a72391e592f7dd2edaf5cc10af6087c7b",
+    "width": 54,
+    "height": 54,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_wealth_toolbar_search",
+    "source": "Assets/huinong_nav_searchbar_search_black_Normal@3x.png",
+    "sha256": "9c875f04c52da434f5b9fc1cd6c062609fb6eb0ec763f8a169e3d5714926632f",
+    "width": 81,
+    "height": 81,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_wealth_toolbar_microphone",
+    "source": "Assets/huinong_nav_searchbar_voice_black_Normal@2x.png",
+    "sha256": "29a6b72ed75a0c44724015548d4461cc5517a5a53f00d7a1a0b6c204d5ff1ce9",
+    "width": 54,
+    "height": 54,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_wealth_toolbar_microphone",
+    "source": "Assets/huinong_nav_searchbar_voice_black_Normal@3x.png",
+    "sha256": "09e8d7a0e33455ce6363751f08019ecfedf47af938f916384da02af60f9ee900",
+    "width": 81,
+    "height": 81,
+    "scale": "3x"
+  }
+]

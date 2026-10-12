@@ -14,14 +14,14 @@ final class LifeSearchBarView: UIView {
     var onCouponsTapped: (() -> Void)?
 
     private let cityButton = UIControl()
-    private let cityIcon = UIImageView(image: UIImage(systemName: "location.fill"))
+    private let cityIcon = UIImageView(image: UIImage.abankAsset("abc_life_toolbar_location", fallback: "location.fill", renderingMode: .alwaysTemplate))
     private let cityLabel = UILabel()
     private let cityArrow = UIImageView(image: UIImage(systemName: "chevron.down"))
     private let ordersItem = LifeIconItemView()
     private let couponsItem = LifeIconItemView()
     private let searchContainer = UIView()
-    private let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-    private let micIcon = UIImageView(image: UIImage(systemName: "mic"))
+    private let searchIcon = UIImageView(image: UIImage.abankAsset("abc_life_toolbar_search", fallback: "magnifyingglass", renderingMode: .alwaysTemplate))
+    private let micIcon = UIImageView(image: UIImage.abankAsset("abc_life_toolbar_microphone", fallback: "mic", renderingMode: .alwaysTemplate))
     private let searchLabel = UILabel()
 
     private var placeholders: [String] = []
@@ -55,8 +55,8 @@ final class LifeSearchBarView: UIView {
         cityArrow.tintColor = .abankTextTertiary
         cityArrow.contentMode = .scaleAspectFit
 
-        ordersItem.configure(systemIcon: "doc.text", title: "订单")
-        couponsItem.configure(systemIcon: "ticket", title: "卡券")
+        ordersItem.configure(imageName: "abc_life_toolbar_orders", systemIcon: "doc.text", title: "订单")
+        couponsItem.configure(imageName: "abc_life_toolbar_coupons", systemIcon: "ticket", title: "卡券")
 
         searchContainer.backgroundColor = UIColor(white: 0.95, alpha: 1)
         searchContainer.layer.cornerRadius = CornerRadius.search
@@ -178,8 +178,8 @@ private final class LifeIconItemView: UIControl {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    func configure(systemIcon: String, title: String) {
-        iconView.image = UIImage(systemName: systemIcon)
+    func configure(imageName: String, systemIcon: String, title: String) {
+        iconView.image = UIImage.abankAsset(imageName, fallback: systemIcon, renderingMode: .alwaysTemplate)
         iconView.tintColor = .abankTextPrimary
         titleLabel.text = title
     }

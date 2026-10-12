@@ -57,7 +57,7 @@ final class LifeColorfulActivitiesView: UIView {
             make.top.equalTo(header.snp.bottom).offset(12)
             make.leading.equalToSuperview()
             make.width.equalToSuperview().multipliedBy(0.48)
-            make.height.equalTo(148)
+            make.height.equalTo(featuredCard.snp.width).multipliedBy(519.0 / 485.0)
         }
         sideStack.snp.makeConstraints { make in
             make.top.equalTo(featuredCard)
@@ -68,7 +68,7 @@ final class LifeColorfulActivitiesView: UIView {
         promoBanner.snp.makeConstraints { make in
             make.top.equalTo(featuredCard.snp.bottom).offset(10)
             make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(72)
+            make.height.equalTo(promoBanner.snp.width).multipliedBy(300.0 / 1005.0)
         }
     }
 
@@ -102,6 +102,7 @@ final class LifeColorfulActivitiesView: UIView {
             make.trailing.bottom.equalToSuperview().inset(12)
             make.size.equalTo(44)
         }
+        showArtwork(item.artworkName, in: featuredCard, hiding: [title, subtitle, icon, ad], label: item.title)
         ad.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(12)
             make.bottom.equalToSuperview().offset(-10)
@@ -147,6 +148,7 @@ final class LifeColorfulActivitiesView: UIView {
             make.trailing.equalToSuperview().offset(-8)
             make.bottom.equalToSuperview().offset(-8)
         }
+        showArtwork(item.artworkName, in: card, hiding: [title, subtitle, icon, ad], label: item.title)
         return card
     }
 
@@ -181,9 +183,22 @@ final class LifeColorfulActivitiesView: UIView {
             make.centerY.equalToSuperview()
             make.size.equalTo(40)
         }
+        showArtwork(item.artworkName, in: promoBanner, hiding: [title, subtitle, icon, ad], label: item.title)
         ad.snp.makeConstraints { make in
             make.trailing.bottom.equalToSuperview().inset(8)
         }
+    }
+
+    private func showArtwork(_ name: String?, in container: UIView, hiding views: [UIView], label: String) {
+        guard let name, let image = UIImage(named: name) else { return }
+        views.forEach { $0.isHidden = true }
+        let artwork = UIImageView(image: image)
+        artwork.contentMode = .scaleAspectFit
+        artwork.isUserInteractionEnabled = false
+        artwork.isAccessibilityElement = true
+        artwork.accessibilityLabel = label
+        container.insertSubview(artwork, at: 0)
+        artwork.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 
     private func styleCard(_ view: UIView, bg: UIColor) {

@@ -11,9 +11,9 @@ final class NewsRecommendHeaderView: UIView {
 
     private let heroBanner = NewsHeroBannerView()
     private let flashNews = NewsFlashNewsView()
-    private let hotVideosHeader = SectionHeaderView(title: "热门视频")
+    private let hotVideosHeader = SectionHeaderView(title: "热门视频", imageName: "abc_news_header_videos")
     private let hotVideos = NewsHotVideosView()
-    private let hotListHeader = SectionHeaderView(title: "资讯热榜")
+    private let hotListHeader = SectionHeaderView(title: "资讯热榜", imageName: "abc_news_header_ranking")
     private let hotList = NewsHotListView()
     private let topicCard = NewsInteractiveTopicView()
 
@@ -222,6 +222,16 @@ private final class NewsHeroBannerCell: UICollectionViewCell {
         gradientLayer.startPoint = CGPoint(x: 0.15, y: 0)
         gradientLayer.endPoint = CGPoint(x: 0.9, y: 1)
         contentView.layer.insertSublayer(gradientLayer, at: 0)
+        let backgroundArtwork = UIImageView(image: UIImage(named: "abc_news_hero_finance_background"))
+        backgroundArtwork.contentMode = .scaleAspectFill
+        backgroundArtwork.isUserInteractionEnabled = false
+        contentView.addSubview(backgroundArtwork)
+        backgroundArtwork.snp.makeConstraints { $0.edges.equalToSuperview() }
+        let contrast = UIView()
+        contrast.backgroundColor = UIColor.black.withAlphaComponent(0.32)
+        contrast.isUserInteractionEnabled = false
+        contentView.addSubview(contrast)
+        contrast.snp.makeConstraints { $0.edges.equalToSuperview() }
 
         houseIcon.image = UIImage(systemName: "house.fill")
         houseIcon.tintColor = UIColor(red: 0.92, green: 0.95, blue: 1.0, alpha: 0.95)
@@ -331,6 +341,7 @@ private final class NewsHeroBannerCell: UICollectionViewCell {
         titleLabel.text = item.title
         subtitleLabel.text = item.subtitle
         houseIcon.image = UIImage(systemName: item.systemIcon)
+        artContainer.isHidden = true
     }
 }
 
@@ -356,23 +367,14 @@ final class NewsFlashNewsView: UIView {
     private func setupUI() {
         backgroundColor = .clear
 
-        let logoLabel = UILabel()
-        let logo = NSMutableAttributedString()
-        logo.append(NSAttributedString(
-            string: "7x24",
-            attributes: [
-                .font: UIFont.systemFont(ofSize: 15, weight: .heavy),
-                .foregroundColor: UIColor(red: 0.92, green: 0.55, blue: 0.12, alpha: 1)
-            ]
-        ))
-        logo.append(NSAttributedString(
-            string: " 快讯",
-            attributes: [
-                .font: UIFont.systemFont(ofSize: 15, weight: .heavy),
-                .foregroundColor: UIColor.abankTextPrimary
-            ]
-        ))
-        logoLabel.attributedText = logo
+        let logoLabel = UIImageView(image: UIImage(named: "abc_news_header_flash"))
+        logoLabel.contentMode = .scaleAspectFit
+        logoLabel.isAccessibilityElement = true
+        logoLabel.accessibilityLabel = "7x24 快讯"
+        logoLabel.snp.makeConstraints { make in
+            make.width.equalTo(44)
+            make.height.equalTo(36)
+        }
 
         timeLabel.font = .systemFont(ofSize: 13)
         timeLabel.textColor = .abankTextSecondary
@@ -484,7 +486,8 @@ private final class NewsVideoCell: UICollectionViewCell {
         overlayLabel.numberOfLines = 1
         overlayLabel.lineBreakMode = .byTruncatingTail
 
-        iconView.contentMode = .scaleAspectFit
+        iconView.contentMode = .scaleAspectFill
+        iconView.clipsToBounds = true
 
         titleLabel.font = .systemFont(ofSize: 13)
         titleLabel.textColor = .abankTextPrimary
@@ -502,9 +505,7 @@ private final class NewsVideoCell: UICollectionViewCell {
             make.height.equalTo(118)
         }
         iconView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.centerY.equalToSuperview().offset(-10)
-            make.size.equalTo(42)
+            make.edges.equalToSuperview()
         }
         overlayBar.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
@@ -524,7 +525,7 @@ private final class NewsVideoCell: UICollectionViewCell {
         thumbView.backgroundColor = item.backgroundColor
         overlayLabel.text = item.overlayTitle
         overlayBar.isHidden = item.overlayTitle.isEmpty
-        iconView.image = UIImage(systemName: item.systemIcon)
+        iconView.image = UIImage(named: "abc_news_placeholder_video_horizontal")
         iconView.tintColor = item.iconTint
         titleLabel.text = item.title
     }
@@ -582,27 +583,13 @@ private final class NewsHotRankRowView: UIView {
         }
 
         addSubview(rankLabel)
-        if item.rank == 1 {
-            let flame = UIImageView(image: UIImage(systemName: "flame.fill"))
-            flame.tintColor = rankLabel.textColor
-            flame.contentMode = .scaleAspectFit
-            addSubview(flame)
-            flame.snp.makeConstraints { make in
-                make.leading.equalToSuperview()
-                make.centerY.equalToSuperview()
-                make.size.equalTo(14)
-            }
-            rankLabel.snp.makeConstraints { make in
-                make.leading.equalTo(flame.snp.trailing).offset(2)
-                make.centerY.equalToSuperview()
-                make.width.equalTo(16)
-            }
-        } else {
-            rankLabel.snp.makeConstraints { make in
-                make.leading.equalToSuperview()
-                make.centerY.equalToSuperview()
-                make.width.equalTo(20)
-            }
+        if let asset = [1: "abc_news_rank_first", 2: "abc_news_rank_second", 3: "abc_news_rank_third"][item.rank] {
+            NewsResourceArtwork.apply(asset, to: rankLabel)
+        }
+        rankLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview()
+            make.centerY.equalToSuperview()
+            make.width.equalTo(20)
         }
 
         let titleLabel = UILabel()
@@ -631,6 +618,8 @@ private final class NewsHotRankRowView: UIView {
             badgeLabel.backgroundColor = badge == .hot ? .abankHighlight : UIColor(red: 1.0, green: 0.72, blue: 0.20, alpha: 1)
             badgeLabel.layer.cornerRadius = 3
             badgeLabel.clipsToBounds = true
+            badgeLabel.backgroundColor = .clear
+            NewsResourceArtwork.apply(badge == .hot ? "abc_news_badge_hot" : "abc_news_badge_new", to: badgeLabel)
             addSubview(badgeLabel)
             titleLabel.snp.makeConstraints { make in
                 make.trailing.lessThanOrEqualTo(badgeLabel.snp.leading).offset(-6)
@@ -659,7 +648,7 @@ final class NewsInteractiveTopicView: UIView {
 
     var onOptionTapped: ((Int) -> Void)?
 
-    private let header = SectionHeaderView(title: "互动话题")
+    private let header = SectionHeaderView(title: "互动话题", imageName: "abc_news_header_topic")
     private let questionLabel = UILabel()
     private let participantLabel = UILabel()
     private let descLabel = UILabel()
@@ -699,7 +688,7 @@ final class NewsInteractiveTopicView: UIView {
     private func setupUI() {
         backgroundColor = .white
 
-        let flameIcon = UIImageView(image: UIImage(systemName: "flame.fill"))
+        let flameIcon = UIImageView(image: UIImage.abankAsset("abc_news_topic_hot", fallback: "flame.fill"))
         flameIcon.tintColor = .abankHighlight
         flameIcon.contentMode = .scaleAspectFit
         header.addAccessory(flameIcon)

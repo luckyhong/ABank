@@ -145,7 +145,7 @@ final class NewsCategoryTabsView: UIView {
         stack.spacing = 20
         stack.alignment = .center
 
-        moreButton.setImage(UIImage(systemName: "line.3.horizontal"), for: .normal)
+        moreButton.setImage(UIImage.abankAsset("abc_news_category_edit", fallback: "line.3.horizontal"), for: .normal)
         moreButton.tintColor = .abankTextPrimary
         moreButton.addTarget(self, action: #selector(moreTapped), for: .touchUpInside)
 

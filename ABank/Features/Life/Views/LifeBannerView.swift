@@ -111,6 +111,7 @@ private final class LifeBannerCell: UICollectionViewCell {
     private let subtitleLabel = UILabel()
     private let actionButton = UILabel()
     private let iconView = UIImageView()
+    private let artworkView = UIImageView()
     private let adTag = UILabel()
 
     override init(frame: CGRect) {
@@ -125,6 +126,10 @@ private final class LifeBannerCell: UICollectionViewCell {
         adTag.text = "【广告】"
         adTag.font = .systemFont(ofSize: 9)
         adTag.textColor = .abankTextTertiary
+        artworkView.contentMode = .scaleAspectFit
+        artworkView.isUserInteractionEnabled = false
+        contentView.addSubview(artworkView)
+        artworkView.snp.makeConstraints { $0.edges.equalToSuperview() }
         [titleLabel, subtitleLabel, actionButton, iconView, adTag].forEach { contentView.addSubview($0) }
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(16)
@@ -154,7 +159,11 @@ private final class LifeBannerCell: UICollectionViewCell {
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func configure(with item: LifeBannerItem) {
-        contentView.backgroundColor = item.backgroundColor
+        artworkView.image = item.artworkName.flatMap { UIImage(named: $0) }
+        let hasArtwork = artworkView.image != nil
+        [titleLabel, subtitleLabel, actionButton, iconView].forEach { $0.isHidden = hasArtwork }
+        contentView.backgroundColor = hasArtwork ? .clear : item.backgroundColor
+        contentView.accessibilityLabel = item.title + "，" + item.subtitle
         titleLabel.text = item.title
         titleLabel.textColor = item.accentColor
         subtitleLabel.text = item.subtitle
