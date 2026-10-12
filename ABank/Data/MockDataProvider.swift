@@ -767,17 +767,17 @@ final class MockDataProvider {
                 name: "西安沣东新城支行",
                 distance: "2552米",
                 services: [
-                    MineGridItem(title: "我要开卡", systemIcon: "creditcard.badge.plus"),
-                    MineGridItem(title: "纪念币预约", systemIcon: "bitcoinsign.circle"),
-                    MineGridItem(title: "同号换卡", systemIcon: "iphone.and.arrow.forward"),
-                    MineGridItem(title: "网点查询", systemIcon: "building.columns")
+                    MineGridItem(title: "我要开卡", imageName: "abc_mine_branch_open", systemIcon: "creditcard.badge.plus"),
+                    MineGridItem(title: "纪念币预约", imageName: "abc_mine_branch_coin", systemIcon: "bitcoinsign.circle"),
+                    MineGridItem(title: "同号换卡", imageName: "abc_mine_branch_replace", systemIcon: "iphone.and.arrow.forward"),
+                    MineGridItem(title: "网点查询", imageName: "abc_mine_branch_find", systemIcon: "building.columns")
                 ]
             ),
             securityItems: [
-                MineGridItem(title: "登录设置", systemIcon: "door.left.hand.open"),
-                MineGridItem(title: "转账设置", systemIcon: "shield.lefthalf.filled"),
-                MineGridItem(title: "支付设置", systemIcon: "lock.shield"),
-                MineGridItem(title: "登录设备", systemIcon: "iphone")
+                MineGridItem(title: "登录设置", imageName: "abc_mine_security_login", systemIcon: "door.left.hand.open"),
+                MineGridItem(title: "转账设置", imageName: "abc_mine_security_transfer", systemIcon: "shield.lefthalf.filled"),
+                MineGridItem(title: "支付设置", imageName: "abc_mine_security_payment", systemIcon: "lock.shield"),
+                MineGridItem(title: "登录设备", imageName: "abc_mine_security_devices", systemIcon: "iphone")
             ],
             customerManager: MineCustomerManager(
                 name: "*凡柳",

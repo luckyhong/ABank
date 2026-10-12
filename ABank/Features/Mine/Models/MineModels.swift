@@ -34,6 +34,7 @@ struct MineMonthlyFlow {
 
 struct MineGridItem {
     let title: String
+    var imageName: String? = nil
     let systemIcon: String
 }
 

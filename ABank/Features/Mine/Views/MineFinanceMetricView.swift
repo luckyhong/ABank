@@ -31,29 +31,37 @@ final class MineFinanceMetricView: UIView {
         rightTitle: String,
         rightAmount: String,
         leftAccentColor: UIColor = .abankTeal,
-        rightAccentColor: UIColor = .abankOrange
+        rightAccentColor: UIColor = UIColor(red: 1, green: 0.75, blue: 0.30, alpha: 1)
     ) {
         leftTitleLabel.text = leftTitle
         rightTitleLabel.text = rightTitle
-        leftAmountLabel.text = leftAmount
-        rightAmountLabel.text = rightAmount
+        setAmount(leftAmount, on: leftAmountLabel)
+        setAmount(rightAmount, on: rightAmountLabel)
         leftAccent.backgroundColor = leftAccentColor
         rightAccent.backgroundColor = rightAccentColor
     }
 
+    private func setAmount(_ text: String, on label: UILabel) {
+        let value = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 23, weight: .medium)])
+        if text.hasPrefix("¥") {
+            value.addAttribute(.font, value: UIFont.systemFont(ofSize: 15), range: NSRange(location: 0, length: 1))
+        }
+        label.attributedText = value
+    }
+
     private func setupUI() {
         [leftTitleLabel, rightTitleLabel].forEach {
-            $0.font = .systemFont(ofSize: 13)
+            $0.font = .systemFont(ofSize: 14)
             $0.textColor = .abankTextSecondary
         }
         [leftAmountLabel, rightAmountLabel].forEach {
             $0.font = .systemFont(ofSize: 22, weight: .regular)
-            $0.textColor = .abankAmount
+            $0.textColor = .abankTextPrimary
             $0.adjustsFontSizeToFitWidth = true
             $0.minimumScaleFactor = 0.7
         }
         [leftAccent, rightAccent].forEach {
-            $0.layer.cornerRadius = 2
+            $0.layer.cornerRadius = 0
         }
 
         let leftColumn = makeColumn(accent: leftAccent, title: leftTitleLabel, amount: leftAmountLabel)
@@ -76,7 +84,7 @@ final class MineFinanceMetricView: UIView {
         column.addSubview(amount)
         accent.snp.makeConstraints { make in
             make.leading.top.equalToSuperview()
-            make.width.equalTo(3)
+            make.width.equalTo(2)
             make.height.equalTo(14)
         }
         title.snp.makeConstraints { make in

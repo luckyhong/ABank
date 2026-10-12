@@ -59,7 +59,7 @@ final class MineViewController: BaseViewController {
     }
 
     override func setupUI() {
-        view.backgroundColor = .abankBackground
+        view.backgroundColor = .white
 
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
@@ -86,15 +86,15 @@ final class MineViewController: BaseViewController {
             make.leading.trailing.equalToSuperview().inset(horizontalInset)
         }
         profileHeader.snp.makeConstraints { make in
-            make.top.equalTo(topActionBar.snp.bottom).offset(Spacing.md)
+            make.top.equalTo(topActionBar.snp.bottom).offset(12)
             make.leading.trailing.equalToSuperview().inset(horizontalInset)
         }
         assetStatsCard.snp.makeConstraints { make in
-            make.top.equalTo(profileHeader.snp.bottom).offset(Spacing.md)
+            make.top.equalTo(profileHeader.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview().inset(horizontalInset)
         }
         assetLiabilityCard.snp.makeConstraints { make in
-            make.top.equalTo(assetStatsCard.snp.bottom).offset(sectionSpacing)
+            make.top.equalTo(assetStatsCard.snp.bottom).offset(22)
             make.leading.trailing.equalToSuperview().inset(horizontalInset)
         }
         monthlyFlowCard.snp.makeConstraints { make in

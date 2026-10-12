@@ -83,7 +83,9 @@ final class MineTopActionBarView: UIView {
         showsBadge: Bool = false
     ) -> UIView {
         let wrap = UIView()
-        let iconView = UIImageView(image: UIImage(systemName: icon))
+        let artwork = ["退出": "abc_mine_toolbar_logout", "搜索": "abc_mine_toolbar_search", "设置": "abc_mine_toolbar_settings", "更多": "abc_mine_toolbar_more"][title]
+        let image = artwork.flatMap { UIImage.abankAsset($0, fallback: icon, renderingMode: .alwaysTemplate) } ?? UIImage(systemName: icon)
+        let iconView = UIImageView(image: image)
         iconView.tintColor = .abankTextPrimary
         iconView.contentMode = .scaleAspectFit
 

@@ -56,7 +56,7 @@ final class MineActionGridView: UIView {
         wrap.tag = index
         wrap.addTarget(self, action: #selector(itemTapped(_:)), for: .touchUpInside)
 
-        let icon = UIImageView(image: UIImage(systemName: item.systemIcon))
+        let icon = UIImageView(image: item.imageName.flatMap { UIImage.abankAsset($0, fallback: item.systemIcon) } ?? UIImage(systemName: item.systemIcon))
         icon.tintColor = .abankPrimary
         icon.contentMode = .scaleAspectFit
 

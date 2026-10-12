@@ -17,7 +17,7 @@ final class MineCustomerManagerCardView: UIView {
     private let roleBadge = UILabel()
     private let branchLabel = UILabel()
     private let wechatButton = UIControl()
-    private let wechatIcon = UIImageView(image: UIImage(systemName: "message.fill"))
+    private let wechatIcon = UIImageView(image: UIImage.abankAsset("abc_mine_manager_wechat", fallback: "message.fill"))
     private let wechatLabel = UILabel()
 
     override init(frame: CGRect) {

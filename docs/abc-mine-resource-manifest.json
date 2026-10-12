@@ -1,0 +1,234 @@
+[
+  {
+    "asset": "abc_mine_stats_background",
+    "source": "hp_mine_userinfo_bg.png",
+    "sha256": "3e1035dbafae51553e6a7f7b4eb9293407547f2ebca78728c72f0f37884bf968",
+    "width": 1125,
+    "height": 326,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_finance_header_background",
+    "source": "hp_mine_title_bg.png",
+    "sha256": "c10fd91e02d2dca13ef24d9588538483554a952eb06d9b1f6b8c7fbe5dfc9fdc",
+    "width": 1005,
+    "height": 150,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_toolbar_logout",
+    "source": "hp_my_logout_white.png",
+    "sha256": "cd48c1bc5e22c06bf75e0cba90246db0f91fb4870440129e666e228edb6647ba",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_toolbar_search",
+    "source": "hp_my_search_white.png",
+    "sha256": "645098ecd4635c3d8fa98a68b826438839fe151564e2e2304508f586c17c5590",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_toolbar_settings",
+    "source": "hp_my_settings_white.png",
+    "sha256": "16f05007a21d4852eb760b8ea403b6d7b93f71d925560771dcc33db554bb9a2f",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_toolbar_more",
+    "source": "hp_my_more_white.png",
+    "sha256": "b43be454ab95a57cfc21f763e174529e195b43d743fa97c6d98d0ff8b3be314e",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_profile_avatar",
+    "source": "comm_portrait_boy_native.png",
+    "sha256": "11518e2a3a2750d1c1733eb432ebcd6567c4af92ab62f924fcff50f645b66ee4",
+    "width": 168,
+    "height": 168,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_profile_star",
+    "source": "Assets/hp_mine_userrights_star_level_Normal@2x.png",
+    "sha256": "98f046d796c4ef2debe724b23cf1d9970db0fba72cb4339b0da12aec545e1324",
+    "width": 40,
+    "height": 40,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_mine_profile_star",
+    "source": "Assets/hp_mine_userrights_star_level_Normal@3x.png",
+    "sha256": "97ce53201170195567588236fcd3f839dd7a9de93ed6fd2d01e098929c3700b3",
+    "width": 60,
+    "height": 60,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_profile_benefits",
+    "source": "Assets/hp_mine_userrights_center_Normal@2x.png",
+    "sha256": "455d7730b08578d8e8d74363c48b3707ec9fe99b625bfdad6fdffe70b526d5cb",
+    "width": 154,
+    "height": 88,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_mine_profile_benefits",
+    "source": "Assets/hp_mine_userrights_center_Normal@3x.png",
+    "sha256": "2b95a83fd3f6bcd1af5c1202fce3ccd086c26291a697bcf6290523ad436f41d1",
+    "width": 231,
+    "height": 132,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_amount_eye_open",
+    "source": "homepage_mine_eyeopen.png",
+    "sha256": "5a41d78b5e9fdd975baf9646537b3106a1d34ad745838a59fc9d60766ee68f6b",
+    "width": 60,
+    "height": 60,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_amount_eye_closed",
+    "source": "homepage_mine_eyeclose.png",
+    "sha256": "152a0b02de421ae8e76edf7004634041efbfc383815535c97fd9c73fd4fbe777",
+    "width": 60,
+    "height": 60,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_branch_refresh",
+    "source": "Assets/hp_mine_nearbyoutlets_refresh_all_Normal@2x.png",
+    "sha256": "72efb028976cb615340e4ee99578480e0948f8a9b1b433cfb9105b8883d2c07f",
+    "width": 48,
+    "height": 48,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_mine_branch_refresh",
+    "source": "Assets/hp_mine_nearbyoutlets_refresh_all_Normal@3x.png",
+    "sha256": "5656467d0fc5a3619bca06d780c71172d88e6b519a01e8a47d43536908f501eb",
+    "width": 72,
+    "height": 72,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_branch_open",
+    "source": "Assets/hp_mine_nearbyoutlets_opencard_Normal@2x.png",
+    "sha256": "8b16ebc980efac74a1b25551cdeeb66b2f5382c9c21ea0dd2c41019d3725b13a",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_mine_branch_open",
+    "source": "Assets/hp_mine_nearbyoutlets_opencard_Normal@3x.png",
+    "sha256": "d3f3eaa4e24cec867e29d8709a4b2aa1aff740cfe2ee9da104dde8b358b17ff1",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_branch_coin",
+    "source": "Assets/hp_mine_nearbyoutlets_commecoin_Normal@2x.png",
+    "sha256": "2b86a8a28c37a63af5699726a47556411426ccbe07382107630c946a68fc8381",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_mine_branch_coin",
+    "source": "Assets/hp_mine_nearbyoutlets_commecoin_Normal@3x.png",
+    "sha256": "d806338cc7f05633c19325ff71d4fcc4416f0d8f878194fb6fe9ce46f90e79d4",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_branch_replace",
+    "source": "Assets/hp_mine_nearbyoutlets_changecard_Normal@2x.png",
+    "sha256": "4656b2c0fcfb4f40df0a41656fbbda5660ae3d88bb29ae02065c059dad30ab9e",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_mine_branch_replace",
+    "source": "Assets/hp_mine_nearbyoutlets_changecard_Normal@3x.png",
+    "sha256": "b647606aa370bdba16ac5f220011c760f6054327bbbd96658e4d13d11c1c0d18",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_branch_find",
+    "source": "Assets/hp_mine_nearbyoutlets_find_Normal@2x.png",
+    "sha256": "945db2c99de4ea8ab2ff437265ac5972d1935d9856cd3224b78b3df9f65d7c14",
+    "width": 64,
+    "height": 64,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_mine_branch_find",
+    "source": "Assets/hp_mine_nearbyoutlets_find_Normal@3x.png",
+    "sha256": "9c6629caea49d7de0a04ff3e191e6384c62b5fe6d2eb0da9808c39ccea1213da",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_security_login",
+    "source": "safecenter_login_setting_700_native500.png",
+    "sha256": "ce77a8975a663776db250c67029a1fd7a3ce5e43c51d8f8310f104852bf615fb",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_security_transfer",
+    "source": "safecenter_trans_setting_700_native500.png",
+    "sha256": "adad0af2d49ee536d6a0f98cc3667c45d2748a92bc9185851e2bea89f6580757",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_security_payment",
+    "source": "safecenter_pay_setting_700_native500.png",
+    "sha256": "9f7d8f3d8c0c17c26cec2419540b50bac483ef26ca2fc8637739fb189080f9a8",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_security_devices",
+    "source": "safecenter_trusted_device_1100_native500.png",
+    "sha256": "b828f33401988e1c61cd1116fae21c7798a3ed36b2e7afb69d3c6d4dff7f40f2",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_manager_wechat",
+    "source": "Assets/hp_mine_customermanger_wechat_Normal@2x.png",
+    "sha256": "445dfb31a5e662db5d741ee5eb46dfe492466b23310e328e761c27009a859634",
+    "width": 40,
+    "height": 40,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_mine_manager_wechat",
+    "source": "Assets/hp_mine_customermanger_wechat_Normal@3x.png",
+    "sha256": "2f20755df1f8e3310df671d1a36d69cdf06faeceb821f35235f62e2159c2b4da",
+    "width": 60,
+    "height": 60,
+    "scale": "3x"
+  }
+]

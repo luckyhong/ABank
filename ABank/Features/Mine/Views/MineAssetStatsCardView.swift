@@ -32,7 +32,7 @@ final class MineAssetStatsCardView: UIView {
     }
 
     private func setupUI() {
-        card.backgroundColor = UIColor(red: 0.18, green: 0.20, blue: 0.22, alpha: 1)
+        card.backgroundColor = .clear
         card.layer.cornerRadius = CornerRadius.lg
         card.clipsToBounds = true
 
@@ -40,6 +40,20 @@ final class MineAssetStatsCardView: UIView {
         stack.distribution = .fillEqually
         stack.alignment = .center
 
+        let background = UIImage(named: "abc_mine_stats_background")
+        // Trim the shipped canvas gutters and surplus white area; retain the curved lower edge.
+        let cropped = background.flatMap { image -> UIImage? in
+            guard let cgImage = image.cgImage else { return image }
+            let inset = CGFloat(cgImage.width) * 60.0 / 1125.0
+            let rect = CGRect(x: inset, y: 0, width: CGFloat(cgImage.width) - 2 * inset, height: CGFloat(cgImage.height) * 256.0 / 326.0)
+            guard let trimmed = cgImage.cropping(to: rect) else { return image }
+            return UIImage(cgImage: trimmed, scale: image.scale, orientation: image.imageOrientation)
+        }
+        let artwork = UIImageView(image: cropped)
+        artwork.contentMode = .scaleToFill
+        artwork.isUserInteractionEnabled = false
+        card.addSubview(artwork)
+        artwork.snp.makeConstraints { $0.edges.equalToSuperview() }
         card.addSubview(stack)
         addSubview(card)
 
@@ -55,6 +69,7 @@ final class MineAssetStatsCardView: UIView {
 
     private func drawPattern() {
         patternLayer.removeFromSuperlayer()
+        guard UIImage(named: "abc_mine_stats_background") == nil else { return }
         let path = UIBezierPath()
         let w = card.bounds.width
         let h = card.bounds.height

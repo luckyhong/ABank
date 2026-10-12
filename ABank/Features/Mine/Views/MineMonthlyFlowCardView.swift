@@ -132,7 +132,7 @@ final class MineMonthlyFlowCardView: UIView {
         }
         billBadge.snp.makeConstraints { make in
             make.trailing.equalTo(billChevron.snp.leading).offset(-4)
-            make.centerY.equalToSuperview()
+            make.centerY.equalToSuperview().offset(-10)
             make.size.equalTo(6)
         }
         billNoticeLabel.snp.makeConstraints { make in

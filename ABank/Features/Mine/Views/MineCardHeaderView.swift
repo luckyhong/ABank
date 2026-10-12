@@ -32,19 +32,19 @@ final class MineCardHeaderView: UIView {
     func setAmountVisible(_ visible: Bool) {
         isAmountVisible = visible
         let icon = visible ? "eye" : "eye.slash"
-        eyeButton.setImage(UIImage(systemName: icon), for: .normal)
+        eyeButton.setImage(UIImage.abankAsset(visible ? "abc_mine_amount_eye_open" : "abc_mine_amount_eye_closed", fallback: icon, renderingMode: .alwaysTemplate), for: .normal)
     }
 
     private func setupUI(showsEye: Bool, showsRefresh: Bool) {
-        titleLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+        titleLabel.font = .systemFont(ofSize: 20, weight: .medium)
         titleLabel.textColor = .abankTextPrimary
 
-        eyeButton.setImage(UIImage(systemName: "eye"), for: .normal)
+        eyeButton.setImage(UIImage.abankAsset("abc_mine_amount_eye_open", fallback: "eye", renderingMode: .alwaysTemplate), for: .normal)
         eyeButton.tintColor = .abankTextTertiary
         eyeButton.isHidden = !showsEye
         eyeButton.addTarget(self, action: #selector(eyeTapped), for: .touchUpInside)
 
-        refreshButton.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
+        refreshButton.setImage(UIImage.abankAsset("abc_mine_branch_refresh", fallback: "arrow.clockwise"), for: .normal)
         refreshButton.tintColor = .abankPrimary
         refreshButton.isHidden = !showsRefresh
         refreshButton.addTarget(self, action: #selector(refreshTapped), for: .touchUpInside)
@@ -73,7 +73,7 @@ final class MineCardHeaderView: UIView {
         chevronView.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
             make.centerY.equalToSuperview()
-            make.size.equalTo(12)
+            make.size.equalTo(16)
         }
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
