@@ -14,7 +14,7 @@ final class NewsArticleCell: UITableViewCell {
     private let titleLabel = UILabel()
     private let metaLabel = UILabel()
     private let thumbView = UIView()
-    private let thumbIcon = UIImageView()
+    private let thumbIcon = NewsRemoteImageView()
     private let separator = UIView()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -26,9 +26,13 @@ final class NewsArticleCell: UITableViewCell {
 
     func configure(with item: NewsArticleItem) {
         titleLabel.text = item.title
-        metaLabel.text = "\(item.source)  \(item.readCount)阅读  \(item.date)"
+        metaLabel.text = "\(item.source)  \(item.date)"
         thumbView.backgroundColor = item.thumbnailBackground
-        thumbIcon.image = UIImage(named: "abc_news_placeholder_article")
+        thumbIcon.load(item.thumbnailURL)
+        let hasImage = item.thumbnailURL != nil
+        thumbView.isHidden = !hasImage
+        thumbView.snp.updateConstraints { $0.size.equalTo(CGSize(width: hasImage ? 108 : 0, height: hasImage ? 72 : 0)) }
+        titleLabel.snp.updateConstraints { $0.trailing.equalTo(thumbView.snp.leading).offset(hasImage ? -12 : 0) }
         thumbIcon.tintColor = item.iconTint
     }
 

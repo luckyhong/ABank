@@ -2,9 +2,9 @@
 
 [English](README.md) · [中文](README.zh-CN.md)
 
-A frontend-only iOS learning project that recreates a banking-style app UI from scratch—modular architecture, a shared design system, and maintainable page structure—powered entirely by mock data.
+A frontend-only iOS learning project that recreates a banking-style app UI from scratch—modular architecture, a shared design system, and maintainable page structure—using mock banking data and public news feeds.
 
-> **Learning project only. Not a real banking app.** No live services, network calls, or sensitive data persistence.
+> **Learning project only. Not a real banking app.** No live banking services or sensitive data persistence. News reads public RSS; banking flows remain local simulations.
 
 ---
 
@@ -26,8 +26,8 @@ A frontend-only iOS learning project that recreates a banking-style app UI from 
 
 | Aspect | Detail |
 |--------|--------|
-| Scope | UI / interaction layer only—no real networking, payments, or risk control |
-| Data | In-memory models driven by `MockDataProvider` and local Stores |
+| Scope | UI / interaction only; public RSS for news, no real banking, payments, or risk control |
+| Data | Banking: `MockDataProvider` and local Stores; news: public RSS, cache and labeled offline examples |
 | Goals | Readable, extensible code for practicing architecture, modularity, layout, and naming |
 
 Good for practicing:
@@ -185,7 +185,7 @@ pod install
 open ABank.xcworkspace
 ```
 
-Pick a simulator or device in Xcode and press `Cmd + R`. All data is local—no network required.
+Pick a simulator or device in Xcode and press `Cmd + R`. Banking data is local. News refreshes online and falls back to cache or labeled educational examples offline; see [news data notes](docs/news-data.md).
 
 > Failed `pod install` runs are usually network-related; retry or configure a proxy.
 
@@ -231,4 +231,4 @@ Keep models under each feature’s `Models/` folder by domain.
 
 Issues and PRs that improve structure and UI quality are welcome. The goal is to get the interface right and keep the architecture clean.
 
-**Disclaimer**: For learning and discussion only. All UI and data are simulated. This project does not provide financial services and is not affiliated with any real bank.
+**Disclaimer**: For learning and discussion only. Banking UI and business data are simulated; news sources are labeled separately. This project does not provide financial services and is not affiliated with any real bank.

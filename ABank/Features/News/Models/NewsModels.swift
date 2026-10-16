@@ -24,6 +24,8 @@ struct NewsHeroBannerItem {
     let backgroundColor: UIColor
     let accentColor: UIColor
     let systemIcon: String
+    var storyID: String? = nil
+    var imageURL: URL? = nil
 }
 
 struct NewsFlashItem {
@@ -37,6 +39,8 @@ struct NewsVideoItem {
     let backgroundColor: UIColor
     let systemIcon: String
     let iconTint: UIColor
+    var storyID: String? = nil
+    var imageURL: URL? = nil
 }
 
 enum NewsHotBadge: String {
@@ -58,6 +62,7 @@ struct NewsInteractiveTopic {
 }
 
 struct NewsFollowSuggestion {
+    var isFollowed: Bool = false
     let name: String
     let systemIcon: String
     let tintColor: UIColor
@@ -83,6 +88,7 @@ struct NewsArticleItem: Equatable {
     let thumbnailBackground: UIColor
     let systemIcon: String
     let iconTint: UIColor
+    var thumbnailURL: URL? = nil
 }
 
 struct NewsFeedBannerItem: Equatable {

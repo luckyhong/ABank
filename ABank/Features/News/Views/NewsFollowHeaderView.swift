@@ -89,6 +89,7 @@ final class NewsFollowSuggestionsView: UIView {
 
     func configure(with items: [NewsFollowSuggestion]) {
         self.items = items
+        followAllButton.setTitle(items.allSatisfy(\.isFollowed) ? "已全部关注" : "一键关注", for: .normal)
         collectionView.reloadData()
     }
 
@@ -218,6 +219,7 @@ private final class NewsFollowSuggestionCell: UICollectionViewCell {
         iconView.image = UIImage(systemName: item.systemIcon)
         iconView.tintColor = item.tintColor
         nameLabel.text = item.name
+        followButton.setTitle(item.isFollowed ? "已关注" : "+ 关注", for: .normal)
     }
 
     @objc private func followTapped() { onFollowTapped?() }
@@ -257,7 +259,7 @@ final class NewsTrendingListView: UIView {
         layer.shadowOffset = CGSize(width: 0, height: 2)
         layer.shadowRadius = 6
 
-        titleLabel.text = "大家都在看"
+        titleLabel.text = "近期资讯"
         titleLabel.font = .systemFont(ofSize: 17, weight: .semibold)
         titleLabel.textColor = .abankTextPrimary
 
@@ -335,7 +337,7 @@ final class NewsPKPollView: UIView {
 
     func configure(with poll: NewsPKPoll) {
         questionLabel.text = poll.question
-        participantLabel.text = " \(poll.participantCount)人已参与"
+        participantLabel.text = poll.participantCount > 0 ? " \(poll.participantCount)人已参与" : "仅保存本机偏好"
         leftButton.setTitle(poll.leftOption, for: .normal)
         rightButton.setTitle(poll.rightOption, for: .normal)
     }

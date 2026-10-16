@@ -6,7 +6,7 @@
 import UIKit
 import SnapKit
 
-/// Feed 区域吸顶头部：其他标签 + 分类 Tab + 广告条
+/// Feed 区域吸顶头部：其他标签 + 分类 Tab
 final class NewsFeedSectionHeaderView: UIView {
 
     var onCategoryChanged: ((Int, String) -> Void)?
@@ -15,8 +15,6 @@ final class NewsFeedSectionHeaderView: UIView {
 
     private let otherButton = UIButton(type: .system)
     private let categoryTabs = NewsCategoryTabsView()
-    private let adStrip = UIView()
-    private let adTag = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -61,15 +59,8 @@ final class NewsFeedSectionHeaderView: UIView {
             self?.onMoreTapped?()
         }
 
-        adStrip.backgroundColor = UIColor(red: 1.0, green: 0.94, blue: 0.88, alpha: 1)
-        adTag.text = "【广告】"
-        adTag.font = .systemFont(ofSize: 9)
-        adTag.textColor = .abankTextTertiary
-
         addSubview(otherButton)
         addSubview(categoryTabs)
-        addSubview(adStrip)
-        adStrip.addSubview(adTag)
 
         otherButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(8)
@@ -81,21 +72,12 @@ final class NewsFeedSectionHeaderView: UIView {
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(36)
         }
-        adStrip.snp.makeConstraints { make in
-            make.top.equalTo(categoryTabs.snp.bottom)
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(18)
-            make.bottom.equalToSuperview()
-        }
-        adTag.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-Spacing.md)
-            make.centerY.equalToSuperview()
-        }
+
     }
 
     static func preferredHeight(showsOtherChip: Bool) -> CGFloat {
         let otherHeight: CGFloat = showsOtherChip ? 44 : 0
-        return otherHeight + 36 + 18
+        return otherHeight + 36
     }
 
     @objc private func otherTapped() { onOtherTapped?() }

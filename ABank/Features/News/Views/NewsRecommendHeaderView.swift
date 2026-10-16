@@ -11,9 +11,9 @@ final class NewsRecommendHeaderView: UIView {
 
     private let heroBanner = NewsHeroBannerView()
     private let flashNews = NewsFlashNewsView()
-    private let hotVideosHeader = SectionHeaderView(title: "热门视频", imageName: "abc_news_header_videos")
+    private let hotVideosHeader = SectionHeaderView(title: "新闻视频")
     private let hotVideos = NewsHotVideosView()
-    private let hotListHeader = SectionHeaderView(title: "资讯热榜", imageName: "abc_news_header_ranking")
+    private let hotListHeader = SectionHeaderView(title: "最新资讯")
     private let hotList = NewsHotListView()
     private let topicCard = NewsInteractiveTopicView()
 
@@ -36,8 +36,29 @@ final class NewsRecommendHeaderView: UIView {
         heroBanner.configure(with: banners)
         flashNews.configure(with: flash)
         hotVideos.configure(with: videos)
+        hotVideosHeader.isHidden = videos.isEmpty
+        hotVideosHeader.snp.updateConstraints { make in
+            make.height.equalTo(videos.isEmpty ? 0 : 22)
+            make.top.equalTo(flashNews.snp.bottom).offset(videos.isEmpty ? 0 : 18)
+        }
+        hotVideos.snp.updateConstraints { $0.top.equalTo(hotVideosHeader.snp.bottom).offset(videos.isEmpty ? 0 : 10) }
         hotList.configure(with: hotItems)
         topicCard.configure(with: topic)
+    }
+
+    func updateVideoImages(_ videos: [NewsVideoItem]) { hotVideos.configure(with: videos) }
+
+    var onHeroTapped: ((Int) -> Void)? {
+        get { heroBanner.onItemTapped }
+        set { heroBanner.onItemTapped = newValue }
+    }
+    var onFlashTapped: (() -> Void)? {
+        get { flashNews.onTap }
+        set { flashNews.onTap = newValue }
+    }
+    var onRankTapped: ((Int) -> Void)? {
+        get { hotList.onItemTapped }
+        set { hotList.onItemTapped = newValue }
     }
 
     var onHotListTapped: (() -> Void)? {
@@ -103,6 +124,7 @@ final class NewsRecommendHeaderView: UIView {
 // MARK: - Hero Banner
 
 final class NewsHeroBannerView: UIView, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    var onItemTapped: ((Int) -> Void)?
 
     private let collectionView: UICollectionView
     private let pageControl = UIPageControl()
@@ -125,6 +147,9 @@ final class NewsHeroBannerView: UIView, UICollectionViewDataSource, UICollection
 
     func configure(with items: [NewsHeroBannerItem]) {
         self.items = items
+        currentIndex = 0
+        pageControl.currentPage = 0
+        collectionView.setContentOffset(.zero, animated: false)
         pageControl.numberOfPages = items.count
         pageControl.isHidden = items.count <= 1
         collectionView.reloadData()
@@ -161,7 +186,7 @@ final class NewsHeroBannerView: UIView, UICollectionViewDataSource, UICollection
 
     private func restartTimer() {
         timer?.invalidate()
-        guard items.count > 1 else { return }
+        guard window != nil, items.count > 1 else { return }
         timer = Timer.scheduledTimer(withTimeInterval: 4.0, repeats: true) { [weak self] _ in
             guard let self, self.items.count > 1 else { return }
             self.currentIndex = (self.currentIndex + 1) % self.items.count
@@ -191,6 +216,15 @@ final class NewsHeroBannerView: UIView, UICollectionViewDataSource, UICollection
         collectionView.bounds.size
     }
 
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        restartTimer()
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        onItemTapped?(indexPath.item)
+    }
+
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         currentIndex = Int(round(scrollView.contentOffset.x / max(scrollView.bounds.width, 1)))
         pageControl.currentPage = currentIndex
@@ -207,6 +241,7 @@ private final class NewsHeroBannerCell: UICollectionViewCell {
 
     private let gradientLayer = CAGradientLayer()
     private let artContainer = UIView()
+    private let backgroundArtwork = NewsRemoteImageView()
     private let houseIcon = UIImageView()
     private let coinLarge = UIView()
     private let coinSmall = UIView()
@@ -222,7 +257,6 @@ private final class NewsHeroBannerCell: UICollectionViewCell {
         gradientLayer.startPoint = CGPoint(x: 0.15, y: 0)
         gradientLayer.endPoint = CGPoint(x: 0.9, y: 1)
         contentView.layer.insertSublayer(gradientLayer, at: 0)
-        let backgroundArtwork = UIImageView(image: UIImage(named: "abc_news_hero_finance_background"))
         backgroundArtwork.contentMode = .scaleAspectFill
         backgroundArtwork.isUserInteractionEnabled = false
         contentView.addSubview(backgroundArtwork)
@@ -254,9 +288,9 @@ private final class NewsHeroBannerCell: UICollectionViewCell {
         tagLabel.layer.cornerRadius = 4
         tagLabel.clipsToBounds = true
 
-        titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        titleLabel.font = .systemFont(ofSize: 20, weight: .semibold)
         titleLabel.textColor = .white
-        titleLabel.numberOfLines = 1
+        titleLabel.numberOfLines = 3
 
         bottomBar.backgroundColor = UIColor(white: 0.12, alpha: 0.38)
 
@@ -306,7 +340,7 @@ private final class NewsHeroBannerCell: UICollectionViewCell {
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(14)
             make.top.equalTo(tagLabel.snp.bottom).offset(12)
-            make.trailing.lessThanOrEqualTo(artContainer.snp.leading).offset(8)
+            make.trailing.equalToSuperview().offset(-16)
         }
         bottomBar.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
@@ -337,6 +371,7 @@ private final class NewsHeroBannerCell: UICollectionViewCell {
             item.backgroundColor.withAlphaComponent(0.85).cgColor,
             UIColor(red: 0.55, green: 0.78, blue: 0.95, alpha: 1).cgColor
         ]
+        backgroundArtwork.load(item.imageURL)
         tagLabel.text = "  \(item.tag)  "
         titleLabel.text = item.title
         subtitleLabel.text = item.subtitle
@@ -348,6 +383,7 @@ private final class NewsHeroBannerCell: UICollectionViewCell {
 // MARK: - 7x24 快讯
 
 final class NewsFlashNewsView: UIView {
+    var onTap: (() -> Void)?
 
     private let timeLabel = UILabel()
     private let headlineLabel = UILabel()
@@ -355,7 +391,10 @@ final class NewsFlashNewsView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
     }
+
+    @objc private func tapped() { onTap?() }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
@@ -431,6 +470,7 @@ final class NewsHotVideosView: UIView, UICollectionViewDataSource, UICollectionV
     func configure(with items: [NewsVideoItem]) {
         self.items = items
         collectionView.reloadData()
+        collectionView.snp.updateConstraints { $0.height.equalTo(items.isEmpty ? 0 : 174) }
     }
 
     private func setupUI() {
@@ -442,7 +482,7 @@ final class NewsHotVideosView: UIView, UICollectionViewDataSource, UICollectionV
         addSubview(collectionView)
         collectionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.height.equalTo(156)
+            make.height.equalTo(174)
         }
     }
 
@@ -457,7 +497,7 @@ final class NewsHotVideosView: UIView, UICollectionViewDataSource, UICollectionV
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        CGSize(width: 152, height: 156)
+        CGSize(width: 152, height: 174)
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -471,7 +511,7 @@ private final class NewsVideoCell: UICollectionViewCell {
     private let thumbView = UIView()
     private let overlayBar = UIView()
     private let overlayLabel = UILabel()
-    private let iconView = UIImageView()
+    private let iconView = NewsRemoteImageView()
     private let titleLabel = UILabel()
 
     override init(frame: CGRect) {
@@ -491,7 +531,7 @@ private final class NewsVideoCell: UICollectionViewCell {
 
         titleLabel.font = .systemFont(ofSize: 13)
         titleLabel.textColor = .abankTextPrimary
-        titleLabel.numberOfLines = 1
+        titleLabel.numberOfLines = 2
         titleLabel.lineBreakMode = .byTruncatingTail
 
         contentView.addSubview(thumbView)
@@ -525,7 +565,7 @@ private final class NewsVideoCell: UICollectionViewCell {
         thumbView.backgroundColor = item.backgroundColor
         overlayLabel.text = item.overlayTitle
         overlayBar.isHidden = item.overlayTitle.isEmpty
-        iconView.image = UIImage(named: "abc_news_placeholder_video_horizontal")
+        iconView.load(item.imageURL, placeholder: UIImage(named: "abc_news_placeholder_video_horizontal"))
         iconView.tintColor = item.iconTint
         titleLabel.text = item.title
     }
@@ -534,6 +574,7 @@ private final class NewsVideoCell: UICollectionViewCell {
 // MARK: - 资讯热榜
 
 final class NewsHotListView: UIView {
+    var onItemTapped: ((Int) -> Void)?
 
     private let stack = UIStackView()
 
@@ -546,9 +587,16 @@ final class NewsHotListView: UIView {
 
     func configure(with items: [NewsHotRankItem]) {
         stack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        for item in items {
-            stack.addArrangedSubview(NewsHotRankRowView(item: item))
+        for (index, item) in items.enumerated() {
+            let row = NewsHotRankRowView(item: item)
+            row.tag = index
+            row.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(rowTapped(_:))))
+            stack.addArrangedSubview(row)
         }
+    }
+
+    @objc private func rowTapped(_ gesture: UITapGestureRecognizer) {
+        if let index = gesture.view?.tag { onItemTapped?(index) }
     }
 
     private func setupUI() {
@@ -648,7 +696,7 @@ final class NewsInteractiveTopicView: UIView {
 
     var onOptionTapped: ((Int) -> Void)?
 
-    private let header = SectionHeaderView(title: "互动话题", imageName: "abc_news_header_topic")
+    private let header = SectionHeaderView(title: "阅读偏好")
     private let questionLabel = UILabel()
     private let participantLabel = UILabel()
     private let descLabel = UILabel()
@@ -663,7 +711,7 @@ final class NewsInteractiveTopicView: UIView {
 
     func configure(with topic: NewsInteractiveTopic) {
         questionLabel.text = topic.question
-        participantLabel.text = " \(topic.participantCount)人已参与"
+        participantLabel.text = topic.participantCount > 0 ? " \(topic.participantCount)人已参与" : "仅保存本机偏好"
         descLabel.text = topic.description
 
         optionsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
