@@ -9,7 +9,7 @@ extension Notification.Name {
     static let financeLedgerDidChange = Notification.Name("FinanceLedgerStore.didChange")
 }
 
-final class FinanceLedgerStore {
+@MainActor final class FinanceLedgerStore {
     static let shared = FinanceLedgerStore()
 
     private let defaultsKey = "abank.financeLedger.record.v8"
@@ -17,28 +17,164 @@ final class FinanceLedgerStore {
     private let dates: BankingDateContext
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+    private let dataWriter: ((Data) throws -> Void)?
+    private let simulationSucceeds: (TransferDraft) -> Bool
+    let transferLimits: TransferLimits
 
-    init(defaults: UserDefaults = .standard, dates: BankingDateContext = .system) {
+    init(defaults: UserDefaults = .standard, dates: BankingDateContext = .system,
+         transferLimits: TransferLimits = TransferLimits(),
+         dataWriter: ((Data) throws -> Void)? = nil,
+         simulationSucceeds: @escaping (TransferDraft) -> Bool = { _ in true }) {
         self.defaults = defaults
         self.dates = dates
+        self.transferLimits = transferLimits
+        self.dataWriter = dataWriter
+        self.simulationSucceeds = simulationSucceeds
     }
 
     // MARK: - CRUD
 
     func load() -> FinanceLedgerRecord {
-        if let data = defaults.data(forKey: defaultsKey),
-           let record = try? decoder.decode(FinanceLedgerRecord.self, from: data) {
-            return record
+        if let data = defaults.data(forKey: defaultsKey) {
+            // Keep unreadable bytes intact; transfer submission reports an explicit error.
+            return (try? decoder.decode(FinanceLedgerRecord.self, from: data)) ?? Self.makeSeedRecord()
         }
         let seeded = Self.makeSeedRecord()
         save(seeded)
         return seeded
     }
 
-    func save(_ record: FinanceLedgerRecord) {
-        guard let data = try? encoder.encode(record) else { return }
-        defaults.set(data, forKey: defaultsKey)
+    @discardableResult func save(_ record: FinanceLedgerRecord) -> Bool {
+        do {
+            try persist(record)
+            return true
+        } catch { return false }
+    }
+
+    private func persist(_ record: FinanceLedgerRecord) throws {
+        let data = try encoder.encode(record)
+        if let dataWriter { try dataWriter(data) }
+        else { defaults.set(data, forKey: defaultsKey) }
         NotificationCenter.default.post(name: .financeLedgerDidChange, object: nil)
+    }
+
+    // Transfers read strictly: corrupt persisted data must not be replaced with new seed data.
+    private func loadForTransfer() throws -> FinanceLedgerRecord {
+        guard let data = defaults.data(forKey: defaultsKey) else { return Self.makeSeedRecord() }
+        do { return try decoder.decode(FinanceLedgerRecord.self, from: data) }
+        catch { throw TransferError.corruptLedger }
+    }
+
+    func transferRecords() -> [TransferRecord] {
+        load().transferRecords.enumerated().sorted {
+            $0.element.createdAt == $1.element.createdAt ? $0.offset > $1.offset : $0.element.createdAt > $1.element.createdAt
+        }.map(\.element)
+    }
+
+    func transferRecipients() -> [TransferRecipient] {
+        var recipients: [TransferRecipient] = []
+        for record in transferRecords() where record.status == .succeeded {
+            if !recipients.contains(where: { $0.name == record.recipientName && $0.bankName == record.bankName && $0.maskedDestination == record.maskedDestination }) {
+                if let id = record.savedRecipientID, let preset = TransferRecipient.presets.first(where: { $0.id == id }) {
+                    recipients.append(preset)
+                } else { recipients.append(record.reusableRecipient) }
+            }
+        }
+        for preset in TransferRecipient.presets where !recipients.contains(where: {
+            $0.name == preset.name && $0.bankName == preset.bankName && $0.maskedDestination == preset.maskedDestination
+        }) {
+            recipients.append(preset)
+        }
+        return recipients
+    }
+
+    func recipient(for draft: TransferDraft) throws -> TransferRecipient {
+        try resolveRecipient(draft, record: loadForTransfer())
+    }
+
+    private func resolveRecipient(_ draft: TransferDraft, record: FinanceLedgerRecord) throws -> TransferRecipient {
+        if let savedID = draft.savedRecipientID {
+            if let preset = TransferRecipient.presets.first(where: { $0.id == savedID }) { return preset }
+            if savedID.hasPrefix("history:"), let previous = record.transferRecords.first(where: { "history:" + $0.id == savedID }) {
+                return previous.reusableRecipient
+            }
+            throw TransferError.invalidRecipient
+        }
+        let name = draft.recipientName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let bank = draft.bankName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty, name.count <= 40, !bank.isEmpty, bank.count <= 40 else { throw TransferError.invalidRecipient }
+        let destination = draft.destination.filter { !$0.isWhitespace }
+        let pattern = draft.method == .account ? #"^[0-9]{16,19}$"# : #"^1[3-9][0-9]{9}$"#
+        guard destination.range(of: pattern, options: .regularExpression) != nil else { throw TransferError.invalidDestination }
+        let masked = draft.method == .account
+            ? String(destination.prefix(4)) + "****" + String(destination.suffix(4))
+            : String(destination.prefix(3)) + "****" + String(destination.suffix(4))
+        // The current demo debit card is the only complete account number provided by the fixture.
+        let linkedID = draft.method == .account && destination == "6230480012348472" ? FinanceLedgerRecord.defaultAccountId : nil
+        return TransferRecipient(id: "manual", name: name,
+                                 bankName: draft.method == .phone ? "手机号转账" : bank,
+                                 maskedDestination: masked, method: draft.method, linkedAccountID: linkedID)
+    }
+
+    func validateTransfer(_ draft: TransferDraft) throws {
+        let record = try loadForTransfer()
+        try validateTransfer(draft, record: record, now: dates.now)
+    }
+
+    private func validateTransfer(_ draft: TransferDraft, record: FinanceLedgerRecord, now: Date) throws {
+        guard draft.amountInCents > 0 else { throw TransferError.invalidAmount }
+        guard draft.note.count <= 60 else { throw TransferError.invalidRecipient }
+        let recipient = try resolveRecipient(draft, record: record)
+        guard recipient.method == draft.method else { throw TransferError.invalidRecipient }
+        guard let payer = record.accounts.first(where: { $0.id == draft.payerAccountID }), payer.currency == "人民币" else { throw TransferError.missingAccount }
+        guard recipient.linkedAccountID != payer.id else { throw TransferError.sameAccount }
+        guard draft.amountInCents <= transferLimits.perTransferInCents else { throw TransferError.singleLimit }
+        let today = dates.string(from: now)
+        var spent: Int64 = 0
+        for transfer in record.transferRecords where transfer.status == .succeeded && transfer.createdAt.hasPrefix(today) {
+            let addition = spent.addingReportingOverflow(transfer.amountInCents)
+            guard !addition.overflow else { throw TransferError.dailyLimit }
+            spent = addition.partialValue
+        }
+        guard spent <= transferLimits.dailyInCents, draft.amountInCents <= transferLimits.dailyInCents - spent else { throw TransferError.dailyLimit }
+        guard let balance = TransferMoney.cents(from: payer.balance), draft.amountInCents <= balance else { throw TransferError.insufficientBalance }
+    }
+
+    /// Synchronous main-actor transaction: validate latest state, construct one root snapshot, persist once.
+    func submitTransfer(draft: TransferDraft, requestID: String) throws -> TransferRecord {
+        guard !requestID.isEmpty, requestID.count <= 100 else { throw TransferError.invalidRequest }
+        var root = try loadForTransfer()
+        if let existing = root.transferRecords.first(where: { $0.requestID == requestID }) { return existing }
+        let now = dates.now
+        try validateTransfer(draft, record: root, now: now)
+        let recipient = try resolveRecipient(draft, record: root)
+        let account = root.accounts.first(where: { $0.id == draft.payerAccountID })!
+        let id = UUID().uuidString
+        let succeeds = simulationSucceeds(draft)
+        let transactionID = succeeds ? "transfer_" + id : nil
+        let transfer = TransferRecord(id: id, requestID: requestID, payerAccountID: account.id,
+            payerLabel: account.cardLabel, method: draft.method, recipientName: recipient.name,
+            bankName: recipient.bankName, maskedDestination: recipient.maskedDestination,
+            savedRecipientID: draft.savedRecipientID, amountInCents: draft.amountInCents,
+            note: draft.note.trimmingCharacters(in: .whitespacesAndNewlines),
+            createdAt: dates.string(from: now, format: "yyyy-MM-dd HH:mm:ss"),
+            status: succeeds ? .succeeded : .failed, transactionID: transactionID,
+            failureReason: succeeds ? nil : "本次模拟处理失败，未扣款，请重新发起")
+        if let transactionID {
+            root.transactions.append(LedgerTransaction(id: transactionID, accountId: account.id,
+                date: dates.string(from: now), time: dates.string(from: now, format: "HH:mm:ss"),
+                title: "转账-" + recipient.name, direction: .expense, amount: TransferMoney.amount(draft.amountInCents),
+                balanceAfter: 0, iconKey: "transfer", categoryId: "transfer_out",
+                counterpartyName: recipient.name, counterpartyAccount: recipient.maskedDestination,
+                summary: "模拟转账", postscript: transfer.note, cardNumber: "****" + account.tailNumber,
+                transactionType: draft.method.title, channel: "本机模拟"))
+            recalculate(&root)
+        }
+        root.transferRecords.append(transfer)
+        root.dataTimestamp = transfer.createdAt
+        do { try persist(root) }
+        catch { throw TransferError.persistence }
+        return transfer
     }
 
     func update(_ transform: (inout FinanceLedgerRecord) -> Void) {
@@ -118,8 +254,6 @@ final class FinanceLedgerStore {
 
     func assetLiabilityPageData() -> AssetLiabilityPageData {
         let record = load()
-        let account = record.accounts.first(where: { $0.id == FinanceLedgerRecord.defaultAccountId })
-
         return AssetLiabilityPageData(
             totalAssets: totalAssets(),
             totalLiabilities: totalLiabilities(),
@@ -129,7 +263,7 @@ final class FinanceLedgerStore {
                 AssetLiabilityCategory(
                     id: FinanceLedgerRecord.demandDepositCategoryId,
                     title: "活期",
-                    totalAmount: account?.balance,
+                    totalAmount: record.accounts.reduce(0) { $0 + $1.balance },
                     items: record.accounts.map { acct in
                         AssetLiabilityItem(
                             id: acct.id,
@@ -183,10 +317,12 @@ final class FinanceLedgerStore {
         var txs = record.transactions.filter { matchesDate($0, query: query) }
         txs = txs.filter { matchesAccount($0, filter: query.accountFilter) }
         txs = txs.filter { matchesAdvanced($0, filter: query.advancedFilter) }
-        txs.sort { lhs, rhs in
-            if lhs.date != rhs.date { return lhs.date > rhs.date }
-            return lhs.time > rhs.time
-        }
+        txs = txs.enumerated().sorted { lhs, rhs in
+            let l = lhs.element, r = rhs.element
+            if l.date != r.date { return l.date > r.date }
+            if l.time != r.time { return l.time > r.time }
+            return lhs.offset > rhs.offset
+        }.map(\.element)
 
         let flowTxs = txs.filter(\.includeInFlow)
         let expense = flowTxs.filter { $0.direction == .expense }.reduce(0) { $0 + $1.amount }
@@ -196,10 +332,7 @@ final class FinanceLedgerStore {
             Int(tx.date.split(separator: "-").last ?? "0") ?? 0
         }
         let dayGroups = grouped.keys.sorted(by: >).map { day in
-            let dayTxs = (grouped[day] ?? []).sorted { lhs, rhs in
-                if lhs.time != rhs.time { return lhs.time > rhs.time }
-                return lhs.id > rhs.id
-            }
+            let dayTxs = grouped[day] ?? []
             return IncomeExpenseDayGroup(day: day, transactions: dayTxs)
         }
 
@@ -299,11 +432,12 @@ final class FinanceLedgerStore {
     }
 
     func accountDetailQueryPageData(
-        accountId: String = FinanceLedgerRecord.defaultAccountId,
+        accountId: String? = nil,
         filter: AccountDetailQueryFilter,
         maskedNumber: String = "6230 **** 8472"
     ) -> AccountDetailQueryPageData {
         let record = load()
+        let accountId = accountId ?? FinanceLedgerRecord.defaultAccountId
         var txs = record.transactions.filter { $0.accountId == accountId && !$0.isManual }
         txs = txs.filter { $0.date >= filter.startDate && $0.date <= filter.endDate }
         txs = txs.filter { matchesAdvanced($0, filter: filter.advancedFilter) }
@@ -311,10 +445,12 @@ final class FinanceLedgerStore {
         if filter.currency == .foreign {
             txs = []
         }
-        txs.sort { lhs, rhs in
-            if lhs.date != rhs.date { return lhs.date > rhs.date }
-            return lhs.time > rhs.time
-        }
+        txs = txs.enumerated().sorted { lhs, rhs in
+            let l = lhs.element, r = rhs.element
+            if l.date != r.date { return l.date > r.date }
+            if l.time != r.time { return l.time > r.time }
+            return lhs.offset > rhs.offset
+        }.map(\.element)
         return AccountDetailQueryPageData(
             maskedNumber: maskedNumber,
             currencyTitle: filter.currency.title,
@@ -335,7 +471,8 @@ final class FinanceLedgerStore {
             txs.sort { lhs, rhs in
                 let l = lhs.element, r = rhs.element
                 if l.date != r.date { return l.date < r.date }
-                return l.time < r.time
+                if l.time != r.time { return l.time < r.time }
+                return lhs.offset < rhs.offset
             }
 
             var balance = record.accounts[accountIndex].openingBalance

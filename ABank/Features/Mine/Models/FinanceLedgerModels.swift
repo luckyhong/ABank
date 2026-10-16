@@ -13,6 +13,31 @@ struct FinanceLedgerRecord: Codable, Equatable {
     var loanContracts: [LoanContract]
     var assetLiabilityAnnouncement: String
     var dataTimestamp: String
+    var transferRecords: [TransferRecord] = []
+
+    private enum CodingKeys: String, CodingKey {
+        case accounts, transactions, loanContracts, assetLiabilityAnnouncement, dataTimestamp, transferRecords
+    }
+
+    init(accounts: [LedgerAccount], transactions: [LedgerTransaction], loanContracts: [LoanContract],
+         assetLiabilityAnnouncement: String, dataTimestamp: String, transferRecords: [TransferRecord] = []) {
+        self.accounts = accounts
+        self.transactions = transactions
+        self.loanContracts = loanContracts
+        self.assetLiabilityAnnouncement = assetLiabilityAnnouncement
+        self.dataTimestamp = dataTimestamp
+        self.transferRecords = transferRecords
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        accounts = try values.decode([LedgerAccount].self, forKey: .accounts)
+        transactions = try values.decode([LedgerTransaction].self, forKey: .transactions)
+        loanContracts = try values.decode([LoanContract].self, forKey: .loanContracts)
+        assetLiabilityAnnouncement = try values.decode(String.self, forKey: .assetLiabilityAnnouncement)
+        dataTimestamp = try values.decode(String.self, forKey: .dataTimestamp)
+        transferRecords = try values.decodeIfPresent([TransferRecord].self, forKey: .transferRecords) ?? []
+    }
 }
 
 // MARK: - 账户

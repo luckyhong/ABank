@@ -125,7 +125,7 @@ final class MyAccountViewController: BankingDataViewController {
     private func handle(_ action: MyAccountAction) {
         switch action {
         case .transfer:
-            navigationController?.pushViewController(TransferViewController(), animated: true)
+            navigationController?.pushViewController(TransferViewController(payerAccountID: pageData.debitCards.first?.accountId), animated: true)
         case .queryDetail:
             let masked = pageData.debitCards.first?.maskedNumber ?? "6230 **** 8472"
             navigationController?.pushViewController(

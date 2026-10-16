@@ -1,0 +1,28 @@
+[
+  {
+    "asset": "abc_transfer_result_success",
+    "source": "CWABCResource.bundle/cwSuccess@2x.png",
+    "origin": "extracted_abc_ipa",
+    "source_sha256": "e3baa945a9ef6af27343fc59c0ce8b1c7db897d268e8a49aa737dc59439080d5",
+    "imported_sha256": "e3baa945a9ef6af27343fc59c0ce8b1c7db897d268e8a49aa737dc59439080d5",
+    "scale": "2x",
+    "dimensions": [
+      180,
+      180
+    ],
+    "usage": "local reconstructed result page; original transfer screen use unverified"
+  },
+  {
+    "asset": "abc_transfer_result_success",
+    "source": "CWABCResource.bundle/cwSuccess@3x.png",
+    "origin": "extracted_abc_ipa",
+    "source_sha256": "07d5526631836cf0ddacc16acb1c81d39b77858ebf8e64dccf867653ad6c01b9",
+    "imported_sha256": "07d5526631836cf0ddacc16acb1c81d39b77858ebf8e64dccf867653ad6c01b9",
+    "scale": "3x",
+    "dimensions": [
+      270,
+      270
+    ],
+    "usage": "local reconstructed result page; original transfer screen use unverified"
+  }
+]

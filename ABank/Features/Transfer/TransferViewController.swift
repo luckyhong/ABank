@@ -6,8 +6,10 @@
 import UIKit
 import SnapKit
 
-final class TransferViewController: BaseViewController {
+final class TransferViewController: BankingDataViewController {
 
+    private let store: FinanceLedgerStore
+    private let preferredPayerAccountID: String?
     private var pageData: TransferPageData
     private var partners: [TransferPartner]
     private var isFunctionExpanded = true
@@ -27,7 +29,10 @@ final class TransferViewController: BaseViewController {
     private let recentSection = TransferRecentSectionView()
     private let recentDivider = UIView()
 
-    init(pageData: TransferPageData = MockDataProvider.shared.getTransferPageData()) {
+    init(pageData: TransferPageData = MockDataProvider.shared.getTransferPageData(),
+         payerAccountID: String? = nil, store: FinanceLedgerStore? = nil) {
+        self.store = store ?? .shared
+        self.preferredPayerAccountID = payerAccountID
         self.pageData = pageData
         self.partners = pageData.recentPartners
         super.init(nibName: nil, bundle: nil)
@@ -70,6 +75,48 @@ final class TransferViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+
+    override func refreshBankingData() {
+        let expanded = Set(partners.filter(\.isExpanded).map(\.id))
+        var refreshed = pageData.recentPartners
+        for record in store.transferRecords().reversed() where record.status == .succeeded {
+            if let index = refreshed.firstIndex(where: { partner in
+                partner.name == record.recipientName && partner.accounts.contains(where: {
+                    $0.maskedNumber == record.maskedDestination && $0.bankName == record.bankName
+                })
+            }) {
+                let partner = refreshed.remove(at: index)
+                refreshed.insert(TransferPartner(id: partner.id, name: partner.name,
+                    avatarSystemIcon: partner.avatarSystemIcon, avatarTintHex: partner.avatarTintHex,
+                    accounts: partner.accounts, lastTransferDate: String(record.createdAt.prefix(10)),
+                    isExpanded: expanded.contains(partner.id), avatarImageName: partner.avatarImageName), at: 0)
+            } else {
+                let recipient = record.reusableRecipient
+                refreshed.insert(TransferPartner(id: recipient.id, name: recipient.name,
+                    avatarSystemIcon: nil, avatarTintHex: nil,
+                    accounts: [TransferAccount(id: recipient.id, bankName: recipient.bankName,
+                        maskedNumber: recipient.maskedDestination, bankColorHex: "009882", bankSymbol: "转")],
+                    lastTransferDate: String(record.createdAt.prefix(10)), isExpanded: false), at: 0)
+            }
+        }
+        for i in refreshed.indices { refreshed[i].isExpanded = expanded.contains(refreshed[i].id) }
+        partners = refreshed
+        recentSection.configure(partners: partners)
+    }
+
+    private func openRecipient(id: String) {
+        guard let recipient = try? store.recipient(for: TransferDraft(
+            payerAccountID: preferredPayerAccountID ?? "", savedRecipientID: id)) else {
+            showToast("演示伙伴暂不可用，请手动填写")
+            return
+        }
+        openForm(recipient: recipient)
+    }
+
+    private func openForm(method: TransferMethod = .account, recipient: TransferRecipient? = nil) {
+        navigationController?.pushViewController(TransferFormViewController(method: method,
+            payerAccountID: preferredPayerAccountID, recipient: recipient, store: store), animated: true)
     }
 
     override func setupUI() {
@@ -151,12 +198,14 @@ final class TransferViewController: BaseViewController {
         }
 
         primaryCard.onPrimaryTapped = { [weak self] index in
-            guard let self, let item = self.pageData.primaryActions[safe: index] else { return }
-            self.showToast(item.title)
+            guard let self, self.pageData.primaryActions.indices.contains(index) else { return }
+            if index == 0 || index == 1 { self.openForm(method: index == 0 ? .account : .phone) }
         }
         primaryCard.onSecondaryTapped = { [weak self] index in
-            guard let self, let item = self.pageData.secondaryActions[safe: index] else { return }
-            self.showToast(item.title)
+            guard let self, self.pageData.secondaryActions.indices.contains(index) else { return }
+            let controller: UIViewController = index == 0
+                ? TransferRecordsViewController(store: self.store) : TransferLimitsViewController(store: self.store)
+            self.navigationController?.pushViewController(controller, animated: true)
         }
 
         functionGrid.onItemTapped = { [weak self] index in
@@ -174,7 +223,13 @@ final class TransferViewController: BaseViewController {
         }
 
         recentSection.onAllPartnersTapped = { [weak self] in
-            self?.showToast("全部转账伙伴")
+            guard let self else { return }
+            let picker = TransferRecipientsViewController(store: self.store)
+            picker.onSelect = { [weak self] recipient in
+                self?.navigationController?.popViewController(animated: false)
+                self?.openForm(recipient: recipient)
+            }
+            self.navigationController?.pushViewController(picker, animated: true)
         }
         recentSection.onPartnerHeaderTapped = { [weak self] index in
             self?.handlePartnerHeaderTapped(at: index)
@@ -199,7 +254,7 @@ final class TransferViewController: BaseViewController {
             recentSection.configure(partners: partners)
             UIView.animate(withDuration: 0.2) { self.view.layoutIfNeeded() }
         } else if let account = partner.accounts.first {
-            showToast("向\(partner.name)转账 · \(account.bankName)")
+            openRecipient(id: account.id)
         }
     }
 
@@ -208,7 +263,7 @@ final class TransferViewController: BaseViewController {
               partners[partnerIndex].accounts.indices.contains(accountIndex) else { return }
         let partner = partners[partnerIndex]
         let account = partner.accounts[accountIndex]
-        showToast("向\(partner.name)转账 · \(account.bankName)(\(account.maskedNumber))")
+        openRecipient(id: account.id)
     }
 
     @objc private func backTapped() {
