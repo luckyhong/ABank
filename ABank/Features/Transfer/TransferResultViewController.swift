@@ -62,6 +62,12 @@ final class TransferResultViewController: TransferFlowViewController {
                 TransferInfoRow("模拟单号", value: String(record.id.suffix(12))),
                 TransferInfoRow("附言", value: record.note.isEmpty ? "无" : record.note)
             ])
+            if succeeded {
+                _ = addButton("查看模拟回单", id: "transfer.receipt", primary: false) { [weak self] in
+                    guard let self else { return }
+                    self.navigationController?.pushViewController(TransferReceiptDetailViewController(recordID: record.id, store: self.store), animated: true)
+                }
+            }
             if let id = record.transactionID {
                 _ = addButton("查看收支明细", id: "transfer.viewTransaction", primary: false) { [weak self] in
                     guard let self, let transaction = self.store.transaction(id: id) else { return }

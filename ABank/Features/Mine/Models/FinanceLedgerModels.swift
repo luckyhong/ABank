@@ -329,7 +329,8 @@ struct MonthlyFlowSummary {
 }
 
 struct IncomeExpenseDayGroup: Equatable {
-    let day: Int
+    let date: String
+    var day: Int { Int(date.suffix(2)) ?? 0 }
     let transactions: [LedgerTransaction]
 }
 

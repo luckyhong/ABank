@@ -118,7 +118,7 @@ final class IncomeExpenseViewController: BankingDataViewController {
         tableView.backgroundView = emptyLabel
 
         bindFilterBarActions()
-        summaryCard.onAnalysisTapped = { [weak self] in self?.showToast("分析") }
+        summaryCard.onAnalysisTapped = { [weak self] in self?.navigationController?.pushViewController(LedgerAnalysisViewController(query: self?.query ?? IncomeExpenseQuery()), animated: true) }
 
         applyPageData()
     }
@@ -226,7 +226,7 @@ final class IncomeExpenseViewController: BankingDataViewController {
         navigationController?.popViewController(animated: true)
     }
 
-    @objc private func searchTapped() { showToast("搜索") }
+    @objc private func searchTapped() { navigationController?.pushViewController(LedgerSearchViewController(query: query), animated: true) }
     @objc private func moreTapped() { showToast("更多") }
 }
 
@@ -241,7 +241,7 @@ extension IncomeExpenseViewController: UITableViewDataSource, UITableViewDelegat
         guard let header = tableView.dequeueReusableHeaderFooterView(
             withIdentifier: IncomeExpenseDayHeaderView.reuseId
         ) as? IncomeExpenseDayHeaderView else { return nil }
-        header.configure(day: sections[section].day)
+        header.configure(date: sections[section].date)
         return header
     }
 

@@ -9,8 +9,9 @@ sources=(
   ABank/Features/Mine/Models/AssetLiabilityModels.swift
   ABank/Features/MyAccount/Models/MyAccountModels.swift
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore.swift
+  ABank/Features/Mine/FinanceLedger/LedgerInsights.swift
 )
-for check in banking transfer; do
+for check in banking transfer insights; do
   task_binary="${TMPDIR:-/private/tmp}/abank-${check}-data-checks"
   xcrun swiftc -module-cache-path /private/tmp/abank-banking-module-cache \
     -swift-version 5 -default-isolation MainActor -parse-as-library \

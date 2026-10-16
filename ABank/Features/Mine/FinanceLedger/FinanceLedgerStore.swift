@@ -328,12 +328,9 @@ extension Notification.Name {
         let expense = flowTxs.filter { $0.direction == .expense }.reduce(0) { $0 + $1.amount }
         let income = flowTxs.filter { $0.direction == .income }.reduce(0) { $0 + $1.amount }
 
-        let grouped = Dictionary(grouping: txs) { tx -> Int in
-            Int(tx.date.split(separator: "-").last ?? "0") ?? 0
-        }
-        let dayGroups = grouped.keys.sorted(by: >).map { day in
-            let dayTxs = grouped[day] ?? []
-            return IncomeExpenseDayGroup(day: day, transactions: dayTxs)
+        let grouped = Dictionary(grouping: txs, by: \.date)
+        let dayGroups = grouped.keys.sorted(by: >).map { date in
+            IncomeExpenseDayGroup(date: date, transactions: grouped[date] ?? [])
         }
 
         return IncomeExpensePageData(

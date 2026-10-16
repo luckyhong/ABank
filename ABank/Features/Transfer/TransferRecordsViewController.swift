@@ -17,6 +17,7 @@ final class TransferRecordsViewController: BankingDataViewController, UITableVie
 
     override func setupUI() {
         title = "转账记录"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "模拟回单", style: .plain, target: self, action: #selector(openReceipts))
         view.backgroundColor = .white
         filter.selectedSegmentIndex = 0
         filter.selectedSegmentTintColor = .abankTeal
@@ -53,6 +54,9 @@ final class TransferRecordsViewController: BankingDataViewController, UITableVie
         }
         emptyLabel.isHidden = !records.isEmpty
         tableView.reloadData()
+    }
+    @objc private func openReceipts() {
+        navigationController?.pushViewController(TransferReceiptsViewController(store: store), animated: true)
     }
     @objc private func filterChanged() { refreshBankingData() }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { records.count }

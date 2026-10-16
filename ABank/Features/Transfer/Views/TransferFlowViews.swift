@@ -60,12 +60,15 @@ class TransferFlowViewController: BankingDataViewController {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .medium)
+        button.titleLabel?.numberOfLines = 0
+        button.titleLabel?.textAlignment = .center
+        button.contentEdgeInsets = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
         button.setTitleColor(primary ? .white : .abankTeal, for: .normal)
         button.backgroundColor = primary ? .abankTeal : .white
         button.layer.cornerRadius = 8
         button.accessibilityIdentifier = id
         button.addAction(UIAction { _ in action() }, for: .touchUpInside)
-        button.snp.makeConstraints { $0.height.equalTo(48) }
+        button.snp.makeConstraints { $0.height.greaterThanOrEqualTo(48) }
         contentStack.addArrangedSubview(button)
         return button
     }
