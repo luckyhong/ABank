@@ -3,7 +3,7 @@
 //  ABank
 //
 
-import UIKit
+import Foundation
 
 enum AssetLiabilityTab: Int, CaseIterable {
     case assets

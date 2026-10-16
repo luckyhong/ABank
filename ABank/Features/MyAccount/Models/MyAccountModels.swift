@@ -6,7 +6,7 @@
 import Foundation
 
 struct MyAccountPageData {
-    let debitCards: [MyAccountDebitCard]
+    var debitCards: [MyAccountDebitCard]
     let creditAdImageName: String
     let creditAdTitle: String
 }
@@ -15,8 +15,9 @@ struct MyAccountDebitCard {
     let accountClass: String
     let maskedNumber: String
     let fullNumber: String
-    let availableBalance: Double
+    var availableBalance: Double
     let actions: [MyAccountDebitAction]
+    var accountId: String = FinanceLedgerRecord.defaultAccountId
 }
 
 struct MyAccountDebitAction {
@@ -76,14 +77,14 @@ struct AccountDetailQueryFilter: Equatable {
         return filter
     }
 
-    /// 与设计稿时间对齐，保证「近一周」能覆盖示例流水
+    /// 以当前北京时间查询；历史示例通过月份或自定义区间查看。
     static var referenceDate: Date {
-        date(from: "2026-08-24") ?? Date()
+        BankingDateContext.system.now
     }
 
     mutating func applyQuickRange(_ range: AccountDetailQuickRange, referenceDate: Date = referenceDate) {
         quickRange = range
-        let calendar = Calendar.current
+        let calendar = BankingDateContext.system.calendar
         let end = referenceDate
         let start: Date
         switch range {
@@ -109,17 +110,11 @@ struct AccountDetailQueryFilter: Equatable {
     var isAdvancedActive: Bool { advancedFilter.isActive }
 
     static func string(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
+        BankingDateContext.system.string(from: date)
     }
 
     static func date(from string: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: string)
+        BankingDateContext.system.date(from: string)
     }
 }
 
@@ -143,8 +138,8 @@ struct DebitCardDetailPageData {
     let infoItems: [DebitCardDetailInfoItem]
     let actions: [String]
     let currencyTitle: String
-    let availableBalance: Double
-    let accountBalance: Double
+    var availableBalance: Double
+    var accountBalance: Double
     let cashRemittanceMark: String
     let interestRateText: String
     let openDateText: String

@@ -6,7 +6,7 @@
 import UIKit
 import SnapKit
 
-final class AssetLiabilityViewController: BaseViewController {
+final class AssetLiabilityViewController: BankingDataViewController {
 
     private var pageData = FinanceLedgerStore.shared.assetLiabilityPageData()
     private var selectedTab: AssetLiabilityTab = .assets
@@ -81,7 +81,6 @@ final class AssetLiabilityViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
-        reloadFromStore()
     }
 
     override func viewDidLayoutSubviews() {
@@ -98,6 +97,8 @@ final class AssetLiabilityViewController: BaseViewController {
             scrollView.verticalScrollIndicatorInsets.top = topInset
         }
     }
+
+    override func refreshBankingData() { reloadFromStore() }
 
     override func setupUI() {
         view.backgroundColor = .abankBackground

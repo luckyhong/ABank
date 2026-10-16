@@ -439,7 +439,7 @@ enum IncomeExpenseFilterCatalog {
 }
 
 struct IncomeExpenseQuery: Equatable {
-    var dateMode: IncomeExpenseDateMode = .month("2026-08")
+    var dateMode: IncomeExpenseDateMode = .month(BankingDateContext.system.currentMonth)
     var accountFilter: IncomeExpenseAccountFilter = .all
     var advancedFilter: IncomeExpenseAdvancedFilter = .empty
 
@@ -457,7 +457,7 @@ struct IncomeExpenseQuery: Equatable {
     var monthLabel: String {
         switch dateMode {
         case .month(let month):
-            let number = Int(month.split(separator: "-").last.map(String.init) ?? "8") ?? 8
+            guard let number = Int(month.split(separator: "-").last.map(String.init) ?? "") else { return "月份" }
             return "\(number)月"
         case .custom(let start, let end):
             let startMonth = String(start.prefix(7))

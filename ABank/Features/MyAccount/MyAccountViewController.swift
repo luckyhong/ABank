@@ -6,9 +6,9 @@
 import UIKit
 import SnapKit
 
-final class MyAccountViewController: BaseViewController {
+final class MyAccountViewController: BankingDataViewController {
 
-    private let pageData: MyAccountPageData
+    private var pageData: MyAccountPageData
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -70,6 +70,16 @@ final class MyAccountViewController: BaseViewController {
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
+    override func refreshBankingData() {
+        let accounts = FinanceLedgerStore.shared.load().accounts
+        pageData.debitCards = pageData.debitCards.map { card in
+            var updated = card
+            updated.availableBalance = accounts.first(where: { $0.id == card.accountId })?.balance ?? 0
+            return updated
+        }
+        if let card = pageData.debitCards.first { debitCardView.configure(with: card) }
+    }
+
     override func setupUI() {
         view.backgroundColor = UIColor(white: 0.97, alpha: 1)
 
@@ -119,7 +129,10 @@ final class MyAccountViewController: BaseViewController {
         case .queryDetail:
             let masked = pageData.debitCards.first?.maskedNumber ?? "6230 **** 8472"
             navigationController?.pushViewController(
-                AccountDetailQueryViewController(maskedNumber: masked),
+                AccountDetailQueryViewController(
+                    accountId: pageData.debitCards.first?.accountId ?? FinanceLedgerRecord.defaultAccountId,
+                    maskedNumber: masked
+                ),
                 animated: true
             )
         case .details:
@@ -127,7 +140,7 @@ final class MyAccountViewController: BaseViewController {
                 card: pageData.debitCards.first
             )
             navigationController?.pushViewController(
-                DebitCardDetailViewController(pageData: detailData),
+                DebitCardDetailViewController(pageData: detailData, accountId: pageData.debitCards.first?.accountId ?? FinanceLedgerRecord.defaultAccountId),
                 animated: true
             )
         default:

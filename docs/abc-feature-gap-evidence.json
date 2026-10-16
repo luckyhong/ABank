@@ -1,0 +1,428 @@
+{
+  "date": "2026-10-16",
+  "records": [
+    {
+      "evidence_id": "ev_480265f21901ad15f7d99a907592d6ac979a75b43cc4b4bbac006f44745c1cee",
+      "operation": "extract_artifact",
+      "authority": "shipped-artifact",
+      "confidence": "observed",
+      "provider": {
+        "id": "rea-artifact-graph",
+        "name": "REA safe artifact graph provider",
+        "version": "1"
+      },
+      "subject": {
+        "architecture": null,
+        "digest": {
+          "sha256": "913457167f6e52daed0004cc3022bf936aa4cc169c4cadb8a01b7031b6fc6e9b"
+        },
+        "format": "ipa",
+        "local_path": "/Users/hanjihong/workspace/projects/ABank/artifacts/abc-resources/ipa/abc.ipa",
+        "name": "abc.ipa"
+      },
+      "limitations": [
+        "All regular files in the active artifact were materialized; nested archive contents remain represented by their containing file."
+      ],
+      "observations": {
+        "manifest": {
+          "edge_count": 3574,
+          "graph_sha256": "1d14bc35c855e89c13049280f049e858bef57b833b040d9979c9944db745d929",
+          "manifest_id": "agm_f7c02da485d3a1462aaf29706c826108954eabbc10d183b15dd8264186e85af7",
+          "node_count": 2965,
+          "occurrence_count": 3575,
+          "root_artifact_id": "art_e8367b45dfbe2e5c43bf6c5932f3b03600bea9ee74de0d6f255f42d2db48e15a",
+          "root_format": "ipa",
+          "root_sha256": "913457167f6e52daed0004cc3022bf936aa4cc169c4cadb8a01b7031b6fc6e9b"
+        },
+        "containment_verified": true
+      }
+    },
+    {
+      "evidence_id": "ev_92bbd73fd54de2f4044ff943bf081057cd28b35cbfb57b3da437426ba9c75386",
+      "operation": "inspect_plist",
+      "authority": "shipped-artifact",
+      "confidence": "observed",
+      "provider": {
+        "id": "native-macos",
+        "name": "macOS native inspection utilities",
+        "version": null
+      },
+      "subject": {
+        "architecture": null,
+        "digest": {
+          "sha256": "913457167f6e52daed0004cc3022bf936aa4cc169c4cadb8a01b7031b6fc6e9b"
+        },
+        "format": "ipa",
+        "local_path": "/Users/hanjihong/workspace/projects/ABank/artifacts/abc-resources/ipa/abc.ipa",
+        "name": "abc.ipa"
+      },
+      "limitations": [],
+      "observations": {
+        "Applications": [
+          {
+            "delegate": "ABCQRCodeAppDelegate",
+            "description": "ABCQRCode",
+            "name": "ABCQRCode"
+          },
+          {
+            "delegate": "ABCCustManageAppDelegate",
+            "description": "ABCCustManage",
+            "name": "ABCCustManage"
+          },
+          {
+            "delegate": "ABCIMAppDelegate",
+            "description": "ABCIM",
+            "name": "ABCIM"
+          },
+          {
+            "delegate": "HomePageAllMenusAppDelegate",
+            "description": "HomePageAllMenus",
+            "name": "HomePageAllMenus"
+          },
+          {
+            "delegate": "MPLauncherAppDelegate",
+            "description": "Launcher",
+            "name": "Launcher"
+          }
+        ],
+        "Launcher": "Launcher",
+        "Services": [
+          {
+            "class": "ABCH5CollectionServiceImpl",
+            "lazyLoading": "YES",
+            "name": "ABCH5CollectionService"
+          },
+          {
+            "class": "IMSDKServiceImpl",
+            "lazyLoading": "YES",
+            "name": "IMSDKService"
+          },
+          {
+            "class": "BWTRideCodeServiceImpl",
+            "lazyLoading": "YES",
+            "name": "BWTRideCodeService"
+          },
+          {
+            "class": "APConfigCenter",
+            "lazyLoading": false,
+            "name": "APConfigService"
+          },
+          {
+            "class": "NebulaAppService",
+            "lazyLoading": "false",
+            "name": "NebulaAppService",
+            "welcomPageAfterLoading": "true"
+          },
+          {
+            "class": "H5Service",
+            "lazyLoading": "false",
+            "name": "H5Service",
+            "welcomPageAfterLoading": "true"
+          },
+          {
+            "class": "SoftTokenServiceImpl",
+            "lazyLoading": "YES",
+            "name": "SoftTokenService"
+          },
+          {
+            "class": "AudioKeyServiceImpl",
+            "lazyLoading": "YES",
+            "name": "AudioKeyService"
+          },
+          {
+            "class": "AIVoiceServiceImpl",
+            "lazyLoading": "YES",
+            "name": "AIVoiceService"
+          },
+          {
+            "class": "ABCDCHWServiceImpl",
+            "lazyLoading": "YES",
+            "name": "ABCDCHWService"
+          },
+          {
+            "class": "ABCLxServiceImpl",
+            "lazyLoading": "YES",
+            "name": "ABCLxService"
+          },
+          {
+            "class": "ABCOSPrivacyServiceImpl",
+            "lazyLoading": "YES",
+            "name": "ABCOSPrivacyService"
+          },
+          {
+            "class": "ABCH5ControlServiceImpl",
+            "lazyLoading": "YES",
+            "name": "ABCH5ControlService"
+          }
+        ],
+        "ServicesMap": {
+          "[AUTOSTART]": []
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_970c68bd4e5947d173e817e50c48843d60d1e3f861c05d0a643b8490d1c47a57",
+      "operation": "inventory_artifact",
+      "authority": "shipped-artifact",
+      "confidence": "observed",
+      "provider": {
+        "id": "rea-artifact-graph",
+        "name": "REA safe artifact graph provider",
+        "version": "1"
+      },
+      "subject": {
+        "architecture": null,
+        "digest": {
+          "sha256": "913457167f6e52daed0004cc3022bf936aa4cc169c4cadb8a01b7031b6fc6e9b"
+        },
+        "format": "ipa",
+        "local_path": "/Users/hanjihong/workspace/projects/ABank/artifacts/abc-resources/ipa/abc.ipa",
+        "name": "abc.ipa"
+      },
+      "limitations": [
+        "ZIP inventory lists central-directory entries only. Bytes after the central directory, including an APK Signing Block or a ZIP comment, are not occurrences."
+      ]
+    },
+    {
+      "evidence_id": "ev_b538b6d4da641e03d8b5bc5c8d06ecd33d226d49e11805d0e7ebab4e9ba2128f",
+      "operation": "inspect_macho",
+      "authority": "shipped-artifact",
+      "confidence": "observed",
+      "provider": {
+        "id": "native-macos",
+        "name": "macOS native inspection utilities",
+        "version": null
+      },
+      "subject": {
+        "architecture": "arm64",
+        "digest": {
+          "sha256": "8f69d74143af997d13fb73715c5c8c4e3a188a72872cbb58e42be3057217bb6e"
+        },
+        "format": "mach-o",
+        "local_path": "/private/var/folders/8w/vzr0ph455p79ps7y3qp29jvr0000gn/T/rea-extracted-f2f72fb3-3194-4712-8bd8-fcf6413eca17/Payload/MbapMPaaS.app/MbapMPaaS",
+        "name": "MbapMPaaS"
+      },
+      "limitations": [
+        "Imports and exports combine dyld_info and nm; stripped or toolchain-hidden symbols may be absent.",
+        "vtool output is retained as provenance but only otool build metadata is normalized."
+      ],
+      "observations": {
+        "uuid": "0AF90A95-5276-3839-886E-E645C07EC98D",
+        "encryption_commands": [
+          {
+            "fields": {
+              "cmd": "LC_ENCRYPTION_INFO_64",
+              "cmdsize": 24,
+              "cryptid": 1,
+              "cryptoff": 16384,
+              "cryptsize": 106905600,
+              "pad": 0
+            },
+            "index": 14,
+            "kind": "LC_ENCRYPTION_INFO_64"
+          }
+        ]
+      }
+    },
+    {
+      "evidence_id": "ev_bef898457881b965f18a17fd692918ca33d9a02e65177d1a83485dc5650860f2",
+      "operation": "inspect_plist",
+      "authority": "shipped-artifact",
+      "confidence": "observed",
+      "provider": {
+        "id": "native-macos",
+        "name": "macOS native inspection utilities",
+        "version": null
+      },
+      "subject": {
+        "architecture": "arm64",
+        "digest": {
+          "sha256": "8f69d74143af997d13fb73715c5c8c4e3a188a72872cbb58e42be3057217bb6e"
+        },
+        "format": "mach-o",
+        "local_path": "/private/var/folders/8w/vzr0ph455p79ps7y3qp29jvr0000gn/T/rea-extracted-f2f72fb3-3194-4712-8bd8-fcf6413eca17/Payload/MbapMPaaS.app/MbapMPaaS",
+        "name": "MbapMPaaS"
+      },
+      "limitations": [],
+      "observations": {
+        "bundle": {
+          "executable": "group.abc.toolExtension",
+          "identifier": "com.bankabc.iphonerelease.group-bankabc-tool",
+          "name": "group.abc.toolExtension",
+          "short_version": "11.3.0",
+          "version": "11.3.1"
+        },
+        "shortcuts": null,
+        "extension": {
+          "NSExtensionPointIdentifier": "com.apple.widgetkit-extension"
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_d2534be8e9fcac0cde9838458379b8b0e78bbf2af6b2a452c0fdf1a3ec3ad985",
+      "operation": "project_apple_application_graph",
+      "authority": "analyst-inference",
+      "confidence": "inferred",
+      "provider": {
+        "id": "rea-apple-application",
+        "name": "REA Apple application workflows",
+        "version": "1"
+      },
+      "subject": {
+        "architecture": null,
+        "digest": {
+          "sha256": "913457167f6e52daed0004cc3022bf936aa4cc169c4cadb8a01b7031b6fc6e9b"
+        },
+        "format": "ipa",
+        "local_path": "/Users/hanjihong/workspace/projects/ABank/artifacts/abc-resources/ipa/abc.ipa",
+        "name": "abc.ipa"
+      },
+      "limitations": [
+        "Bundle roles follow path conventions. Read each info_plist_path with inspect_plist for CFBundleExecutable, identifiers, and declared services.",
+        "Bundle identifiers and signing claims require dedicated plist and CMS parsing; this projection reports only exact paths and hashes.",
+        "Runtime families are inferred from inventory formats and bounded framework path conventions, not observed runtime loading.",
+        "Generic framework and dylib paths do not establish Swift or Objective-C; this inventory projection does not decode language metadata.",
+        "Bridge candidates are path-based hypotheses, not observed runtime calls.",
+        "A bridge basis is inferred from the native path and is repeated for every managed component."
+      ],
+      "observations": {
+        "application_roots": [
+          "Payload/MbapMPaaS.app"
+        ],
+        "coverage": {
+          "inventory_complete": true,
+          "status": "complete-within-inventory"
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_ec71e1343a0d919376eee0f2af3ba2e9870af6534fb4d9d8e828487e7903275f",
+      "operation": "inspect_artifact",
+      "authority": "shipped-artifact",
+      "confidence": "observed",
+      "provider": {
+        "id": "rea-artifact-graph",
+        "name": "REA safe artifact graph provider",
+        "version": "1"
+      },
+      "subject": {
+        "architecture": null,
+        "digest": {
+          "sha256": "913457167f6e52daed0004cc3022bf936aa4cc169c4cadb8a01b7031b6fc6e9b"
+        },
+        "format": "ipa",
+        "local_path": "/Users/hanjihong/workspace/projects/ABank/artifacts/abc-resources/ipa/abc.ipa",
+        "name": "abc.ipa"
+      },
+      "limitations": [
+        "Inspection derives bounded static hypotheses and next probes; it does not execute the artifact or claim format-specific semantics.",
+        "ZIP inventory lists central-directory entries only. Bytes after the central directory, including an APK Signing Block or a ZIP comment, are not occurrences."
+      ],
+      "observations": {
+        "manifest_id": "agm_f7c02da485d3a1462aaf29706c826108954eabbc10d183b15dd8264186e85af7",
+        "root_artifact_id": "art_e8367b45dfbe2e5c43bf6c5932f3b03600bea9ee74de0d6f255f42d2db48e15a",
+        "root_format": "ipa",
+        "root_sha256": "913457167f6e52daed0004cc3022bf936aa4cc169c4cadb8a01b7031b6fc6e9b"
+      }
+    },
+    {
+      "evidence_id": "ev_f292d58f50338f4a2e2229b4bb0b871d761dee7e3beb87e5251d6165f8a9fea2",
+      "operation": "inspect_plist",
+      "authority": "shipped-artifact",
+      "confidence": "observed",
+      "provider": {
+        "id": "native-macos",
+        "name": "macOS native inspection utilities",
+        "version": null
+      },
+      "subject": {
+        "architecture": "arm64",
+        "digest": {
+          "sha256": "8f69d74143af997d13fb73715c5c8c4e3a188a72872cbb58e42be3057217bb6e"
+        },
+        "format": "mach-o",
+        "local_path": "/private/var/folders/8w/vzr0ph455p79ps7y3qp29jvr0000gn/T/rea-extracted-f2f72fb3-3194-4712-8bd8-fcf6413eca17/Payload/MbapMPaaS.app/MbapMPaaS",
+        "name": "MbapMPaaS"
+      },
+      "limitations": [],
+      "observations": {
+        "excluded_as_abc_feature_evidence": true,
+        "reason": "Contains Alipay-branded generic entries; cannot establish ABC availability."
+      }
+    },
+    {
+      "evidence_id": "ev_f37140a57bb8a1bff8fe7a0d3716374d9da11e9800d69039391a7f1e3d69c566",
+      "operation": "inspect_plist",
+      "authority": "shipped-artifact",
+      "confidence": "observed",
+      "provider": {
+        "id": "native-macos",
+        "name": "macOS native inspection utilities",
+        "version": null
+      },
+      "subject": {
+        "architecture": null,
+        "digest": {
+          "sha256": "913457167f6e52daed0004cc3022bf936aa4cc169c4cadb8a01b7031b6fc6e9b"
+        },
+        "format": "ipa",
+        "local_path": "/Users/hanjihong/workspace/projects/ABank/artifacts/abc-resources/ipa/abc.ipa",
+        "name": "abc.ipa"
+      },
+      "limitations": [],
+      "observations": {
+        "bundle": {
+          "executable": "MbapMPaaS",
+          "identifier": "com.bankabc.iphonerelease",
+          "name": "MbapMPaaS",
+          "short_version": "11.3.0",
+          "version": "11.3.1"
+        },
+        "shortcuts": [
+          {
+            "UIApplicationShortcutItemIconFile": "3d_ybservice.png",
+            "UIApplicationShortcutItemTitle": "医保服务",
+            "UIApplicationShortcutItemType": "com.bankabc.medicalcode",
+            "UIApplicationShortcutItemUserInfo": {
+              "key2": "value2"
+            }
+          },
+          {
+            "UIApplicationShortcutItemIconFile": "3d_account.png",
+            "UIApplicationShortcutItemTitle": "账户查询",
+            "UIApplicationShortcutItemType": "com.bankabc.account",
+            "UIApplicationShortcutItemUserInfo": {
+              "appid": ""
+            }
+          },
+          {
+            "UIApplicationShortcutItemIconFile": "3d_scanpay.png",
+            "UIApplicationShortcutItemTitle": "收付款",
+            "UIApplicationShortcutItemType": "com.bankabc.scanpay",
+            "UIApplicationShortcutItemUserInfo": {
+              "key1": "value1"
+            }
+          },
+          {
+            "UIApplicationShortcutItemIconFile": "3d_scan.png",
+            "UIApplicationShortcutItemTitle": "扫一扫",
+            "UIApplicationShortcutItemType": "com.bankabc.scan",
+            "UIApplicationShortcutItemUserInfo": {
+              "key1": "value1"
+            }
+          }
+        ],
+        "extension": null
+      }
+    }
+  ],
+  "unrecorded_tool_error": {
+    "operation": "inspect_native_dispatch_metadata",
+    "code": "resource_constraint",
+    "reason": "128107728-byte main executable exceeds 67108864-byte snapshot budget"
+  },
+  "limitations": [
+    "No original app execution, bank server calls, or complete function decompilation.",
+    "Opaque main menu XML and Lua were not decoded."
+  ]
+}

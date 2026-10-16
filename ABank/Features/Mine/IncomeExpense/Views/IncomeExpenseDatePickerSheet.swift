@@ -33,10 +33,11 @@ final class IncomeExpenseDatePickerSheet: UIView, UIPickerViewDataSource, UIPick
     private var years: [Int] = []
     private var isMonthMode = true
     private var editingCustomStart = true
-    private var customStartDate = Date()
-    private var customEndDate = Date()
-    private var pendingYear = 2026
-    private var pendingMonth = 8
+    private let dates = BankingDateContext.system
+    private var customStartDate = BankingDateContext.system.now
+    private var customEndDate = BankingDateContext.system.now
+    private var pendingYear = BankingDateContext.system.calendar.component(.year, from: BankingDateContext.system.now)
+    private var pendingMonth = BankingDateContext.system.calendar.component(.month, from: BankingDateContext.system.now)
 
     private let accent = UIColor.abankOrange
     private let tipBackground = UIColor(red: 255 / 255, green: 250 / 255, blue: 235 / 255, alpha: 1)
@@ -68,9 +69,9 @@ final class IncomeExpenseDatePickerSheet: UIView, UIPickerViewDataSource, UIPick
     // MARK: - Setup
 
     private func setupYears() {
-        let calendar = Calendar.current
-        let currentYear = calendar.component(.year, from: Date())
-        years = Array(2021...max(currentYear, 2026))
+        let calendar = dates.calendar
+        let currentYear = calendar.component(.year, from: dates.now)
+        years = Array(min(2021, currentYear)...currentYear)
     }
 
     private func setupUI() {
@@ -128,8 +129,10 @@ final class IncomeExpenseDatePickerSheet: UIView, UIPickerViewDataSource, UIPick
             customPicker.preferredDatePickerStyle = .wheels
         }
         customPicker.locale = Locale(identifier: "zh_CN")
+        customPicker.calendar = dates.calendar
+        customPicker.timeZone = dates.calendar.timeZone
         customPicker.minimumDate = date(year: 2021, month: 1, day: 1)
-        customPicker.maximumDate = date(year: max(years.last ?? 2026, 2026), month: 12, day: 31)
+        customPicker.maximumDate = dates.now
         customPicker.addTarget(self, action: #selector(customPickerChanged), for: .valueChanged)
 
         startDateRow.onTapped = { [weak self] in self?.selectCustomField(isStart: true) }
@@ -239,20 +242,23 @@ final class IncomeExpenseDatePickerSheet: UIView, UIPickerViewDataSource, UIPick
         switch mode {
         case .month(let month):
             isMonthMode = true
-            let parts = month.split(separator: "-")
-            pendingYear = Int(parts.first.map(String.init) ?? "2026") ?? 2026
-            pendingMonth = Int(parts.last.map(String.init) ?? "8") ?? 8
+            let selected = dates.date(from: month, format: "yyyy-MM") ?? dates.now
+            pendingYear = dates.calendar.component(.year, from: selected)
+            pendingMonth = dates.calendar.component(.month, from: selected)
             if let start = date(year: pendingYear, month: pendingMonth, day: 1) {
                 customStartDate = start
                 customEndDate = endOfMonth(for: start)
             }
         case .custom(let start, let end):
             isMonthMode = false
-            customStartDate = parseDate(start) ?? Date()
-            customEndDate = parseDate(end) ?? Date()
-            pendingYear = Calendar.current.component(.year, from: customStartDate)
-            pendingMonth = Calendar.current.component(.month, from: customStartDate)
+            customStartDate = parseDate(start) ?? dates.now
+            customEndDate = parseDate(end) ?? dates.now
+            pendingYear = dates.calendar.component(.year, from: customStartDate)
+            pendingMonth = dates.calendar.component(.month, from: customStartDate)
         }
+        years = Array(min(years.first ?? pendingYear, pendingYear)...max(years.last ?? pendingYear, pendingYear))
+        customPicker.minimumDate = date(year: years.first ?? pendingYear, month: 1, day: 1)
+        customPicker.maximumDate = max(dates.now, customEndDate)
         refreshTabUI()
         reloadMonthPickerSelection()
         refreshCustomRows()
@@ -354,11 +360,11 @@ final class IncomeExpenseDatePickerSheet: UIView, UIPickerViewDataSource, UIPick
     // MARK: - Helpers
 
     private func date(year: Int, month: Int, day: Int) -> Date? {
-        Calendar.current.date(from: DateComponents(year: year, month: month, day: day))
+        dates.calendar.date(from: DateComponents(year: year, month: month, day: day))
     }
 
     private func endOfMonth(for date: Date) -> Date {
-        let calendar = Calendar.current
+        let calendar = dates.calendar
         guard let range = calendar.range(of: .day, in: .month, for: date),
               let start = calendar.date(from: calendar.dateComponents([.year, .month], from: date))
         else { return date }
@@ -366,17 +372,11 @@ final class IncomeExpenseDatePickerSheet: UIView, UIPickerViewDataSource, UIPick
     }
 
     private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
+        dates.string(from: date)
     }
 
     private func parseDate(_ string: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: string)
+        dates.date(from: string)
     }
 
     // MARK: - UIPickerView
@@ -393,7 +393,7 @@ final class IncomeExpenseDatePickerSheet: UIView, UIPickerViewDataSource, UIPick
         label.font = .systemFont(ofSize: 20)
         label.textColor = .abankTextPrimary
         if component == 0 {
-            label.text = "\(years[safe: row] ?? 2026)"
+            label.text = "\(years[safe: row] ?? pendingYear)"
         } else {
             label.text = "\(row + 1)"
         }

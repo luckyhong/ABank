@@ -43,8 +43,8 @@ final class MineMonthlyFlowCardView: UIView {
         billNoticeLabel.text = data.billNotice
         billBadge.isHidden = !data.hasBillBadge
         let total = data.expense + data.income
-        let ratio = total > 0 ? data.expense / total : 0.5
-        ratioBar.configure(leftRatio: ratio)
+        let ratio = total > 0 ? data.expense / total : 0
+        ratioBar.configure(leftRatio: ratio, isEmpty: total == 0)
     }
 
     func setAmountVisible(_ visible: Bool) {
@@ -73,6 +73,10 @@ final class MineMonthlyFlowCardView: UIView {
         billSectionLabel.textColor = .abankTextSecondary
         billNoticeLabel.font = .systemFont(ofSize: 13)
         billNoticeLabel.textColor = .abankTextSecondary
+        billNoticeLabel.textAlignment = .right
+        billNoticeLabel.adjustsFontSizeToFitWidth = true
+        billNoticeLabel.minimumScaleFactor = 0.75
+        billSectionLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         billBadge.backgroundColor = .abankBadge
         billBadge.layer.cornerRadius = 3
         billChevron.tintColor = .abankTextTertiary
@@ -136,6 +140,7 @@ final class MineMonthlyFlowCardView: UIView {
             make.size.equalTo(6)
         }
         billNoticeLabel.snp.makeConstraints { make in
+            make.leading.greaterThanOrEqualTo(billSectionLabel.snp.trailing).offset(8)
             make.trailing.equalTo(billBadge.snp.leading).offset(-4)
             make.centerY.equalToSuperview()
         }

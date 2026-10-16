@@ -23,12 +23,13 @@ final class MineRatioBarView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(leftRatio: CGFloat, leftColor: UIColor = .abankTeal, rightColor: UIColor = UIColor(red: 1, green: 0.75, blue: 0.30, alpha: 1)) {
-        let clamped = min(max(leftRatio, 0.05), 0.95)
+    func configure(leftRatio: CGFloat, isEmpty: Bool = false, leftColor: UIColor = .abankTeal, rightColor: UIColor = UIColor(red: 1, green: 0.75, blue: 0.30, alpha: 1)) {
+        let clamped = min(max(leftRatio, 0), 1)
         displayedRatio = clamped
+        divider.isHidden = isEmpty || clamped == 0 || clamped == 1
         setNeedsLayout()
-        leftBar.backgroundColor = leftColor
-        rightBar.backgroundColor = rightColor
+        leftBar.backgroundColor = isEmpty ? .abankSeparator : leftColor
+        rightBar.backgroundColor = isEmpty ? .abankSeparator : rightColor
         leftBar.snp.remakeConstraints { make in
             make.leading.top.bottom.equalToSuperview()
             make.width.equalToSuperview().multipliedBy(clamped)

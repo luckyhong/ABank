@@ -47,3 +47,7 @@ open ABank.xcworkspace
 | `Data/MockDataProvider.swift` | 假数据入口 |
 
 文档：英文 [README.md](README.md)（默认）· 中文 [README.zh-CN.md](README.zh-CN.md)。
+
+## 后续开发与交接
+
+功能完善按 [docs/development-plan.md](docs/development-plan.md) 的阶段和最新交接记录推进。新会话先核对 Git 状态与实际实现，默认完成一个阶段或可独立验收的子任务，并更新计划中的验证结果和下一步。

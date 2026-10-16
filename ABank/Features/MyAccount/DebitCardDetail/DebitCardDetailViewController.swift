@@ -6,9 +6,10 @@
 import UIKit
 import SnapKit
 
-final class DebitCardDetailViewController: BaseViewController {
+final class DebitCardDetailViewController: BankingDataViewController {
 
-    private let pageData: DebitCardDetailPageData
+    private let accountId: String
+    private var pageData: DebitCardDetailPageData
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -21,7 +22,9 @@ final class DebitCardDetailViewController: BaseViewController {
     private let infoCardView = DebitCardDetailInfoCardView()
     private let balanceSectionView = DebitCardDetailBalanceSectionView()
 
-    init(pageData: DebitCardDetailPageData = MockDataProvider.shared.getDebitCardDetailPageData()) {
+    init(pageData: DebitCardDetailPageData = MockDataProvider.shared.getDebitCardDetailPageData(),
+         accountId: String = FinanceLedgerRecord.defaultAccountId) {
+        self.accountId = accountId
         self.pageData = pageData
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
@@ -57,6 +60,13 @@ final class DebitCardDetailViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+
+    override func refreshBankingData() {
+        let balance = FinanceLedgerStore.shared.load().accounts.first(where: { $0.id == accountId })?.balance ?? 0
+        pageData.availableBalance = balance
+        pageData.accountBalance = balance
+        balanceSectionView.configure(with: pageData)
     }
 
     override func setupUI() {

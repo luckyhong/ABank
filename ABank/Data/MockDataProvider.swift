@@ -509,7 +509,9 @@ final class MockDataProvider {
                     accountClass: "I类",
                     maskedNumber: "6230 **** 8472",
                     fullNumber: "6230 4800 1234 8472",
-                    availableBalance: 2519.66,
+                    availableBalance: FinanceLedgerStore.shared.load().accounts.first(where: {
+                        $0.id == FinanceLedgerRecord.defaultAccountId
+                    })?.balance ?? 0,
                     actions: [
                         MyAccountDebitAction(title: "查询明细", badge: nil),
                         MyAccountDebitAction(title: "我要转账", badge: nil),

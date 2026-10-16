@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-final class MineViewController: BaseViewController {
+final class MineViewController: BankingDataViewController {
 
     private let pageData = MockDataProvider.shared.getMinePageData()
 
@@ -37,8 +37,6 @@ final class MineViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
-        refreshProfileFromStore()
-        refreshFinanceCardsFromStore()
     }
 
     private func refreshFinanceCardsFromStore() {
@@ -56,6 +54,11 @@ final class MineViewController: BaseViewController {
             vipLevel: profile.vipLevel,
             benefitsTitle: profile.benefitsTitle
         ))
+    }
+
+    override func refreshBankingData() {
+        refreshProfileFromStore()
+        refreshFinanceCardsFromStore()
     }
 
     override func setupUI() {
@@ -173,7 +176,7 @@ final class MineViewController: BaseViewController {
             self?.navigationController?.pushViewController(controller, animated: true)
         }
         monthlyFlowCard.onBillTapped = { [weak self] in
-            self?.showToast("7月份账单")
+            self?.showToast(FinanceLedgerStore.shared.monthlyBillNotice)
         }
 
         branchCard.onTap = { [weak self] in

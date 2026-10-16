@@ -7,7 +7,7 @@ import UIKit
 import SnapKit
 
 /// 我的账户 · 明细查询 · 单笔交易详情
-final class AccountDetailQueryDetailViewController: BaseViewController {
+final class AccountDetailQueryDetailViewController: BankingDataViewController {
 
     private let transactionId: String
     private var transaction: LedgerTransaction
@@ -65,8 +65,9 @@ final class AccountDetailQueryDetailViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
-        reloadTransaction()
     }
+
+    override func refreshBankingData() { reloadTransaction() }
 
     override func setupUI() {
         view.backgroundColor = .white

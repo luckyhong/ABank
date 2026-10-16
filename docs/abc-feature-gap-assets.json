@@ -1,0 +1,458 @@
+{
+  "app_version": "11.3.0",
+  "build": "11.3.1",
+  "ipa_sha256": "913457167f6e52daed0004cc3022bf936aa4cc169c4cadb8a01b7031b6fc6e9b",
+  "note": "Candidate semantic names only. No new imagesets created. Names and icons do not establish live routes or business behavior.",
+  "assets": [
+    {
+      "group": "Functions",
+      "source": "hp_allmenus_icon_add.png",
+      "source_sha256": "b8a98a9e1ab8b6cdf718a0c557f6d7aa98617b83501d1e6bc3c8184ab472bda6",
+      "dimensions": [
+        45,
+        45
+      ],
+      "existing_asset_name": "abc_resource_hp_allmenus_icon_add_b8a98a9e1ab8",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Main/abc_resource_hp_allmenus_icon_add_b8a98a9e1ab8.imageset",
+      "suggested_semantic_name": "abc_services_favorite_add",
+      "preview": "images/hp_allmenus_icon_add.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Functions",
+      "source": "hp_allmenus_icon_delete.png",
+      "source_sha256": "c7006f39f5d40a1cb1e526b03ece5f7a6a8eb9cc2183227ceef09bc6534048d1",
+      "dimensions": [
+        45,
+        45
+      ],
+      "existing_asset_name": "abc_resource_hp_allmenus_icon_delete_c7006f39f5d4",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Main/abc_resource_hp_allmenus_icon_delete_c7006f39f5d4.imageset",
+      "suggested_semantic_name": "abc_services_favorite_remove",
+      "preview": "images/hp_allmenus_icon_delete.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Transfer",
+      "source": "transfer_new_native500.png",
+      "source_sha256": "f54553ba3ceb19a689204bcf06888f808b4f8c98f4b59ea8018494f0f3fc38f8",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_transfer_new_native500_f54553ba3ceb",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_transfer_new_native500_f54553ba3ceb.imageset",
+      "suggested_semantic_name": "abc_transfer_account_entry",
+      "preview": "images/transfer_new_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Transfer",
+      "source": "transfer_detail_qry_native500.png",
+      "source_sha256": "3036415647497036e8b80b1af584d2d97d66acf66be828f19c52ccbacd49b6dd",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_transfer_detail_qry_native500_303641564749",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_transfer_detail_qry_native500_303641564749.imageset",
+      "suggested_semantic_name": "abc_transfer_history_entry",
+      "preview": "images/transfer_detail_qry_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Statements",
+      "source": "month_bills_native500.png",
+      "source_sha256": "6ea5c1ae6163234a55c97eac3fca24ebd032f0aa93ad53e45ca562b5c39fbe49",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_month_bills_native500_6ea5c1ae6163",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_month_bills_native500_6ea5c1ae6163.imageset",
+      "suggested_semantic_name": "abc_statement_monthly_entry",
+      "preview": "images/month_bills_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Statements",
+      "source": "bank_statement_qry_native500.png",
+      "source_sha256": "82d36c39cedd1b26d0e5b80e4d435a5f1feb13324ebd62822cf5858aad8720df",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_bank_statement_qry_native500_82d36c39cedd",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_bank_statement_qry_native500_82d36c39cedd.imageset",
+      "suggested_semantic_name": "abc_statement_bank_entry",
+      "preview": "images/bank_statement_qry_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Statements",
+      "source": "receiptinitact_webview_native500.png",
+      "source_sha256": "3af4750cd767151b346ae5f015309d285e3c5fb9c7153b31054475b96ce9a52c",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_receiptinitact_webview_native500_3af4750cd767",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_receiptinitact_webview_native500_3af4750cd767.imageset",
+      "suggested_semantic_name": "abc_receipt_entry",
+      "preview": "images/receiptinitact_webview_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Security",
+      "source": "safecenter_login_setting_700_native500.png",
+      "source_sha256": "ce77a8975a663776db250c67029a1fd7a3ce5e43c51d8f8310f104852bf615fb",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_safecenter_login_setting_700_native500_ce77a8975a66",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_safecenter_login_setting_700_native500_ce77a8975a66.imageset",
+      "suggested_semantic_name": "abc_security_login",
+      "preview": "images/safecenter_login_setting_700_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Security",
+      "source": "safecenter_trans_setting_700_native500.png",
+      "source_sha256": "adad0af2d49ee536d6a0f98cc3667c45d2748a92bc9185851e2bea89f6580757",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_safecenter_trans_setting_700_native500_adad0af2d49e",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_safecenter_trans_setting_700_native500_adad0af2d49e.imageset",
+      "suggested_semantic_name": "abc_security_transfer",
+      "preview": "images/safecenter_trans_setting_700_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Security",
+      "source": "safecenter_pay_setting_700_native500.png",
+      "source_sha256": "9f7d8f3d8c0c17c26cec2419540b50bac483ef26ca2fc8637739fb189080f9a8",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_safecenter_pay_setting_700_native500_9f7d8f3d8c0c",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_safecenter_pay_setting_700_native500_9f7d8f3d8c0c.imageset",
+      "suggested_semantic_name": "abc_security_payment",
+      "preview": "images/safecenter_pay_setting_700_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Security",
+      "source": "safecenter_trusted_device_1100_native500.png",
+      "source_sha256": "b828f33401988e1c61cd1116fae21c7798a3ed36b2e7afb69d3c6d4dff7f40f2",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_safecenter_trusted_device_1100_native500_b828f3340198",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Main/abc_resource_safecenter_trusted_device_1100_native500_b828f3340198.imageset",
+      "suggested_semantic_name": "abc_security_trusted_device",
+      "preview": "images/safecenter_trusted_device_1100_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Security",
+      "source": "safecenter_account_lock_native500.png",
+      "source_sha256": "67bc423b70da624ae9c6f912687eaddb2f833019f96a8a2ed9f606384f555485",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_safecenter_account_lock_native500_67bc423b70da",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_safecenter_account_lock_native500_67bc423b70da.imageset",
+      "suggested_semantic_name": "abc_security_account_lock",
+      "preview": "images/safecenter_account_lock_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Branches",
+      "source": "branch_query_mini_native500.png",
+      "source_sha256": "529cec917c7948c00e17c585d67b88ce7a96d517de1c7e4702bddb269415d407",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_branch_query_mini_native500_529cec917c79",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_branch_query_mini_native500_529cec917c79.imageset",
+      "suggested_semantic_name": "abc_branch_lookup",
+      "preview": "images/branch_query_mini_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Branches",
+      "source": "branch_appoint_native500.png",
+      "source_sha256": "a159920272ef88ab407c3da6fe039809d293b23c32167f8f55376d3f8dac220f",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_branch_appoint_native500_a159920272ef",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_branch_appoint_native500_a159920272ef.imageset",
+      "suggested_semantic_name": "abc_branch_appointment",
+      "preview": "images/branch_appoint_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Branches",
+      "source": "online_fetch_number_native500.png",
+      "source_sha256": "2c543c6610254ef26c2ad290a6d0f4bdfdc8624af0f0cd5c1ab6c044a4d8ddd5",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_online_fetch_number_native500_2c543c661025",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_online_fetch_number_native500_2c543c661025.imageset",
+      "suggested_semantic_name": "abc_branch_queue_ticket",
+      "preview": "images/online_fetch_number_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Branches",
+      "source": "my_appointment_numbers_native500.png",
+      "source_sha256": "cf347a78061281e82aab60f9227e03e7e05fc8abbd14085cd9dc5e649475be16",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_my_appointment_numbers_native500_cf347a780612",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_my_appointment_numbers_native500_cf347a780612.imageset",
+      "suggested_semantic_name": "abc_branch_my_queue",
+      "preview": "images/my_appointment_numbers_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Branches",
+      "source": "my_appointment_records_native500.png",
+      "source_sha256": "261e2845d521fb407723505a248d58d1a7af2e187553ffaee3d9ec0a0c414e4d",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_my_appointment_records_native500_261e2845d521",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_my_appointment_records_native500_261e2845d521.imageset",
+      "suggested_semantic_name": "abc_branch_my_appointments",
+      "preview": "images/my_appointment_records_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Benefits",
+      "source": "enjoy_interests_def_native500.png",
+      "source_sha256": "519fbcb9b3c24d1c305b2c71db3c4f7b0e09b712647229fb4329a668cd76a771",
+      "dimensions": [
+        98,
+        96
+      ],
+      "existing_asset_name": "abc_resource_enjoy_interests_def_native500_519fbcb9b3c2",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_enjoy_interests_def_native500_519fbcb9b3c2.imageset",
+      "suggested_semantic_name": "abc_benefits_entry",
+      "preview": "images/enjoy_interests_def_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Benefits",
+      "source": "credit_only_point_qry_native500.png",
+      "source_sha256": "9dec9f639f9565cc75ce7c07c080f08393d12cfdc9933b318f206c792c031941",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_credit_only_point_qry_native500_9dec9f639f95",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_credit_only_point_qry_native500_9dec9f639f95.imageset",
+      "suggested_semantic_name": "abc_benefits_points",
+      "preview": "images/credit_only_point_qry_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Orders",
+      "source": "hp_mine_order_all.png",
+      "source_sha256": "d361d77f496a01d55020cd11285916aef035b18cec12cdf3cbd32fcf7aa2d061",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_hp_mine_order_all_d361d77f496a",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Main/abc_resource_hp_mine_order_all_d361d77f496a.imageset",
+      "suggested_semantic_name": "abc_order_all",
+      "preview": "images/hp_mine_order_all.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Orders",
+      "source": "hp_mine_order_deliver.png",
+      "source_sha256": "55f3287916eeadd16cd1997bfd2f2beda2137325d1ee0e9834de049bbee8bb1e",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_hp_mine_order_deliver_55f3287916ee",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Main/abc_resource_hp_mine_order_deliver_55f3287916ee.imageset",
+      "suggested_semantic_name": "abc_order_to_ship",
+      "preview": "images/hp_mine_order_deliver.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Orders",
+      "source": "hp_mine_order_receive.png",
+      "source_sha256": "87b81f8333e0a9d0a8aba6f6cff52544bfd7789e840c2c6e4538d320875a7b88",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_hp_mine_order_receive_87b81f8333e0",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Main/abc_resource_hp_mine_order_receive_87b81f8333e0.imageset",
+      "suggested_semantic_name": "abc_order_to_receive",
+      "preview": "images/hp_mine_order_receive.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Orders",
+      "source": "hp_mine_order_complete.png",
+      "source_sha256": "b9542c1ac9db3f2b2346a0385b3c15d7182ec28b55bb5d58b72a604d59e0c64d",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_hp_mine_order_complete_b9542c1ac9db",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Main/abc_resource_hp_mine_order_complete_b9542c1ac9db.imageset",
+      "suggested_semantic_name": "abc_order_completed",
+      "preview": "images/hp_mine_order_complete.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Wealth",
+      "source": "wealth_test_native500.png",
+      "source_sha256": "60579279db81ce18a80997236cfe7c7213ee12da494a77a6b052715c9a5c4b89",
+      "dimensions": [
+        192,
+        192
+      ],
+      "existing_asset_name": "abc_resource_wealth_test_native500_60579279db81",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_wealth_test_native500_60579279db81.imageset",
+      "suggested_semantic_name": "abc_wealth_assessment_entry",
+      "preview": "images/wealth_test_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Wealth",
+      "source": "comm_risk_checked.png",
+      "source_sha256": "745f6237b8fe29097892243efdd7e4d755d6f05a9ccf8e32dcadf01bdce5a249",
+      "dimensions": [
+        80,
+        80
+      ],
+      "existing_asset_name": "abc_resource_comm_risk_checked_745f6237b8fe",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Main/abc_resource_comm_risk_checked_745f6237b8fe.imageset",
+      "suggested_semantic_name": "abc_wealth_risk_checked",
+      "preview": "images/comm_risk_checked.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Wealth",
+      "source": "comm_risk_unchecked.png",
+      "source_sha256": "9f795d917fd777126a68adbd9d19ee2a781671dfdb680a7a34b05163b1654259",
+      "dimensions": [
+        78,
+        80
+      ],
+      "existing_asset_name": "abc_resource_comm_risk_unchecked_9f795d917fd7",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Main/abc_resource_comm_risk_unchecked_9f795d917fd7.imageset",
+      "suggested_semantic_name": "abc_wealth_risk_unchecked",
+      "preview": "images/comm_risk_unchecked.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Wealth",
+      "source": "financing_pro_my_native500.png",
+      "source_sha256": "6229650706300cfa408ae42177d56583ca31d1bf3cb340d6ac9e5c3a94102995",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_home_wealth",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Home/abc_home_wealth.imageset",
+      "suggested_semantic_name": "abc_wealth_my_products",
+      "preview": "images/financing_pro_my_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Life",
+      "source": "calls_payment_webview_native500.png",
+      "source_sha256": "d839f1fb903772f3c35431e24f621a5e58562826b1fb9bbf0e106f43653e7496",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_calls_payment_webview_native500_d839f1fb9037",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_calls_payment_webview_native500_d839f1fb9037.imageset",
+      "suggested_semantic_name": "abc_life_phone_payment",
+      "preview": "images/calls_payment_webview_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Life",
+      "source": "epayment_pay_native500.png",
+      "source_sha256": "f04e0d712984b1202d3fc24d2d437cf8db1bc6f3e545e3158517462d43bff153",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_epayment_pay_native500_f04e0d712984",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_epayment_pay_native500_f04e0d712984.imageset",
+      "suggested_semantic_name": "abc_life_bill_payment",
+      "preview": "images/epayment_pay_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    },
+    {
+      "group": "Life",
+      "source": "e_social_security_card_native500.png",
+      "source_sha256": "7debc7139a8010331ed74ae44b264ed94a696bab10c926059a5be0a150e09933",
+      "dimensions": [
+        96,
+        96
+      ],
+      "existing_asset_name": "abc_resource_e_social_security_card_native500_7debc7139a80",
+      "existing_imageset": "ABank/Assets.xcassets/ABCImported/Loose/Bundles/abc_resource_e_social_security_card_native500_7debc7139a80.imageset",
+      "suggested_semantic_name": "abc_life_social_security",
+      "preview": "images/e_social_security_card_native500.png",
+      "evidence": "E1/E2 archive bytes; existing import manifest",
+      "confidence": "resource observed; exact live UI use unverified"
+    }
+  ]
+}

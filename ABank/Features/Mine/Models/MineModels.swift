@@ -3,7 +3,7 @@
 //  ABank
 //
 
-import UIKit
+import Foundation
 
 struct MineProfileInfo {
     let displayName: String

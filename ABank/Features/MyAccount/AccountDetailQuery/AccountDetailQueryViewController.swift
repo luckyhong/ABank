@@ -6,7 +6,7 @@
 import UIKit
 import SnapKit
 
-final class AccountDetailQueryViewController: BaseViewController {
+final class AccountDetailQueryViewController: BankingDataViewController {
 
     private let accountId: String
     private let maskedNumber: String
@@ -73,6 +73,12 @@ final class AccountDetailQueryViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+
+    override func refreshBankingData() {
+        if filter.quickRange != .custom {
+            filter.applyQuickRange(filter.quickRange)
+        }
         reloadData()
     }
 

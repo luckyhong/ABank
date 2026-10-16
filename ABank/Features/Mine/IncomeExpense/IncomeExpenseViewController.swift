@@ -6,8 +6,9 @@
 import UIKit
 import SnapKit
 
-final class IncomeExpenseViewController: BaseViewController {
+final class IncomeExpenseViewController: BankingDataViewController {
 
+    private var followsCurrentMonth = true
     private var query: IncomeExpenseQuery
     private var pageData: IncomeExpensePageData
 
@@ -16,6 +17,7 @@ final class IncomeExpenseViewController: BaseViewController {
     private let tableView = UITableView(frame: .zero, style: .plain)
 
     private var sections: [IncomeExpenseDayGroup] = []
+    private let emptyLabel = UILabel()
     private weak var activeSheet: UIView?
 
     init(accountId: String? = nil) {
@@ -71,8 +73,10 @@ final class IncomeExpenseViewController: BaseViewController {
         navigationItem.rightBarButtonItems = [moreItem, searchItem]
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func refreshBankingData() {
+        if followsCurrentMonth {
+            query.dateMode = .month(BankingDateContext.system.currentMonth)
+        }
         reloadData()
     }
 
@@ -103,6 +107,15 @@ final class IncomeExpenseViewController: BaseViewController {
             make.top.equalTo(summaryCard.snp.bottom).offset(8)
             make.leading.trailing.bottom.equalToSuperview()
         }
+
+        emptyLabel.text = "暂无收支记录，可切换月份或筛选条件查看"
+        emptyLabel.font = .systemFont(ofSize: 14)
+        emptyLabel.textColor = .abankTextTertiary
+        emptyLabel.numberOfLines = 0
+        emptyLabel.textAlignment = .center
+        emptyLabel.isAccessibilityElement = true
+        emptyLabel.accessibilityIdentifier = "incomeExpense.emptyState"
+        tableView.backgroundView = emptyLabel
 
         bindFilterBarActions()
         summaryCard.onAnalysisTapped = { [weak self] in self?.showToast("分析") }
@@ -139,6 +152,7 @@ final class IncomeExpenseViewController: BaseViewController {
             expense: pageData.summary.expense,
             income: pageData.summary.income
         )
+        emptyLabel.isHidden = !sections.isEmpty
         tableView.reloadData()
     }
 
@@ -158,6 +172,7 @@ final class IncomeExpenseViewController: BaseViewController {
         let sheet = IncomeExpenseDatePickerSheet()
         sheet.onConfirm = { [weak self] mode in
             guard let self else { return }
+            self.followsCurrentMonth = false
             self.query.dateMode = mode
             self.activeSheet = nil
             self.reloadData()

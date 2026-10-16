@@ -13,15 +13,20 @@ final class FinanceLedgerStore {
     static let shared = FinanceLedgerStore()
 
     private let defaultsKey = "abank.financeLedger.record.v8"
+    private let defaults: UserDefaults
+    private let dates: BankingDateContext
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-    private init() {}
+    init(defaults: UserDefaults = .standard, dates: BankingDateContext = .system) {
+        self.defaults = defaults
+        self.dates = dates
+    }
 
     // MARK: - CRUD
 
     func load() -> FinanceLedgerRecord {
-        if let data = UserDefaults.standard.data(forKey: defaultsKey),
+        if let data = defaults.data(forKey: defaultsKey),
            let record = try? decoder.decode(FinanceLedgerRecord.self, from: data) {
             return record
         }
@@ -32,7 +37,7 @@ final class FinanceLedgerStore {
 
     func save(_ record: FinanceLedgerRecord) {
         guard let data = try? encoder.encode(record) else { return }
-        UserDefaults.standard.set(data, forKey: defaultsKey)
+        defaults.set(data, forKey: defaultsKey)
         NotificationCenter.default.post(name: .financeLedgerDidChange, object: nil)
     }
 
@@ -40,6 +45,7 @@ final class FinanceLedgerStore {
         var record = load()
         transform(&record)
         recalculate(&record)
+        record.dataTimestamp = dates.string(from: dates.now, format: "yyyy-MM-dd HH:mm:ss")
         save(record)
     }
 
@@ -90,25 +96,29 @@ final class FinanceLedgerStore {
         MineAssetLiability(
             assets: totalAssets(),
             liabilities: totalLiabilities(),
-            billNotice: "您的月度账单已出，请查看"
+            billNotice: monthlyBillNotice
         )
     }
 
-    func mineMonthlyFlow(for month: String = "2026-08") -> MineMonthlyFlow {
-        let summary = monthlyFlow(for: month)
+    var monthlyBillNotice: String {
+        let hasTransactions = load().transactions.contains { $0.date.hasPrefix(dates.previousMonth) }
+        return hasTransactions ? "您的\(dates.previousMonthTitle)账单已出" : "\(dates.previousMonthTitle)暂无收支记录"
+    }
+
+    func mineMonthlyFlow(for month: String? = nil) -> MineMonthlyFlow {
+        let summary = monthlyFlow(for: month ?? dates.currentMonth)
         return MineMonthlyFlow(
             expense: summary.expense,
             income: summary.income,
             billSectionTitle: "月度账单",
-            billNotice: "您的7月份账单已出",
-            hasBillBadge: true
+            billNotice: monthlyBillNotice,
+            hasBillBadge: false
         )
     }
 
     func assetLiabilityPageData() -> AssetLiabilityPageData {
         let record = load()
         let account = record.accounts.first(where: { $0.id == FinanceLedgerRecord.defaultAccountId })
-        let loan = record.loanContracts.first(where: { $0.id == FinanceLedgerRecord.defaultLoanId })
 
         return AssetLiabilityPageData(
             totalAssets: totalAssets(),
@@ -160,8 +170,8 @@ final class FinanceLedgerStore {
         )
     }
 
-    func incomeExpensePageData(month: String = "2026-08", accountId: String? = nil) -> IncomeExpensePageData {
-        var query = IncomeExpenseQuery(dateMode: .month(month))
+    func incomeExpensePageData(month: String? = nil, accountId: String? = nil) -> IncomeExpensePageData {
+        var query = IncomeExpenseQuery(dateMode: .month(month ?? dates.currentMonth))
         if let accountId {
             query.accountFilter = .debitCard(id: accountId)
         }
