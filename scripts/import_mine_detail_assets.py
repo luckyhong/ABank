@@ -1,4 +1,4 @@
-"""Import only reviewed life assets, preserving other asset configuration edits."""
+"""Import only reviewed Mine detail assets, preserving other asset configuration edits."""
 from pathlib import Path
 import json,re
 from PIL import Image
@@ -9,6 +9,7 @@ def pair(name):return [f'Assets/{name}_Normal@{s}x.png' for s in [2,3]]
 recipes={
  'amount_eye_open':'LHEyeOpenIcon.png','amount_eye_closed':'LHEyeCloseicon.png',
  'info':'ABCFortune_Star_TipIcon.png','wealth_checkup':'wealth_test_native500.png',
+ 'manager_avatar':pair('客户经理'),'branch_location':'hp_mine_outlets_location.png',
  'toolbar_service':pair('客服_黑'),'toolbar_search':pair('huinong_nav_searchbar_search_black')}
 manifest=[]
 for name,sources in recipes.items():

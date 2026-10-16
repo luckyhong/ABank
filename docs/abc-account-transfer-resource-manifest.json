@@ -1,0 +1,123 @@
+[
+  {
+    "asset": "abc_account_bank_logo",
+    "source": "credit_nong_logo.png",
+    "origin": "extracted_abc_ipa",
+    "sha256": "f9da9cf22d1d5cc90032cd52e115b6b82092ba843d9ca9db6444fc028229e834",
+    "dimensions": [
+      60,
+      60
+    ],
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_account_toolbar_service",
+    "source": "hp_mine_customerservice.png",
+    "origin": "extracted_abc_ipa",
+    "sha256": "c76398f27d0573a35a386a36d8250ca725b945b610d361c2b57957e147e90949",
+    "dimensions": [
+      60,
+      60
+    ],
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_transfer_notice_speaker",
+    "source": "homepage_mine_horn.png",
+    "origin": "extracted_abc_ipa",
+    "sha256": "12b684edf0606a5b8c4a04bb715c14df61768ad4fb09c06673a3473425f573f5",
+    "dimensions": [
+      72,
+      72
+    ],
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_transfer_record",
+    "source": "hp_mine_order_all.png",
+    "origin": "extracted_abc_ipa",
+    "sha256": "2ba9e184f83ed9417f7ac7da15ce2fd309a1e829e3616d0a099b6f0617f0acf7",
+    "dimensions": [
+      96,
+      96
+    ],
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_transfer_multiple",
+    "source": "cust_manager_native500.png",
+    "origin": "extracted_abc_ipa",
+    "sha256": "f775eb38946595e73995294dea40eeb272db8c4ac0c8516510eb30f9d341f0d3",
+    "dimensions": [
+      96,
+      96
+    ],
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_transfer_donation",
+    "source": "hospitalizing_service_native500.png",
+    "origin": "extracted_abc_ipa",
+    "sha256": "c34a111b5557075768fc2e58e6b16dcb11fbcaa2d2283b6b75ae49289bb03206",
+    "dimensions": [
+      96,
+      96
+    ],
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_transfer_partner_avatar",
+    "source": "comm_portrait_boy_native.png",
+    "origin": "extracted_abc_ipa",
+    "sha256": "e71171c55a68405a1a852dedae84db401e0658fba03369f58c6256de6b0f9a9e",
+    "dimensions": [
+      168,
+      168
+    ],
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_account_credit_banner",
+    "source": "ABank/Assets.xcassets/my_account_credit_ad.imageset/my_account_credit_ad.jpg",
+    "origin": "existing_project_artwork",
+    "sha256": "47312b6ac1110cace212b06719784eae2a91ffefd41f6993e3163932492689a4",
+    "dimensions": [
+      220,
+      60
+    ],
+    "scale": "1x"
+  },
+  {
+    "asset": "abc_account_credit_banner",
+    "source": "ABank/Assets.xcassets/my_account_credit_ad.imageset/my_account_credit_ad@2x.jpg",
+    "origin": "existing_project_artwork",
+    "sha256": "703519d983e8f12d85b09b02f5869349c6841f290d4bc0ea8ce282fa1c4c91ff",
+    "dimensions": [
+      440,
+      120
+    ],
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_account_credit_banner",
+    "source": "ABank/Assets.xcassets/my_account_credit_ad.imageset/my_account_credit_ad@3x.jpg",
+    "origin": "existing_project_artwork",
+    "sha256": "737b3651c1b87caad5dd50953ce90e1e2d52871f2cfb668c08323d28a7ee2dd0",
+    "dimensions": [
+      660,
+      180
+    ],
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_transfer_bank_ccb_wordmark",
+    "source": "https://www.ccb.com/chn/fileDir/bg_image/2020031015231379393.png",
+    "origin": "official_ccb_website",
+    "sha256": "e0eb33430eb24b7844480172a7186181cf7a4d0cd393cb584137c0cefb6c43b6",
+    "dimensions": [
+      200,
+      40
+    ],
+    "scale": "1x"
+  }
+]

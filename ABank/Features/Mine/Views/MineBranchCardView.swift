@@ -15,6 +15,7 @@ final class MineBranchCardView: UIView {
     private let card = UIView()
     private let header = MineCardHeaderView(title: "我的网点", showsRefresh: true)
     private let subtitleLabel = UILabel()
+    private let locationIcon = UIImageView(image: UIImage.abankAsset("abc_mine_detail_branch_location", fallback: "location"))
     private let grid = MineActionGridView()
 
     override init(frame: CGRect) {
@@ -36,6 +37,7 @@ final class MineBranchCardView: UIView {
         card.layer.cornerRadius = CornerRadius.lg
         card.addShadow(color: .black, opacity: 0.06, offset: CGSize(width: 0, height: 2), radius: 8)
 
+        locationIcon.contentMode = .scaleAspectFit
         subtitleLabel.font = .systemFont(ofSize: 13)
         subtitleLabel.textColor = .abankTextTertiary
 
@@ -44,7 +46,7 @@ final class MineBranchCardView: UIView {
         grid.onItemTapped = { [weak self] index in self?.onItemTapped?(index) }
 
         addSubview(card)
-        [header, subtitleLabel, grid].forEach { card.addSubview($0) }
+        [header, locationIcon, subtitleLabel, grid].forEach { card.addSubview($0) }
 
         card.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -52,9 +54,15 @@ final class MineBranchCardView: UIView {
         header.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview().inset(Spacing.md)
         }
+        locationIcon.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(Spacing.md)
+            make.centerY.equalTo(subtitleLabel)
+            make.size.equalTo(16)
+        }
         subtitleLabel.snp.makeConstraints { make in
             make.top.equalTo(header.snp.bottom).offset(8)
-            make.leading.trailing.equalToSuperview().inset(Spacing.md)
+            make.leading.equalTo(locationIcon.snp.trailing).offset(4)
+            make.trailing.equalToSuperview().offset(-Spacing.md)
         }
         grid.snp.makeConstraints { make in
             make.top.equalTo(subtitleLabel.snp.bottom).offset(Spacing.md)

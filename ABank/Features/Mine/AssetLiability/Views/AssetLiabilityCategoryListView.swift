@@ -116,7 +116,7 @@ private final class AssetLiabilityCategoryHeaderView: UIControl {
         titleLabel.font = .systemFont(ofSize: 16, weight: .medium)
         titleLabel.textColor = .abankTextPrimary
 
-        infoIcon.image = UIImage.abankAsset("abc_mine_detail_info", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13)
+        infoIcon.image = UIImage.abankAsset("abc_mine_detail_info_reference", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13)
         infoIcon.tintColor = UIColor(red: 190 / 255, green: 190 / 255, blue: 190 / 255, alpha: 1)
         infoIcon.contentMode = .scaleAspectFit
 

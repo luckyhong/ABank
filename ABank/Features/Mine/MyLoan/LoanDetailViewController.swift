@@ -22,7 +22,7 @@ final class LoanDetailViewController: BaseViewController {
     private let infoStack = UIStackView()
     private let repaymentLinkButton = UIButton(type: .system)
 
-    private let ringColor = UIColor(red: 255 / 255, green: 200 / 255, blue: 160 / 255, alpha: 1)
+    private let ringColor = UIColor(red: 255 / 255, green: 225 / 255, blue: 175 / 255, alpha: 1)
     private let amountFont = UIFont(name: "TimesNewRomanPSMT", size: 20)
         ?? .systemFont(ofSize: 20, weight: .regular)
 
@@ -48,7 +48,7 @@ final class LoanDetailViewController: BaseViewController {
         )
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage.abankAsset("abc_mine_detail_toolbar_service", fallback: "headphones", renderingMode: .alwaysTemplate, pointSize: 18),
+            image: UIImage.abankAsset("abc_mine_detail_toolbar_service", fallback: "headphones", renderingMode: .alwaysTemplate, pointSize: 24),
             style: .plain,
             target: self,
             action: #selector(serviceTapped)
@@ -192,12 +192,12 @@ final class LoanDetailViewController: BaseViewController {
             ("贷款状态", contract.statusText, false)
         ]
 
-        for item in rows {
+        for (index, item) in rows.enumerated() {
             let row = LoanDetailInfoRowView(
                 title: item.0,
                 value: item.1.isEmpty ? "-" : item.1,
                 showsInfo: item.2,
-                showsSeparator: true
+                showsSeparator: index == 0
             )
             if item.2 {
                 row.onInfoTapped = { [weak self] in self?.showToast("贷款年化利率说明") }
@@ -231,12 +231,12 @@ private final class LoanAvailableGaugeView: UIView {
 
         trackLayer.fillColor = UIColor.clear.cgColor
         trackLayer.strokeColor = UIColor(red: 245 / 255, green: 235 / 255, blue: 225 / 255, alpha: 1).cgColor
-        trackLayer.lineWidth = 18
+        trackLayer.lineWidth = 21
         trackLayer.lineCap = .round
 
         progressLayer.fillColor = UIColor.clear.cgColor
-        progressLayer.strokeColor = UIColor(red: 255 / 255, green: 200 / 255, blue: 160 / 255, alpha: 1).cgColor
-        progressLayer.lineWidth = 18
+        progressLayer.strokeColor = UIColor(red: 255 / 255, green: 225 / 255, blue: 175 / 255, alpha: 1).cgColor
+        progressLayer.lineWidth = 21
         progressLayer.lineCap = .round
         progressLayer.strokeEnd = 1
 
@@ -248,8 +248,7 @@ private final class LoanAvailableGaugeView: UIView {
         titleLabel.textColor = .abankTextSecondary
         titleLabel.textAlignment = .center
 
-        valueLabel.font = UIFont(name: "TimesNewRomanPSMT", size: 28)
-            ?? .systemFont(ofSize: 28, weight: .regular)
+        valueLabel.font = .systemFont(ofSize: 18, weight: .regular)
         valueLabel.textColor = .abankAmount
         valueLabel.textAlignment = .center
 
@@ -305,8 +304,8 @@ private final class LoanDetailActionBarView: UIView {
         bottomLine.backgroundColor = .abankSeparator
         midLine.backgroundColor = .abankSeparator
 
-        configure(button: prepayButton, title: "提前还款", symbol: "yensign.circle")
-        configure(button: usageButton, title: "使用记录", symbol: "doc.text")
+        configure(button: prepayButton, title: "提前还款", symbol: "yensign.circle", asset: "loan_prepay")
+        configure(button: usageButton, title: "使用记录", symbol: "doc.text", asset: "loan_usage")
         prepayButton.addTarget(self, action: #selector(prepayTapped), for: .touchUpInside)
         usageButton.addTarget(self, action: #selector(usageTapped), for: .touchUpInside)
 
@@ -342,9 +341,8 @@ private final class LoanDetailActionBarView: UIView {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    private func configure(button: UIButton, title: String, symbol: String) {
-        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .regular)
-        button.setImage(UIImage(systemName: symbol, withConfiguration: config), for: .normal)
+    private func configure(button: UIButton, title: String, symbol: String, asset: String) {
+        button.setImage(UIImage.abankAsset("abc_mine_detail_\(asset)", fallback: symbol, pointSize: 18), for: .normal)
         button.setTitle(" \(title)", for: .normal)
         button.setTitleColor(.abankTextPrimary, for: .normal)
         button.tintColor = .abankTextPrimary
@@ -370,15 +368,15 @@ private final class LoanDetailInfoRowView: UIView {
         super.init(frame: .zero)
         titleLabel.text = title
         titleLabel.font = .systemFont(ofSize: 14)
-        titleLabel.textColor = .abankTextSecondary
+        titleLabel.textColor = .abankTextPrimary
 
         valueLabel.text = value
         valueLabel.font = .systemFont(ofSize: 14)
-        valueLabel.textColor = .abankTextPrimary
+        valueLabel.textColor = .abankTextSecondary
         valueLabel.textAlignment = .right
         valueLabel.numberOfLines = 2
 
-        infoButton.setImage(UIImage.abankAsset("abc_mine_detail_info", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13), for: .normal)
+        infoButton.setImage(UIImage.abankAsset("abc_mine_detail_info_reference", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13), for: .normal)
         infoButton.tintColor = UIColor(red: 190 / 255, green: 190 / 255, blue: 190 / 255, alpha: 1)
         infoButton.isHidden = !showsInfo
         infoButton.addTarget(self, action: #selector(infoTapped), for: .touchUpInside)
@@ -393,8 +391,8 @@ private final class LoanDetailInfoRowView: UIView {
 
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview()
-            make.top.equalToSuperview().offset(14)
-            make.bottom.equalToSuperview().offset(-14)
+            make.top.equalToSuperview().offset(8)
+            make.bottom.equalToSuperview().offset(-8)
         }
         infoButton.snp.makeConstraints { make in
             make.leading.equalTo(titleLabel.snp.trailing).offset(4)
@@ -411,7 +409,7 @@ private final class LoanDetailInfoRowView: UIView {
             make.height.equalTo(0.5)
         }
         snp.makeConstraints { make in
-            make.height.greaterThanOrEqualTo(48)
+            make.height.greaterThanOrEqualTo(32)
         }
     }
 

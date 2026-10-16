@@ -17,16 +17,19 @@ struct TransferPrimaryAction {
     let title: String
     let systemIcon: String
     let badge: String?
+    var imageName: String? = nil
 }
 
 struct TransferSecondaryAction {
     let title: String
     let systemIcon: String
+    var imageName: String? = nil
 }
 
 struct TransferFunctionItem {
     let title: String
     let systemIcon: String
+    var imageName: String? = nil
 }
 
 struct TransferAccount {
@@ -35,6 +38,7 @@ struct TransferAccount {
     let maskedNumber: String
     let bankColorHex: String
     let bankSymbol: String
+    var imageName: String? = nil
 }
 
 struct TransferPartner {
@@ -46,6 +50,7 @@ struct TransferPartner {
     let accounts: [TransferAccount]
     let lastTransferDate: String?
     var isExpanded: Bool
+    var avatarImageName: String? = nil
 
     var accountCount: Int { accounts.count }
     var isMultiAccount: Bool { accounts.count > 1 }

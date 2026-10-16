@@ -10,7 +10,7 @@ final class TransferViewController: BaseViewController {
 
     private var pageData: TransferPageData
     private var partners: [TransferPartner]
-    private var isFunctionExpanded = false
+    private var isFunctionExpanded = true
     private var isNoticeHidden = false
 
     private let scrollView: UIScrollView = {
@@ -25,6 +25,7 @@ final class TransferViewController: BaseViewController {
     private let primaryCard = TransferPrimaryCardView()
     private let functionGrid = TransferFunctionGridView()
     private let recentSection = TransferRecentSectionView()
+    private let recentDivider = UIView()
 
     init(pageData: TransferPageData = MockDataProvider.shared.getTransferPageData()) {
         self.pageData = pageData
@@ -72,11 +73,11 @@ final class TransferViewController: BaseViewController {
     }
 
     override func setupUI() {
-        view.backgroundColor = .abankBackground
+        view.backgroundColor = .white
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
-        [noticeBanner, primaryCard, functionGrid, recentSection].forEach {
+        [noticeBanner, primaryCard, functionGrid, recentDivider, recentSection].forEach {
             contentView.addSubview($0)
         }
 
@@ -98,8 +99,14 @@ final class TransferViewController: BaseViewController {
             make.top.equalTo(primaryCard.snp.bottom).offset(12)
             make.leading.trailing.equalToSuperview()
         }
+        recentDivider.backgroundColor = UIColor(white: 0.97, alpha: 1)
+        recentDivider.snp.makeConstraints { make in
+            make.top.equalTo(functionGrid.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(10)
+        }
         recentSection.snp.makeConstraints { make in
-            make.top.equalTo(functionGrid.snp.bottom).offset(8)
+            make.top.equalTo(recentDivider.snp.bottom)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalToSuperview().offset(-24)
         }
@@ -218,8 +225,10 @@ final class TransferViewController: BaseViewController {
         pointSize: CGFloat
     ) -> UIBarButtonItem {
         let button = UIButton(type: .system)
-        let config = UIImage.SymbolConfiguration(pointSize: pointSize, weight: .regular)
-        button.setImage(UIImage(systemName: systemName, withConfiguration: config), for: .normal)
+        let image = systemName == "headphones"
+            ? UIImage.abankAsset("abc_account_toolbar_service", fallback: systemName, pointSize: 22)
+            : UIImage(systemName: systemName, withConfiguration: UIImage.SymbolConfiguration(pointSize: pointSize, weight: .regular))
+        button.setImage(image, for: .normal)
         button.tintColor = .abankTextPrimary
         button.frame = CGRect(x: 0, y: 0, width: 28, height: 28)
         button.addTarget(self, action: action, for: .touchUpInside)

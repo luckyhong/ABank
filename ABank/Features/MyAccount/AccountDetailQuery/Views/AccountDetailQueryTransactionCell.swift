@@ -32,7 +32,7 @@ final class AccountDetailQueryTransactionCell: UITableViewCell {
         amountLabel.text = transaction.signedAmountText
         amountLabel.textColor = transaction.direction == .income ? incomeColor : .abankTextPrimary
 
-        balanceLabel.text = "余额: \(transaction.balanceAfter.abankPlainAmountString())"
+        balanceLabel.text = "余额： \(transaction.balanceAfter.abankPlainAmountString())"
         separator.isHidden = isLast
     }
 
@@ -41,19 +41,21 @@ final class AccountDetailQueryTransactionCell: UITableViewCell {
         backgroundColor = .white
         contentView.backgroundColor = .white
 
-        titleLabel.font = .systemFont(ofSize: 15, weight: .regular)
+        titleLabel.font = .systemFont(ofSize: 17, weight: .regular)
         titleLabel.textColor = .abankTextPrimary
         titleLabel.lineBreakMode = .byTruncatingTail
 
-        timeLabel.font = .systemFont(ofSize: 12)
-        timeLabel.textColor = .abankTextTertiary
+        timeLabel.font = .systemFont(ofSize: 14)
+        timeLabel.textColor = .abankTextSecondary
 
-        amountLabel.font = .systemFont(ofSize: 15, weight: .medium)
+        amountLabel.font = .systemFont(ofSize: 17, weight: .regular)
         amountLabel.textAlignment = .right
+        amountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-        balanceLabel.font = .systemFont(ofSize: 12)
-        balanceLabel.textColor = .abankTextTertiary
+        balanceLabel.font = .systemFont(ofSize: 14)
+        balanceLabel.textColor = .abankTextSecondary
         balanceLabel.textAlignment = .right
+        balanceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         let arrowConfig = UIImage.SymbolConfiguration(pointSize: 12, weight: .medium)
         arrowView.image = UIImage(systemName: "chevron.right", withConfiguration: arrowConfig)
@@ -68,22 +70,24 @@ final class AccountDetailQueryTransactionCell: UITableViewCell {
 
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(16)
-            make.top.equalToSuperview().offset(16)
+            make.top.equalToSuperview().offset(12)
             make.trailing.lessThanOrEqualTo(amountLabel.snp.leading).offset(-12)
+            make.trailing.lessThanOrEqualTo(contentView.snp.centerX).offset(-28)
         }
         timeLabel.snp.makeConstraints { make in
             make.leading.equalTo(titleLabel)
             make.top.equalTo(titleLabel.snp.bottom).offset(6)
-            make.bottom.equalToSuperview().offset(-16)
+            make.bottom.equalToSuperview().offset(-12)
             make.trailing.lessThanOrEqualTo(balanceLabel.snp.leading).offset(-12)
         }
         arrowView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().offset(-16)
             make.centerY.equalToSuperview()
-            make.size.equalTo(12)
+            make.width.equalTo(10)
+            make.height.equalTo(20)
         }
         amountLabel.snp.makeConstraints { make in
-            make.trailing.equalTo(arrowView.snp.leading).offset(-6)
+            make.trailing.equalTo(arrowView.snp.leading).offset(-14)
             make.centerY.equalTo(titleLabel)
         }
         balanceLabel.snp.makeConstraints { make in

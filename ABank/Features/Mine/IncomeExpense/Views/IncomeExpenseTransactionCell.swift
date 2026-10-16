@@ -34,61 +34,14 @@ final class IncomeExpenseTransactionCell: UITableViewCell {
 
         let prefix = transaction.direction == .income ? "+ ¥ " : "- ¥ "
         amountLabel.text = prefix + transaction.amount.abankPlainAmountString()
-        amountLabel.textColor = transaction.direction == .income
-            ? UIColor(red: 245 / 255, green: 166 / 255, blue: 35 / 255, alpha: 1)
-            : .abankTextPrimary
+        amountLabel.textColor = .abankTextPrimary
 
         balanceLabel.text = "余额: ¥ \(transaction.balanceAfter.abankPlainAmountString())"
 
-        let style = iconStyle(for: transaction)
-        iconBackground.backgroundColor = style.background
-        let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .medium)
-        iconView.image = UIImage(systemName: style.symbol, withConfiguration: config)
-        iconView.tintColor = style.tint
+        iconBackground.backgroundColor = .clear
+        iconView.image = LedgerTransactionArtwork.image(for: transaction)
 
         separator.isHidden = isLast
-    }
-
-    private struct IconStyle {
-        let symbol: String
-        let tint: UIColor
-        let background: UIColor
-    }
-
-    private func iconStyle(for tx: LedgerTransaction) -> IconStyle {
-        if tx.direction == .income {
-            return IconStyle(
-                symbol: "arrow.down.left",
-                tint: .white,
-                background: UIColor(red: 240 / 255, green: 180 / 255, blue: 50 / 255, alpha: 1)
-            )
-        }
-        switch tx.iconKey {
-        case "music.note":
-            return IconStyle(
-                symbol: "play.rectangle.fill",
-                tint: .white,
-                background: UIColor(red: 20 / 255, green: 180 / 255, blue: 140 / 255, alpha: 1)
-            )
-        case "a.circle", "creditcard", "message", "person.crop.circle", "banknote":
-            return IconStyle(
-                symbol: "arrow.up.right",
-                tint: .white,
-                background: UIColor(red: 30 / 255, green: 190 / 255, blue: 100 / 255, alpha: 1)
-            )
-        case "yensign.circle":
-            return IconStyle(
-                symbol: "yensign.circle.fill",
-                tint: .white,
-                background: UIColor(red: 240 / 255, green: 180 / 255, blue: 50 / 255, alpha: 1)
-            )
-        default:
-            return IconStyle(
-                symbol: "arrow.up.right",
-                tint: .white,
-                background: UIColor(red: 30 / 255, green: 190 / 255, blue: 100 / 255, alpha: 1)
-            )
-        }
     }
 
     private func setupUI() {
@@ -100,14 +53,14 @@ final class IncomeExpenseTransactionCell: UITableViewCell {
         iconBackground.clipsToBounds = true
         iconView.contentMode = .scaleAspectFit
 
-        titleLabel.font = .systemFont(ofSize: 15, weight: .medium)
+        titleLabel.font = .systemFont(ofSize: 16, weight: .regular)
         titleLabel.textColor = .abankTextPrimary
         titleLabel.lineBreakMode = .byTruncatingTail
 
         subtitleLabel.font = .systemFont(ofSize: 12)
         subtitleLabel.textColor = .abankTextTertiary
 
-        amountLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        amountLabel.font = .systemFont(ofSize: 17, weight: .semibold)
         amountLabel.textAlignment = .right
 
         balanceLabel.font = .systemFont(ofSize: 12)
@@ -129,22 +82,22 @@ final class IncomeExpenseTransactionCell: UITableViewCell {
 
         iconBackground.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(Spacing.md)
-            make.centerY.equalToSuperview()
-            make.size.equalTo(36)
+            make.centerY.equalTo(titleLabel)
+            make.size.equalTo(18)
         }
         iconView.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.size.equalTo(18)
         }
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(iconBackground.snp.trailing).offset(12)
-            make.top.equalToSuperview().offset(14)
+            make.leading.equalTo(iconBackground.snp.trailing).offset(6)
+            make.top.equalToSuperview().offset(18)
             make.trailing.lessThanOrEqualTo(amountLabel.snp.leading).offset(-10)
         }
         subtitleLabel.snp.makeConstraints { make in
             make.leading.equalTo(titleLabel)
-            make.top.equalTo(titleLabel.snp.bottom).offset(4)
-            make.bottom.equalToSuperview().offset(-14)
+            make.top.equalTo(titleLabel.snp.bottom).offset(10)
+            make.bottom.equalToSuperview().offset(-18)
             make.trailing.lessThanOrEqualTo(balanceLabel.snp.leading).offset(-10)
         }
         arrowView.snp.makeConstraints { make in
@@ -181,8 +134,10 @@ final class IncomeExpenseDayHeaderView: UITableViewHeaderFooterView {
         badge.font = .systemFont(ofSize: 12, weight: .medium)
         badge.textColor = .abankTextSecondary
         badge.textAlignment = .center
-        badge.backgroundColor = UIColor(red: 245 / 255, green: 245 / 255, blue: 245 / 255, alpha: 1)
-        badge.layer.cornerRadius = 4
+        badge.backgroundColor = .clear
+        badge.layer.borderWidth = 0.8
+        badge.layer.borderColor = UIColor.abankTextTertiary.cgColor
+        badge.layer.cornerRadius = 10
         badge.layer.masksToBounds = true
 
         contentView.addSubview(badge)

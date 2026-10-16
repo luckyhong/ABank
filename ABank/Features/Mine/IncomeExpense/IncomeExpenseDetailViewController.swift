@@ -118,7 +118,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         headerTitleLabel.numberOfLines = 2
         headerTitleLabel.textAlignment = .center
 
-        amountLabel.font = .systemFont(ofSize: 32, weight: .regular)
+        amountLabel.font = .systemFont(ofSize: 36, weight: .regular)
         amountLabel.textColor = .abankAmount
         amountLabel.textAlignment = .center
 
@@ -141,7 +141,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         }
         headerIconView.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.size.equalTo(14)
+            make.size.equalTo(20)
         }
 
         titleRow.snp.makeConstraints { make in
@@ -329,11 +329,8 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         amountLabel.text = transaction.signedAmountText
         balanceLabel.text = "余额 ¥ \(transaction.balanceAfter.abankPlainAmountString())"
 
-        let style = Self.iconStyle(for: transaction)
-        headerIconBackground.backgroundColor = style.background
-        let config = UIImage.SymbolConfiguration(pointSize: 11, weight: .semibold)
-        headerIconView.image = UIImage(systemName: style.symbol, withConfiguration: config)
-        headerIconView.tintColor = style.tint
+        headerIconBackground.backgroundColor = .clear
+        headerIconView.image = LedgerTransactionArtwork.image(for: transaction)
 
         primaryInfoRows[0].configure(value: transaction.datetimeText)
         primaryInfoRows[1].configure(value: transaction.counterpartyName)
@@ -442,54 +439,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         view.endEditing(true)
     }
 
-    private struct IconStyle {
-        let symbol: String
-        let tint: UIColor
-        let background: UIColor
-    }
 
-    private static func iconStyle(for tx: LedgerTransaction) -> IconStyle {
-        switch tx.iconKey {
-        case "music.note":
-            return IconStyle(
-                symbol: "play.rectangle.fill",
-                tint: .white,
-                background: UIColor(red: 20 / 255, green: 180 / 255, blue: 140 / 255, alpha: 1)
-            )
-        case "yensign.circle":
-            return IconStyle(
-                symbol: "person.fill",
-                tint: UIColor(red: 160 / 255, green: 160 / 255, blue: 160 / 255, alpha: 1),
-                background: UIColor(red: 240 / 255, green: 240 / 255, blue: 240 / 255, alpha: 1)
-            )
-        case "a.circle":
-            return IconStyle(
-                symbol: "a.circle.fill",
-                tint: .white,
-                background: UIColor(red: 20 / 255, green: 150 / 255, blue: 230 / 255, alpha: 1)
-            )
-        case "message":
-            return IconStyle(
-                symbol: "message.fill",
-                tint: .white,
-                background: UIColor(red: 40 / 255, green: 190 / 255, blue: 90 / 255, alpha: 1)
-            )
-        case "person.crop.circle":
-            return IconStyle(
-                symbol: "person.fill",
-                tint: .white,
-                background: UIColor(red: 70 / 255, green: 150 / 255, blue: 230 / 255, alpha: 1)
-            )
-        case "creditcard":
-            return IconStyle(
-                symbol: "creditcard.fill",
-                tint: .white,
-                background: UIColor(red: 30 / 255, green: 190 / 255, blue: 100 / 255, alpha: 1)
-            )
-        default:
-            return IconStyle(symbol: tx.iconKey, tint: .white, background: .abankTeal)
-        }
-    }
 }
 
 extension IncomeExpenseDetailViewController: UITextFieldDelegate {

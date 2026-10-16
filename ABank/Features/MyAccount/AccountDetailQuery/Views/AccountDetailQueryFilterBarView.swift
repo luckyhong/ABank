@@ -35,12 +35,12 @@ final class AccountDetailQueryFilterBarView: UIView {
     }
 
     private func setupUI() {
-        backgroundColor = UIColor(red: 245 / 255, green: 245 / 255, blue: 245 / 255, alpha: 1)
+        backgroundColor = UIColor(red: 242 / 255, green: 242 / 255, blue: 242 / 255, alpha: 1)
 
         stackView.axis = .horizontal
         stackView.alignment = .center
-        stackView.spacing = 10
-        stackView.distribution = .fill
+        stackView.spacing = 12
+        stackView.distribution = .fillEqually
 
         weekButton.setTitle("近一周", showsChevron: false)
         monthButton.setTitle("近一月", showsChevron: false)
@@ -60,16 +60,19 @@ final class AccountDetailQueryFilterBarView: UIView {
             make.leading.equalToSuperview().offset(16)
             make.centerY.equalToSuperview()
             make.height.equalTo(32)
+            make.width.equalToSuperview().multipliedBy(0.66).priority(.high)
         }
         filterButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().offset(-16)
             make.centerY.equalToSuperview()
+            make.width.equalTo(64)
+            make.height.equalTo(32)
             make.leading.greaterThanOrEqualTo(stackView.snp.trailing).offset(12)
         }
     }
 
     override var intrinsicContentSize: CGSize {
-        CGSize(width: UIView.noIntrinsicMetric, height: 52)
+        CGSize(width: UIView.noIntrinsicMetric, height: 64)
     }
 
     @objc private func weekTapped() { onWeekTapped?() }
@@ -91,10 +94,10 @@ final class AccountDetailQueryPillButton: UIControl {
     override init(frame: CGRect) {
         super.init(frame: frame)
         layer.cornerRadius = 16
-        layer.borderWidth = 0.5
+        layer.borderWidth = 0
         clipsToBounds = true
 
-        titleLabel.font = .systemFont(ofSize: 13)
+        titleLabel.font = .systemFont(ofSize: 14)
         titleLabel.textAlignment = .center
 
         let config = UIImage.SymbolConfiguration(pointSize: 7, weight: .bold)
@@ -119,8 +122,8 @@ final class AccountDetailQueryPillButton: UIControl {
         snp.makeConstraints { make in
             make.height.equalTo(32)
         }
-        setContentHuggingPriority(.required, for: .horizontal)
-        setContentCompressionResistancePriority(.required, for: .horizontal)
+        setContentHuggingPriority(.defaultLow, for: .horizontal)
+        setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         setSelected(false)
     }
 
@@ -148,7 +151,7 @@ final class AccountDetailQueryPillButton: UIControl {
         } else {
             backgroundColor = .white
             layer.borderColor = UIColor(red: 220 / 255, green: 220 / 255, blue: 220 / 255, alpha: 1).cgColor
-            titleLabel.textColor = .abankTextSecondary
+            titleLabel.textColor = .abankTextPrimary
             chevronView.tintColor = UIColor(red: 170 / 255, green: 170 / 255, blue: 170 / 255, alpha: 1)
         }
     }

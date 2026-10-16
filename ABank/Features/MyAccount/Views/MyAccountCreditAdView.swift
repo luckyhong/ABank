@@ -13,16 +13,16 @@ final class MyAccountCreditAdView: UIView {
     private let sectionTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "信用卡"
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.font = .systemFont(ofSize: 20, weight: .medium)
         label.textColor = .abankTextPrimary
         return label
     }()
 
     private let bannerImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleToFill
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = CornerRadius.sm
+        imageView.layer.cornerRadius = 0
         imageView.backgroundColor = UIColor(red: 180 / 255, green: 30 / 255, blue: 35 / 255, alpha: 1)
         imageView.isUserInteractionEnabled = true
         return imageView
@@ -41,6 +41,8 @@ final class MyAccountCreditAdView: UIView {
 
     func configure(imageName: String) {
         bannerImageView.image = UIImage(named: imageName)
+        // The supplied seasonal banner includes its own advertising mark.
+        adTag.isHidden = bannerImageView.image != nil
     }
 
     private func setupUI() {
@@ -52,9 +54,9 @@ final class MyAccountCreditAdView: UIView {
             make.top.leading.equalToSuperview()
         }
         bannerImageView.snp.makeConstraints { make in
-            make.top.equalTo(sectionTitleLabel.snp.bottom).offset(12)
+            make.top.equalTo(sectionTitleLabel.snp.bottom).offset(16)
             make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(bannerImageView.snp.width).multipliedBy(120.0 / 440.0)
+            make.height.equalTo(bannerImageView.snp.width).multipliedBy(0.292)
         }
         adTag.snp.makeConstraints { make in
             make.trailing.equalToSuperview().offset(-8)

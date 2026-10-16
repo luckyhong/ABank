@@ -57,8 +57,8 @@ final class AssetLiabilityAnnouncementBarView: UIControl {
             make.centerY.equalToSuperview()
         }
         arrowIcon.snp.makeConstraints { make in
-            make.leading.equalTo(messageLabel.snp.trailing).offset(4)
-            make.trailing.lessThanOrEqualToSuperview()
+            make.leading.greaterThanOrEqualTo(messageLabel.snp.trailing).offset(8)
+            make.trailing.equalToSuperview()
             make.centerY.equalToSuperview()
             make.size.equalTo(12)
         }

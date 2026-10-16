@@ -14,6 +14,7 @@ final class TransferPrimaryCardView: UIView {
     private let card = UIView()
     private let topArea = UIView()
     private let gradientLayer = CAGradientLayer()
+    private let backgroundArtwork = UIImageView(image: UIImage(named: "abc_transfer_primary_background"))
     private let topDivider = UIView()
     private let bottomArea = UIView()
     private let bottomDivider = UIView()
@@ -31,7 +32,7 @@ final class TransferPrimaryCardView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         gradientLayer.frame = topArea.bounds
-        if gradientLayer.superlayer == nil {
+        if gradientLayer.superlayer == nil && backgroundArtwork.image == nil {
             topArea.layer.insertSublayer(gradientLayer, at: 0)
         }
     }
@@ -74,8 +75,13 @@ final class TransferPrimaryCardView: UIView {
         ]
         gradientLayer.startPoint = CGPoint(x: 0, y: 0)
         gradientLayer.endPoint = CGPoint(x: 1, y: 1)
-        topArea.layer.insertSublayer(gradientLayer, at: 0)
+        if backgroundArtwork.image == nil { topArea.layer.insertSublayer(gradientLayer, at: 0) }
 
+        backgroundArtwork.contentMode = .scaleToFill
+        topArea.addSubview(backgroundArtwork)
+        backgroundArtwork.snp.makeConstraints { $0.edges.equalToSuperview() }
+        topDivider.isHidden = true
+        bottomDivider.isHidden = true
         topDivider.backgroundColor = UIColor.white.withAlphaComponent(0.35)
         bottomDivider.backgroundColor = .abankSeparator
         bottomArea.backgroundColor = .white
@@ -91,12 +97,12 @@ final class TransferPrimaryCardView: UIView {
         }
         topArea.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.height.equalTo(112)
+            make.height.equalTo(108)
         }
         bottomArea.snp.makeConstraints { make in
             make.top.equalTo(topArea.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(52)
+            make.height.equalTo(44)
         }
         topDivider.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -131,14 +137,13 @@ final class TransferPrimaryCardView: UIView {
         control.tag = index
 
         let icon = UIImageView()
-        let config = UIImage.SymbolConfiguration(pointSize: 26, weight: .regular)
-        icon.image = UIImage(systemName: item.systemIcon, withConfiguration: config)
+        icon.image = UIImage.abankAsset(item.imageName ?? "", fallback: item.systemIcon)
         icon.tintColor = UIColor.white.withAlphaComponent(0.95)
         icon.contentMode = .scaleAspectFit
 
         let title = UILabel()
         title.text = item.title
-        title.font = .systemFont(ofSize: 16, weight: .medium)
+        title.font = .systemFont(ofSize: 14, weight: .regular)
         title.textColor = .white
         title.textAlignment = .center
 
@@ -146,8 +151,8 @@ final class TransferPrimaryCardView: UIView {
         control.addSubview(title)
         icon.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(20)
-            make.size.equalTo(32)
+            make.top.equalToSuperview().offset(18)
+            make.size.equalTo(44)
         }
         title.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -165,8 +170,8 @@ final class TransferPrimaryCardView: UIView {
             badgeLabel.textAlignment = .center
             control.addSubview(badgeLabel)
             badgeLabel.snp.makeConstraints { make in
-                make.leading.equalTo(icon.snp.trailing).offset(-6)
-                make.bottom.equalTo(icon.snp.top).offset(8)
+                make.leading.equalTo(icon.snp.centerX).offset(6)
+                make.bottom.equalTo(icon.snp.top).offset(10)
                 make.height.equalTo(14)
             }
         }
@@ -180,14 +185,13 @@ final class TransferPrimaryCardView: UIView {
         control.tag = index
 
         let icon = UIImageView()
-        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
-        icon.image = UIImage(systemName: item.systemIcon, withConfiguration: config)
+        icon.image = UIImage.abankAsset(item.imageName ?? "", fallback: item.systemIcon)
         icon.tintColor = .abankTeal
         icon.contentMode = .scaleAspectFit
 
         let title = UILabel()
         title.text = item.title
-        title.font = .systemFont(ofSize: 14)
+        title.font = .systemFont(ofSize: 17)
         title.textColor = .abankTextPrimary
 
         let stack = UIStackView(arrangedSubviews: [icon, title])
@@ -198,7 +202,7 @@ final class TransferPrimaryCardView: UIView {
 
         control.addSubview(stack)
         icon.snp.makeConstraints { make in
-            make.size.equalTo(16)
+            make.size.equalTo(20)
         }
         stack.snp.makeConstraints { make in
             make.center.equalToSuperview()

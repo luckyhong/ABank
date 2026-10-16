@@ -32,6 +32,30 @@
     "scale": "3x"
   },
   {
+    "asset": "abc_mine_detail_manager_avatar",
+    "source": "Assets/客户经理_Normal@2x.png",
+    "sha256": "86ebced2221ad0167da65de0681b137e7a3cab8cef5fcc90020841448c64bbdf",
+    "width": 72,
+    "height": 72,
+    "scale": "2x"
+  },
+  {
+    "asset": "abc_mine_detail_manager_avatar",
+    "source": "Assets/客户经理_Normal@3x.png",
+    "sha256": "eb6c0ec162a32b7619e1fc45d5f1815e9f768b96ba680b7239f9d09ab755ec6a",
+    "width": 108,
+    "height": 108,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_mine_detail_branch_location",
+    "source": "hp_mine_outlets_location.png",
+    "sha256": "83f9a621176c04886bbe9300fdfc8dd0ac3e33bdecc9e0711788a309244026b6",
+    "width": 36,
+    "height": 36,
+    "scale": "3x"
+  },
+  {
     "asset": "abc_mine_detail_toolbar_service",
     "source": "Assets/客服_黑_Normal@2x.png",
     "sha256": "0065dd0a5174d33a22f50f650c6f5df18883a18cd1e8ee3de6a788ce7497c50e",

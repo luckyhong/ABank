@@ -53,10 +53,10 @@ final class AssetLiabilitySummaryCardView: UIView {
     private func setupUI() {
         card.backgroundColor = .white
         card.layer.cornerRadius = CornerRadius.md
-        card.addShadow(color: .black, opacity: 0.06, offset: CGSize(width: 0, height: 2), radius: 8)
+        card.layer.shadowOpacity = 0
 
         [assetsAmountLabel, liabilitiesAmountLabel].forEach {
-            $0.font = .systemFont(ofSize: 26, weight: .regular)
+            $0.font = .systemFont(ofSize: 24, weight: .regular)
             $0.textColor = .abankAmount
             $0.adjustsFontSizeToFitWidth = true
             $0.minimumScaleFactor = 0.65
@@ -66,7 +66,7 @@ final class AssetLiabilitySummaryCardView: UIView {
         assetsTitleLabel.text = "总资产 (元)"
         liabilitiesTitleLabel.text = "总负债 (元)"
         [assetsTitleLabel, liabilitiesTitleLabel].forEach {
-            $0.font = .systemFont(ofSize: 13)
+            $0.font = .systemFont(ofSize: 16)
             $0.textColor = .abankTextSecondary
         }
         liabilitiesTitleLabel.textAlignment = .right
@@ -80,15 +80,17 @@ final class AssetLiabilitySummaryCardView: UIView {
         assetsColumn.addTarget(self, action: #selector(assetsTapped), for: .touchUpInside)
         liabilitiesColumn.addTarget(self, action: #selector(liabilitiesTapped), for: .touchUpInside)
 
-        footerSeparator.backgroundColor = .abankSeparator
+        footerSeparator.backgroundColor = .clear
 
-        timestampLabel.font = .systemFont(ofSize: 11)
+        timestampLabel.font = .systemFont(ofSize: 13)
+        timestampLabel.adjustsFontSizeToFitWidth = true
+        timestampLabel.minimumScaleFactor = 0.75
         timestampLabel.textColor = .abankTextTertiary
 
-        wealthCheckupButton.setImage(UIImage.abankAsset("abc_mine_detail_wealth_checkup", fallback: "circle.hexagongrid.fill", pointSize: 10), for: .normal)
+        wealthCheckupButton.setImage(UIImage.abankAsset("abc_mine_detail_wealth_checkup_reference", fallback: "circle.hexagongrid.fill", renderingMode: .alwaysTemplate, pointSize: 17), for: .normal)
         wealthCheckupButton.setTitle(" 财富体检", for: .normal)
         wealthCheckupButton.titleLabel?.font = .systemFont(ofSize: 12)
-        wealthCheckupButton.tintColor = .abankTeal
+        wealthCheckupButton.tintColor = .abankTextTertiary
         wealthCheckupButton.setTitleColor(.abankTextSecondary, for: .normal)
         wealthCheckupButton.backgroundColor = .white
         wealthCheckupButton.layer.cornerRadius = 14
@@ -124,15 +126,17 @@ final class AssetLiabilitySummaryCardView: UIView {
             make.edges.equalToSuperview()
         }
         assetsColumn.snp.makeConstraints { make in
-            make.top.leading.equalToSuperview().inset(Spacing.md)
+            make.top.equalToSuperview().offset(40)
+            make.leading.equalToSuperview().offset(24)
             make.trailing.equalTo(card.snp.centerX).offset(-6)
         }
         liabilitiesColumn.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(Spacing.md)
+            make.top.equalToSuperview().offset(40)
+            make.trailing.equalToSuperview().offset(-24)
             make.leading.equalTo(card.snp.centerX).offset(6)
         }
         footerSeparator.snp.makeConstraints { make in
-            make.top.equalTo(assetsColumn.snp.bottom).offset(Spacing.md)
+            make.top.equalTo(assetsColumn.snp.bottom).offset(22)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
             make.height.equalTo(0.5)
         }
@@ -144,6 +148,7 @@ final class AssetLiabilitySummaryCardView: UIView {
         }
         timestampLabel.snp.makeConstraints { make in
             make.leading.centerY.equalToSuperview()
+            make.trailing.lessThanOrEqualTo(wealthCheckupButton.snp.leading).offset(-6)
         }
         wealthCheckupButton.snp.makeConstraints { make in
             make.trailing.centerY.equalToSuperview()

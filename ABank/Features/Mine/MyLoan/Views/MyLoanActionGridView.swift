@@ -10,11 +10,11 @@ final class MyLoanActionGridView: UIView {
 
     var onItemTapped: ((Int) -> Void)?
 
-    private let items: [(title: String, icon: String)] = [
-        ("待办任务", "shippingbox"),
-        ("进度查询", "doc.text.magnifyingglass"),
-        ("贷款续贷", "arrow.triangle.2.circlepath"),
-        ("结清证明", "checkmark.rectangle.portrait")
+    private let items: [(title: String, icon: String, asset: String)] = [
+        ("待办任务", "shippingbox", "loan_tasks"),
+        ("进度查询", "doc.text.magnifyingglass", "loan_progress"),
+        ("贷款续贷", "arrow.triangle.2.circlepath", "loan_renewal"),
+        ("结清证明", "checkmark.rectangle.portrait", "loan_certificate")
     ]
 
     private let topLine = UIView()
@@ -37,7 +37,7 @@ final class MyLoanActionGridView: UIView {
         stack.distribution = .fillEqually
 
         items.enumerated().forEach { index, item in
-            let button = MyLoanActionItemView(title: item.title, icon: item.icon)
+            let button = MyLoanActionItemView(title: item.title, icon: item.icon, asset: item.asset)
             button.onTap = { [weak self] in self?.onItemTapped?(index) }
             stack.addArrangedSubview(button)
         }
@@ -66,10 +66,9 @@ final class MyLoanActionGridView: UIView {
 private final class MyLoanActionItemView: UIControl {
     var onTap: (() -> Void)?
 
-    init(title: String, icon: String) {
+    init(title: String, icon: String, asset: String) {
         super.init(frame: .zero)
-        let config = UIImage.SymbolConfiguration(pointSize: 26, weight: .light)
-        let iconView = UIImageView(image: UIImage(systemName: icon, withConfiguration: config))
+        let iconView = UIImageView(image: UIImage.abankAsset("abc_mine_detail_\(asset)", fallback: icon))
         iconView.tintColor = UIColor(red: 50 / 255, green: 175 / 255, blue: 160 / 255, alpha: 1)
         iconView.contentMode = .scaleAspectFit
 

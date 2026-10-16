@@ -12,7 +12,7 @@ final class MineCustomerManagerCardView: UIView {
 
     private let card = UIView()
     private let avatarView = UIView()
-    private let avatarIcon = UIImageView(image: UIImage(systemName: "person.fill"))
+    private let avatarIcon = UIImageView(image: UIImage.abankAsset("abc_mine_detail_manager_avatar", fallback: "person.fill"))
     private let nameLabel = UILabel()
     private let roleBadge = UILabel()
     private let branchLabel = UILabel()
@@ -40,14 +40,14 @@ final class MineCustomerManagerCardView: UIView {
         card.layer.cornerRadius = CornerRadius.lg
         card.addShadow(color: .black, opacity: 0.06, offset: CGSize(width: 0, height: 2), radius: 8)
 
-        avatarView.backgroundColor = UIColor.abankPrimary.withAlphaComponent(0.15)
+        avatarView.backgroundColor = .clear
         avatarView.layer.cornerRadius = 24
         avatarIcon.tintColor = .abankPrimary
         avatarIcon.contentMode = .scaleAspectFit
         avatarView.addSubview(avatarIcon)
         avatarIcon.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.size.equalTo(24)
+            make.size.equalTo(36)
         }
 
         nameLabel.font = .systemFont(ofSize: 16, weight: .semibold)
@@ -55,8 +55,10 @@ final class MineCustomerManagerCardView: UIView {
 
         roleBadge.font = .systemFont(ofSize: 10)
         roleBadge.textColor = .abankPrimary
-        roleBadge.backgroundColor = UIColor.abankPrimary.withAlphaComponent(0.12)
-        roleBadge.layer.cornerRadius = 4
+        roleBadge.backgroundColor = .clear
+        roleBadge.layer.borderColor = UIColor.abankPrimary.cgColor
+        roleBadge.layer.borderWidth = 0.5
+        roleBadge.layer.cornerRadius = 1
         roleBadge.textAlignment = .center
         roleBadge.layer.masksToBounds = true
 

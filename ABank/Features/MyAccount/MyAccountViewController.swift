@@ -62,6 +62,7 @@ final class MyAccountViewController: BaseViewController {
             target: self,
             action: #selector(moreTapped)
         )
+        navigationItem.rightBarButtonItem?.tintColor = .abankTextSecondary
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -70,7 +71,7 @@ final class MyAccountViewController: BaseViewController {
     }
 
     override func setupUI() {
-        view.backgroundColor = .abankBackground
+        view.backgroundColor = UIColor(white: 0.97, alpha: 1)
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -84,15 +85,15 @@ final class MyAccountViewController: BaseViewController {
             make.width.equalTo(scrollView.frameLayoutGuide)
         }
         debitCardView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(12)
+            make.top.equalToSuperview().offset(28)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
         }
         creditAdView.snp.makeConstraints { make in
-            make.top.equalTo(debitCardView.snp.bottom).offset(28)
+            make.top.equalTo(debitCardView.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
         }
         openAccountButton.snp.makeConstraints { make in
-            make.top.equalTo(creditAdView.snp.bottom).offset(28)
+            make.top.equalTo(creditAdView.snp.bottom).offset(32)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
             make.bottom.equalToSuperview().offset(-Spacing.xl)
         }

@@ -67,9 +67,10 @@ final class MyLoanSummaryView: UIView {
         repaymentButton.setTitle("应还详情", for: .normal)
         repaymentButton.setTitleColor(.white, for: .normal)
         repaymentButton.titleLabel?.font = .systemFont(ofSize: 12, weight: .medium)
-        // 截图为偏浅的橙黄色
-        repaymentButton.backgroundColor = UIColor(red: 255 / 255, green: 180 / 255, blue: 80 / 255, alpha: 1)
+        // 参考真实页面：右侧贴边的金色入口
+        repaymentButton.backgroundColor = UIColor(red: 255 / 255, green: 181 / 255, blue: 0 / 255, alpha: 1)
         repaymentButton.layer.cornerRadius = 13
+        repaymentButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
         repaymentButton.contentEdgeInsets = UIEdgeInsets(top: 5, left: 12, bottom: 5, right: 12)
         repaymentButton.addTarget(self, action: #selector(repaymentTapped), for: .touchUpInside)
 
@@ -122,7 +123,7 @@ final class MyLoanSummaryView: UIView {
             make.centerX.equalToSuperview()
         }
         repaymentButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-Spacing.md)
+            make.trailing.equalToSuperview()
             make.centerY.equalTo(monthlyDueAmountLabel)
             make.height.equalTo(26)
         }

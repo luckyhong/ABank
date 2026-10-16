@@ -8,27 +8,27 @@ import SnapKit
 
 final class MyAccountOpenAccountButton: UIControl {
 
-    private let borderColor = UIColor(red: 214 / 255, green: 158 / 255, blue: 70 / 255, alpha: 1)
+    private let borderColor = UIColor(red: 245 / 255, green: 173 / 255, blue: 27 / 255, alpha: 1)
     private let dashedBorder = CAShapeLayer()
 
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "+  开通电子账户"
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = UIColor(red: 214 / 255, green: 158 / 255, blue: 70 / 255, alpha: 1)
+        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.textColor = UIColor(red: 245 / 255, green: 173 / 255, blue: 27 / 255, alpha: 1)
         label.textAlignment = .center
         return label
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = UIColor(red: 250 / 255, green: 250 / 255, blue: 250 / 255, alpha: 1)
+        backgroundColor = .clear
         layer.cornerRadius = CornerRadius.sm
 
         dashedBorder.fillColor = UIColor.clear.cgColor
         dashedBorder.strokeColor = borderColor.cgColor
         dashedBorder.lineWidth = 1
-        dashedBorder.lineDashPattern = [5, 3]
+        dashedBorder.lineDashPattern = [3, 3]
         layer.addSublayer(dashedBorder)
 
         addSubview(titleLabel)

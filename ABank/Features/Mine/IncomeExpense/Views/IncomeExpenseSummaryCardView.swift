@@ -11,6 +11,7 @@ final class IncomeExpenseSummaryCardView: UIView {
     var onAnalysisTapped: (() -> Void)?
 
     private let card = UIView()
+    private let artwork = UIImageView(image: UIImage(named: "abc_mine_detail_flow_background"))
     private let gradientLayer = CAGradientLayer()
     private let monthNumberLabel = UILabel()
     private let monthUnitLabel = UILabel()
@@ -49,7 +50,8 @@ final class IncomeExpenseSummaryCardView: UIView {
     }
 
     private func setupUI() {
-        card.layer.cornerRadius = 10
+        card.layer.cornerRadius = 8
+        card.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         card.clipsToBounds = true
         gradientLayer.colors = [
             UIColor(red: 255 / 255, green: 244 / 255, blue: 214 / 255, alpha: 1).cgColor,
@@ -57,36 +59,41 @@ final class IncomeExpenseSummaryCardView: UIView {
         ]
         gradientLayer.startPoint = CGPoint(x: 0, y: 0)
         gradientLayer.endPoint = CGPoint(x: 1, y: 1)
-        card.layer.insertSublayer(gradientLayer, at: 0)
+        if artwork.image == nil { card.layer.insertSublayer(gradientLayer, at: 0) }
+        artwork.contentMode = .scaleToFill
+        card.addSubview(artwork)
+        artwork.snp.makeConstraints { $0.edges.equalToSuperview() }
 
-        monthNumberLabel.font = .systemFont(ofSize: 32, weight: .regular)
+        monthNumberLabel.font = .systemFont(ofSize: 42, weight: .regular)
         monthNumberLabel.textColor = .abankAmount
 
         monthUnitLabel.font = .systemFont(ofSize: 16, weight: .regular)
         monthUnitLabel.textColor = .abankAmount
 
-        infoButton.setImage(UIImage.abankAsset("abc_mine_detail_info", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13), for: .normal)
+        infoButton.setImage(UIImage.abankAsset("abc_mine_detail_info_reference", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13), for: .normal)
         infoButton.tintColor = UIColor(red: 180 / 255, green: 180 / 255, blue: 180 / 255, alpha: 1)
         infoButton.isUserInteractionEnabled = false
 
         analysisButton.setTitle("分析", for: .normal)
         analysisButton.setTitleColor(.abankTextSecondary, for: .normal)
         analysisButton.titleLabel?.font = .systemFont(ofSize: 13)
-        analysisButton.backgroundColor = .white.withAlphaComponent(0.55)
+        analysisButton.backgroundColor = .clear
         analysisButton.layer.cornerRadius = 14
-        analysisButton.layer.borderWidth = 0.5
-        analysisButton.layer.borderColor = UIColor(red: 210 / 255, green: 210 / 255, blue: 210 / 255, alpha: 1).cgColor
+        analysisButton.layer.borderWidth = 0.8
+        analysisButton.layer.borderColor = UIColor.abankTextSecondary.cgColor
         analysisButton.contentEdgeInsets = UIEdgeInsets(top: 5, left: 16, bottom: 5, right: 16)
         analysisButton.addTarget(self, action: #selector(analysisTapped), for: .touchUpInside)
 
         [expenseAmountLabel, incomeAmountLabel].forEach {
-            $0.font = .systemFont(ofSize: 24, weight: .regular)
+            $0.font = .systemFont(ofSize: 20, weight: .medium)
             $0.textColor = .abankAmount
             $0.adjustsFontSizeToFitWidth = true
             $0.minimumScaleFactor = 0.7
         }
         expenseTitleLabel.text = "支出(元)"
         incomeTitleLabel.text = "收入(元)"
+        incomeAmountLabel.textAlignment = .right
+        incomeTitleLabel.textAlignment = .right
         [expenseTitleLabel, incomeTitleLabel].forEach {
             $0.font = .systemFont(ofSize: 13)
             $0.textColor = .abankTextSecondary
@@ -120,7 +127,7 @@ final class IncomeExpenseSummaryCardView: UIView {
         }
         expenseAmountLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(Spacing.md)
-            make.top.equalTo(monthNumberLabel.snp.bottom).offset(18)
+            make.top.equalTo(monthNumberLabel.snp.bottom).offset(10)
             make.trailing.lessThanOrEqualTo(card.snp.centerX).offset(-8)
         }
         expenseTitleLabel.snp.makeConstraints { make in
@@ -129,12 +136,12 @@ final class IncomeExpenseSummaryCardView: UIView {
             make.bottom.equalToSuperview().offset(-16)
         }
         incomeAmountLabel.snp.makeConstraints { make in
-            make.leading.equalTo(card.snp.centerX).offset(16)
+            make.leading.greaterThanOrEqualTo(card.snp.centerX).offset(8)
             make.centerY.equalTo(expenseAmountLabel)
-            make.trailing.lessThanOrEqualToSuperview().offset(-Spacing.md)
+            make.trailing.equalToSuperview().offset(-Spacing.md)
         }
         incomeTitleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(incomeAmountLabel)
+            make.trailing.equalTo(incomeAmountLabel)
             make.centerY.equalTo(expenseTitleLabel)
         }
     }

@@ -145,7 +145,7 @@ private final class LoanPrepaymentInfoRowView: UIView {
         valueLabel.textColor = .abankTextSecondary
         valueLabel.textAlignment = .right
 
-        infoButton.setImage(UIImage.abankAsset("abc_mine_detail_info", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13), for: .normal)
+        infoButton.setImage(UIImage.abankAsset("abc_mine_detail_info_reference", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13), for: .normal)
         infoButton.tintColor = UIColor(red: 190 / 255, green: 190 / 255, blue: 190 / 255, alpha: 1)
         infoButton.isHidden = !showsInfo
         infoButton.addTarget(self, action: #selector(infoTapped), for: .touchUpInside)

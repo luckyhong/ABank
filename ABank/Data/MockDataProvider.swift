@@ -810,7 +810,7 @@ final class MockDataProvider {
                     ]
                 )
             ],
-            creditAdImageName: "my_account_credit_ad",
+            creditAdImageName: "abc_account_credit_banner",
             creditAdTitle: "神骏贺岁 福运相随"
         )
     }
@@ -886,24 +886,24 @@ final class MockDataProvider {
 
     func getTransferPageData() -> TransferPageData {
         TransferPageData(
-            noticeText: "警惕高息理财陷阱",
+            noticeText: "安全小贴士：杜绝一切非法金融活动",
             primaryActions: [
-                TransferPrimaryAction(title: "账号转账", systemIcon: "creditcard.fill", badge: nil),
-                TransferPrimaryAction(title: "手机号转账", systemIcon: "iphone", badge: "免卡号")
+                TransferPrimaryAction(title: "账号转账", systemIcon: "creditcard.fill", badge: nil, imageName: "abc_transfer_primary_account"),
+                TransferPrimaryAction(title: "手机号转账", systemIcon: "iphone", badge: "免卡号", imageName: "abc_transfer_primary_phone")
             ],
             secondaryActions: [
-                TransferSecondaryAction(title: "转账记录", systemIcon: "doc.text"),
-                TransferSecondaryAction(title: "转账设置", systemIcon: "gearshape")
+                TransferSecondaryAction(title: "转账记录", systemIcon: "doc.text", imageName: "abc_transfer_record"),
+                TransferSecondaryAction(title: "转账设置", systemIcon: "gearshape", imageName: "abc_transfer_settings")
             ],
             functionItems: [
-                TransferFunctionItem(title: "信用卡还款", systemIcon: "creditcard"),
-                TransferFunctionItem(title: "预约转账", systemIcon: "clock"),
-                TransferFunctionItem(title: "向多人转账", systemIcon: "person.3"),
-                TransferFunctionItem(title: "他行卡转入", systemIcon: "arrow.uturn.left"),
-                TransferFunctionItem(title: "跨境服务", systemIcon: "airplane"),
-                TransferFunctionItem(title: "公益捐款", systemIcon: "heart"),
-                TransferFunctionItem(title: "手机号收款", systemIcon: "iphone.gen1"),
-                TransferFunctionItem(title: "转账撤销", systemIcon: "arrow.uturn.backward")
+                TransferFunctionItem(title: "信用卡还款", systemIcon: "creditcard", imageName: "abc_transfer_repay"),
+                TransferFunctionItem(title: "预约转账", systemIcon: "clock", imageName: "abc_transfer_schedule"),
+                TransferFunctionItem(title: "向多人转账", systemIcon: "person.3", imageName: "abc_transfer_multiple"),
+                TransferFunctionItem(title: "他行卡转入", systemIcon: "arrow.uturn.left", imageName: "abc_transfer_other_bank"),
+                TransferFunctionItem(title: "跨境服务", systemIcon: "airplane", imageName: "abc_transfer_crossborder"),
+                TransferFunctionItem(title: "公益捐款", systemIcon: "heart", imageName: "abc_transfer_donation"),
+                TransferFunctionItem(title: "手机号收款", systemIcon: "iphone.gen1", imageName: "abc_transfer_mobile_collection"),
+                TransferFunctionItem(title: "转账撤销", systemIcon: "arrow.uturn.backward", imageName: "abc_transfer_cancel")
             ],
             recentPartners: [
                 TransferPartner(
@@ -917,7 +917,8 @@ final class MockDataProvider {
                             bankName: "中国农业银行",
                             maskedNumber: "6230****8472",
                             bankColorHex: "009882",
-                            bankSymbol: "农"
+                            bankSymbol: "农",
+                            imageName: "abc_account_bank_logo"
                         ),
                         TransferAccount(
                             id: "a2",
@@ -928,7 +929,8 @@ final class MockDataProvider {
                         )
                     ],
                     lastTransferDate: nil,
-                    isExpanded: false
+                    isExpanded: false,
+                    avatarImageName: "abc_transfer_partner_avatar"
                 ),
                 TransferPartner(
                     id: "p2",
@@ -941,7 +943,8 @@ final class MockDataProvider {
                             bankName: "中国建设银行",
                             maskedNumber: "6217****0593",
                             bankColorHex: "003B8E",
-                            bankSymbol: "建"
+                            bankSymbol: "建",
+                            imageName: "abc_transfer_bank_ccb_wordmark"
                         )
                     ],
                     lastTransferDate: "08-10",
@@ -958,7 +961,8 @@ final class MockDataProvider {
                             bankName: "中国建设银行",
                             maskedNumber: "6227****1081",
                             bankColorHex: "003B8E",
-                            bankSymbol: "建"
+                            bankSymbol: "建",
+                            imageName: "abc_transfer_bank_ccb_wordmark"
                         )
                     ],
                     lastTransferDate: "2022-06-22",

@@ -1,0 +1,197 @@
+[
+  {
+    "asset": "abc_mine_detail_loan_tasks",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_loan_progress",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_loan_renewal",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_loan_certificate",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_transaction_payment",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_transaction_salary",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_transaction_transfer",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_transaction_own_transfer",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_loan_prepay",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_loan_usage",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_wealth_checkup_reference",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_toolbar_photo",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_info_reference",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_asset_background",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      375,
+      220
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  },
+  {
+    "asset": "abc_mine_detail_flow_background",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      375,
+      132
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_mine_reference_assets.py"
+  }
+]

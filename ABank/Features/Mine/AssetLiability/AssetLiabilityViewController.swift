@@ -11,7 +11,7 @@ final class AssetLiabilityViewController: BaseViewController {
     private var pageData = FinanceLedgerStore.shared.assetLiabilityPageData()
     private var selectedTab: AssetLiabilityTab = .assets
 
-    private let topBackgroundView = UIView()
+    private let topBackgroundView = UIImageView(image: UIImage(named: "abc_mine_detail_asset_background"))
     private let topBackgroundGradient: CAGradientLayer = {
         let layer = CAGradientLayer()
         layer.colors = [
@@ -70,9 +70,8 @@ final class AssetLiabilityViewController: BaseViewController {
             target: self,
             action: #selector(backTapped)
         )
-        let photoConfig = UIImage.SymbolConfiguration(pointSize: 16, weight: .regular)
         navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "photo.on.rectangle.angled", withConfiguration: photoConfig),
+            image: UIImage.abankAsset("abc_mine_detail_toolbar_photo", fallback: "photo", renderingMode: .alwaysTemplate, pointSize: 20),
             style: .plain,
             target: self,
             action: #selector(shareTapped)
@@ -103,7 +102,8 @@ final class AssetLiabilityViewController: BaseViewController {
     override func setupUI() {
         view.backgroundColor = .abankBackground
 
-        topBackgroundView.layer.addSublayer(topBackgroundGradient)
+        topBackgroundView.contentMode = .scaleToFill
+        if topBackgroundView.image == nil { topBackgroundView.layer.addSublayer(topBackgroundGradient) }
         topBackgroundView.clipsToBounds = true
         view.insertSubview(topBackgroundView, at: 0)
 

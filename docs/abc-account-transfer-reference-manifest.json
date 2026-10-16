@@ -1,0 +1,158 @@
+[
+  {
+    "asset": "abc_transfer_primary_account",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  },
+  {
+    "asset": "abc_transfer_primary_phone",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  },
+  {
+    "asset": "abc_transfer_repay",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  },
+  {
+    "asset": "abc_transfer_schedule",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  },
+  {
+    "asset": "abc_transfer_other_bank",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  },
+  {
+    "asset": "abc_transfer_crossborder",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  },
+  {
+    "asset": "abc_transfer_mobile_collection",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  },
+  {
+    "asset": "abc_transfer_cancel",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  },
+  {
+    "asset": "abc_transfer_settings",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  },
+  {
+    "asset": "abc_account_alias",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  },
+  {
+    "asset": "abc_account_statement",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      32,
+      32
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  },
+  {
+    "asset": "abc_transfer_primary_background",
+    "origin": "reconstructed_from_user_screenshots",
+    "logicalSize": [
+      375,
+      112
+    ],
+    "scales": [
+      "2x",
+      "3x"
+    ],
+    "generator": "scripts/generate_account_transfer_reference_assets.py"
+  }
+]

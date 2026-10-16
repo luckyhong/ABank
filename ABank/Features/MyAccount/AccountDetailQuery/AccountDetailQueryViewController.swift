@@ -55,15 +55,14 @@ final class AccountDetailQueryViewController: BaseViewController {
             action: #selector(backTapped)
         )
 
-        let iconConfig = UIImage.SymbolConfiguration(pointSize: 16, weight: .regular)
         let serviceItem = UIBarButtonItem(
-            image: UIImage(systemName: "headphones", withConfiguration: iconConfig),
+            image: UIImage.abankAsset("abc_account_toolbar_service", fallback: "headphones", pointSize: 22),
             style: .plain,
             target: self,
             action: #selector(serviceTapped)
         )
         let statementItem = UIBarButtonItem(
-            image: UIImage(systemName: "doc.text.magnifyingglass", withConfiguration: iconConfig),
+            image: UIImage.abankAsset("abc_account_statement", fallback: "doc.text", pointSize: 22),
             style: .plain,
             target: self,
             action: #selector(statementTapped)
@@ -106,12 +105,12 @@ final class AccountDetailQueryViewController: BaseViewController {
         headerView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(48)
+            make.height.equalTo(44)
         }
         filterBar.snp.makeConstraints { make in
             make.top.equalTo(headerView.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(52)
+            make.height.equalTo(64)
         }
         tableView.snp.makeConstraints { make in
             make.top.equalTo(filterBar.snp.bottom)

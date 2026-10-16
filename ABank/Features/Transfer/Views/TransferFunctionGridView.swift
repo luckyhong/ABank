@@ -34,7 +34,7 @@ final class TransferFunctionGridView: UIView {
 
         gridStack.axis = .vertical
         gridStack.alignment = .fill
-        gridStack.spacing = 16
+        gridStack.spacing = 20
 
         let config = UIImage.SymbolConfiguration(pointSize: 11, weight: .semibold)
         toggleButton.setImage(UIImage(systemName: "chevron.down", withConfiguration: config), for: .normal)
@@ -45,7 +45,7 @@ final class TransferFunctionGridView: UIView {
         addSubview(toggleButton)
 
         gridStack.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
+            make.top.equalToSuperview().offset(20)
             make.leading.trailing.equalToSuperview().inset(8)
         }
         toggleButton.snp.makeConstraints { make in
@@ -96,15 +96,17 @@ final class TransferFunctionGridView: UIView {
         iconBackground.isUserInteractionEnabled = false
 
         let icon = UIImageView()
-        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .regular)
-        icon.image = UIImage(systemName: item.systemIcon, withConfiguration: config)
+        icon.image = UIImage.abankAsset(item.imageName ?? "", fallback: item.systemIcon)
+        if item.imageName == "abc_transfer_multiple" {
+            icon.transform = CGAffineTransform(scaleX: -1, y: 1)
+        }
         icon.tintColor = .abankTeal
         icon.contentMode = .scaleAspectFit
         icon.isUserInteractionEnabled = false
 
         let title = UILabel()
         title.text = item.title
-        title.font = .systemFont(ofSize: 12)
+        title.font = .systemFont(ofSize: 14)
         title.textColor = .abankTextPrimary
         title.textAlignment = .center
         title.numberOfLines = 1
@@ -121,7 +123,7 @@ final class TransferFunctionGridView: UIView {
         }
         icon.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.size.equalTo(26)
+            make.size.equalTo(32)
         }
         title.snp.makeConstraints { make in
             make.top.equalTo(iconBackground.snp.bottom).offset(8)

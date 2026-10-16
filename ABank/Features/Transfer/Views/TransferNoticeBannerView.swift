@@ -27,19 +27,18 @@ final class TransferNoticeBannerView: UIView {
     }
 
     private func setupUI() {
-        backgroundColor = UIColor(red: 255 / 255, green: 248 / 255, blue: 230 / 255, alpha: 1)
+        backgroundColor = .white
 
-        let speakerConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .medium)
-        speakerIcon.image = UIImage(systemName: "speaker.wave.2.fill", withConfiguration: speakerConfig)
-        speakerIcon.tintColor = UIColor(red: 230 / 255, green: 160 / 255, blue: 40 / 255, alpha: 1)
+        speakerIcon.image = UIImage.abankAsset("abc_transfer_notice_speaker", fallback: "speaker.wave.2.fill", renderingMode: .alwaysTemplate)
+        speakerIcon.tintColor = UIColor(red: 255 / 255, green: 218 / 255, blue: 112 / 255, alpha: 1)
         speakerIcon.contentMode = .scaleAspectFit
 
-        textLabel.font = .systemFont(ofSize: 13)
+        textLabel.font = .systemFont(ofSize: 14)
         textLabel.textColor = .abankTextPrimary
 
         let closeConfig = UIImage.SymbolConfiguration(pointSize: 11, weight: .medium)
         closeButton.setImage(UIImage(systemName: "xmark", withConfiguration: closeConfig), for: .normal)
-        closeButton.tintColor = .abankTextTertiary
+        closeButton.tintColor = .abankTextPrimary
         closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
 
         addSubview(speakerIcon)
@@ -49,7 +48,7 @@ final class TransferNoticeBannerView: UIView {
         speakerIcon.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(14)
             make.centerY.equalToSuperview()
-            make.size.equalTo(16)
+            make.size.equalTo(20)
         }
         closeButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().offset(-8)
@@ -66,7 +65,7 @@ final class TransferNoticeBannerView: UIView {
         addGestureRecognizer(tap)
 
         snp.makeConstraints { make in
-            make.height.equalTo(36)
+            make.height.equalTo(40)
         }
     }
 
