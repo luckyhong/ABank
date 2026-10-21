@@ -58,4 +58,4 @@ scripts/check_banking_data.sh
 
 构建命令沿用 [开发计划](development-plan.md)。UI 验证使用独立包，程序触发入口、按钮、回调和通知；截图和检查结果保留在本地 `artifacts/abc-resources/verification/m1-*`。完整手指交互、真实原版子页逐像素对照不在已验证范围内。临时 QA 入口交付前移除。
 
-下一阶段 M2 复用 `TransferRecord.transactionID` 与既有流水数据，增加账单分析/搜索和明确标为模拟的电子回单，不重新生成转账或扣款。跨月自定义收支分组仍沿用原有“日”分组模型，M2 应一并核对按完整日期分组，避免不同月份同一日合并。
+M2 已基于 `TransferRecord.transactionID` 与既有流水派生账单分析、交易搜索和带模拟标记的电子回单，并把收支分组改为完整日期，见 [M2 说明](bill-receipt.md)。

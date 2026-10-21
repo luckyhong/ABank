@@ -328,9 +328,35 @@ struct MonthlyFlowSummary {
     let income: Double
 }
 
+/// 按完整日期分组，跨月自定义区间中不同月份的同一日不会合并。
 struct IncomeExpenseDayGroup: Equatable {
-    let day: Int
+    let date: String          // yyyy-MM-dd
     let transactions: [LedgerTransaction]
+
+    var day: Int { Int(date.split(separator: "-").last ?? "") ?? 0 }
+
+    func headerTitle(showsMonth: Bool) -> String {
+        let parts = date.split(separator: "-").compactMap { Int($0) }
+        guard showsMonth, parts.count == 3 else { return "\(day)日" }
+        return "\(parts[1])月\(parts[2])日"
+    }
+
+    static func grouped(_ transactions: [LedgerTransaction]) -> [IncomeExpenseDayGroup] {
+        var groups: [IncomeExpenseDayGroup] = []
+        for tx in transactions {
+            if let last = groups.last, last.date == tx.date {
+                groups[groups.count - 1] = IncomeExpenseDayGroup(date: tx.date, transactions: last.transactions + [tx])
+            } else {
+                groups.append(IncomeExpenseDayGroup(date: tx.date, transactions: [tx]))
+            }
+        }
+        return groups
+    }
+
+    /// 分组跨越多个月份时，标题需显示月份。
+    static func spansMultipleMonths(_ groups: [IncomeExpenseDayGroup]) -> Bool {
+        Set(groups.map { $0.date.prefix(7) }).count > 1
+    }
 }
 
 struct IncomeExpensePageData {
@@ -360,6 +386,15 @@ enum IncomeExpenseAccountFilter: Equatable {
         case .excludeManual: return "不含手工记账"
         case .debitCard: return "借记卡"
         case .manual: return "手工记账"
+        }
+    }
+
+    func matches(_ tx: LedgerTransaction) -> Bool {
+        switch self {
+        case .all: return true
+        case .excludeManual: return !tx.isManual
+        case .debitCard(let id): return tx.accountId == id && !tx.isManual
+        case .manual: return tx.isManual
         }
     }
 }

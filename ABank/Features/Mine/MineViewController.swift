@@ -168,7 +168,7 @@ final class MineViewController: BankingDataViewController {
             self?.navigationController?.pushViewController(controller, animated: true)
         }
         assetLiabilityCard.onBillTapped = { [weak self] in
-            self?.showToast("月度账单")
+            self?.navigationController?.pushViewController(MonthlyBillViewController(), animated: true)
         }
 
         monthlyFlowCard.onTap = { [weak self] in
@@ -176,7 +176,7 @@ final class MineViewController: BankingDataViewController {
             self?.navigationController?.pushViewController(controller, animated: true)
         }
         monthlyFlowCard.onBillTapped = { [weak self] in
-            self?.showToast(FinanceLedgerStore.shared.monthlyBillNotice)
+            self?.navigationController?.pushViewController(MonthlyBillViewController(), animated: true)
         }
 
         branchCard.onTap = { [weak self] in

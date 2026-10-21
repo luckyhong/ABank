@@ -59,6 +59,17 @@ final class IncomeExpenseDetailViewController: BaseViewController {
             target: self,
             action: #selector(backTapped)
         )
+        // 模拟转账流水提供电子回单入口；回单信息取自转账记录，不随分类/备注编辑变化
+        if FinanceLedgerStore.shared.transferReceipt(transactionID: transactionId) != nil {
+            let receiptItem = UIBarButtonItem(title: "电子回单", style: .plain, target: self, action: #selector(receiptTapped))
+            receiptItem.accessibilityIdentifier = "incomeExpense.detail.receipt"
+            navigationItem.rightBarButtonItem = receiptItem
+        }
+    }
+
+    @objc private func receiptTapped() {
+        guard let receipt = FinanceLedgerStore.shared.transferReceipt(transactionID: transactionId) else { return }
+        navigationController?.pushViewController(TransferReceiptViewController(receipt: receipt), animated: true)
     }
 
     override func viewWillAppear(_ animated: Bool) {

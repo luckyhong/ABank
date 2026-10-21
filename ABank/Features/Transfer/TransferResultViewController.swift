@@ -68,6 +68,12 @@ final class TransferResultViewController: TransferFlowViewController {
                     self.navigationController?.pushViewController(IncomeExpenseDetailViewController(transaction: transaction), animated: true)
                 }
             }
+            if store.transferReceipt(recordID: record.id) != nil {
+                _ = addButton("查看电子回单", id: "transfer.viewReceipt", primary: false) { [weak self] in
+                    guard let self, let receipt = self.store.transferReceipt(recordID: record.id) else { return }
+                    self.navigationController?.pushViewController(TransferReceiptViewController(receipt: receipt, store: self.store), animated: true)
+                }
+            }
         }
         if !succeeded {
             _ = addButton("重新填写", id: "transfer.retry") { [weak self] in self?.retry() }

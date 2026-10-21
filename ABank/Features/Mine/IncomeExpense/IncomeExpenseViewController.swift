@@ -17,6 +17,7 @@ final class IncomeExpenseViewController: BankingDataViewController {
     private let tableView = UITableView(frame: .zero, style: .plain)
 
     private var sections: [IncomeExpenseDayGroup] = []
+    private var headersShowMonth = false
     private let emptyLabel = UILabel()
     private weak var activeSheet: UIView?
 
@@ -27,6 +28,15 @@ final class IncomeExpenseViewController: BankingDataViewController {
         }
         self.query = initial
         self.pageData = FinanceLedgerStore.shared.incomeExpensePageData(query: initial)
+        super.init(nibName: nil, bundle: nil)
+        hidesBottomBarWhenPushed = true
+    }
+
+    /// 从账单分类等入口带入固定月份/账户/分类，不再跟随当前月。
+    init(query: IncomeExpenseQuery) {
+        self.query = query
+        self.pageData = FinanceLedgerStore.shared.incomeExpensePageData(query: query)
+        self.followsCurrentMonth = false
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }
@@ -118,7 +128,7 @@ final class IncomeExpenseViewController: BankingDataViewController {
         tableView.backgroundView = emptyLabel
 
         bindFilterBarActions()
-        summaryCard.onAnalysisTapped = { [weak self] in self?.showToast("分析") }
+        summaryCard.onAnalysisTapped = { [weak self] in self?.openAnalysis() }
 
         applyPageData()
     }
@@ -142,6 +152,7 @@ final class IncomeExpenseViewController: BankingDataViewController {
 
     private func applyPageData() {
         sections = pageData.dayGroups
+        headersShowMonth = IncomeExpenseDayGroup.spansMultipleMonths(sections)
         filterBar.configure(
             month: pageData.month,
             account: pageData.accountFilter,
@@ -226,8 +237,34 @@ final class IncomeExpenseViewController: BankingDataViewController {
         navigationController?.popViewController(animated: true)
     }
 
-    @objc private func searchTapped() { showToast("搜索") }
-    @objc private func moreTapped() { showToast("更多") }
+    /// 分析页按月统计：自定义区间取结束月份。
+    private func openAnalysis() {
+        let month: String
+        switch query.dateMode {
+        case .month(let value): month = value
+        case .custom(_, let end): month = String(end.prefix(7))
+        }
+        let controller = MonthlyBillViewController(month: month, accountFilter: query.accountFilter, title: "收支分析")
+        navigationController?.pushViewController(controller, animated: true)
+    }
+
+    @objc private func searchTapped() {
+        let controller = TransactionSearchViewController(accountFilter: query.accountFilter)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+
+    @objc private func moreTapped() {
+        let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        sheet.addAction(UIAlertAction(title: "月度账单", style: .default) { [weak self] _ in
+            self?.navigationController?.pushViewController(MonthlyBillViewController(), animated: true)
+        })
+        sheet.addAction(UIAlertAction(title: "电子回单", style: .default) { [weak self] _ in
+            self?.navigationController?.pushViewController(TransferReceiptListViewController(), animated: true)
+        })
+        sheet.addAction(UIAlertAction(title: "取消", style: .cancel))
+        sheet.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItems?.first
+        present(sheet, animated: true)
+    }
 }
 
 extension IncomeExpenseViewController: UITableViewDataSource, UITableViewDelegate {
@@ -241,7 +278,7 @@ extension IncomeExpenseViewController: UITableViewDataSource, UITableViewDelegat
         guard let header = tableView.dequeueReusableHeaderFooterView(
             withIdentifier: IncomeExpenseDayHeaderView.reuseId
         ) as? IncomeExpenseDayHeaderView else { return nil }
-        header.configure(day: sections[section].day)
+        header.configure(title: sections[section].headerTitle(showsMonth: headersShowMonth))
         return header
     }
 
