@@ -224,6 +224,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ABank/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "中国农业银行";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "用于保存模拟电子回单图片";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -260,6 +261,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ABank/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "中国农业银行";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "用于保存模拟电子回单图片";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;

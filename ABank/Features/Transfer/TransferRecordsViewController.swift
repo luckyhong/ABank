@@ -46,6 +46,12 @@ final class TransferRecordsViewController: BankingDataViewController, UITableVie
     override func setupNavigationBar() {
         navigationController?.setNavigationBarHidden(false, animated: false)
         navigationController?.navigationBar.tintColor = .abankTextPrimary
+        let receiptsItem = UIBarButtonItem(title: "电子回单", style: .plain, target: self, action: #selector(receiptsTapped))
+        receiptsItem.accessibilityIdentifier = "transfer.records.receipts"
+        navigationItem.rightBarButtonItem = receiptsItem
+    }
+    @objc private func receiptsTapped() {
+        navigationController?.pushViewController(TransferReceiptListViewController(store: store), animated: true)
     }
     override func refreshBankingData() {
         records = store.transferRecords().filter { record in

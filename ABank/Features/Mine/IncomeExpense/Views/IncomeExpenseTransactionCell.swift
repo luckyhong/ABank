@@ -150,7 +150,7 @@ final class IncomeExpenseDayHeaderView: UITableViewHeaderFooterView {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    func configure(day: Int) {
-        badge.text = "  \(day)日  "
+    func configure(title: String) {
+        badge.text = "  \(title)  "
     }
 }

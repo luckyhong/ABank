@@ -32,6 +32,20 @@ nonisolated struct BankingDateContext {
             ? "\(month)月份" : "\(parts[0])年\(month)月份"
     }
 
+    /// yyyy-MM 月份平移；非法月份返回 nil。
+    func month(_ month: String, offsetBy value: Int) -> String? {
+        guard let start = date(from: month, format: "yyyy-MM"),
+              let shifted = calendar.date(byAdding: .month, value: value, to: start) else { return nil }
+        return string(from: shifted, format: "yyyy-MM")
+    }
+
+    /// 「2026年9月」形式的月份标题。
+    func monthTitle(_ month: String) -> String {
+        let parts = month.split(separator: "-")
+        guard parts.count == 2, let number = Int(parts[1]) else { return month }
+        return "\(parts[0])年\(number)月"
+    }
+
     func string(from date: Date, format: String = "yyyy-MM-dd") -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")

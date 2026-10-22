@@ -14,7 +14,7 @@ extension Notification.Name {
 
     private let defaultsKey = "abank.financeLedger.record.v8"
     private let defaults: UserDefaults
-    private let dates: BankingDateContext
+    let dates: BankingDateContext
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     private let dataWriter: ((Data) throws -> Void)?
@@ -315,7 +315,7 @@ extension Notification.Name {
     func incomeExpensePageData(query: IncomeExpenseQuery) -> IncomeExpensePageData {
         let record = load()
         var txs = record.transactions.filter { matchesDate($0, query: query) }
-        txs = txs.filter { matchesAccount($0, filter: query.accountFilter) }
+        txs = txs.filter { query.accountFilter.matches($0) }
         txs = txs.filter { matchesAdvanced($0, filter: query.advancedFilter) }
         txs = txs.enumerated().sorted { lhs, rhs in
             let l = lhs.element, r = rhs.element
@@ -328,13 +328,7 @@ extension Notification.Name {
         let expense = flowTxs.filter { $0.direction == .expense }.reduce(0) { $0 + $1.amount }
         let income = flowTxs.filter { $0.direction == .income }.reduce(0) { $0 + $1.amount }
 
-        let grouped = Dictionary(grouping: txs) { tx -> Int in
-            Int(tx.date.split(separator: "-").last ?? "0") ?? 0
-        }
-        let dayGroups = grouped.keys.sorted(by: >).map { day in
-            let dayTxs = grouped[day] ?? []
-            return IncomeExpenseDayGroup(day: day, transactions: dayTxs)
-        }
+        let dayGroups = IncomeExpenseDayGroup.grouped(txs)
 
         return IncomeExpensePageData(
             month: query.filterBarMonthText,
@@ -367,22 +361,6 @@ extension Notification.Name {
         }
     }
 
-    private func matchesAccount(
-        _ tx: LedgerTransaction,
-        filter: IncomeExpenseAccountFilter
-    ) -> Bool {
-        switch filter {
-        case .all:
-            return true
-        case .excludeManual:
-            return !tx.isManual
-        case .debitCard(let id):
-            return tx.accountId == id && !tx.isManual
-        case .manual:
-            return tx.isManual
-        }
-    }
-
     private func matchesAdvanced(_ tx: LedgerTransaction, filter: IncomeExpenseAdvancedFilter) -> Bool {
         if let min = filter.minAmount, tx.amount < min { return false }
         if let max = filter.maxAmount, tx.amount > max { return false }
@@ -405,7 +383,7 @@ extension Notification.Name {
         return effective.contains(tx.categoryId)
     }
 
-    private func accountFilterTitle(_ filter: IncomeExpenseAccountFilter, accounts: [LedgerAccount]) -> String {
+    func accountFilterTitle(_ filter: IncomeExpenseAccountFilter, accounts: [LedgerAccount]) -> String {
         switch filter {
         case .all: return "全部账户"
         case .excludeManual: return "不含手工记账"

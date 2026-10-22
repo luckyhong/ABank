@@ -209,7 +209,7 @@ final class AccountDetailQueryViewController: BankingDataViewController {
     }
 
     @objc private func statementTapped() {
-        showToast("回单查询")
+        navigationController?.pushViewController(TransferReceiptListViewController(accountID: accountId), animated: true)
     }
 }
 
