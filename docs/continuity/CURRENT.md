@@ -4,4 +4,5 @@
 
 | 任务 | 更新时间 |
 |---|---|
+| [push-auth-diagnosis](tasks/push-auth-diagnosis.md) | 2026-11-02（America/Los_Angeles） |
 | [recovery-baseline](tasks/recovery-baseline.md) | 2026-10-31T17:40:44.925676+00:00 |
