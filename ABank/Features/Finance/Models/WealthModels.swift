@@ -9,6 +9,7 @@ struct WealthGridItem {
     let title: String
     let imageName: String
     let systemIcon: String
+    var featureID: FeatureID? = nil
 }
 
 struct WealthGreeting {

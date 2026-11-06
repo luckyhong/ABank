@@ -41,22 +41,10 @@ final class MockDataProvider {
                 )
             ],
             shortcuts: [
-                HomeShortcutItem(title: "我的账户", imageName: "abc_home_account", systemIcon: "person.fill", backgroundColor: UIColor(red: 0.0, green: 0.68, blue: 0.58, alpha: 1)),
-                HomeShortcutItem(title: "转账", imageName: "abc_home_transfer", systemIcon: "arrow.left.arrow.right", backgroundColor: UIColor(red: 1.0, green: 0.58, blue: 0.18, alpha: 1)),
-                HomeShortcutItem(title: "收支", imageName: "abc_home_income", systemIcon: "list.bullet.rectangle", backgroundColor: UIColor(red: 0.12, green: 0.62, blue: 0.52, alpha: 1)),
-                HomeShortcutItem(title: "扫一扫", imageName: "abc_home_scan", systemIcon: "qrcode.viewfinder", backgroundColor: UIColor(red: 1.0, green: 0.62, blue: 0.28, alpha: 1))
-            ],
-            gridItems: [
-                HomeGridItem(title: "信用卡", imageName: "abc_home_credit", systemIcon: "creditcard", badge: nil),
-                HomeGridItem(title: "养老社区", imageName: "abc_home_pension_community", systemIcon: "house", badge: nil),
-                HomeGridItem(title: "普惠金融", imageName: "abc_home_inclusive", systemIcon: "yensign.circle", badge: "NEW"),
-                HomeGridItem(title: "存款", imageName: "abc_home_deposit", systemIcon: "banknote", badge: nil),
-                HomeGridItem(title: "理财产品", imageName: "abc_home_wealth", systemIcon: "chart.line.uptrend.xyaxis", badge: nil),
-                HomeGridItem(title: "贷款", imageName: "abc_home_loan", systemIcon: "bag.fill", badge: nil),
-                HomeGridItem(title: "生活缴费", imageName: "abc_home_payment", systemIcon: "bolt.fill", badge: nil),
-                HomeGridItem(title: "热门活动", imageName: "abc_home_activity", systemIcon: "megaphone.fill", badge: nil),
-                HomeGridItem(title: "城市专区", imageName: "abc_home_city", systemIcon: "building.2.fill", badge: nil),
-                HomeGridItem(title: "全部", imageName: "abc_home_all", systemIcon: "ellipsis.circle", badge: nil)
+                HomeShortcutItem(title: "我的账户", imageName: "abc_home_account", systemIcon: "person.fill", backgroundColor: UIColor(red: 0.0, green: 0.68, blue: 0.58, alpha: 1), featureID: .myAccount),
+                HomeShortcutItem(title: "转账", imageName: "abc_home_transfer", systemIcon: "arrow.left.arrow.right", backgroundColor: UIColor(red: 1.0, green: 0.58, blue: 0.18, alpha: 1), featureID: .transfer),
+                HomeShortcutItem(title: "收支", imageName: "abc_home_income", systemIcon: "list.bullet.rectangle", backgroundColor: UIColor(red: 0.12, green: 0.62, blue: 0.52, alpha: 1), featureID: .incomeExpense),
+                HomeShortcutItem(title: "扫一扫", imageName: "abc_home_scan", systemIcon: "qrcode.viewfinder", backgroundColor: UIColor(red: 1.0, green: 0.62, blue: 0.28, alpha: 1), featureID: .scan)
             ],
             notices: [
                 HomeNoticeItem(tag: "待办", text: "您的月度账单已出，请查看"),
@@ -107,9 +95,9 @@ final class MockDataProvider {
                 distance: "距您约2552米",
                 address: "陕西省西安市沣东新城大明宫·沣东一路88号",
                 services: [
-                    HomeBranchServiceItem(title: "我要开卡", imageName: "abc_home_branch_open", systemIcon: "creditcard.fill"),
-                    HomeBranchServiceItem(title: "纪念币预约", imageName: "abc_home_branch_coin", systemIcon: "bitcoinsign.circle"),
-                    HomeBranchServiceItem(title: "同号换卡", imageName: "abc_home_branch_replace", systemIcon: "arrow.triangle.2.circlepath")
+                    HomeBranchServiceItem(title: "我要开卡", imageName: "abc_home_branch_open", systemIcon: "creditcard.fill", featureID: .openCard),
+                    HomeBranchServiceItem(title: "纪念币预约", imageName: "abc_home_branch_coin", systemIcon: "bitcoinsign.circle", featureID: .coinReservation),
+                    HomeBranchServiceItem(title: "同号换卡", imageName: "abc_home_branch_replace", systemIcon: "arrow.triangle.2.circlepath", featureID: .sameNumberReplace)
                 ]
             ),
             infoMarket: HomeInfoMarketItem(
@@ -170,15 +158,15 @@ final class MockDataProvider {
                 loginTitle: "登录"
             ),
             gridItems: [
-                WealthGridItem(title: "存款", imageName: "abc_wealth_menu_deposit", systemIcon: "house.fill"),
-                WealthGridItem(title: "理财产品", imageName: "abc_wealth_menu_wealth", systemIcon: "circle.grid.3x3.fill"),
-                WealthGridItem(title: "基金", imageName: "abc_wealth_menu_fund", systemIcon: "chart.line.uptrend.xyaxis"),
-                WealthGridItem(title: "贵金属", imageName: "abc_wealth_menu_metals", systemIcon: "square.stack.3d.up.fill"),
-                WealthGridItem(title: "债券", imageName: "abc_wealth_menu_bonds", systemIcon: "chart.bar.fill"),
-                WealthGridItem(title: "保险", imageName: "abc_wealth_menu_insurance", systemIcon: "shield.fill"),
-                WealthGridItem(title: "证券期货", imageName: "abc_wealth_menu_securities", systemIcon: "doc.text.fill"),
-                WealthGridItem(title: "外汇", imageName: "abc_wealth_menu_forex", systemIcon: "dollarsign.arrow.circlepath"),
-                WealthGridItem(title: "个人养老金", imageName: "abc_wealth_menu_pension", systemIcon: "house.and.flag.fill"),
+                WealthGridItem(title: "存款", imageName: "abc_wealth_menu_deposit", systemIcon: "house.fill", featureID: .deposit),
+                WealthGridItem(title: "理财产品", imageName: "abc_wealth_menu_wealth", systemIcon: "circle.grid.3x3.fill", featureID: .wealthProduct),
+                WealthGridItem(title: "基金", imageName: "abc_wealth_menu_fund", systemIcon: "chart.line.uptrend.xyaxis", featureID: .fund),
+                WealthGridItem(title: "贵金属", imageName: "abc_wealth_menu_metals", systemIcon: "square.stack.3d.up.fill", featureID: .preciousMetals),
+                WealthGridItem(title: "债券", imageName: "abc_wealth_menu_bonds", systemIcon: "chart.bar.fill", featureID: .bonds),
+                WealthGridItem(title: "保险", imageName: "abc_wealth_menu_insurance", systemIcon: "shield.fill", featureID: .insurance),
+                WealthGridItem(title: "证券期货", imageName: "abc_wealth_menu_securities", systemIcon: "doc.text.fill", featureID: .securities),
+                WealthGridItem(title: "外汇", imageName: "abc_wealth_menu_forex", systemIcon: "dollarsign.arrow.circlepath", featureID: .forex),
+                WealthGridItem(title: "个人养老金", imageName: "abc_wealth_menu_pension", systemIcon: "house.and.flag.fill", featureID: .personalPension),
                 WealthGridItem(title: "全部", imageName: "abc_wealth_menu_all", systemIcon: "ellipsis.circle")
             ],
             hotspot: WealthHotspot(
@@ -373,27 +361,27 @@ final class MockDataProvider {
             ],
             gridPages: [
                 [
-                    LifeGridItem(title: "生活缴费", imageName: "abc_life_menu_payment", systemIcon: "drop.fill", tintColor: .abankPrimary),
-                    LifeGridItem(title: "手机充值", imageName: "abc_life_menu_mobile", systemIcon: "iphone", tintColor: .abankOrange),
-                    LifeGridItem(title: "政务民生", imageName: "abc_life_menu_government", systemIcon: "person.fill", tintColor: .abankTeal),
-                    LifeGridItem(title: "社保医保", imageName: "abc_life_menu_social", systemIcon: "person.text.rectangle", tintColor: .abankPrimary),
-                    LifeGridItem(title: "小豆乐园", imageName: "abc_life_menu_beans", systemIcon: "leaf.fill", tintColor: .abankSuccess),
-                    LifeGridItem(title: "校园", imageName: "abc_life_menu_campus", systemIcon: "graduationcap.fill", tintColor: .abankPrimary),
-                    LifeGridItem(title: "食堂", imageName: "abc_life_menu_cafeteria", systemIcon: "fork.knife", tintColor: .abankOrange),
-                    LifeGridItem(title: "党费", imageName: "abc_life_menu_party", systemIcon: "flag.fill", tintColor: .abankHighlight),
-                    LifeGridItem(title: "车主服务", imageName: "abc_life_menu_car", systemIcon: "car.fill", tintColor: .abankTeal),
-                    LifeGridItem(title: "农银商城", imageName: "abc_life_menu_market", systemIcon: "storefront.fill", tintColor: .abankPrimary)
+                    LifeGridItem(title: "生活缴费", imageName: "abc_life_menu_payment", systemIcon: "drop.fill", tintColor: .abankPrimary, featureID: .lifePayment),
+                    LifeGridItem(title: "手机充值", imageName: "abc_life_menu_mobile", systemIcon: "iphone", tintColor: .abankOrange, featureID: .mobileRecharge),
+                    LifeGridItem(title: "政务民生", imageName: "abc_life_menu_government", systemIcon: "person.fill", tintColor: .abankTeal, featureID: .government),
+                    LifeGridItem(title: "社保医保", imageName: "abc_life_menu_social", systemIcon: "person.text.rectangle", tintColor: .abankPrimary, featureID: .socialInsurance),
+                    LifeGridItem(title: "小豆乐园", imageName: "abc_life_menu_beans", systemIcon: "leaf.fill", tintColor: .abankSuccess, featureID: .beans),
+                    LifeGridItem(title: "校园", imageName: "abc_life_menu_campus", systemIcon: "graduationcap.fill", tintColor: .abankPrimary, featureID: .campus),
+                    LifeGridItem(title: "食堂", imageName: "abc_life_menu_cafeteria", systemIcon: "fork.knife", tintColor: .abankOrange, featureID: .cafeteria),
+                    LifeGridItem(title: "党费", imageName: "abc_life_menu_party", systemIcon: "flag.fill", tintColor: .abankHighlight, featureID: .partyFee),
+                    LifeGridItem(title: "车主服务", imageName: "abc_life_menu_car", systemIcon: "car.fill", tintColor: .abankTeal, featureID: .carService),
+                    LifeGridItem(title: "农银商城", imageName: "abc_life_menu_market", systemIcon: "storefront.fill", tintColor: .abankPrimary, featureID: .abcMall)
                 ],
                 [
-                    LifeGridItem(title: "美团外卖", systemIcon: "bag.fill", tintColor: .abankOrange),
-                    LifeGridItem(title: "电影演出", systemIcon: "film.fill", tintColor: .abankPrimary),
-                    LifeGridItem(title: "酒店旅行", systemIcon: "airplane", tintColor: .abankTeal),
-                    LifeGridItem(title: "快递寄件", systemIcon: "shippingbox.fill", tintColor: .abankOrange),
-                    LifeGridItem(title: "医疗挂号", imageName: "abc_life_menu_hospital", systemIcon: "cross.case.fill", tintColor: .abankPrimary),
-                    LifeGridItem(title: "公积金", imageName: "abc_life_menu_provident", systemIcon: "building.columns.fill", tintColor: .abankTeal),
-                    LifeGridItem(title: "交通出行", imageName: "abc_life_menu_transport", systemIcon: "bus.fill", tintColor: .abankPrimary),
-                    LifeGridItem(title: "积分商城", imageName: "abc_life_menu_points", systemIcon: "star.fill", tintColor: .abankOrange),
-                    LifeGridItem(title: "爱心公益", systemIcon: "heart.fill", tintColor: .abankHighlight),
+                    LifeGridItem(title: "美团外卖", systemIcon: "bag.fill", tintColor: .abankOrange, featureID: .takeout),
+                    LifeGridItem(title: "电影演出", systemIcon: "film.fill", tintColor: .abankPrimary, featureID: .movies),
+                    LifeGridItem(title: "酒店旅行", systemIcon: "airplane", tintColor: .abankTeal, featureID: .hotelTravel),
+                    LifeGridItem(title: "快递寄件", systemIcon: "shippingbox.fill", tintColor: .abankOrange, featureID: .express),
+                    LifeGridItem(title: "医疗挂号", imageName: "abc_life_menu_hospital", systemIcon: "cross.case.fill", tintColor: .abankPrimary, featureID: .hospital),
+                    LifeGridItem(title: "公积金", imageName: "abc_life_menu_provident", systemIcon: "building.columns.fill", tintColor: .abankTeal, featureID: .providentFund),
+                    LifeGridItem(title: "交通出行", imageName: "abc_life_menu_transport", systemIcon: "bus.fill", tintColor: .abankPrimary, featureID: .transport),
+                    LifeGridItem(title: "积分商城", imageName: "abc_life_menu_points", systemIcon: "star.fill", tintColor: .abankOrange, featureID: .pointsMall),
+                    LifeGridItem(title: "爱心公益", systemIcon: "heart.fill", tintColor: .abankHighlight, featureID: .charity),
                     LifeGridItem(title: "全部", imageName: "abc_life_menu_all", systemIcon: "ellipsis.circle", tintColor: .abankTextSecondary)
                 ]
             ],
@@ -474,17 +462,17 @@ final class MockDataProvider {
                 name: "西安沣东新城支行",
                 distance: "2552米",
                 services: [
-                    MineGridItem(title: "我要开卡", imageName: "abc_mine_branch_open", systemIcon: "creditcard.badge.plus"),
-                    MineGridItem(title: "纪念币预约", imageName: "abc_mine_branch_coin", systemIcon: "bitcoinsign.circle"),
-                    MineGridItem(title: "同号换卡", imageName: "abc_mine_branch_replace", systemIcon: "iphone.and.arrow.forward"),
-                    MineGridItem(title: "网点查询", imageName: "abc_mine_branch_find", systemIcon: "building.columns")
+                    MineGridItem(title: "我要开卡", imageName: "abc_mine_branch_open", systemIcon: "creditcard.badge.plus", featureID: .openCard),
+                    MineGridItem(title: "纪念币预约", imageName: "abc_mine_branch_coin", systemIcon: "bitcoinsign.circle", featureID: .coinReservation),
+                    MineGridItem(title: "同号换卡", imageName: "abc_mine_branch_replace", systemIcon: "iphone.and.arrow.forward", featureID: .sameNumberReplace),
+                    MineGridItem(title: "网点查询", imageName: "abc_mine_branch_find", systemIcon: "building.columns", featureID: .branchQuery)
                 ]
             ),
             securityItems: [
-                MineGridItem(title: "登录设置", imageName: "abc_mine_security_login", systemIcon: "door.left.hand.open"),
-                MineGridItem(title: "转账设置", imageName: "abc_mine_security_transfer", systemIcon: "shield.lefthalf.filled"),
-                MineGridItem(title: "支付设置", imageName: "abc_mine_security_payment", systemIcon: "lock.shield"),
-                MineGridItem(title: "登录设备", imageName: "abc_mine_security_devices", systemIcon: "iphone")
+                MineGridItem(title: "登录设置", imageName: "abc_mine_security_login", systemIcon: "door.left.hand.open", featureID: .loginSettings),
+                MineGridItem(title: "转账设置", imageName: "abc_mine_security_transfer", systemIcon: "shield.lefthalf.filled", featureID: .transferLimits),
+                MineGridItem(title: "支付设置", imageName: "abc_mine_security_payment", systemIcon: "lock.shield", featureID: .paymentSettings),
+                MineGridItem(title: "登录设备", imageName: "abc_mine_security_devices", systemIcon: "iphone", featureID: .loginDevices)
             ],
             customerManager: MineCustomerManager(
                 name: "*凡柳",
@@ -605,14 +593,14 @@ final class MockDataProvider {
                 TransferSecondaryAction(title: "转账设置", systemIcon: "gearshape", imageName: "abc_transfer_settings")
             ],
             functionItems: [
-                TransferFunctionItem(title: "信用卡还款", systemIcon: "creditcard", imageName: "abc_transfer_repay"),
-                TransferFunctionItem(title: "预约转账", systemIcon: "clock", imageName: "abc_transfer_schedule"),
-                TransferFunctionItem(title: "向多人转账", systemIcon: "person.3", imageName: "abc_transfer_multiple"),
-                TransferFunctionItem(title: "他行卡转入", systemIcon: "arrow.uturn.left", imageName: "abc_transfer_other_bank"),
-                TransferFunctionItem(title: "跨境服务", systemIcon: "airplane", imageName: "abc_transfer_crossborder"),
-                TransferFunctionItem(title: "公益捐款", systemIcon: "heart", imageName: "abc_transfer_donation"),
-                TransferFunctionItem(title: "手机号收款", systemIcon: "iphone.gen1", imageName: "abc_transfer_mobile_collection"),
-                TransferFunctionItem(title: "转账撤销", systemIcon: "arrow.uturn.backward", imageName: "abc_transfer_cancel")
+                TransferFunctionItem(title: "信用卡还款", systemIcon: "creditcard", imageName: "abc_transfer_repay", featureID: .creditCardRepay),
+                TransferFunctionItem(title: "预约转账", systemIcon: "clock", imageName: "abc_transfer_schedule", featureID: .scheduledTransfer),
+                TransferFunctionItem(title: "向多人转账", systemIcon: "person.3", imageName: "abc_transfer_multiple", featureID: .multiTransfer),
+                TransferFunctionItem(title: "他行卡转入", systemIcon: "arrow.uturn.left", imageName: "abc_transfer_other_bank", featureID: .otherBankIn),
+                TransferFunctionItem(title: "跨境服务", systemIcon: "airplane", imageName: "abc_transfer_crossborder", featureID: .crossBorder),
+                TransferFunctionItem(title: "公益捐款", systemIcon: "heart", imageName: "abc_transfer_donation", featureID: .donation),
+                TransferFunctionItem(title: "手机号收款", systemIcon: "iphone.gen1", imageName: "abc_transfer_mobile_collection", featureID: .mobileCollection),
+                TransferFunctionItem(title: "转账撤销", systemIcon: "arrow.uturn.backward", imageName: "abc_transfer_cancel", featureID: .transferCancel)
             ],
             recentPartners: [
                 TransferPartner(

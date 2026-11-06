@@ -11,6 +11,7 @@ final class BranchServiceView: UIView {
     var onQueueTapped: (() -> Void)?
     var onPhoneTapped: (() -> Void)?
     var onRefreshTapped: (() -> Void)?
+    var onServiceTapped: ((Int) -> Void)?
 
     private let header = SectionHeaderView(title: "网点服务")
     private let card = UIView()
@@ -41,7 +42,9 @@ final class BranchServiceView: UIView {
         addressLabel.text = branch.address
 
         serviceStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        branch.services.forEach { serviceStack.addArrangedSubview(makeService(item: $0)) }
+        branch.services.enumerated().forEach { index, item in
+            serviceStack.addArrangedSubview(makeService(item: item, index: index))
+        }
     }
 
     private func setupUI() {
@@ -169,8 +172,13 @@ final class BranchServiceView: UIView {
         }
     }
 
-    private func makeService(item: HomeBranchServiceItem) -> UIView {
-        let wrap = UIView()
+    private func makeService(item: HomeBranchServiceItem, index: Int) -> UIView {
+        let wrap = UIControl()
+        wrap.tag = index
+        wrap.addTarget(self, action: #selector(serviceTapped(_:)), for: .touchUpInside)
+        wrap.isAccessibilityElement = true
+        wrap.accessibilityLabel = item.title
+        wrap.accessibilityTraits = .button
         let icon = UIImageView(image: UIImage.abankAsset(item.imageName, fallback: item.systemIcon))
         icon.tintColor = .abankTextSecondary
         icon.contentMode = .scaleAspectFit
@@ -195,6 +203,7 @@ final class BranchServiceView: UIView {
         return wrap
     }
 
+    @objc private func serviceTapped(_ sender: UIControl) { onServiceTapped?(sender.tag) }
     @objc private func queueTapped() { onQueueTapped?() }
     @objc private func phoneTapped() { onPhoneTapped?() }
 }

@@ -211,12 +211,9 @@ final class AssetLiabilityViewController: BankingDataViewController {
         switch categoryId {
         case FinanceLedgerRecord.demandDepositCategoryId:
             // 分类行进全部账户；子项（尾号）带账户筛选
-            navigationController?.pushViewController(
-                IncomeExpenseViewController(accountId: itemId),
-                animated: true
-            )
+            router.open(.incomeExpense(accountID: itemId), from: self)
         case FinanceLedgerRecord.loanCategoryId:
-            navigationController?.pushViewController(MyLoanViewController(), animated: true)
+            router.open(.myLoan, from: self)
         default:
             showToast("详情")
         }

@@ -203,14 +203,12 @@ final class TransferViewController: BankingDataViewController {
         }
         primaryCard.onSecondaryTapped = { [weak self] index in
             guard let self, self.pageData.secondaryActions.indices.contains(index) else { return }
-            let controller: UIViewController = index == 0
-                ? TransferRecordsViewController(store: self.store) : TransferLimitsViewController(store: self.store)
-            self.navigationController?.pushViewController(controller, animated: true)
+            self.router.open(index == 0 ? .transferRecords : .transferLimits, from: self)
         }
 
         functionGrid.onItemTapped = { [weak self] index in
-            guard let self, let item = self.pageData.functionItems[safe: index] else { return }
-            self.showToast(item.title)
+            guard let self, let id = self.pageData.functionItems[safe: index]?.featureID else { return }
+            self.router.open(feature: id, from: self)
         }
         functionGrid.onToggleExpand = { [weak self] in
             guard let self else { return }

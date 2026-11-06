@@ -143,7 +143,8 @@ final class MineViewController: BankingDataViewController {
             self?.showToast("退出登录")
         }
         topActionBar.onSearchTapped = { [weak self] in
-            self?.showToast("搜索")
+            guard let self else { return }
+            self.router.open(.allFeatures(searchKeyword: nil), from: self)
         }
         topActionBar.onSettingsTapped = { [weak self] in
             self?.showToast("设置")
@@ -153,53 +154,60 @@ final class MineViewController: BankingDataViewController {
         }
 
         profileHeader.onAvatarTapped = { [weak self] in
-            let controller = CustomerInfoViewController()
-            self?.navigationController?.pushViewController(controller, animated: true)
+            guard let self else { return }
+            self.router.open(.customerInfo, from: self)
         }
         profileHeader.onBenefitsTapped = { [weak self] in
-            self?.showToast("权益中心")
+            guard let self else { return }
+            self.router.open(feature: .benefits, from: self)
         }
         profileHeader.onVIPTapped = { [weak self] in
-            self?.showToast("客户等级")
+            guard let self else { return }
+            self.router.open(feature: .customerLevel, from: self)
         }
 
         assetLiabilityCard.onTap = { [weak self] in
-            let controller = AssetLiabilityViewController()
-            self?.navigationController?.pushViewController(controller, animated: true)
+            guard let self else { return }
+            self.router.open(.assetLiability, from: self)
         }
         assetLiabilityCard.onBillTapped = { [weak self] in
-            self?.navigationController?.pushViewController(LedgerAnalysisViewController(), animated: true)
+            guard let self else { return }
+            self.router.open(.ledgerAnalysis, from: self)
         }
 
         monthlyFlowCard.onTap = { [weak self] in
-            let controller = IncomeExpenseViewController()
-            self?.navigationController?.pushViewController(controller, animated: true)
+            guard let self else { return }
+            self.router.open(.incomeExpense(accountID: nil), from: self)
         }
         monthlyFlowCard.onBillTapped = { [weak self] in
-            self?.navigationController?.pushViewController(LedgerAnalysisViewController(), animated: true)
+            guard let self else { return }
+            self.router.open(.ledgerAnalysis, from: self)
         }
 
         branchCard.onTap = { [weak self] in
-            self?.showToast("我的网点")
+            guard let self else { return }
+            self.router.open(feature: .branchQuery, from: self)
         }
         branchCard.onRefreshTapped = { [weak self] in
             self?.showToast("刷新网点信息")
         }
         branchCard.onItemTapped = { [weak self] index in
-            let title = self?.pageData.branch.services[safe: index]?.title ?? "网点服务"
-            self?.showToast(title)
+            guard let self, let id = self.pageData.branch.services[safe: index]?.featureID else { return }
+            self.router.open(feature: id, from: self)
         }
 
         securityCard.onTap = { [weak self] in
-            self?.showToast("安全中心")
+            guard let self else { return }
+            self.router.open(feature: .securityCenter, from: self)
         }
         securityCard.onItemTapped = { [weak self] index in
-            let title = self?.pageData.securityItems[safe: index]?.title ?? "安全设置"
-            self?.showToast(title)
+            guard let self, let id = self.pageData.securityItems[safe: index]?.featureID else { return }
+            self.router.open(feature: id, from: self)
         }
 
         orderCard.onTap = { [weak self] in
-            self?.showToast("我的订单")
+            guard let self else { return }
+            self.router.open(feature: .orders, from: self)
         }
 
         customerManagerCard.onWeChatTapped = { [weak self] in

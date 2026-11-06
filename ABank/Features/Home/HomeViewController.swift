@@ -11,6 +11,13 @@ import SnapKit
 final class HomeViewController: BaseViewController {
 
     private let pageData = MockDataProvider.shared.getHomePageData()
+    private let preferences: FeaturePreferencesStore = .shared
+    private var favoriteGridItems: [HomeGridItem] = []
+    private var preferencesObserver: NSObjectProtocol?
+
+    deinit {
+        if let preferencesObserver { NotificationCenter.default.removeObserver(preferencesObserver) }
+    }
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -184,6 +191,9 @@ final class HomeViewController: BaseViewController {
         view.sendSubviewToBack(topBackgroundView)
         bindData()
         bindActions()
+        preferencesObserver = NotificationCenter.default.addObserver(
+            forName: FeaturePreferencesStore.didChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in self?.reloadFavoriteGrid() }
     }
 
     override func viewDidLayoutSubviews() {
@@ -206,7 +216,7 @@ final class HomeViewController: BaseViewController {
         topSearchBar.apply(style: .light)
         heroBanner.configure(with: pageData.heroBanners)
         shortcutRow.configure(with: pageData.shortcuts)
-        gridMenu.configure(with: pageData.gridItems)
+        reloadFavoriteGrid()
         noticeTicker.configure(with: pageData.notices)
         promoBanner.configure(with: pageData.promoBanners)
         wealthSelection.configure(
@@ -227,7 +237,8 @@ final class HomeViewController: BaseViewController {
 
     private func bindActions() {
         topSearchBar.onSearchTapped = { [weak self] keyword in
-            self?.showToast("搜索「\(keyword)」")
+            guard let self else { return }
+            self.router.open(.allFeatures(searchKeyword: keyword), from: self)
         }
         topSearchBar.onGiftTapped = { [weak self] in
             self?.showToast("幸运抽奖活动即将开启")
@@ -244,25 +255,16 @@ final class HomeViewController: BaseViewController {
         }
 
         shortcutRow.onItemTapped = { [weak self] index in
-            guard let self, let item = self.pageData.shortcuts[safe: index] else { return }
-            switch item.title {
-            case "转账":
-                self.navigationController?.pushViewController(TransferViewController(), animated: true)
-            case "我的账户":
-                self.navigationController?.pushViewController(MyAccountViewController(), animated: true)
-            case "收支":
-                self.navigationController?.pushViewController(IncomeExpenseViewController(), animated: true)
-            default:
-                self.showToast("打开\(item.title)")
-            }
+            guard let self, let id = self.pageData.shortcuts[safe: index]?.featureID else { return }
+            self.router.open(feature: id, from: self)
         }
 
         gridMenu.onItemTapped = { [weak self] index in
-            guard let self, let item = self.pageData.gridItems[safe: index] else { return }
-            if item.title == "全部" {
-                self.showToast("全部功能")
+            guard let self, let item = self.favoriteGridItems[safe: index] else { return }
+            if let id = item.featureID {
+                self.router.open(feature: id, from: self)
             } else {
-                self.showToast(item.title)
+                self.router.open(.allFeatures(searchKeyword: nil), from: self)
             }
         }
 
@@ -271,7 +273,12 @@ final class HomeViewController: BaseViewController {
         }
 
         branchService.onQueueTapped = { [weak self] in
-            self?.showToast("已为您取号，请留意叫号信息")
+            guard let self else { return }
+            self.router.open(feature: .branchQueue, from: self)
+        }
+        branchService.onServiceTapped = { [weak self] index in
+            guard let self, let id = self.pageData.branch.services[safe: index]?.featureID else { return }
+            self.router.open(feature: id, from: self)
         }
         branchService.onPhoneTapped = { [weak self] in
             self?.showToast("正在拨打网点电话")
@@ -283,6 +290,12 @@ final class HomeViewController: BaseViewController {
         consumerProtection.onItemTapped = { [weak self] item in
             self?.showToast(item.title)
         }
+    }
+
+    /// 首页宫格 = 常用功能（最多 9 个）+ 固定“全部”。
+    private func reloadFavoriteGrid() {
+        favoriteGridItems = preferences.favorites.map { HomeGridItem(descriptor: FeatureCatalog.descriptor($0)) } + [.allEntry]
+        gridMenu.configure(with: favoriteGridItems)
     }
 
     @objc private func backToTopTapped() {

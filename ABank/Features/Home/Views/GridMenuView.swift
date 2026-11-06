@@ -64,6 +64,10 @@ final class GridMenuView: UIView {
         let wrap = UIControl()
         wrap.tag = index
         wrap.addTarget(self, action: #selector(itemTapped(_:)), for: .touchUpInside)
+        wrap.isAccessibilityElement = true
+        wrap.accessibilityLabel = item.title
+        wrap.accessibilityTraits = .button
+        wrap.accessibilityIdentifier = "homeGrid.\(item.featureID?.rawValue ?? "all")"
 
         let icon = UIImageView(image: UIImage.abankAsset(item.imageName, fallback: item.systemIcon))
         icon.tintColor = .abankTextPrimary

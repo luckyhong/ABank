@@ -125,16 +125,10 @@ final class MyAccountViewController: BankingDataViewController {
     private func handle(_ action: MyAccountAction) {
         switch action {
         case .transfer:
-            navigationController?.pushViewController(TransferViewController(payerAccountID: pageData.debitCards.first?.accountId), animated: true)
+            router.open(.transfer(payerAccountID: pageData.debitCards.first?.accountId), from: self)
         case .queryDetail:
-            let masked = pageData.debitCards.first?.maskedNumber ?? "6230 **** 8472"
-            navigationController?.pushViewController(
-                AccountDetailQueryViewController(
-                    accountId: pageData.debitCards.first?.accountId ?? FinanceLedgerRecord.defaultAccountId,
-                    maskedNumber: masked
-                ),
-                animated: true
-            )
+            let card = pageData.debitCards.first
+            router.open(.accountDetail(accountID: card?.accountId, maskedNumber: card?.maskedNumber), from: self)
         case .details:
             let detailData = MockDataProvider.shared.getDebitCardDetailPageData(
                 card: pageData.debitCards.first

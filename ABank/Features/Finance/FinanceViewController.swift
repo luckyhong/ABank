@@ -56,6 +56,12 @@ final class WealthViewController: BaseViewController {
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // 从功能页返回时重新隐藏导航栏（新页面会在 viewWillAppear 中显示导航栏）。
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
     override func setupUI() {
         view.backgroundColor = .abankBackground
 
@@ -195,8 +201,12 @@ final class WealthViewController: BaseViewController {
         loginCard.onLoginTapped = { [weak self] in self?.showToast("请登录查看持仓") }
 
         functionGrid.onItemTapped = { [weak self] index in
-            let title = self?.pageData.gridItems[safe: index]?.title ?? "功能"
-            self?.showToast(title)
+            guard let self, let item = self.pageData.gridItems[safe: index] else { return }
+            if let id = item.featureID {
+                self.router.open(feature: id, from: self)
+            } else {
+                self.router.open(.allFeatures(searchKeyword: nil), from: self)
+            }
         }
 
         hotspotView.onTap = { [weak self] in

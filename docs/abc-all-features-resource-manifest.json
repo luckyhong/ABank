@@ -1,0 +1,33 @@
+{
+  "module": "AllFeatures",
+  "assets": [
+    {
+      "semantic_name": "abc_allmenus_add",
+      "source": "hp_allmenus_icon_add.png",
+      "source_sha256": "b8a98a9e1ab8b6cdf718a0c557f6d7aa98617b83501d1e6bc3c8184ab472bda6",
+      "imported_sha256": "a7003174370da9944632ed1d7da2ce4570031067e9c9c978078bfb25969a3e27",
+      "dimensions": [
+        45,
+        45
+      ],
+      "copied_from": "ABank/Assets.xcassets/ABCImported/Loose/Main/abc_resource_hp_allmenus_icon_add_b8a98a9e1ab8.imageset",
+      "imageset": "ABank/Assets.xcassets/ABCImported/AllFeatures/abc_allmenus_add.imageset",
+      "scale": "1x（原包仅提供 1x，不虚构 2x/3x）",
+      "rendering": "original"
+    },
+    {
+      "semantic_name": "abc_allmenus_delete",
+      "source": "hp_allmenus_icon_delete.png",
+      "source_sha256": "c7006f39f5d40a1cb1e526b03ece5f7a6a8eb9cc2183227ceef09bc6534048d1",
+      "imported_sha256": "803c1614989093cd115edd8f3d4b002d3cf9b5dd1d55770e27422fd0a13724a5",
+      "dimensions": [
+        45,
+        45
+      ],
+      "copied_from": "ABank/Assets.xcassets/ABCImported/Loose/Main/abc_resource_hp_allmenus_icon_delete_c7006f39f5d4.imageset",
+      "imageset": "ABank/Assets.xcassets/ABCImported/AllFeatures/abc_allmenus_delete.imageset",
+      "scale": "1x（原包仅提供 1x，不虚构 2x/3x）",
+      "rendering": "original"
+    }
+  ]
+}

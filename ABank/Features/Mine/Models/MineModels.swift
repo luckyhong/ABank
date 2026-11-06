@@ -36,6 +36,7 @@ struct MineGridItem {
     let title: String
     var imageName: String? = nil
     let systemIcon: String
+    var featureID: FeatureID? = nil
 }
 
 struct MineBranchInfo {

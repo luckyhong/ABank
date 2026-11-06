@@ -10,6 +10,9 @@ import SnapKit
 
 /// 提供统一的生命周期模板、导航样式、加载与提示等通用能力
 class BaseViewController: UIViewController {
+
+    /// 统一路由入口，测试时可替换。
+    var router: AppRouting = AppRouter.shared
     
     private lazy var loadingContainerView: UIView = {
         let view = UIView()
