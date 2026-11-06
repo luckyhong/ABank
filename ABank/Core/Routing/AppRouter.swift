@@ -100,6 +100,15 @@ final class AppRouter: AppRouting {
             return FavoriteFeaturesEditViewController(preferences: preferences)
         case .comingSoon(let id):
             return ComingSoonViewController(featureID: id)
+        case .securityCenter:
+            return SecurityCenterViewController()
+        case .loginSettings:
+            return LoginSettingsViewController()
+        case .paymentSettings:
+            return PaymentSettingsViewController()
+        case .loginDevices, .loginDeviceDetail:
+            // Task 6 替换为登录设备页面。
+            return ComingSoonViewController(featureID: .loginDevices)
         }
     }
 }
