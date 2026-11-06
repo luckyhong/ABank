@@ -10,6 +10,7 @@ import Foundation
         devicesRules()
         try notifications()
         smallPayment()
+        try ledgerUsesLiveLimits()
         print("Security settings checks passed")
     }
 
@@ -155,6 +156,44 @@ import Foundation
             precondition(store.setSmallPayment(enabled: true, quotaInCents: 100_000))
             precondition(store.settings.smallPaymentWithoutPasswordEnabled && store.settings.smallPaymentQuotaInCents == 100_000)
             precondition(SecuritySettingsStore.smallPaymentQuotas == [20_000, 50_000, 100_000])
+        }
+    }
+
+    @MainActor static func ledgerUsesLiveLimits() throws {
+        try withSuite { defaults in
+            let now = ISO8601DateFormatter().date(from: "2026-10-16T04:00:00Z")!
+            let dates = BankingDateContext(now: { now })
+            let security = SecuritySettingsStore(defaults: defaults, dates: dates)
+            let ledger = FinanceLedgerStore(defaults: defaults, dates: dates, transferLimitsProvider: { security.transferLimits })
+            let account = LedgerAccount(id: "acct_8472", tailNumber: "8472", currency: "人民币", balance: 300_000, openingBalance: 300_000)
+            let fixture = FinanceLedgerRecord(accounts: [account], transactions: [], loanContracts: [],
+                                              assetLiabilityAnnouncement: "演示", dataTimestamp: "2026-10-15 12:00:00")
+            precondition(ledger.save(fixture))
+            let draft = TransferDraft(payerAccountID: account.id, method: .account, recipientName: "演示客户",
+                                      bankName: "中国建设银行", destination: "6217000000000593", amountInCents: 100_000, note: "")
+            @MainActor func expectTransfer(_ error: TransferError, _ label: String) {
+                expect(error, { try ledger.validateTransfer(draft) }, label)
+            }
+            try ledger.validateTransfer(draft)
+            precondition(ledger.transferLimits.perTransferInCents == 5_000_000)
+
+            try security.setTransferLimits(perTransfer: 50_000, daily: 20_000_000)
+            precondition(ledger.transferLimits.perTransferInCents == 50_000)
+            expectTransfer(.singleLimit, "lowered single limit")
+
+            try security.setTransferLimits(perTransfer: 5_000_000, daily: 20_000_000)
+            precondition(ledger.transferredTodayInCents() == 0)
+            _ = try ledger.submitTransfer(draft: draft, requestID: "live-limit-1")
+            precondition(ledger.transferredTodayInCents() == 100_000, "\(ledger.transferredTodayInCents())")
+
+            // 日累计低于今日已转仍可保存，此后今日转账被拦截。
+            try security.setTransferLimits(perTransfer: 100, daily: 100)
+            expectTransfer(.singleLimit, "below spent single")
+            try security.setTransferLimits(perTransfer: 100_000, daily: 150_000)
+            expectTransfer(.dailyLimit, "daily exhausted")
+
+            try security.setTransferLimits(perTransfer: 5_000_000, daily: 20_000_000)
+            try ledger.validateTransfer(draft)
         }
     }
 }
