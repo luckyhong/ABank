@@ -14,10 +14,14 @@ sources=(
   ABank/Features/AllFeatures/Models/FeatureCatalog.swift
   ABank/Features/AllFeatures/Models/FeatureSearch.swift
   ABank/Features/AllFeatures/FeaturePreferencesStore.swift
+  ABank/Features/Security/Models/SecuritySettings.swift
+  ABank/Features/Security/SecuritySettingsStore.swift
 )
-for check in banking transfer insights feature; do
+for check in banking transfer insights feature security; do
   if [[ $check == feature ]]; then
     check_file=scripts/check_feature_catalog.swift
+  elif [[ $check == security ]]; then
+    check_file=scripts/check_security_settings.swift
   else
     check_file="scripts/check_${check}_data.swift"
   fi
