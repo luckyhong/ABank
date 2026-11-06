@@ -1,0 +1,71 @@
+{
+ "module": "Security",
+ "source_root": "artifacts/abc-resources/images",
+ "assets": [
+  {
+   "semantic_name": "abc_security_center",
+   "usage": "安全中心状态卡",
+   "rendering": "original",
+   "imageset": "ABank/Assets.xcassets/ABCImported/Security/abc_security_center.imageset",
+   "files": [
+    {
+     "scale": "3x",
+     "source": "safecenter_home_700_native500.png",
+     "sha256": "d79fa6fedf920489120c3efd4e5404d1ef366ce614eb84f1ad5282445b7c258b"
+    }
+   ]
+  },
+  {
+   "semantic_name": "abc_security_login",
+   "usage": "登录设置行",
+   "rendering": "original",
+   "imageset": "ABank/Assets.xcassets/ABCImported/Security/abc_security_login.imageset",
+   "files": [
+    {
+     "scale": "3x",
+     "source": "safecenter_login_setting_700_native500.png",
+     "sha256": "24c204ecab1e520f007ae9071d3953f13b9712718d52c577c5022a61a39db1a7"
+    }
+   ]
+  },
+  {
+   "semantic_name": "abc_security_transfer",
+   "usage": "转账设置行",
+   "rendering": "original",
+   "imageset": "ABank/Assets.xcassets/ABCImported/Security/abc_security_transfer.imageset",
+   "files": [
+    {
+     "scale": "3x",
+     "source": "safecenter_trans_setting_700_native500.png",
+     "sha256": "9a58b56d0c9b42a6474cb1980a37b25f390a6bf1ece167976621b82c33205349"
+    }
+   ]
+  },
+  {
+   "semantic_name": "abc_security_payment",
+   "usage": "支付设置行",
+   "rendering": "original",
+   "imageset": "ABank/Assets.xcassets/ABCImported/Security/abc_security_payment.imageset",
+   "files": [
+    {
+     "scale": "3x",
+     "source": "safecenter_pay_setting_700_native500.png",
+     "sha256": "64f3af935a83c83b89315b1494c33db0ad2e4e9a84ec0e65e5eda78973f8ebe0"
+    }
+   ]
+  },
+  {
+   "semantic_name": "abc_security_devices",
+   "usage": "登录设备行与设备列表",
+   "rendering": "original",
+   "imageset": "ABank/Assets.xcassets/ABCImported/Security/abc_security_devices.imageset",
+   "files": [
+    {
+     "scale": "3x",
+     "source": "safecenter_trusted_device_1100_native500.png",
+     "sha256": "fce82881796d876175465c89fcde1ac1c8c6baa423008abd024f55c26ff92d0a"
+    }
+   ]
+  }
+ ]
+}
