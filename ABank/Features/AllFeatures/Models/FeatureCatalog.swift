@@ -93,7 +93,6 @@ enum FeatureCatalog {
         Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
 
     private static let branchStage = "M5 网点服务"
-    private static let securityStage = "M4 安全中心"
     private static let benefitsStage = "M6 权益订单"
     private static let wealthStage = "M7 财富产品"
     private static let paymentStage = "M8 充值缴费"
@@ -248,7 +247,7 @@ enum FeatureCatalog {
         item(.paymentSettings, "支付设置", .service, image: "abc_mine_security_payment", icon: "lock.shield",
              keywords: ["免密", "支付"], .available(.paymentSettings)),
         item(.loginDevices, "登录设备", .service, image: "abc_mine_security_devices", icon: "iphone",
-             keywords: ["设备"], .planned(stage: securityStage)),
+             keywords: ["设备"], .available(.loginDevices)),
         item(.benefits, "权益中心", .service, icon: "gift.fill",
              keywords: ["权益", "卡券"], .planned(stage: benefitsStage)),
         item(.customerLevel, "客户等级", .service, icon: "crown.fill",

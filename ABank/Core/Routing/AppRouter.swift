@@ -106,9 +106,10 @@ final class AppRouter: AppRouting {
             return LoginSettingsViewController()
         case .paymentSettings:
             return PaymentSettingsViewController()
-        case .loginDevices, .loginDeviceDetail:
-            // Task 6 替换为登录设备页面。
-            return ComingSoonViewController(featureID: .loginDevices)
+        case .loginDevices:
+            return LoginDevicesViewController()
+        case .loginDeviceDetail(let deviceID):
+            return LoginDeviceDetailViewController(deviceID: deviceID)
         }
     }
 }
