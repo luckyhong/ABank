@@ -21,6 +21,7 @@ struct LifeGridItem {
     var imageName: String? = nil
     let systemIcon: String
     let tintColor: UIColor
+    var featureID: FeatureID? = nil
 }
 
 struct LifeActivityCard {

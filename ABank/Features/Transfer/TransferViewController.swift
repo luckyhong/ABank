@@ -45,20 +45,7 @@ final class TransferViewController: BankingDataViewController {
 
     override func setupNavigationBar() {
         title = "转账"
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationController?.navigationBar.tintColor = .abankTextPrimary
 
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white
-        appearance.shadowColor = .clear
-        appearance.titleTextAttributes = [
-            .foregroundColor: UIColor.abankTextPrimary,
-            .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
-        ]
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        navigationController?.navigationBar.compactAppearance = appearance
 
         navigationItem.leftBarButtonItem = makeIconItem(
             systemName: "chevron.left",
@@ -70,11 +57,6 @@ final class TransferViewController: BankingDataViewController {
             action: #selector(serviceTapped),
             pointSize: 18
         )
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
     override func refreshBankingData() {
@@ -203,14 +185,12 @@ final class TransferViewController: BankingDataViewController {
         }
         primaryCard.onSecondaryTapped = { [weak self] index in
             guard let self, self.pageData.secondaryActions.indices.contains(index) else { return }
-            let controller: UIViewController = index == 0
-                ? TransferRecordsViewController(store: self.store) : TransferLimitsViewController(store: self.store)
-            self.navigationController?.pushViewController(controller, animated: true)
+            self.router.open(index == 0 ? .transferRecords : .transferLimits, from: self)
         }
 
         functionGrid.onItemTapped = { [weak self] index in
-            guard let self, let item = self.pageData.functionItems[safe: index] else { return }
-            self.showToast(item.title)
+            guard let self, let id = self.pageData.functionItems[safe: index]?.featureID else { return }
+            self.router.open(feature: id, from: self)
         }
         functionGrid.onToggleExpand = { [weak self] in
             guard let self else { return }
@@ -282,7 +262,9 @@ final class TransferViewController: BankingDataViewController {
         let button = UIButton(type: .system)
         let image = systemName == "headphones"
             ? UIImage.abankAsset("abc_account_toolbar_service", fallback: systemName, pointSize: 22)
-            : UIImage(systemName: systemName, withConfiguration: UIImage.SymbolConfiguration(pointSize: pointSize, weight: .regular))
+            : systemName == "chevron.left"
+                ? UIImage.abankBackIndicator
+                : UIImage(systemName: systemName, withConfiguration: UIImage.SymbolConfiguration(pointSize: pointSize, weight: .regular))
         button.setImage(image, for: .normal)
         button.tintColor = .abankTextPrimary
         button.frame = CGRect(x: 0, y: 0, width: 28, height: 28)

@@ -52,9 +52,7 @@ final class WealthViewController: BaseViewController {
 
     private let headerContentHeight: CGFloat = 52
 
-    override func setupNavigationBar() {
-        navigationController?.setNavigationBarHidden(true, animated: false)
-    }
+    override var prefersNavigationBarHidden: Bool { true }
 
     override func setupUI() {
         view.backgroundColor = .abankBackground
@@ -195,8 +193,12 @@ final class WealthViewController: BaseViewController {
         loginCard.onLoginTapped = { [weak self] in self?.showToast("请登录查看持仓") }
 
         functionGrid.onItemTapped = { [weak self] index in
-            let title = self?.pageData.gridItems[safe: index]?.title ?? "功能"
-            self?.showToast(title)
+            guard let self, let item = self.pageData.gridItems[safe: index] else { return }
+            if let id = item.featureID {
+                self.router.open(feature: id, from: self)
+            } else {
+                self.router.open(.allFeatures(searchKeyword: nil), from: self)
+            }
         }
 
         hotspotView.onTap = { [weak self] in

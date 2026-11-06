@@ -29,8 +29,8 @@ final class AssetLiabilityAnnouncementBarView: UIControl {
     }
 
     private func setupUI() {
-        let iconConfig = UIImage.SymbolConfiguration(pointSize: 12, weight: .medium)
-        speakerIcon.image = UIImage(systemName: "speaker.wave.2.fill", withConfiguration: iconConfig)
+        speakerIcon.image = UIImage.abankAsset("abc_transfer_notice_speaker", fallback: "speaker.wave.2.fill",
+                                               renderingMode: .alwaysTemplate)
         speakerIcon.tintColor = UIColor(red: 175 / 255, green: 125 / 255, blue: 60 / 255, alpha: 1)
         speakerIcon.contentMode = .scaleAspectFit
 

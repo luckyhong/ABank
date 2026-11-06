@@ -35,23 +35,10 @@ final class IncomeExpenseViewController: BankingDataViewController {
 
     override func setupNavigationBar() {
         title = "收支"
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationController?.navigationBar.tintColor = .abankTextPrimary
 
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white
-        appearance.shadowColor = .clear
-        appearance.titleTextAttributes = [
-            .foregroundColor: UIColor.abankTextPrimary,
-            .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
-        ]
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        navigationController?.navigationBar.compactAppearance = appearance
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
+            image: UIImage.abankBackIndicator,
             style: .plain,
             target: self,
             action: #selector(backTapped)
@@ -216,9 +203,8 @@ final class IncomeExpenseViewController: BankingDataViewController {
             self.reloadData()
         }
         // 与日期/账户一致：以弹框方式呈现筛选面板
-        let nav = UINavigationController(rootViewController: controller)
+        let nav = ABankNavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
-        nav.navigationBar.tintColor = .abankTextPrimary
         present(nav, animated: true)
     }
 

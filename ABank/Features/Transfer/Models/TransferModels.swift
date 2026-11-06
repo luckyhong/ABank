@@ -30,6 +30,7 @@ struct TransferFunctionItem {
     let title: String
     let systemIcon: String
     var imageName: String? = nil
+    var featureID: FeatureID? = nil
 }
 
 struct TransferAccount {

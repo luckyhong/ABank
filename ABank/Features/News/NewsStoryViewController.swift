@@ -14,13 +14,7 @@ final class NewsStoryViewController: BaseViewController {
 
     override func setupNavigationBar() {
         title = story.isDemo ? "每日知识" : "资讯详情"
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white
-        navigationItem.standardAppearance = appearance
-        navigationItem.scrollEdgeAppearance = appearance
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(back))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage.abankBackIndicator, style: .plain, target: self, action: #selector(back))
     }
     override func setupUI() {
         view.backgroundColor = .white
@@ -82,8 +76,7 @@ final class NewsStoryListViewController: UITableViewController {
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(back))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage.abankBackIndicator, style: .plain, target: self, action: #selector(back))
         tableView.register(NewsArticleCell.self, forCellReuseIdentifier: NewsArticleCell.reuseId)
         tableView.separatorStyle = .none
         tableView.rowHeight = UITableView.automaticDimension

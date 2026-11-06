@@ -66,8 +66,7 @@ final class DebitCardDetailInfoCardView: UIView {
         cardNumberLabel.font = .systemFont(ofSize: 16, weight: .medium)
         cardNumberLabel.textColor = .abankTextPrimary
 
-        let eyeConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
-        eyeButton.setImage(UIImage(systemName: "eye", withConfiguration: eyeConfig), for: .normal)
+        eyeButton.setImage(Self.eyeImage(visible: isNumberVisible), for: .normal)
         eyeButton.tintColor = .abankTextTertiary
         eyeButton.addTarget(self, action: #selector(eyeTapped), for: .touchUpInside)
 
@@ -126,9 +125,13 @@ final class DebitCardDetailInfoCardView: UIView {
 
     private func applyCardNumber() {
         cardNumberLabel.text = isNumberVisible ? fullNumber : maskedNumber
-        let symbol = isNumberVisible ? "eye.slash" : "eye"
-        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
-        eyeButton.setImage(UIImage(systemName: symbol, withConfiguration: config), for: .normal)
+        eyeButton.setImage(Self.eyeImage(visible: isNumberVisible), for: .normal)
+    }
+
+    /// 与“我的”“我的贷款”一致：图标表示当前状态（睁眼 = 已显示）。
+    private static func eyeImage(visible: Bool) -> UIImage? {
+        UIImage.abankAsset(visible ? "abc_mine_detail_amount_eye_open" : "abc_mine_detail_amount_eye_closed",
+                           fallback: visible ? "eye" : "eye.slash", renderingMode: .alwaysTemplate, pointSize: 14)
     }
 
     @objc private func eyeTapped() {

@@ -38,7 +38,7 @@ final class MainTabBarController: UITabBarController {
     }
 
     private func wrap(_ root: UIViewController, title: String, icon: String, asset: String) -> UINavigationController {
-        let nav = UINavigationController(rootViewController: root)
+        let nav = ABankNavigationController(rootViewController: root)
         nav.tabBarItem = UITabBarItem(
             title: title,
             image: UIImage.abankAsset("abc_tab_\(asset)_normal", fallback: icon),

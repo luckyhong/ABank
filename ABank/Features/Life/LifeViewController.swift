@@ -45,9 +45,7 @@ final class LifeViewController: BaseViewController {
     private var contentTopConstraint: Constraint?
     private let headerContentHeight: CGFloat = 52
 
-    override func setupNavigationBar() {
-        navigationController?.setNavigationBarHidden(true, animated: false)
-    }
+    override var prefersNavigationBarHidden: Bool { true }
 
     override func setupUI() {
         view.backgroundColor = .abankBackground
@@ -158,12 +156,19 @@ final class LifeViewController: BaseViewController {
         searchBar.onSearchTapped = { [weak self] keyword in
             self?.showToast("搜索「\(keyword)」")
         }
-        searchBar.onOrdersTapped = { [weak self] in self?.showToast("我的订单") }
+        searchBar.onOrdersTapped = { [weak self] in
+            guard let self else { return }
+            self.router.open(feature: .orders, from: self)
+        }
         searchBar.onCouponsTapped = { [weak self] in self?.showToast("我的卡券") }
 
         serviceGrid.onItemTapped = { [weak self] page, index in
-            let title = self?.pageData.gridPages[safe: page]?[safe: index]?.title ?? "服务"
-            self?.showToast(title)
+            guard let self, let item = self.pageData.gridPages[safe: page]?[safe: index] else { return }
+            if let id = item.featureID {
+                self.router.open(feature: id, from: self)
+            } else {
+                self.router.open(.allFeatures(searchKeyword: nil), from: self)
+            }
         }
 
         colorfulActivities.onHeaderTapped = { [weak self] in self?.showToast("缤纷活动") }

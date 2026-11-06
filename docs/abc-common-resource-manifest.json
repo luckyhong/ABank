@@ -1,0 +1,60 @@
+{
+ "module": "Common",
+ "source_root": "artifacts/abc-resources/catalog-images/Assets",
+ "assets": [
+  {
+   "semantic_name": "abc_nav_back",
+   "usage": "全局导航返回箭头（随导航栏 tint 着色）",
+   "rendering": "template",
+   "imageset": "ABank/Assets.xcassets/ABCImported/Common/abc_nav_back.imageset",
+   "files": [
+    {
+     "scale": "2x",
+     "source": "UPSDK_icon_back_Normal@2x.png",
+     "sha256": "a8da29108aedd15edab69ec9d95d9b4f6ecef56857b054ab4b345bf3eab1f4cc"
+    },
+    {
+     "scale": "3x",
+     "source": "UPSDK_icon_back_Normal@3x.png",
+     "sha256": "262c225ad7c1cab701fb924c2f5bbd705d0bdad24167762d5dfa81e7acb673dc"
+    }
+   ]
+  },
+  {
+   "semantic_name": "abc_branch_phone",
+   "usage": "首页网点服务-拨打电话",
+   "rendering": "original",
+   "imageset": "ABank/Assets.xcassets/ABCImported/Common/abc_branch_phone.imageset",
+   "files": [
+    {
+     "scale": "2x",
+     "source": "hp_mine_nearbyoutlets_phone_Normal@2x.png",
+     "sha256": "3b581b7922e63dc9e38c357fb4f0f162e923fae5a3197b58fd8c17956f103b0d"
+    },
+    {
+     "scale": "3x",
+     "source": "hp_mine_nearbyoutlets_phone_Normal@3x.png",
+     "sha256": "82ee28ebb41522f10ffd499de130c35fb6b53b6515c5a16922c86a06f80041b8"
+    }
+   ]
+  },
+  {
+   "semantic_name": "abc_branch_location",
+   "usage": "首页网点服务-地图定位",
+   "rendering": "original",
+   "imageset": "ABank/Assets.xcassets/ABCImported/Common/abc_branch_location.imageset",
+   "files": [
+    {
+     "scale": "2x",
+     "source": "hp_mine_nearbyoutlets_location_Normal@2x.png",
+     "sha256": "9e5339937513a10d62df8fadd59dd90c1137fdf06f89337e0cae399674ea8e7c"
+    },
+    {
+     "scale": "3x",
+     "source": "hp_mine_nearbyoutlets_location_Normal@3x.png",
+     "sha256": "39c773cd1b678a0e4c1368640587db07be2d478ef48cdf59e0203848afd0736d"
+    }
+   ]
+  }
+ ]
+}

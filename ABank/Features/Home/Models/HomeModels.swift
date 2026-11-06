@@ -10,6 +10,7 @@ struct HomeShortcutItem {
     let imageName: String
     let systemIcon: String
     let backgroundColor: UIColor
+    var featureID: FeatureID? = nil
 }
 
 struct HomeGridItem {
@@ -17,6 +18,20 @@ struct HomeGridItem {
     let imageName: String
     let systemIcon: String
     let badge: String?
+    var featureID: FeatureID? = nil
+}
+
+extension HomeGridItem {
+    /// 由常用功能生成首页宫格项；普惠金融保留原首页的 NEW 角标。
+    init(descriptor: FeatureDescriptor) {
+        self.init(title: descriptor.title, imageName: descriptor.imageName ?? "",
+                  systemIcon: descriptor.systemIcon,
+                  badge: descriptor.id == .inclusiveFinance ? "NEW" : nil,
+                  featureID: descriptor.id)
+    }
+
+    /// 固定的“全部”入口。
+    static let allEntry = HomeGridItem(title: "全部", imageName: "abc_home_all", systemIcon: "ellipsis.circle", badge: nil)
 }
 
 struct HomeNoticeItem {
@@ -94,6 +109,7 @@ struct HomeBranchServiceItem {
     let title: String
     let imageName: String
     let systemIcon: String
+    var featureID: FeatureID? = nil
 }
 
 struct HomeInfoMarketItem {
@@ -119,7 +135,6 @@ struct HomePageData {
     let messageBadge: Int
     let heroBanners: [HomeHeroBannerItem]
     let shortcuts: [HomeShortcutItem]
-    let gridItems: [HomeGridItem]
     let notices: [HomeNoticeItem]
     let promoBanners: [HomePromoBannerItem]
     let wealthFeatured: HomeWealthFeaturedItem
