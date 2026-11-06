@@ -29,6 +29,7 @@ final class MineViewController: BankingDataViewController {
     private let securityCard = MineSecurityCenterCardView()
     private let orderCard = MineOrderCardView()
     private let customerManagerCard = MineCustomerManagerCardView()
+    private let security: SecuritySettingsStore = .shared
 
     override var prefersNavigationBarHidden: Bool { true }
 
@@ -52,6 +53,26 @@ final class MineViewController: BankingDataViewController {
     override func refreshBankingData() {
         refreshProfileFromStore()
         refreshFinanceCardsFromStore()
+        applyAmountVisibility()
+    }
+
+    /// 金额隐私以安全中心的全局设置为准
+    private func applyAmountVisibility() {
+        let visible = !security.hidesAmounts
+        assetLiabilityCard.setAmountVisible(visible)
+        monthlyFlowCard.setAmountVisible(visible)
+    }
+
+    private func toggleAmountVisibility() {
+        if !security.setHidesAmounts(!security.hidesAmounts) {
+            showToast(SecuritySettingsError.persistence.localizedDescription)
+        }
+        applyAmountVisibility()
+    }
+
+    @objc private func securitySettingsDidChange() {
+        guard isViewLoaded else { return }
+        applyAmountVisibility()
     }
 
     override func setupUI() {
@@ -132,6 +153,10 @@ final class MineViewController: BankingDataViewController {
     }
 
     private func bindActions() {
+        NotificationCenter.default.addObserver(self, selector: #selector(securitySettingsDidChange),
+                                               name: SecuritySettingsStore.didChangeNotification, object: security)
+        assetLiabilityCard.onEyeTapped = { [weak self] in self?.toggleAmountVisibility() }
+        monthlyFlowCard.onEyeTapped = { [weak self] in self?.toggleAmountVisibility() }
         topActionBar.onLogoutTapped = { [weak self] in
             self?.showToast("退出登录")
         }

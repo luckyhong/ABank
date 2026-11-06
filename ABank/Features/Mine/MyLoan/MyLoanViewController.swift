@@ -9,7 +9,7 @@ import SnapKit
 final class MyLoanViewController: BaseViewController {
 
     private var pageData: MyLoanPageData
-    private var isAmountVisible = true
+    private let security: SecuritySettingsStore
 
     private let scrollView = UIScrollView()
     private let contentView = UIView()
@@ -18,10 +18,22 @@ final class MyLoanViewController: BaseViewController {
     private let contractSection = MyLoanContractSectionView()
     private let tipLabel = UILabel()
 
-    init() {
+    init(security: SecuritySettingsStore = .shared) {
         self.pageData = FinanceLedgerStore.shared.myLoanPageData()
+        self.security = security
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
+        NotificationCenter.default.addObserver(self, selector: #selector(securitySettingsDidChange),
+                                               name: SecuritySettingsStore.didChangeNotification, object: security)
+    }
+
+    @objc private func securitySettingsDidChange() {
+        guard isViewLoaded else { return }
+        applyAmountVisibility()
+    }
+
+    private func applyAmountVisibility() {
+        summaryView.setAmountVisible(!security.hidesAmounts)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -95,8 +107,12 @@ final class MyLoanViewController: BaseViewController {
             self?.navigationController?.pushViewController(controller, animated: true)
         }
         summaryView.onEyeTapped = { [weak self] in
-            // summaryView 内部已切换；此处同步 VC 状态，供 reload 后恢复
-            self?.isAmountVisible.toggle()
+            guard let self else { return }
+            // 全局隐私设置：失败时保持原状态并提示
+            if !self.security.setHidesAmounts(!self.security.hidesAmounts) {
+                self.showToast(SecuritySettingsError.persistence.localizedDescription)
+            }
+            self.applyAmountVisibility()
         }
         actionGrid.onItemTapped = { [weak self] index in
             let titles = ["待办任务", "进度查询", "贷款续贷", "结清证明"]
@@ -130,7 +146,7 @@ final class MyLoanViewController: BaseViewController {
             unpaidPrincipal: pageData.totalUnpaidPrincipal,
             availableLimit: pageData.availableLimit
         )
-        summaryView.setAmountVisible(isAmountVisible)
+        applyAmountVisibility()
         contractSection.configure(contracts: pageData.contracts)
         tipLabel.text = pageData.tip
     }

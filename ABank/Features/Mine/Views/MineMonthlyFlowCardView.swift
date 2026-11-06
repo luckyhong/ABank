@@ -84,12 +84,8 @@ final class MineMonthlyFlowCardView: UIView {
         billRow.addTarget(self, action: #selector(billTapped), for: .touchUpInside)
 
         header.onTap = { [weak self] in self?.onTap?() }
-        header.onEyeTapped = { [weak self] in
-            self?.isAmountVisible.toggle()
-            self?.header.setAmountVisible(self?.isAmountVisible ?? true)
-            self?.updateAmounts()
-            self?.onEyeTapped?()
-        }
+        // 可见性由页面根据全局隐私设置驱动，这里只上报点击
+        header.onEyeTapped = { [weak self] in self?.onEyeTapped?() }
         contentControl.addTarget(self, action: #selector(contentTapped), for: .touchUpInside)
 
         addSubview(card)
