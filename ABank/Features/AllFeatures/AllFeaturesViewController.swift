@@ -46,7 +46,6 @@ final class AllFeaturesViewController: BaseViewController, RouteHosting {
 
     override func setupNavigationBar() {
         title = "全部功能"
-        navigationController?.navigationBar.tintColor = .abankTextPrimary
     }
 
     override func setupUI() {
@@ -110,7 +109,6 @@ final class AllFeaturesViewController: BaseViewController, RouteHosting {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
         reloadBrowse()
     }
 
@@ -146,6 +144,7 @@ final class AllFeaturesViewController: BaseViewController, RouteHosting {
 
     private func scroll(to category: FeatureCategory) {
         guard let sectionIndex = sections.firstIndex(of: .category(category)),
+              sectionIndex < browseView.numberOfSections,
               let attributes = browseView.layoutAttributesForSupplementaryElement(
                 ofKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: sectionIndex))
         else { return }
@@ -158,7 +157,9 @@ final class AllFeaturesViewController: BaseViewController, RouteHosting {
         let probe = browseView.contentOffset.y + 1
         var current = FeatureCategory.account
         for (index, section) in sections.enumerated() {
+            // 首次布局时 sections 已就绪而集合视图尚未载入分区，越界查询会抛异常。
             guard case .category(let category) = section,
+                  index < browseView.numberOfSections,
                   let attributes = browseView.layoutAttributesForSupplementaryElement(
                     ofKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: index))
             else { continue }

@@ -30,14 +30,7 @@ final class MineViewController: BankingDataViewController {
     private let orderCard = MineOrderCardView()
     private let customerManagerCard = MineCustomerManagerCardView()
 
-    override func setupNavigationBar() {
-        navigationController?.setNavigationBarHidden(true, animated: false)
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: animated)
-    }
+    override var prefersNavigationBarHidden: Bool { true }
 
     private func refreshFinanceCardsFromStore() {
         assetLiabilityCard.configure(with: FinanceLedgerStore.shared.mineAssetLiability())

@@ -56,9 +56,7 @@ final class NewsViewController: BaseViewController {
     private let searchBarHeight: CGFloat = 48
     private let primaryTabsHeight: CGFloat = 44
 
-    override func setupNavigationBar() {
-        navigationController?.setNavigationBarHidden(true, animated: false)
-    }
+    override var prefersNavigationBarHidden: Bool { true }
 
     override func setupUI() {
         view.backgroundColor = .white
@@ -87,7 +85,6 @@ final class NewsViewController: BaseViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
         refreshContent(force: false)
     }
 

@@ -22,7 +22,7 @@ final class BranchServiceView: UIView {
     private let phoneButton = UIButton(type: .system)
     private let addressLabel = UILabel()
     private let mapView = UIView()
-    private let mapPin = UIImageView(image: UIImage(systemName: "mappin.circle.fill"))
+    private let mapPin = UIImageView(image: UIImage.abankAsset("abc_branch_location", fallback: "mappin.circle.fill"))
     private let serviceStack = UIStackView()
     private let queueButton = UIButton(type: .system)
 
@@ -80,7 +80,7 @@ final class BranchServiceView: UIView {
 
         distanceLabel.font = .systemFont(ofSize: 12)
         distanceLabel.textColor = .abankTextSecondary
-        phoneButton.setImage(UIImage(systemName: "phone.fill"), for: .normal)
+        phoneButton.setImage(UIImage.abankAsset("abc_branch_phone", fallback: "phone.fill"), for: .normal)
         phoneButton.tintColor = .abankPrimary
         phoneButton.backgroundColor = UIColor.abankPrimary.withAlphaComponent(0.12)
         phoneButton.layer.cornerRadius = 12
@@ -91,7 +91,6 @@ final class BranchServiceView: UIView {
 
         mapView.backgroundColor = UIColor(red: 0.90, green: 0.94, blue: 0.90, alpha: 1)
         mapView.layer.cornerRadius = CornerRadius.sm
-        mapPin.tintColor = .abankOrange
         mapView.addSubview(mapPin)
         mapPin.snp.makeConstraints { make in
             make.center.equalToSuperview()

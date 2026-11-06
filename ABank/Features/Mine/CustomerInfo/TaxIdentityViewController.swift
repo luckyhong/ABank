@@ -21,9 +21,8 @@ final class TaxIdentityViewController: BaseViewController {
 
     override func setupNavigationBar() {
         title = "税收身份声明"
-        navigationController?.navigationBar.tintColor = .abankTextPrimary
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
+            image: UIImage.abankBackIndicator,
             style: .plain,
             target: self,
             action: #selector(backTapped)

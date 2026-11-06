@@ -25,11 +25,6 @@ final class ComingSoonViewController: BaseViewController, RouteHosting {
         title = descriptor.title
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
-    }
-
     override func setupUI() {
         view.backgroundColor = .abankCardBackground
 

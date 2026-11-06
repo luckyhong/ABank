@@ -37,11 +37,9 @@ final class LoanDetailViewController: BaseViewController {
 
     override func setupNavigationBar() {
         title = "贷款详情"
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationController?.navigationBar.tintColor = .abankTextPrimary
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
+            image: UIImage.abankBackIndicator,
             style: .plain,
             target: self,
             action: #selector(backTapped)

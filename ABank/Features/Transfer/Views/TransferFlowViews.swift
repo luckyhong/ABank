@@ -7,15 +7,6 @@ class TransferFlowViewController: BankingDataViewController {
     let contentStack = UIStackView()
 
     override func setupNavigationBar() {
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationController?.navigationBar.tintColor = .abankTextPrimary
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.abankTextPrimary,
-                                          .font: UIFont.systemFont(ofSize: 17, weight: .semibold)]
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
         navigationItem.backButtonTitle = ""
     }
 

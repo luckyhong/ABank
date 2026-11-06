@@ -50,22 +50,21 @@ final class AssetLiabilityViewController: BankingDataViewController {
 
     override func setupNavigationBar() {
         title = "资产负债"
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationController?.navigationBar.tintColor = .abankTextPrimary
 
-        let appearance = UINavigationBarAppearance()
+        let appearance = ABankNavigationController.makeStandardAppearance()
         appearance.configureWithTransparentBackground()
+        if let back = UIImage.abankSystemBackIndicator { appearance.setBackIndicatorImage(back, transitionMaskImage: back) }
         appearance.titleTextAttributes = [
             .foregroundColor: UIColor.abankTextPrimary,
             .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
         ]
         appearance.shadowColor = .clear
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        navigationController?.navigationBar.compactAppearance = appearance
+        navigationItem.standardAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance = appearance
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
+            image: UIImage.abankBackIndicator,
             style: .plain,
             target: self,
             action: #selector(backTapped)
@@ -76,11 +75,6 @@ final class AssetLiabilityViewController: BankingDataViewController {
             target: self,
             action: #selector(shareTapped)
         )
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
     override func viewDidLayoutSubviews() {

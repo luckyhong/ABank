@@ -66,10 +66,8 @@ final class CustomerInfoViewController: BaseViewController {
 
     override func setupNavigationBar() {
         title = "客户信息"
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationController?.navigationBar.tintColor = .abankTextPrimary
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
+            image: UIImage.abankBackIndicator,
             style: .plain,
             target: self,
             action: #selector(backTapped)
@@ -78,7 +76,6 @@ final class CustomerInfoViewController: BaseViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
         reloadFromStore()
     }
 

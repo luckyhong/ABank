@@ -13,8 +13,6 @@ final class LedgerSearchViewController: BankingDataViewController, UISearchBarDe
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     override func setupNavigationBar() {
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationController?.navigationBar.tintColor = .abankTextPrimary
     }
     override func setupUI() {
         title = "交易搜索"

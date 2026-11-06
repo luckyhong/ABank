@@ -45,15 +45,7 @@ final class LifeViewController: BaseViewController {
     private var contentTopConstraint: Constraint?
     private let headerContentHeight: CGFloat = 52
 
-    override func setupNavigationBar() {
-        navigationController?.setNavigationBarHidden(true, animated: false)
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        // 从功能页返回时重新隐藏导航栏（新页面会在 viewWillAppear 中显示导航栏）。
-        navigationController?.setNavigationBarHidden(true, animated: animated)
-    }
+    override var prefersNavigationBarHidden: Bool { true }
 
     override func setupUI() {
         view.backgroundColor = .abankBackground

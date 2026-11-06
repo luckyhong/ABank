@@ -13,6 +13,9 @@ class BaseViewController: UIViewController {
 
     /// 统一路由入口，测试时可替换。
     var router: AppRouting = AppRouter.shared
+
+    /// 是否隐藏导航栏；由 ABankNavigationController 在转场前统一应用，页面不要直接调用 setNavigationBarHidden。
+    var prefersNavigationBarHidden: Bool { false }
     
     private lazy var loadingContainerView: UIView = {
         let view = UIView()
@@ -36,7 +39,6 @@ class BaseViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .abankBackground
-        configureNavigationAppearance()
         setupLoading()
         setupUI()
         setupNavigationBar()
@@ -47,16 +49,6 @@ class BaseViewController: UIViewController {
     func setupUI() { }
     func setupBindings() { }
     func setupNavigationBar() { }
-    
-    // MARK: - 导航栏统一样式
-    private func configureNavigationAppearance() {
-        navigationController?.navigationBar.tintColor = .abankPrimary
-        navigationController?.navigationBar.titleTextAttributes = [
-            .foregroundColor: UIColor.abankTextPrimary,
-            .font: UIFont.abankHeadline()
-        ]
-        navigationController?.navigationBar.prefersLargeTitles = false
-    }
     
     // MARK: - Loading
     private func setupLoading() {

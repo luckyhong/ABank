@@ -46,14 +46,11 @@ final class FavoriteFeaturesEditViewController: BaseViewController, RouteHosting
         cancel.accessibilityIdentifier = "editFavorites.cancel"
         let done = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(doneTapped))
         done.accessibilityIdentifier = "editFavorites.done"
+        cancel.tintColor = .abankTextSecondary
+        done.tintColor = .abankPrimary
         navigationItem.leftBarButtonItem = cancel
         navigationItem.rightBarButtonItem = done
         navigationItem.hidesBackButton = true
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
     override func setupUI() {

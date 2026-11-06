@@ -76,14 +76,7 @@ final class HomeViewController: BaseViewController {
 
     private let headerContentHeight: CGFloat = 52
 
-    override func setupNavigationBar() {
-        navigationController?.setNavigationBarHidden(true, animated: false)
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: animated)
-    }
+    override var prefersNavigationBarHidden: Bool { true }
 
     override func setupUI() {
         view.backgroundColor = .abankBackground

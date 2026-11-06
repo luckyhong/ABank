@@ -34,23 +34,10 @@ final class MyAccountViewController: BankingDataViewController {
 
     override func setupNavigationBar() {
         title = "我的账户"
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationController?.navigationBar.tintColor = .abankTextPrimary
 
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white
-        appearance.shadowColor = .clear
-        appearance.titleTextAttributes = [
-            .foregroundColor: UIColor.abankTextPrimary,
-            .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
-        ]
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        navigationController?.navigationBar.compactAppearance = appearance
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
+            image: UIImage.abankBackIndicator,
             style: .plain,
             target: self,
             action: #selector(backTapped)
@@ -63,11 +50,6 @@ final class MyAccountViewController: BankingDataViewController {
             action: #selector(moreTapped)
         )
         navigationItem.rightBarButtonItem?.tintColor = .abankTextSecondary
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
     override func refreshBankingData() {

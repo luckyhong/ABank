@@ -44,10 +44,6 @@ final class TransferRecordsViewController: BankingDataViewController, UITableVie
         tableView.snp.makeConstraints { $0.top.equalTo(notice.snp.bottom).offset(8); $0.leading.trailing.bottom.equalToSuperview() }
         refreshBankingData()
     }
-    override func setupNavigationBar() {
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationController?.navigationBar.tintColor = .abankTextPrimary
-    }
     override func refreshBankingData() {
         records = store.transferRecords().filter { record in
             filter.selectedSegmentIndex == 0 || (filter.selectedSegmentIndex == 1 ? record.status == .succeeded : record.status == .failed)
