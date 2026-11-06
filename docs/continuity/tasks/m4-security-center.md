@@ -1,7 +1,7 @@
 # m4-security-center
 
 - branch: `feat/m4-security-center`；起点 HEAD：`ef46672`（main，M3 已合并并推送）
-- 更新：2026-11-06
+- 更新：2026-11-06（Task 8 完成后）
 
 ## 目标与验收
 M4 安全中心：登录/转账/支付设置、登录设备列表/详情/移除、全局金额隐私、可编辑模拟限额。验收标准见设计文档 §1。
@@ -13,8 +13,10 @@ M4 安全中心：登录/转账/支付设置、登录设备列表/详情/移除�
 - 图标：`artifacts/abc-resources/images/safecenter_*`（96px 单图，放 3x 槽位）。
 
 ## 进度
-- 设计文档：`docs/superpowers/specs/2026-11-06-m4-security-center-design.md`（用户已通过对话设计，待审阅书面设计）。
-- 实施计划：`docs/superpowers/plans/2026-11-06-m4-security-center.md`（8 个任务），待用户审阅并选择执行方式；未改代码。
+- 设计 `cb36383`、计划 `04e8a3d` 已通过；用户选择本会话直接执行。
+- Task 1–7 已提交（`cb36383..cbc099d` 之后），最后一个功能提交 `cbc099d feat: 金额隐私改为全局同步`。
+- Task 8 模拟器验收完成，结果与未验证项见 `docs/development-plan.md` 的“M4 实施记录”。
+- 执行台账：`.superpowers/sdd/2026-11-06-m4-security-center/progress.md`（被 Git 忽略，含各任务裁定）。
 
 ## 下一步
-用户审阅设计文档 → 写实施计划 → 选择执行方式 → 实施。
+全分支审查（新审查者）→ 修复 Critical/Important → 用户决定合并/推送。未经用户要求不推送。
