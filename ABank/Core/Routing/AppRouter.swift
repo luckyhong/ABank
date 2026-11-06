@@ -72,7 +72,7 @@ final class AppRouter: AppRouting {
         case .transferRecords:
             return TransferRecordsViewController(store: ledger)
         case .transferLimits:
-            return TransferLimitsViewController(store: ledger)
+            return TransferSettingsViewController(ledger: ledger)
         case .transferReceipts:
             return TransferReceiptsViewController(store: ledger)
         case .accountDetail(let accountID, let maskedNumber):

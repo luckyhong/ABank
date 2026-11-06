@@ -97,24 +97,3 @@ final class TransferRecipientsViewController: TransferFlowViewController {
         if recipients.isEmpty { addNotice("暂无该类型的转账伙伴，请返回手动填写") }
     }
 }
-
-final class TransferLimitsViewController: TransferFlowViewController {
-    private let store: FinanceLedgerStore
-    init(store: FinanceLedgerStore? = nil) {
-        self.store = store ?? .shared
-        super.init(nibName: nil, bundle: nil)
-        hidesBottomBarWhenPushed = true
-    }
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-    override func setupUI() {
-        super.setupUI()
-        title = "转账设置"
-        addNotice("本机模拟规则，当前仅供查看")
-        addGroup([
-            TransferInfoRow("单笔限额", value: "¥ " + TransferMoney.text(store.transferLimits.perTransferInCents)),
-            TransferInfoRow("每日累计限额", value: "¥ " + TransferMoney.text(store.transferLimits.dailyInCents)),
-            TransferInfoRow("手续费", value: "¥ 0.00")
-        ])
-        addNotice("金额和限额在确认前及提交时均会校验。设备管理与限额编辑将在安全中心阶段完善。")
-    }
-}
