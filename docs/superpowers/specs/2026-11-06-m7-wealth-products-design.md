@@ -85,8 +85,8 @@ Mine/FinanceLedger/FinanceLedgerStore+Wealth.swift   // 购买/赎回/持仓读�
 
 `FinanceLedgerRecord` 新增 `wealthOrders: [WealthOrder] = []`（`CodingKeys` 加入，`decodeIfPresent`）。`FinanceLedgerStore+Wealth.swift`：
 
-- `submitWealthPurchase(productID:amountInCents:requestID:) throws -> WealthOrder`：校验顺序——请求 ID → 同请求已存在则直接返回 → 严格读取最新账本（损坏则报错、不重置）→ 产品存在 → 测评（未测评/过期/等级不足）→ 金额（≥ 起购、≤ 100 万元、≤ 付款账户余额）→ 构造订单与一条支出流水（`wealth_buy_<订单ID>`，标题“理财购买-产品名”，`categoryId: "wealth_purchase"`，`includeInFlow: false`，渠道“本机模拟”）→ 重算余额 → 一次 `persist`。
-- `redeemWealthOrder(orderID:) throws`：订单存在、未赎回、`days ≥ minHoldDays` → 收入流水（`wealth_redeem_<订单ID>`，金额 = 本金 + 累计收益，`categoryId: "wealth_redeem"`，`includeInFlow: false`）→ 订单写入赎回信息 → 一次 `persist`。
+- `submitWealthPurchase(productID:amountInCents:requestID:) throws -> WealthOrder`：校验顺序——请求 ID → 同请求已存在则直接返回 → 严格读取最新账本（损坏则报错、不重置）→ 产品存在 → 测评（未测评/过期/等级不足）→ 金额（≥ 起购、≤ 100 万元、≤ 付款账户余额）→ 构造订单与一条支出流水（`wealth_buy_<订单ID>`，标题“理财购买-产品名”，`categoryId: "wealth_product"`（沿用既有“理财产品”筛选类别），`includeInFlow: false`，渠道“本机模拟”）→ 重算余额 → 一次 `persist`。
+- `redeemWealthOrder(orderID:) throws`：订单存在、未赎回、`days ≥ minHoldDays` → 收入流水（`wealth_redeem_<订单ID>`，金额 = 本金 + 累计收益，`categoryId: "wealth_product"`，`includeInFlow: false`）→ 订单写入赎回信息 → 一次 `persist`。
 - 读取：`wealthOrders()`、`wealthOrder(id:)`、`holdingValueInCents(of:)`、`accruedInterestInCents(of:)`、`totalHoldingValue()`。`totalAssets()` 改为账户余额 + 持仓价值；`assetLiabilityPageData()` 在“活期”后新增“理财”类别（每笔未赎回订单一项：标题产品名、金额当前价值、副标题“本金 x 元 · 收益 y 元”）。
 - 测评由注入的 `riskProfileProvider: @MainActor () -> RiskAssessmentRecord?`（默认读 `RiskAssessmentStore.shared`）提供；账本内部把私有的严格读取与 `persist` 改为内部可见以便扩展文件使用。
 - 错误 `WealthError`（中文文案）：`invalidRequest`、`productNotFound`、`assessmentRequired`、`assessmentExpired`、`riskLevelTooLow`、`invalidAmount`、`belowMinimum`、`aboveMaximum`、`insufficientBalance`、`orderNotFound`、`notRedeemable`、`alreadyRedeemed`、`corruptLedger`、`persistence`。
