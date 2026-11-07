@@ -7,6 +7,7 @@ import UIKit
 import SnapKit
 
 final class LifeBannerView: UIView {
+    var onItemTapped: ((Int) -> Void)?
 
     private let collectionView: UICollectionView
     private let pageControl = UIPageControl()
@@ -91,6 +92,10 @@ extension LifeBannerView: UICollectionViewDataSource, UICollectionViewDelegateFl
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         collectionView.bounds.size
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        onItemTapped?(indexPath.item)
     }
 
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {

@@ -14,7 +14,7 @@ import Foundation
         let ids = FeatureCatalog.all.map(\.id)
         precondition(Set(ids).count == ids.count && ids.count == FeatureID.allCases.count && ids.count == 69, "ids \(ids.count)")
         precondition(Set(FeatureCatalog.all.map(\.title)).count == 69, "titles must be unique")
-        precondition(FeatureCatalog.all.filter(\.isAvailable).count == 30)
+        precondition(FeatureCatalog.all.filter(\.isAvailable).count == 32)
         precondition(FeatureCatalog.descriptor(.branchQuery).availability == .available(.branchList))
         precondition(FeatureCatalog.descriptor(.branchQueue).availability == .available(.branchQueue))
         precondition(FeatureCatalog.descriptor(.openCard).availability == .available(.branchReservation(business: .openCard, branchID: nil)))
@@ -37,8 +37,8 @@ import Foundation
         precondition(FeatureCatalog.descriptor(.deposit).availability == .planned(stage: "M7 扩展（存款/基金）"))
         precondition(FeatureCatalog.descriptor(.fund).availability == .planned(stage: "M7 扩展（存款/基金）"))
         precondition(FeatureCatalog.descriptor(.deposit).plannedStageText == "计划阶段：M7 扩展（存款/基金）")
-        precondition(FeatureCatalog.descriptor(.mobileRecharge).availability == .planned(stage: "M8 充值缴费"))
-        precondition(FeatureCatalog.descriptor(.mobileRecharge).plannedStageText == "计划阶段：M8 充值缴费")
+        precondition(FeatureCatalog.descriptor(.mobileRecharge).availability == .available(.mobileRecharge))
+        precondition(FeatureCatalog.descriptor(.lifePayment).availability == .available(.lifePayment))
         precondition(FeatureCatalog.descriptor(.charity).plannedStageText == "后续规划")
         precondition(FeatureCategory.allCases.allSatisfy { !FeatureCatalog.features(in: $0).isEmpty })
         for id in FeatureID.allCases { precondition(FeatureCatalog.descriptor(id).id == id) }
@@ -52,6 +52,9 @@ import Foundation
         precondition(FeatureSearch.search("账单").map(\.id).prefix(2).contains(.monthlyBill))
         precondition(FeatureSearch.search("网点").contains { $0.id == .branchQueue })
         precondition(FeatureSearch.search("理财").contains { $0.id == .wealthProduct })
+        for (keyword, id) in [("话费", FeatureID.mobileRecharge), ("水费", .lifePayment), ("电费", .lifePayment), ("燃气", .lifePayment)] {
+            precondition(FeatureSearch.search(keyword).contains { $0.id == id && $0.isAvailable }, "\(keyword) 应命中可用入口")
+        }
         precondition(FeatureSearch.search("vip").contains { $0.id == .customerLevel })
         for placeholder in ["分期借钱", "存金通", "个人养老金", "农银快e宝", "生活缴费"] {
             precondition(!FeatureSearch.search(placeholder).isEmpty, "首页占位词 \(placeholder) 无结果")
@@ -110,7 +113,7 @@ import Foundation
             let store = FeaturePreferencesStore(defaults: defaults)
             store.recordUse(.transfer); store.recordUse(.loan); store.recordUse(.transfer)
             precondition(store.recents == [.transfer, .loan])
-            store.recordUse(.mobileRecharge)
+            store.recordUse(.charity)
             precondition(store.recents == [.transfer, .loan])
             let available = FeatureCatalog.all.filter(\.isAvailable).map(\.id)
             for id in available.prefix(10) { store.recordUse(id) }
@@ -126,7 +129,7 @@ import Foundation
             let store = FeaturePreferencesStore(defaults: defaults, notificationCenter: center)
             store.setFavorites([.loan]); precondition(count == 1)
             store.recordUse(.transfer); precondition(count == 2)
-            store.recordUse(.mobileRecharge); precondition(count == 2)
+            store.recordUse(.charity); precondition(count == 2)
         }
     }
 

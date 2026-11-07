@@ -93,7 +93,6 @@ enum FeatureCatalog {
         Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
 
     private static let wealthStage = "M7 扩展（存款/基金）"
-    private static let paymentStage = "M8 充值缴费"
 
     private static func item(
         _ id: FeatureID, _ title: String, _ category: FeatureCategory,
@@ -187,9 +186,9 @@ enum FeatureCatalog {
 
         // MARK: 生活
         item(.lifePayment, "生活缴费", .life, image: "abc_home_payment", icon: "bolt.fill",
-             keywords: ["水费", "电费", "燃气"], .planned(stage: paymentStage)),
+             keywords: ["水费", "电费", "燃气"], .available(.lifePayment)),
         item(.mobileRecharge, "手机充值", .life, image: "abc_life_menu_mobile", icon: "iphone",
-             keywords: ["话费", "流量"], .planned(stage: paymentStage)),
+             keywords: ["话费", "流量"], .available(.mobileRecharge)),
         item(.beans, "小豆乐园", .life, image: "abc_life_menu_beans", icon: "leaf.fill",
              keywords: ["小豆", "签到"], .available(.beans)),
         item(.pointsMall, "积分商城", .life, image: "abc_life_menu_points", icon: "star.fill",
