@@ -37,6 +37,7 @@ sources=(
   ABank/Features/Payment/Models/PaymentModels.swift
   ABank/Features/Payment/Models/PaymentCatalog.swift
   ABank/Features/Payment/Models/PaymentRules.swift
+  ABank/Features/Benefits/Models/OrderListItem.swift
 )
 for check in banking transfer insights feature security branch benefits wealth payment; do
   if [[ $check == feature ]]; then

@@ -18,6 +18,7 @@ import Foundation
         try utilityRules()
         try corruptLedgerKeepsBytes()
         try writeFailureIsAtomic()
+        orderListMerge()
         print("Payment checks passed")
     }
 
@@ -578,5 +579,41 @@ import Foundation
             try store.submitUtilityPayment(billAccountID: "bill.gas.home", requestID: "a")
             precondition(counter.count == 1 && store.paymentOrders().count == 1)
         }
+    }
+
+    // MARK: - 订单列表
+
+    static func reward(_ id: String, _ created: String) -> RewardOrder {
+        RewardOrder(id: id, orderNo: "M6" + id, goodsID: "g.phone5", title: "测试兑换", currency: .beans, cost: 100,
+                    quantity: 1, createdAt: at(created), couponID: "c" + id, cancelledAt: nil)
+    }
+
+    static func orderListMerge() {
+        let rewards = [reward("r1", "2026-11-05 10:00"), reward("r2", "2026-11-06 09:00")]
+        let payments = [
+            order(target: "x", period: nil, created: "2026-11-06 09:00:00").withID("p1"),
+            order(target: "y", period: nil, created: "2026-11-04 12:00:00").withID("p2")
+        ]
+        let status: (RewardOrder) -> OrderStatus = { $0.id == "r1" ? .pendingUse : .used }
+        func ids(_ filter: OrderListFilter, reward: [RewardOrder] = rewards, payment: [PaymentOrder] = payments) -> [String] {
+            OrderListBuilder.items(filter: filter, reward: reward, payment: payment, status: status, dates: shanghai).map(\.id)
+        }
+        precondition(ids(.all) == ["p1", "r2", "r1", "p2"], "mixed newest first, payment first on ties")
+        precondition(ids(.payments) == ["p1", "p2"])
+        precondition(ids(.pendingUse) == ["r1"] && ids(.used) == ["r2"])
+        precondition(ids(.expired).isEmpty && ids(.cancelled).isEmpty)
+        precondition(ids(.all, reward: [], payment: []).isEmpty)
+        let broken = [order(target: "z", period: nil, created: "bad").withID("p3")] + payments
+        precondition(ids(.all, payment: broken) == ["p1", "r2", "r1", "p2", "p3"], "unparsable date sorts last")
+        precondition(OrderListFilter.allCases.map(\.title) == ["全部", "待使用", "已使用", "已失效", "已取消", "充值缴费"])
+    }
+}
+
+extension PaymentOrder {
+    func withID(_ newID: String) -> PaymentOrder {
+        PaymentOrder(id: newID, orderNo: orderNo, requestID: requestID, kind: kind, targetID: targetID,
+                     targetTitle: targetTitle, period: period, faceInCents: faceInCents, couponID: couponID,
+                     couponDiscountInCents: couponDiscountInCents, paidInCents: paidInCents, accountID: accountID,
+                     createdAt: createdAt, transactionID: transactionID)
     }
 }
