@@ -160,7 +160,7 @@ final class AppRouter: AppRouting {
         case .wealthOrderDetail(let orderID, let justPurchased):
             return WealthOrderDetailViewController(orderID: orderID, justPurchased: justPurchased)
         case .wealthHoldings:
-            return ComingSoonViewController(featureID: .wealthProduct) // 由 Task 7 替换
+            return WealthHoldingsViewController()
         }
     }
 }

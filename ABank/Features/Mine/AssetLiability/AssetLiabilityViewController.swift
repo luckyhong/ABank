@@ -208,6 +208,12 @@ final class AssetLiabilityViewController: BankingDataViewController {
             router.open(.incomeExpense(accountID: itemId), from: self)
         case FinanceLedgerRecord.loanCategoryId:
             router.open(.myLoan, from: self)
+        case FinanceLedgerRecord.wealthCategoryId:
+            if let itemId {
+                router.open(.wealthOrderDetail(orderID: itemId, justPurchased: false), from: self)
+            } else {
+                router.open(.wealthHoldings, from: self)
+            }
         default:
             showToast("详情")
         }
