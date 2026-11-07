@@ -53,7 +53,7 @@ extension FinanceLedgerStore {
             return AssetLiabilityItem(
                 id: order.id, title: order.productName, amount: TransferMoney.amount(value),
                 showsCurrencySymbol: true,
-                subtitle: "本金 \(TransferMoney.text(order.principalInCents)) 元 · 收益 \(TransferMoney.text(value - order.principalInCents)) 元",
+                subtitle: "本金 \(TransferMoney.text(order.principalInCents)) · 收益 \(TransferMoney.text(value - order.principalInCents))",
                 showsMenu: false
             )
         }

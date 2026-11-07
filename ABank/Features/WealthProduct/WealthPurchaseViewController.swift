@@ -32,6 +32,8 @@ final class WealthPurchaseViewController: WealthFlowViewController, RouteHosting
         title = "购买"
         amountRow.field.addAction(UIAction { [weak self] _ in self?.inputDidChange() }, for: .editingChanged)
         agreeSwitch.accessibilityIdentifier = "wealth.agree"
+        agreeSwitch.setContentHuggingPriority(.required, for: .horizontal)
+        agreeSwitch.setContentCompressionResistancePriority(.required, for: .horizontal)
         agreeSwitch.addAction(UIAction { [weak self] _ in self?.inputDidChange() }, for: .valueChanged)
         errorLabel.font = .abankCaption()
         errorLabel.textColor = .abankError

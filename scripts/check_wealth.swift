@@ -426,7 +426,7 @@ import Foundation
             let wealth = page.assetCategories.first { $0.id == FinanceLedgerRecord.wealthCategoryId }!
             precondition(wealth.title == "理财" && cents(wealth.totalAmount ?? 0) == 100_197)
             precondition(wealth.items.count == 1 && wealth.items[0].id == order.id && cents(wealth.items[0].amount) == 100_197)
-            precondition(wealth.items[0].subtitle == "本金 1000.00 元 · 收益 1.97 元" && !wealth.items[0].showsMenu)
+            precondition(wealth.items[0].subtitle == "本金 1000.00 · 收益 1.97" && !wealth.items[0].showsMenu)
             precondition(cents(page.totalAssets) == cents(store.totalAssets()))
             let sum = page.assetCategories.reduce(0) { $0 + cents($1.totalAmount ?? 0) }
             precondition(sum == cents(page.totalAssets), "categories add up to total assets")

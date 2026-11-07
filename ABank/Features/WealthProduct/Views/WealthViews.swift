@@ -30,6 +30,7 @@ func wealthProductRow(_ product: WealthProduct, onTap: @escaping () -> Void) -> 
     rate.font = .systemFont(ofSize: 20, weight: .semibold)
     rate.textColor = .abankHighlight
     rate.setContentHuggingPriority(.required, for: .horizontal)
+    rate.setContentCompressionResistancePriority(.required, for: .horizontal)
     let subtitle = "\(product.risk.shortTitle) \(product.risk.title) · 最低持有 \(product.minHoldDays) 天 · \(wealthPurchaseMinimumText(product.minPurchaseInCents))"
     let row = BenefitsRow(title: product.name, subtitle: subtitle, trailing: rate,
                           id: "wealth.row.\(product.id)", showsChevron: true)
