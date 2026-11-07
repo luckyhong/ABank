@@ -132,11 +132,11 @@ final class AppRouter: AppRouting {
         case .benefits:
             return BenefitsCenterViewController()
         case .pointsMall:
-            return ComingSoonViewController(featureID: .pointsMall) // 由 Task 4 替换
+            return RewardMallViewController(currency: .points)
         case .beans:
-            return ComingSoonViewController(featureID: .beans) // 由 Task 4 替换
-        case .goodsDetail:
-            return ComingSoonViewController(featureID: .pointsMall) // 由 Task 4 替换
+            return RewardMallViewController(currency: .beans)
+        case .goodsDetail(let goodsID):
+            return GoodsDetailViewController(goodsID: goodsID)
         case .rewardLedger:
             return ComingSoonViewController(featureID: .benefits) // 由 Task 6 替换
         case .coupons, .couponDetail:

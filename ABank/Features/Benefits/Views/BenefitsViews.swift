@@ -164,3 +164,75 @@ func benefitsActionButton(_ title: String, id: String, action: @escaping () -> V
     button.addAction(UIAction { _ in action() }, for: .touchUpInside)
     return button
 }
+
+/// 小豆签到卡：7 日进度 + 签到按钮。
+final class CheckInCardView: UIView {
+    var onCheckIn: (() -> Void)?
+
+    init(streak: Int, todayReward: Int, checkedIn: Bool, rewards: [Int]) {
+        super.init(frame: .zero)
+        backgroundColor = .abankCardBackground
+        layer.cornerRadius = 10
+
+        let cycle = rewards.count
+        let filled = checkedIn ? (streak % cycle == 0 ? cycle : streak % cycle) : streak % cycle
+        let title = UILabel()
+        title.text = streak > 0 ? "已连续签到 \(streak) 天" : "每日签到领小豆"
+        title.font = .abankBodyMedium()
+        title.textColor = .abankTextPrimary
+        title.accessibilityIdentifier = "checkin.streak"
+
+        let days = UIStackView()
+        days.distribution = .fillEqually
+        days.spacing = Spacing.xs
+        for (index, reward) in rewards.enumerated() {
+            let cell = UILabel()
+            cell.text = "+\(reward)"
+            cell.font = .systemFont(ofSize: 13, weight: .medium)
+            cell.textAlignment = .center
+            cell.layer.cornerRadius = 8
+            cell.layer.masksToBounds = true
+            cell.layer.borderWidth = 0.8
+            let isFilled = index < filled
+            let isNext = !checkedIn && index == filled
+            cell.backgroundColor = isFilled ? RewardCurrency.beans.tint : .clear
+            cell.textColor = isFilled ? .white : (isNext ? RewardCurrency.beans.tint : .abankTextTertiary)
+            cell.layer.borderColor = (isFilled || isNext ? RewardCurrency.beans.tint : UIColor.abankSeparator).cgColor
+            cell.snp.makeConstraints { $0.height.equalTo(40) }
+            days.addArrangedSubview(cell)
+        }
+
+        let button = UIButton(type: .system)
+        button.setTitle(checkedIn ? "今日已签到" : "签到领 \(todayReward) 小豆", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = checkedIn ? .abankTextTertiary : RewardCurrency.beans.tint
+        button.layer.cornerRadius = 8
+        button.isEnabled = !checkedIn
+        button.accessibilityIdentifier = "checkin.button"
+        button.snp.makeConstraints { $0.height.equalTo(44) }
+        button.addAction(UIAction { [weak self] _ in self?.onCheckIn?() }, for: .touchUpInside)
+
+        let stack = UIStackView(arrangedSubviews: [title, days, button])
+        stack.axis = .vertical
+        stack.spacing = Spacing.sm + 4
+        addSubview(stack)
+        stack.snp.makeConstraints { $0.edges.equalToSuperview().inset(Spacing.md) }
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+}
+
+/// 商品行：卡券名、品牌与有效期、本月余量，右侧标价。
+func goodsRow(goods: RewardGoods, template: CouponTemplate, remaining: Int, onTap: @escaping () -> Void) -> BenefitsRow {
+    let price = UILabel()
+    price.text = formattedAmount(goods.price) + " " + goods.currency.unit
+    price.font = .abankBodyMedium()
+    price.textColor = goods.currency.tint
+    price.setContentHuggingPriority(.required, for: .horizontal)
+    let subtitle = "\(template.brand) · 有效 \(template.validDays) 天 · 本月还可兑 \(remaining) 次"
+    let row = BenefitsRow(title: template.title, subtitle: subtitle, trailing: price,
+                          id: "mall.goods.\(goods.id)", showsChevron: true)
+    row.onTap = onTap
+    return row
+}
