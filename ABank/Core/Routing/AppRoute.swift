@@ -50,4 +50,10 @@ enum AppRoute: Equatable {
     case orders
     case orderDetail(orderID: String, justRedeemed: Bool)
     case customerLevel
+    case wealthProducts
+    case wealthProductDetail(productID: String)
+    case riskAssessment
+    case wealthPurchase(productID: String)
+    case wealthOrderDetail(orderID: String, justPurchased: Bool)
+    case wealthHoldings
 }

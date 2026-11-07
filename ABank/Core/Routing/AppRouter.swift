@@ -149,6 +149,18 @@ final class AppRouter: AppRouting {
             return OrderDetailViewController(orderID: orderID, justRedeemed: justRedeemed)
         case .customerLevel:
             return CustomerLevelViewController()
+        case .wealthProducts:
+            return WealthProductListViewController()
+        case .wealthProductDetail(let productID):
+            return WealthProductDetailViewController(productID: productID)
+        case .riskAssessment:
+            return RiskAssessmentViewController()
+        case .wealthPurchase(let productID):
+            return WealthPurchaseViewController(productID: productID)
+        case .wealthOrderDetail(let orderID, let justPurchased):
+            return WealthOrderDetailViewController(orderID: orderID, justPurchased: justPurchased)
+        case .wealthHoldings:
+            return WealthHoldingsViewController()
         }
     }
 }

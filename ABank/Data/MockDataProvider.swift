@@ -178,7 +178,8 @@ final class MockDataProvider {
                         actionTitle: "立即购买",
                         disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
                         isAd: true
-                    )
+                    ),
+                    productID: "w.tiantianli2"
                 ),
                 WealthProductTab(
                     title: "低波稳健",
@@ -194,7 +195,8 @@ final class MockDataProvider {
                         actionTitle: "立即购买",
                         disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
                         isAd: true
-                    )
+                    ),
+                    productID: "w.piaoxi"
                 ),
                 WealthProductTab(
                     title: "业绩优选",
@@ -210,7 +212,8 @@ final class MockDataProvider {
                         actionTitle: "立即购买",
                         disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
                         isAd: true
-                    )
+                    ),
+                    productID: "w.lingdong180"
                 )
             ],
             spareMoneyFeatured: WealthSpareMoneyFeatured(
@@ -248,7 +251,8 @@ final class MockDataProvider {
                     holdingPeriod: "最低持有1天",
                     purchaseInfo: "1.00元起购 | 中低风险",
                     isHot: true,
-                    disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎"
+                    disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
+                    productID: "w.piaoxi"
                 ),
                 WealthSteadyProduct(
                     name: "农银理财农银匠心·灵动180天理财产品（量化多元增强）",
@@ -258,7 +262,8 @@ final class MockDataProvider {
                     holdingPeriod: "最低持有180天",
                     purchaseInfo: "1.00元起购 | 中低风险",
                     isHot: false,
-                    disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎"
+                    disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
+                    productID: "w.lingdong180"
                 )
             ],
             fundItems: [

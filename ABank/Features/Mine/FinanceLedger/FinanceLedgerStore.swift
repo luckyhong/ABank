@@ -14,22 +14,25 @@ extension Notification.Name {
 
     private let defaultsKey = "abank.financeLedger.record.v8"
     private let defaults: UserDefaults
-    private let dates: BankingDateContext
+    let dates: BankingDateContext
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     private let dataWriter: ((Data) throws -> Void)?
     private let simulationSucceeds: (TransferDraft) -> Bool
     private let transferLimitsProvider: @MainActor () -> TransferLimits
+    let riskStateProvider: @MainActor () -> RiskAssessmentState
     /// 当前生效的转账限额；每次读取都取安全设置中的最新值。
     var transferLimits: TransferLimits { transferLimitsProvider() }
 
     init(defaults: UserDefaults = .standard, dates: BankingDateContext = .system,
          transferLimitsProvider: @escaping @MainActor () -> TransferLimits = { SecuritySettingsStore.shared.transferLimits },
+         riskStateProvider: @escaping @MainActor () -> RiskAssessmentState = { RiskAssessmentStore.shared.state },
          dataWriter: ((Data) throws -> Void)? = nil,
          simulationSucceeds: @escaping (TransferDraft) -> Bool = { _ in true }) {
         self.defaults = defaults
         self.dates = dates
         self.transferLimitsProvider = transferLimitsProvider
+        self.riskStateProvider = riskStateProvider
         self.dataWriter = dataWriter
         self.simulationSucceeds = simulationSucceeds
     }
@@ -53,7 +56,7 @@ extension Notification.Name {
         } catch { return false }
     }
 
-    private func persist(_ record: FinanceLedgerRecord) throws {
+    func persist(_ record: FinanceLedgerRecord) throws {
         let data = try encoder.encode(record)
         if let dataWriter { try dataWriter(data) }
         else { defaults.set(data, forKey: defaultsKey) }
@@ -61,7 +64,7 @@ extension Notification.Name {
     }
 
     // Transfers read strictly: corrupt persisted data must not be replaced with new seed data.
-    private func loadForTransfer() throws -> FinanceLedgerRecord {
+    func loadForTransfer() throws -> FinanceLedgerRecord {
         guard let data = defaults.data(forKey: defaultsKey) else { return Self.makeSeedRecord() }
         do { return try decoder.decode(FinanceLedgerRecord.self, from: data) }
         catch { throw TransferError.corruptLedger }
@@ -199,8 +202,11 @@ extension Notification.Name {
 
     // MARK: - 派生读取
 
+    /// 总资产 = 账户余额 + 理财持仓价值。
     func totalAssets() -> Double {
-        load().accounts.reduce(0) { $0 + $1.balance }
+        let record = load()
+        return record.accounts.reduce(0) { $0 + $1.balance }
+            + TransferMoney.amount(holdingValueInCents(in: record))
     }
 
     func totalLiabilities() -> Double {
@@ -266,28 +272,30 @@ extension Notification.Name {
 
     func assetLiabilityPageData() -> AssetLiabilityPageData {
         let record = load()
+        var assetCategories = [
+            AssetLiabilityCategory(
+                id: FinanceLedgerRecord.demandDepositCategoryId,
+                title: "活期",
+                totalAmount: record.accounts.reduce(0) { $0 + $1.balance },
+                items: record.accounts.map { acct in
+                    AssetLiabilityItem(
+                        id: acct.id,
+                        title: acct.displayName,
+                        amount: acct.balance,
+                        showsCurrencySymbol: true,
+                        subtitle: nil,
+                        showsMenu: true
+                    )
+                }
+            )
+        ]
+        if let wealth = wealthAssetCategory(in: record) { assetCategories.append(wealth) }
         return AssetLiabilityPageData(
             totalAssets: totalAssets(),
             totalLiabilities: totalLiabilities(),
             dataTimestamp: record.dataTimestamp,
             announcement: record.assetLiabilityAnnouncement,
-            assetCategories: [
-                AssetLiabilityCategory(
-                    id: FinanceLedgerRecord.demandDepositCategoryId,
-                    title: "活期",
-                    totalAmount: record.accounts.reduce(0) { $0 + $1.balance },
-                    items: record.accounts.map { acct in
-                        AssetLiabilityItem(
-                            id: acct.id,
-                            title: acct.displayName,
-                            amount: acct.balance,
-                            showsCurrencySymbol: true,
-                            subtitle: nil,
-                            showsMenu: true
-                        )
-                    }
-                )
-            ],
+            assetCategories: assetCategories,
             liabilityCategories: [
                 AssetLiabilityCategory(
                     id: FinanceLedgerRecord.loanCategoryId,

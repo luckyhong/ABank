@@ -39,6 +39,7 @@ struct WealthFeaturedProduct {
 struct WealthProductTab {
     let title: String
     let product: WealthFeaturedProduct
+    var productID: String? = nil
 }
 
 struct WealthSpareMoneyFeatured {
@@ -68,6 +69,7 @@ struct WealthSteadyProduct {
     let purchaseInfo: String
     let isHot: Bool
     let disclaimer: String?
+    var productID: String? = nil
 }
 
 struct WealthFundItem {
