@@ -132,7 +132,7 @@ BranchService/
 | `duplicateReservation` | 同一业务已有待办理预约 | 已有待办理的同类预约 |
 | `slotUnavailable` | 日期不可约、时段已过或已约满 | 该时段已不可预约 |
 | `invalidQuantity` | 纪念币数量不在 1–20 | 兑换数量需在 1–20 枚之间 |
-| `recordNotFound` / `notCancellable` | 取消不存在或已结束的记录 | 该记录已无法取消 |
+| `notCancellable` | 取消不存在或已结束的记录 | 该记录已无法取消 |
 | `saveFailed` | 写入失败 | 保存失败，请稍后重试 |
 
 ### 3.7 Store
@@ -168,7 +168,7 @@ BranchService/
 
 ### 4.2 路由与入口
 
-- `AppRoute` 新增：`.cityPicker`、`.branchList`、`.branchQueue`、`.branchDetail(branchID: String)`、`.takeTicket(branchID: String)`、`.ticketDetail(ticketID: String)`、`.branchReservation(business: BranchBusiness, branchID: String?)`、`.branchServiceHistory`。预约结果页由表单直接推入，不单独建路由。
+- `AppRoute` 新增：`.cityPicker`、`.branchList`、`.branchQueue`、`.branchDetail(branchID: String)`、`.takeTicket(branchID: String)`、`.ticketDetail(ticketID: String)`、`.branchReservation(business: BranchBusiness?, branchID: String?)`（从网点详情进入时业务为空，默认个人非现金）、`.branchServiceHistory`。预约结果页由表单直接推入，不单独建路由。
 - `.branchQueue` 由路由器在构造时判断：有有效号进入号票详情，否则进入网点列表。
 - `FeatureCatalog`：
   - `branchQuery` → `.branchList`
