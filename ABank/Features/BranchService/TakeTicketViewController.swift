@@ -79,6 +79,8 @@ final class TakeTicketViewController: BranchFlowViewController, RouteHosting {
             }
         } catch {
             showError(error)
+            // 提交时营业状态可能已变化（如进入午休），重绘使状态与按钮同步。
+            refreshBankingData()
         }
     }
 
