@@ -137,8 +137,8 @@ final class AppRouter: AppRouting {
             return RewardMallViewController(currency: .beans)
         case .goodsDetail(let goodsID):
             return GoodsDetailViewController(goodsID: goodsID)
-        case .rewardLedger:
-            return ComingSoonViewController(featureID: .benefits) // 由 Task 6 替换
+        case .rewardLedger(let currency):
+            return RewardLedgerViewController(currency: currency)
         case .coupons:
             return CouponsViewController()
         case .couponDetail(let couponID):
@@ -148,7 +148,7 @@ final class AppRouter: AppRouting {
         case .orderDetail(let orderID, let justRedeemed):
             return OrderDetailViewController(orderID: orderID, justRedeemed: justRedeemed)
         case .customerLevel:
-            return ComingSoonViewController(featureID: .customerLevel) // 由 Task 6 替换
+            return CustomerLevelViewController()
         }
     }
 }
