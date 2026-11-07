@@ -19,6 +19,7 @@ import Foundation
         try redeemBoundary()
         try corruptLedgerKeepsBytes()
         try writeFailureIsAtomic()
+        catalogLinks()
         print("Wealth checks passed")
     }
 
@@ -503,5 +504,13 @@ import Foundation
             try store.redeemWealthOrder(orderID: order.id)
             precondition(counter.count == 1 && store.wealthOrders().first?.redeemedAt != nil)
         }
+    }
+
+    @MainActor static func catalogLinks() {
+        for id in ["w.tiantianli2", "w.piaoxi", "w.lingdong180"] {
+            precondition(WealthProductCatalog.product(id: id) != nil, "wealth tab product \(id)")
+        }
+        precondition(AppRoute.wealthProductDetail(productID: "w.piaoxi") != AppRoute.wealthProductDetail(productID: "w.tiantianli2"))
+        precondition(AppRoute.wealthOrderDetail(orderID: "a", justPurchased: true) != AppRoute.wealthOrderDetail(orderID: "a", justPurchased: false))
     }
 }

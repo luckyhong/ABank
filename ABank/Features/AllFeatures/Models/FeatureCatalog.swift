@@ -92,7 +92,7 @@ enum FeatureCatalog {
     private static let byID: [FeatureID: FeatureDescriptor] =
         Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
 
-    private static let wealthStage = "M7 财富产品"
+    private static let wealthStage = "M7 扩展（存款/基金）"
     private static let paymentStage = "M8 充值缴费"
 
     private static func item(
@@ -161,7 +161,7 @@ enum FeatureCatalog {
         item(.deposit, "存款", .wealth, image: "abc_home_deposit", icon: "banknote",
              keywords: ["定期", "储蓄"], .planned(stage: wealthStage)),
         item(.wealthProduct, "理财产品", .wealth, image: "abc_home_wealth", icon: "chart.line.uptrend.xyaxis",
-             keywords: ["理财", "收益", "农银快e宝"], .planned(stage: wealthStage)),
+             keywords: ["理财", "收益", "农银快e宝"], .available(.wealthProducts)),
         item(.fund, "基金", .wealth, image: "abc_wealth_menu_fund", icon: "chart.line.uptrend.xyaxis",
              keywords: ["定投"], .planned(stage: wealthStage)),
         item(.preciousMetals, "贵金属", .wealth, image: "abc_wealth_menu_metals", icon: "square.stack.3d.up.fill",

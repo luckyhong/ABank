@@ -46,6 +46,7 @@ final class WealthViewController: BaseViewController {
         return button
     }()
 
+    private var selectedProductTab = 0
     private var headerHeightConstraint: Constraint?
     private var searchBarTopConstraint: Constraint?
     private var contentTopConstraint: Constraint?
@@ -190,7 +191,10 @@ final class WealthViewController: BaseViewController {
             self?.showToast("您有 \(self?.pageData.messageBadge ?? 0) 条未读消息")
         }
 
-        loginCard.onLoginTapped = { [weak self] in self?.showToast("请登录查看持仓") }
+        loginCard.onLoginTapped = { [weak self] in
+            guard let self else { return }
+            self.router.open(.wealthHoldings, from: self)
+        }
 
         functionGrid.onItemTapped = { [weak self] index in
             guard let self, let item = self.pageData.gridItems[safe: index] else { return }
@@ -206,11 +210,15 @@ final class WealthViewController: BaseViewController {
         }
 
         featuredProduct.onTabSelected = { [weak self] index in
-            let title = self?.pageData.productTabs[safe: index]?.title ?? "产品"
-            self?.showToast("切换至\(title)")
+            self?.selectedProductTab = index
         }
         featuredProduct.onBuyTapped = { [weak self] in
-            self?.showToast("立即购买")
+            guard let self else { return }
+            if let id = self.pageData.productTabs[safe: self.selectedProductTab]?.productID {
+                self.router.open(.wealthProductDetail(productID: id), from: self)
+            } else {
+                self.showToast("立即购买")
+            }
         }
 
         spareMoneyZone.onHeaderTapped = { [weak self] in self?.showToast("活钱专区") }
@@ -224,8 +232,12 @@ final class WealthViewController: BaseViewController {
 
         steadyGrowth.onHeaderTapped = { [weak self] in self?.showToast("稳健增长") }
         steadyGrowth.onProductTapped = { [weak self] index in
-            let name = self?.pageData.steadyProducts[safe: index]?.name ?? "理财产品"
-            self?.showToast(name)
+            guard let self else { return }
+            if let id = self.pageData.steadyProducts[safe: index]?.productID {
+                self.router.open(.wealthProductDetail(productID: id), from: self)
+            } else {
+                self.showToast(self.pageData.steadyProducts[safe: index]?.name ?? "理财产品")
+            }
         }
 
         incomeAdvance.onHeaderTapped = { [weak self] in self?.showToast("收益进阶") }
