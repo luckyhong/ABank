@@ -129,6 +129,22 @@ final class AppRouter: AppRouting {
             return ReservationFormViewController(business: business, branchID: branchID)
         case .branchServiceHistory:
             return BranchServiceHistoryViewController()
+        case .benefits:
+            return BenefitsCenterViewController()
+        case .pointsMall:
+            return ComingSoonViewController(featureID: .pointsMall) // 由 Task 4 替换
+        case .beans:
+            return ComingSoonViewController(featureID: .beans) // 由 Task 4 替换
+        case .goodsDetail:
+            return ComingSoonViewController(featureID: .pointsMall) // 由 Task 4 替换
+        case .rewardLedger:
+            return ComingSoonViewController(featureID: .benefits) // 由 Task 6 替换
+        case .coupons, .couponDetail:
+            return ComingSoonViewController(featureID: .benefits) // 由 Task 5 替换
+        case .orders, .orderDetail:
+            return ComingSoonViewController(featureID: .orders) // 由 Task 5 替换
+        case .customerLevel:
+            return ComingSoonViewController(featureID: .customerLevel) // 由 Task 6 替换
         }
     }
 }
