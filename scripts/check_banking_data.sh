@@ -21,6 +21,7 @@ sources=(
   ABank/Features/BranchService/Models/BranchSchedule.swift
   ABank/Features/BranchService/CitySelectionStore.swift
   ABank/Features/BranchService/BranchServiceStore.swift
+  ABank/Features/BranchService/Models/BranchCardSummary.swift
 )
 for check in banking transfer insights feature security branch; do
   if [[ $check == feature ]]; then

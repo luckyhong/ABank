@@ -17,6 +17,7 @@ import Foundation
         try persistence()
         try corruptRecordsKeepOriginal()
         unknownBranchName()
+        cardSummary()
         print("Branch service checks passed")
     }
 
@@ -447,5 +448,18 @@ import Foundation
             precondition(store.tickets == [ticket] && store.activeTicket == nil)
             precondition(BranchCatalog.displayName(branchID: store.tickets[0].branchID) == "网点已停用")
         }
+    }
+
+    // MARK: - 首页/我的网点卡
+
+    static func cardSummary() {
+        let xian = BranchCardSummary.make(cityID: "xian", at: at("2026-11-06 10:00"), dates: shanghai)
+        precondition(xian.name == "西安沣东新城支行" && xian.status == "营业中", "\(xian)")
+        precondition(xian.distanceText == "2552米" && xian.address == "陕西省西安市沣东新城大明宫·沣东一路88号")
+        precondition(xian.branchID == "xa-fengdong")
+        let beijing = BranchCardSummary.make(cityID: "beijing", at: at("2026-11-06 10:00"), dates: shanghai)
+        precondition(beijing.name == BranchCatalog.defaultBranch(inCity: "beijing").name)
+        let night = BranchCardSummary.make(cityID: "xian", at: at("2026-11-06 22:00"), dates: shanghai)
+        precondition(night.status == "休息中")
     }
 }

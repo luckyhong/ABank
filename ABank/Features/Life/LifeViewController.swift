@@ -151,8 +151,19 @@ final class LifeViewController: BaseViewController {
         loadFinishedLabel.text = pageData.loadFinishedText
     }
 
+    /// 生活频道城市名与统一城市同步。
+    @objc private func cityDidChange() {
+        guard isViewLoaded else { return }
+        searchBar.setCity(CitySelectionStore.shared.currentCity.name)
+    }
+
     private func bindActions() {
-        searchBar.onCityTapped = { [weak self] in self?.showToast("切换城市") }
+        searchBar.onCityTapped = { [weak self] in
+            guard let self else { return }
+            self.router.open(.cityPicker, from: self)
+        }
+        NotificationCenter.default.addObserver(self, selector: #selector(cityDidChange),
+                                               name: CitySelectionStore.didChangeNotification, object: nil)
         searchBar.onSearchTapped = { [weak self] keyword in
             self?.showToast("搜索「\(keyword)」")
         }
