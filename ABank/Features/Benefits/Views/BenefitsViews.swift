@@ -148,6 +148,12 @@ final class BenefitsRow: UIControl {
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    /// 内部普通子视图（标签、堆叠视图）不拦截触摸，整行才能响应点击；行内按钮仍可单独点击。
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        guard let hit = super.hitTest(point, with: event) else { return nil }
+        return hit is UIControl ? hit : self
+    }
 }
 
 /// 主色小按钮（行内领取等）。
@@ -230,7 +236,7 @@ func goodsRow(goods: RewardGoods, template: CouponTemplate, remaining: Int, onTa
     price.font = .abankBodyMedium()
     price.textColor = goods.currency.tint
     price.setContentHuggingPriority(.required, for: .horizontal)
-    let subtitle = "\(template.brand) · 有效 \(template.validDays) 天 · 本月还可兑 \(remaining) 次"
+    let subtitle = "\(template.brand) · 本月余 \(remaining) 次"
     let row = BenefitsRow(title: template.title, subtitle: subtitle, trailing: price,
                           id: "mall.goods.\(goods.id)", showsChevron: true)
     row.onTap = onTap

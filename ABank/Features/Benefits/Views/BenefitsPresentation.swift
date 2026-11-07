@@ -29,6 +29,6 @@ func formattedAmount(_ value: Int) -> String {
     let formatter = NumberFormatter()
     formatter.numberStyle = .decimal
     formatter.groupingSeparator = ","
-    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.locale = Locale(identifier: "en_US")
     return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
 }
