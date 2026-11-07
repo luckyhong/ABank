@@ -22,14 +22,19 @@ sources=(
   ABank/Features/BranchService/CitySelectionStore.swift
   ABank/Features/BranchService/BranchServiceStore.swift
   ABank/Features/BranchService/Models/BranchCardSummary.swift
+  ABank/Features/Benefits/Models/BenefitsModels.swift
+  ABank/Features/Benefits/Models/BenefitsCatalog.swift
+  ABank/Features/Benefits/Models/BenefitsRules.swift
 )
-for check in banking transfer insights feature security branch; do
+for check in banking transfer insights feature security branch benefits; do
   if [[ $check == feature ]]; then
     check_file=scripts/check_feature_catalog.swift
   elif [[ $check == security ]]; then
     check_file=scripts/check_security_settings.swift
   elif [[ $check == branch ]]; then
     check_file=scripts/check_branch_services.swift
+  elif [[ $check == benefits ]]; then
+    check_file=scripts/check_benefits.swift
   else
     check_file="scripts/check_${check}_data.swift"
   fi
