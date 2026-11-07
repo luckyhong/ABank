@@ -110,6 +110,25 @@ final class AppRouter: AppRouting {
             return LoginDevicesViewController()
         case .loginDeviceDetail(let deviceID):
             return LoginDeviceDetailViewController(deviceID: deviceID)
+        case .cityPicker:
+            return CityPickerViewController()
+        case .branchList:
+            return BranchListViewController()
+        case .branchQueue:
+            if let ticket = BranchServiceStore.shared.activeTicket {
+                return TicketDetailViewController(ticketID: ticket.id)
+            }
+            return BranchListViewController()
+        case .branchDetail(let branchID):
+            return BranchDetailViewController(branchID: branchID)
+        case .takeTicket(let branchID):
+            return TakeTicketViewController(branchID: branchID)
+        case .ticketDetail(let ticketID):
+            return TicketDetailViewController(ticketID: ticketID)
+        case .branchReservation(let business, let branchID):
+            return ReservationFormViewController(business: business, branchID: branchID)
+        case .branchServiceHistory:
+            return BranchServiceHistoryViewController()
         }
     }
 }
