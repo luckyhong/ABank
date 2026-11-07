@@ -25,6 +25,7 @@ sources=(
   ABank/Features/Benefits/Models/BenefitsModels.swift
   ABank/Features/Benefits/Models/BenefitsCatalog.swift
   ABank/Features/Benefits/Models/BenefitsRules.swift
+  ABank/Features/Benefits/BenefitsStore.swift
 )
 for check in banking transfer insights feature security branch benefits; do
   if [[ $check == feature ]]; then
