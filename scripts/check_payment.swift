@@ -7,6 +7,9 @@ import Foundation
         couponRules()
         billAmounts()
         billPeriods()
+        try legacyLedgerDecodes()
+        categories()
+        try releaseCoupon()
         print("Payment checks passed")
     }
 
@@ -156,5 +159,117 @@ import Foundation
         precondition(number != PaymentRules.orderNo(id: "abd", createdAt: created, dates: shanghai))
         precondition(PaymentRules.createdDate(of: order(target: "x", period: nil), dates: shanghai) == created)
         precondition(PaymentRules.createdDate(of: order(target: "x", period: nil, created: "bad"), dates: shanghai) == nil)
+    }
+
+    // MARK: - 夹具
+
+    final class TestClock {
+        var now: Date
+        init(_ text: String) { now = PaymentChecks.at(text) }
+        func set(_ text: String) { now = PaymentChecks.at(text) }
+        func set(utc text: String) { now = PaymentChecks.utc(text) }
+    }
+
+    final class Counter { var count = 0 }
+
+    struct WriteFailure: Error {}
+
+    static let ledgerKey = "abank.financeLedger.record.v8"
+
+    @MainActor static func withSuite(_ body: @MainActor (UserDefaults) throws -> Void) rethrows {
+        let suite = "ABank.PaymentChecks." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        try body(defaults)
+    }
+
+    @MainActor static func count(_ center: NotificationCenter, _ name: Notification.Name) -> Counter {
+        let counter = Counter()
+        center.addObserver(forName: name, object: nil, queue: nil) { _ in counter.count += 1 }
+        return counter
+    }
+
+    static func fixture(balance: Double) -> FinanceLedgerRecord {
+        let account = LedgerAccount(id: "acct_8472", tailNumber: "8472", currency: "人民币", balance: balance, openingBalance: balance)
+        return FinanceLedgerRecord(accounts: [account], transactions: [], loanContracts: [],
+                                   assetLiabilityAnnouncement: "演示", dataTimestamp: "2026-11-05 12:00:00")
+    }
+
+    @MainActor static func makeBenefits(_ defaults: UserDefaults, _ clock: TestClock,
+                                        center: NotificationCenter = NotificationCenter(),
+                                        writer: ((Data) throws -> Void)? = nil) -> BenefitsStore {
+        BenefitsStore(defaults: defaults, notificationCenter: center,
+                      dates: BankingDateContext(now: { clock.now }), dataWriter: writer)
+    }
+
+    // MARK: - 账本数据层
+
+    @MainActor static func legacyLedgerDecodes() throws {
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let store = FinanceLedgerStore(defaults: defaults, dates: BankingDateContext(now: { clock.now }))
+            precondition(store.save(fixture(balance: 1499.66)), "seed")
+            var legacy = try JSONSerialization.jsonObject(with: JSONEncoder().encode(fixture(balance: 1499.66))) as! [String: Any]
+            legacy.removeValue(forKey: "paymentOrders")
+            defaults.set(try JSONSerialization.data(withJSONObject: legacy), forKey: ledgerKey)
+            let bytes = defaults.data(forKey: ledgerKey)
+            precondition(store.load().paymentOrders.isEmpty, "legacy decodes to empty")
+            precondition(defaults.data(forKey: ledgerKey) == bytes, "reading does not rewrite legacy bytes")
+        }
+        var record = fixture(balance: 100)
+        record.paymentOrders = [order(target: "bill.water.home", period: "2026-11")]
+        let decoded = try JSONDecoder().decode(FinanceLedgerRecord.self, from: JSONEncoder().encode(record))
+        precondition(decoded == record && decoded.paymentOrders.count == 1, "round trip")
+    }
+
+    static func categories() {
+        precondition(IncomeExpenseFilterCatalog.title(for: "mobile_recharge") == "手机充值")
+        precondition(IncomeExpenseFilterCatalog.title(for: "life_payment") == "生活缴费")
+        for id in ["mobile_recharge", "life_payment"] {
+            precondition(IncomeExpenseFilterCatalog.expenseCategoryIds.contains(id), "expense \(id)")
+            precondition(IncomeExpenseFilterCatalog.allCategoryIds.contains(id), "all \(id)")
+            precondition(IncomeExpenseFilterCatalog.selectableOptions(for: .expense).contains { $0.id == id })
+            precondition(!IncomeExpenseFilterCatalog.selectableOptions(for: .income).contains { $0.id == id })
+        }
+    }
+
+    @MainActor static func releaseCoupon() throws {
+        try withSuite { defaults in
+            let center = NotificationCenter()
+            let changes = count(center, BenefitsStore.didChangeNotification)
+            let store = makeBenefits(defaults, TestClock("2026-11-06 10:00"), center: center)
+            let couponID = try store.redeem(goodsID: "g.phone5").couponID
+            precondition(store.coupon(id: couponID).map(store.status) == .unused)
+            try store.useCoupon(id: couponID)
+            precondition(store.coupon(id: couponID).map(store.status) == .used)
+            let before = changes.count
+            try store.releaseCoupon(id: couponID)
+            precondition(store.coupon(id: couponID).map(store.status) == .unused, "released")
+            precondition(changes.count == before + 1, "one notification")
+            do { try store.releaseCoupon(id: couponID); preconditionFailure("unused coupon released") }
+            catch let error as BenefitsError { precondition(error == .notUsable) }
+            do { try store.releaseCoupon(id: "nope"); preconditionFailure("unknown coupon released") }
+            catch let error as BenefitsError { precondition(error == .unknownItem) }
+        }
+        try withSuite { defaults in
+            let store = makeBenefits(defaults, TestClock("2026-11-06 10:00"))
+            let order = try store.redeem(goodsID: "g.phone5")
+            try store.cancelOrder(id: order.id)
+            do { try store.releaseCoupon(id: order.couponID); preconditionFailure("voided coupon released") }
+            catch let error as BenefitsError { precondition(error == .notUsable) }
+        }
+        try withSuite { defaults in
+            let failing = Counter()
+            let store = makeBenefits(defaults, TestClock("2026-11-06 10:00"), writer: { data in
+                if failing.count > 0 { throw WriteFailure() }
+                defaults.set(data, forKey: BenefitsStore.storageKey)
+            })
+            let couponID = try store.redeem(goodsID: "g.phone5").couponID
+            try store.useCoupon(id: couponID)
+            failing.count = 1
+            do { try store.releaseCoupon(id: couponID); preconditionFailure("write failure ignored") }
+            catch let error as BenefitsError { precondition(error == .saveFailed) }
+            precondition(store.coupon(id: couponID).map(store.status) == .used, "state unchanged on failure")
+        }
     }
 }

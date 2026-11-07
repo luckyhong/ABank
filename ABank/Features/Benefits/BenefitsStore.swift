@@ -182,6 +182,15 @@ final class BenefitsStore {
         try commit(updated)
     }
 
+    /// 撤销一次 `useCoupon`（缴费写入失败时的补偿）；只处理已使用且未作废的券。
+    func releaseCoupon(id: String) throws {
+        guard let index = records.coupons.firstIndex(where: { $0.id == id }) else { throw BenefitsError.unknownItem }
+        guard records.coupons[index].usedAt != nil, records.coupons[index].voidedAt == nil else { throw BenefitsError.notUsable }
+        var updated = records
+        updated.coupons[index].usedAt = nil
+        try commit(updated)
+    }
+
     // MARK: - 持久化
 
     private func entry(_ currency: RewardCurrency, _ amount: Int, _ kind: RewardEntryKind,
