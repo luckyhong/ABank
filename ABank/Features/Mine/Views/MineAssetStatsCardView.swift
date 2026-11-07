@@ -8,6 +8,8 @@ import SnapKit
 
 final class MineAssetStatsCardView: UIView {
 
+    var onItemTapped: ((Int) -> Void)?
+
     private let card = UIView()
     private let stack = UIStackView()
     private let patternLayer = CAShapeLayer()
@@ -28,7 +30,9 @@ final class MineAssetStatsCardView: UIView {
 
     func configure(with stats: [MineAssetStat]) {
         stack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        stats.forEach { stack.addArrangedSubview(makeStatCell(stat: $0)) }
+        for (index, stat) in stats.enumerated() {
+            stack.addArrangedSubview(makeStatCell(stat: stat, index: index))
+        }
     }
 
     private func setupUI() {
@@ -85,10 +89,18 @@ final class MineAssetStatsCardView: UIView {
         card.layer.addSublayer(patternLayer)
     }
 
-    private func makeStatCell(stat: MineAssetStat) -> UIView {
-        let wrap = UIView()
+    private func makeStatCell(stat: MineAssetStat, index: Int) -> UIView {
+        let wrap = UIControl()
+        wrap.accessibilityIdentifier = "mine.stat.\(index)"
+        wrap.isAccessibilityElement = true
+        wrap.accessibilityTraits = .button
+        wrap.accessibilityLabel = "\(stat.label) \(stat.value)"
+        wrap.addAction(UIAction { [weak self] _ in self?.onItemTapped?(index) }, for: .touchUpInside)
         let valueLabel = UILabel()
-        valueLabel.text = "\(stat.value)"
+        valueLabel.text = formattedAmount(stat.value)
+        valueLabel.adjustsFontSizeToFitWidth = true
+        valueLabel.minimumScaleFactor = 0.6
+        valueLabel.isUserInteractionEnabled = false
         valueLabel.font = .systemFont(ofSize: 28, weight: .regular)
         valueLabel.textColor = UIColor(red: 0.95, green: 0.82, blue: 0.55, alpha: 1)
         valueLabel.textAlignment = .center
@@ -98,6 +110,7 @@ final class MineAssetStatsCardView: UIView {
         titleLabel.font = .systemFont(ofSize: 13)
         titleLabel.textColor = UIColor.white.withAlphaComponent(0.75)
         titleLabel.textAlignment = .center
+        titleLabel.isUserInteractionEnabled = false
 
         wrap.addSubview(valueLabel)
         wrap.addSubview(titleLabel)

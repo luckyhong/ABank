@@ -30,6 +30,8 @@ final class MineViewController: BankingDataViewController {
     private let orderCard = MineOrderCardView()
     private let customerManagerCard = MineCustomerManagerCardView()
     private let security: SecuritySettingsStore = .shared
+    private let benefits: BenefitsStore = .shared
+    private var assetStats: [MineAssetStat] = []
 
     override var prefersNavigationBarHidden: Bool { true }
 
@@ -45,12 +47,24 @@ final class MineViewController: BankingDataViewController {
             displayName: record.maskedName,
             lastLoginDevice: profile.lastLoginDevice,
             lastLoginTime: profile.lastLoginTime,
-            vipLevel: profile.vipLevel,
+            vipLevel: benefits.level.title,
             benefitsTitle: profile.benefitsTitle
         ))
     }
 
+    private func refreshAssetStats() {
+        assetStats = MineAssetStats.make(benefits: benefits)
+        assetStatsCard.configure(with: assetStats)
+    }
+
+    @objc private func benefitsDidChange() {
+        guard isViewLoaded else { return }
+        refreshAssetStats()
+        refreshProfileFromStore()
+    }
+
     override func refreshBankingData() {
+        refreshAssetStats()
         refreshProfileFromStore()
         refreshFinanceCardsFromStore()
         applyAmountVisibility()
@@ -155,7 +169,7 @@ final class MineViewController: BankingDataViewController {
 
     private func bindData() {
         profileHeader.configure(with: pageData.profile)
-        assetStatsCard.configure(with: pageData.assetStats)
+        refreshAssetStats()
         assetLiabilityCard.configure(with: FinanceLedgerStore.shared.mineAssetLiability())
         monthlyFlowCard.configure(with: FinanceLedgerStore.shared.mineMonthlyFlow())
         branchCard.configure(with: pageData.branch)
@@ -166,6 +180,12 @@ final class MineViewController: BankingDataViewController {
     private func bindActions() {
         NotificationCenter.default.addObserver(self, selector: #selector(securitySettingsDidChange),
                                                name: SecuritySettingsStore.didChangeNotification, object: security)
+        NotificationCenter.default.addObserver(self, selector: #selector(benefitsDidChange),
+                                               name: BenefitsStore.didChangeNotification, object: benefits)
+        assetStatsCard.onItemTapped = { [weak self] index in
+            guard let self, let route = self.assetStats[safe: index]?.route else { return }
+            self.router.open(route, from: self)
+        }
         NotificationCenter.default.addObserver(self, selector: #selector(reloadBranchCard),
                                                name: CitySelectionStore.didChangeNotification, object: nil)
         assetLiabilityCard.onEyeTapped = { [weak self] in self?.toggleAmountVisibility() }

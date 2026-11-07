@@ -92,7 +92,6 @@ enum FeatureCatalog {
     private static let byID: [FeatureID: FeatureDescriptor] =
         Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
 
-    private static let benefitsStage = "M6 权益订单"
     private static let wealthStage = "M7 财富产品"
     private static let paymentStage = "M8 充值缴费"
 
@@ -192,9 +191,9 @@ enum FeatureCatalog {
         item(.mobileRecharge, "手机充值", .life, image: "abc_life_menu_mobile", icon: "iphone",
              keywords: ["话费", "流量"], .planned(stage: paymentStage)),
         item(.beans, "小豆乐园", .life, image: "abc_life_menu_beans", icon: "leaf.fill",
-             keywords: ["小豆", "签到"], .planned(stage: benefitsStage)),
+             keywords: ["小豆", "签到"], .available(.beans)),
         item(.pointsMall, "积分商城", .life, image: "abc_life_menu_points", icon: "star.fill",
-             keywords: ["积分", "兑换"], .planned(stage: benefitsStage)),
+             keywords: ["积分", "兑换"], .available(.pointsMall)),
         item(.government, "政务民生", .life, image: "abc_life_menu_government", icon: "person.fill",
              .planned(stage: nil)),
         item(.socialInsurance, "社保医保", .life, image: "abc_life_menu_social", icon: "person.text.rectangle",
@@ -248,11 +247,11 @@ enum FeatureCatalog {
         item(.loginDevices, "登录设备", .service, image: "abc_mine_security_devices", icon: "iphone",
              keywords: ["设备"], .available(.loginDevices)),
         item(.benefits, "权益中心", .service, icon: "gift.fill",
-             keywords: ["权益", "卡券"], .planned(stage: benefitsStage)),
+             keywords: ["权益", "卡券"], .available(.benefits)),
         item(.customerLevel, "客户等级", .service, icon: "crown.fill",
-             keywords: ["等级", "VIP"], .planned(stage: benefitsStage)),
+             keywords: ["等级", "VIP"], .available(.customerLevel)),
         item(.orders, "我的订单", .service, icon: "doc.plaintext",
-             keywords: ["订单"], .planned(stage: benefitsStage)),
+             keywords: ["订单"], .available(.orders)),
         item(.scan, "扫一扫", .service, image: "abc_home_scan", icon: "qrcode.viewfinder",
              keywords: ["二维码", "付款码"], .planned(stage: "M10 快捷与扫码"))
     ]

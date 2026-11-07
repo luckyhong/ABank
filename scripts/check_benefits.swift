@@ -22,6 +22,7 @@ import Foundation
         try persistence()
         try corruptRecordsKeepOriginal()
         try writeFailureIsAtomic()
+        try mineStats()
         print("Benefits checks passed")
     }
 
@@ -541,6 +542,20 @@ import Foundation
             failing = false
             try store.cancelOrder(id: order.id)
             precondition(store.balance(.points) == 12_860 && counter.count == 1)
+        }
+    }
+
+    @MainActor static func mineStats() throws {
+        try withSuite { defaults in
+            let store = makeStore(defaults, TestClock("2026-11-06 10:00"))
+            func stats() -> [MineAssetStat] { MineAssetStats.make(benefits: store) }
+            precondition(stats().map(\.label) == ["银行卡", "小豆", "积分", "礼券"])
+            precondition(stats().map(\.value) == [1, 260, 12_860, 0])
+            precondition(stats().map(\.route) == [.myAccount, .rewardLedger(currency: .beans), .rewardLedger(currency: .points), .coupons])
+            let order = try store.redeem(goodsID: "g.coffee30")
+            precondition(stats().map(\.value) == [1, 260, 9_860, 1])
+            try store.cancelOrder(id: order.id)
+            precondition(stats().map(\.value) == [1, 260, 12_860, 0])
         }
     }
 }
