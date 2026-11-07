@@ -44,7 +44,7 @@ final class PaymentOrderDetailViewController: PaymentFlowViewController, RouteHo
         }
 
         let name = UILabel()
-        name.text = order.kind.title + " · " + order.targetTitle
+        name.text = paymentOrderTitle(order)
         name.font = .abankTitle3()
         name.textColor = .abankTextPrimary
         name.numberOfLines = 0
