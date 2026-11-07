@@ -139,10 +139,14 @@ final class AppRouter: AppRouting {
             return GoodsDetailViewController(goodsID: goodsID)
         case .rewardLedger:
             return ComingSoonViewController(featureID: .benefits) // 由 Task 6 替换
-        case .coupons, .couponDetail:
-            return ComingSoonViewController(featureID: .benefits) // 由 Task 5 替换
-        case .orders, .orderDetail:
-            return ComingSoonViewController(featureID: .orders) // 由 Task 5 替换
+        case .coupons:
+            return CouponsViewController()
+        case .couponDetail(let couponID):
+            return CouponDetailViewController(couponID: couponID)
+        case .orders:
+            return OrdersViewController()
+        case .orderDetail(let orderID, let justRedeemed):
+            return OrderDetailViewController(orderID: orderID, justRedeemed: justRedeemed)
         case .customerLevel:
             return ComingSoonViewController(featureID: .customerLevel) // 由 Task 6 替换
         }
