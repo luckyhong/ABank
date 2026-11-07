@@ -2,6 +2,7 @@
 
 先核对实际 Git 状态，再读取对应任务。历史叙述不是当前代码证明。
 
+- [m8-payment-recharge](tasks/m8-payment-recharge.md)
 - [m7-wealth-products](tasks/m7-wealth-products.md)
 - [m6-benefits-orders](tasks/m6-benefits-orders.md)
 - [m5-branch-services](tasks/m5-branch-services.md)
