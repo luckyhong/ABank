@@ -72,7 +72,7 @@ final class AppRouter: AppRouting {
         case .transferRecords:
             return TransferRecordsViewController(store: ledger)
         case .transferLimits:
-            return TransferLimitsViewController(store: ledger)
+            return TransferSettingsViewController(ledger: ledger)
         case .transferReceipts:
             return TransferReceiptsViewController(store: ledger)
         case .accountDetail(let accountID, let maskedNumber):
@@ -100,6 +100,16 @@ final class AppRouter: AppRouting {
             return FavoriteFeaturesEditViewController(preferences: preferences)
         case .comingSoon(let id):
             return ComingSoonViewController(featureID: id)
+        case .securityCenter:
+            return SecurityCenterViewController()
+        case .loginSettings:
+            return LoginSettingsViewController()
+        case .paymentSettings:
+            return PaymentSettingsViewController()
+        case .loginDevices:
+            return LoginDevicesViewController()
+        case .loginDeviceDetail(let deviceID):
+            return LoginDeviceDetailViewController(deviceID: deviceID)
         }
     }
 }

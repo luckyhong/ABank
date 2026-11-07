@@ -26,4 +26,9 @@ enum AppRoute: Equatable {
     case allFeatures(searchKeyword: String?)
     case editFavorites
     case comingSoon(FeatureID)
+    case securityCenter
+    case loginSettings
+    case paymentSettings
+    case loginDevices
+    case loginDeviceDetail(deviceID: String)
 }

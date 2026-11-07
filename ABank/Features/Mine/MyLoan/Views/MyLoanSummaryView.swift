@@ -144,9 +144,6 @@ final class MyLoanSummaryView: UIView {
     }
 
     @objc private func repaymentTapped() { onRepaymentDetailTapped?() }
-    @objc private func eyeTapped() {
-        isAmountVisible.toggle()
-        setAmountVisible(isAmountVisible)
-        onEyeTapped?()
-    }
+    /// 可见性由页面根据全局隐私设置驱动，这里只上报点击
+    @objc private func eyeTapped() { onEyeTapped?() }
 }

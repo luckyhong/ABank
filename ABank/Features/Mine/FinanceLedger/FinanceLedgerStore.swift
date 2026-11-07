@@ -19,15 +19,17 @@ extension Notification.Name {
     private let decoder = JSONDecoder()
     private let dataWriter: ((Data) throws -> Void)?
     private let simulationSucceeds: (TransferDraft) -> Bool
-    let transferLimits: TransferLimits
+    private let transferLimitsProvider: @MainActor () -> TransferLimits
+    /// 当前生效的转账限额；每次读取都取安全设置中的最新值。
+    var transferLimits: TransferLimits { transferLimitsProvider() }
 
     init(defaults: UserDefaults = .standard, dates: BankingDateContext = .system,
-         transferLimits: TransferLimits = TransferLimits(),
+         transferLimitsProvider: @escaping @MainActor () -> TransferLimits = { SecuritySettingsStore.shared.transferLimits },
          dataWriter: ((Data) throws -> Void)? = nil,
          simulationSucceeds: @escaping (TransferDraft) -> Bool = { _ in true }) {
         self.defaults = defaults
         self.dates = dates
-        self.transferLimits = transferLimits
+        self.transferLimitsProvider = transferLimitsProvider
         self.dataWriter = dataWriter
         self.simulationSucceeds = simulationSucceeds
     }
@@ -128,16 +130,26 @@ extension Notification.Name {
         guard recipient.method == draft.method else { throw TransferError.invalidRecipient }
         guard let payer = record.accounts.first(where: { $0.id == draft.payerAccountID }), payer.currency == "人民币" else { throw TransferError.missingAccount }
         guard recipient.linkedAccountID != payer.id else { throw TransferError.sameAccount }
-        guard draft.amountInCents <= transferLimits.perTransferInCents else { throw TransferError.singleLimit }
-        let today = dates.string(from: now)
+        let limits = transferLimits
+        guard draft.amountInCents <= limits.perTransferInCents else { throw TransferError.singleLimit }
+        let spent = Self.transferredInCents(on: dates.string(from: now), in: record)
+        guard spent <= limits.dailyInCents, draft.amountInCents <= limits.dailyInCents - spent else { throw TransferError.dailyLimit }
+        guard let balance = TransferMoney.cents(from: payer.balance), draft.amountInCents <= balance else { throw TransferError.insufficientBalance }
+    }
+
+    /// 今日（北京时间）成功转账合计；溢出时返回 Int64.max，使日累计校验必然拦截。
+    func transferredTodayInCents() -> Int64 {
+        Self.transferredInCents(on: dates.string(from: dates.now), in: load())
+    }
+
+    private static func transferredInCents(on day: String, in record: FinanceLedgerRecord) -> Int64 {
         var spent: Int64 = 0
-        for transfer in record.transferRecords where transfer.status == .succeeded && transfer.createdAt.hasPrefix(today) {
+        for transfer in record.transferRecords where transfer.status == .succeeded && transfer.createdAt.hasPrefix(day) {
             let addition = spent.addingReportingOverflow(transfer.amountInCents)
-            guard !addition.overflow else { throw TransferError.dailyLimit }
+            guard !addition.overflow else { return .max }
             spent = addition.partialValue
         }
-        guard spent <= transferLimits.dailyInCents, draft.amountInCents <= transferLimits.dailyInCents - spent else { throw TransferError.dailyLimit }
-        guard let balance = TransferMoney.cents(from: payer.balance), draft.amountInCents <= balance else { throw TransferError.insufficientBalance }
+        return spent
     }
 
     /// Synchronous main-actor transaction: validate latest state, construct one root snapshot, persist once.
