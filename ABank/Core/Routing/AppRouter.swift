@@ -165,9 +165,10 @@ final class AppRouter: AppRouting {
             return MobileRechargeViewController()
         case .mobileRechargeConfirm(let phone, let faceInCents):
             return MobileRechargeConfirmViewController(phone: phone, faceInCents: faceInCents)
-        case .lifePayment, .utilityBill:
-            // 由 Task 5 替换
-            return ComingSoonViewController(featureID: .lifePayment)
+        case .lifePayment:
+            return LifePaymentViewController()
+        case .utilityBill(let billAccountID):
+            return UtilityBillViewController(billAccountID: billAccountID)
         case .paymentOrderDetail(let orderID, let justPaid):
             return PaymentOrderDetailViewController(orderID: orderID, justPaid: justPaid)
         }
