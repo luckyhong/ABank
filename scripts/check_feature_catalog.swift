@@ -14,7 +14,7 @@ import Foundation
         let ids = FeatureCatalog.all.map(\.id)
         precondition(Set(ids).count == ids.count && ids.count == FeatureID.allCases.count && ids.count == 69, "ids \(ids.count)")
         precondition(Set(FeatureCatalog.all.map(\.title)).count == 69, "titles must be unique")
-        precondition(FeatureCatalog.all.filter(\.isAvailable).count == 24)
+        precondition(FeatureCatalog.all.filter(\.isAvailable).count == 29)
         precondition(FeatureCatalog.descriptor(.branchQuery).availability == .available(.branchList))
         precondition(FeatureCatalog.descriptor(.branchQueue).availability == .available(.branchQueue))
         precondition(FeatureCatalog.descriptor(.openCard).availability == .available(.branchReservation(business: .openCard, branchID: nil)))
@@ -28,8 +28,13 @@ import Foundation
         precondition(FeatureCatalog.descriptor(.loan).availability == .available(.myLoan))
         precondition(FeatureCatalog.descriptor(.phoneTransfer).availability == .available(.transferForm(method: .phone)))
         precondition(FeatureCatalog.descriptor(.transfer).availability == .available(.transfer(payerAccountID: nil)))
-        precondition(FeatureCatalog.descriptor(.benefits).availability == .planned(stage: "M6 权益订单"))
-        precondition(FeatureCatalog.descriptor(.benefits).plannedStageText == "计划阶段：M6 权益订单")
+        precondition(FeatureCatalog.descriptor(.benefits).availability == .available(.benefits))
+        precondition(FeatureCatalog.descriptor(.beans).availability == .available(.beans))
+        precondition(FeatureCatalog.descriptor(.pointsMall).availability == .available(.pointsMall))
+        precondition(FeatureCatalog.descriptor(.customerLevel).availability == .available(.customerLevel))
+        precondition(FeatureCatalog.descriptor(.orders).availability == .available(.orders))
+        precondition(FeatureCatalog.descriptor(.mobileRecharge).availability == .planned(stage: "M8 充值缴费"))
+        precondition(FeatureCatalog.descriptor(.mobileRecharge).plannedStageText == "计划阶段：M8 充值缴费")
         precondition(FeatureCatalog.descriptor(.charity).plannedStageText == "后续规划")
         precondition(FeatureCategory.allCases.allSatisfy { !FeatureCatalog.features(in: $0).isEmpty })
         for id in FeatureID.allCases { precondition(FeatureCatalog.descriptor(id).id == id) }
@@ -101,7 +106,7 @@ import Foundation
             let store = FeaturePreferencesStore(defaults: defaults)
             store.recordUse(.transfer); store.recordUse(.loan); store.recordUse(.transfer)
             precondition(store.recents == [.transfer, .loan])
-            store.recordUse(.benefits)
+            store.recordUse(.mobileRecharge)
             precondition(store.recents == [.transfer, .loan])
             let available = FeatureCatalog.all.filter(\.isAvailable).map(\.id)
             for id in available.prefix(10) { store.recordUse(id) }
@@ -117,7 +122,7 @@ import Foundation
             let store = FeaturePreferencesStore(defaults: defaults, notificationCenter: center)
             store.setFavorites([.loan]); precondition(count == 1)
             store.recordUse(.transfer); precondition(count == 2)
-            store.recordUse(.benefits); precondition(count == 2)
+            store.recordUse(.mobileRecharge); precondition(count == 2)
         }
     }
 

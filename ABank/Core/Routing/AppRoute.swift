@@ -40,4 +40,14 @@ enum AppRoute: Equatable {
     case ticketDetail(ticketID: String)
     case branchReservation(business: BranchBusiness?, branchID: String?)
     case branchServiceHistory
+    case benefits
+    case pointsMall
+    case beans
+    case goodsDetail(goodsID: String)
+    case rewardLedger(currency: RewardCurrency)
+    case coupons
+    case couponDetail(couponID: String)
+    case orders
+    case orderDetail(orderID: String, justRedeemed: Bool)
+    case customerLevel
 }

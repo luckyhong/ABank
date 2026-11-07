@@ -171,7 +171,10 @@ final class LifeViewController: BaseViewController {
             guard let self else { return }
             self.router.open(feature: .orders, from: self)
         }
-        searchBar.onCouponsTapped = { [weak self] in self?.showToast("我的卡券") }
+        searchBar.onCouponsTapped = { [weak self] in
+            guard let self else { return }
+            self.router.open(.coupons, from: self)
+        }
 
         serviceGrid.onItemTapped = { [weak self] page, index in
             guard let self, let item = self.pageData.gridPages[safe: page]?[safe: index] else { return }
@@ -184,14 +187,16 @@ final class LifeViewController: BaseViewController {
 
         colorfulActivities.onHeaderTapped = { [weak self] in self?.showToast("缤纷活动") }
         colorfulActivities.onFeaturedTapped = { [weak self] in
-            self?.showToast(self?.pageData.colorfulFeatured.title ?? "小豆乐园")
+            guard let self else { return }
+            self.router.open(feature: .beans, from: self)
         }
         colorfulActivities.onSideTapped = { [weak self] index in
             let title = self?.pageData.colorfulSides[safe: index]?.title ?? "活动"
             self?.showToast(title)
         }
         colorfulActivities.onPromoTapped = { [weak self] in
-            self?.showToast(self?.pageData.promoBanner.title ?? "海量权益")
+            guard let self else { return }
+            self.router.open(feature: .benefits, from: self)
         }
 
         masonryGrid.onItemTapped = { [weak self] index in

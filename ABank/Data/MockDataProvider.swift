@@ -468,15 +468,10 @@ final class MockDataProvider {
                 displayName: "*继宏",
                 lastLoginDevice: "上次登录 iPhone 15",
                 lastLoginTime: "2026-08-13 21:03:30",
-                vipLevel: "二星客户",
+                vipLevel: BenefitsStore.shared.level.title,
                 benefitsTitle: "权益中心"
             ),
-            assetStats: [
-                MineAssetStat(value: 1, label: "银行卡"),
-                MineAssetStat(value: 0, label: "小豆"),
-                MineAssetStat(value: 3, label: "积分"),
-                MineAssetStat(value: 0, label: "礼券")
-            ],
+            assetStats: MineAssetStats.make(benefits: .shared),
             assetLiability: FinanceLedgerStore.shared.mineAssetLiability(),
             monthlyFlow: FinanceLedgerStore.shared.mineMonthlyFlow(),
             branch: mineBranchInfo(),

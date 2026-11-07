@@ -16,6 +16,7 @@ struct MineProfileInfo {
 struct MineAssetStat {
     let value: Int
     let label: String
+    let route: AppRoute?
 }
 
 struct MineAssetLiability {

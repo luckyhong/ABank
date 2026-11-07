@@ -129,6 +129,26 @@ final class AppRouter: AppRouting {
             return ReservationFormViewController(business: business, branchID: branchID)
         case .branchServiceHistory:
             return BranchServiceHistoryViewController()
+        case .benefits:
+            return BenefitsCenterViewController()
+        case .pointsMall:
+            return RewardMallViewController(currency: .points)
+        case .beans:
+            return RewardMallViewController(currency: .beans)
+        case .goodsDetail(let goodsID):
+            return GoodsDetailViewController(goodsID: goodsID)
+        case .rewardLedger(let currency):
+            return RewardLedgerViewController(currency: currency)
+        case .coupons:
+            return CouponsViewController()
+        case .couponDetail(let couponID):
+            return CouponDetailViewController(couponID: couponID)
+        case .orders:
+            return OrdersViewController()
+        case .orderDetail(let orderID, let justRedeemed):
+            return OrderDetailViewController(orderID: orderID, justRedeemed: justRedeemed)
+        case .customerLevel:
+            return CustomerLevelViewController()
         }
     }
 }
