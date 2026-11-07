@@ -372,7 +372,8 @@ final class MockDataProvider {
                     accentColor: UIColor(red: 0.55, green: 0.35, blue: 0.20, alpha: 1),
                     systemIcon: "wineglass.fill",
                     isAd: true,
-                    artworkName: "abc_life_banner_payment"
+                    artworkName: "abc_life_banner_payment",
+                    featureID: .lifePayment
                 ),
                 LifeBannerItem(
                     title: "热门活动",

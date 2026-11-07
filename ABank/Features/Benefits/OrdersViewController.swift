@@ -2,19 +2,24 @@
 //  OrdersViewController.swift
 //  ABank
 //
-//  我的订单：按状态筛选的兑换订单列表。
+//  我的订单：兑换订单与充值缴费订单统一列表，按状态或“充值缴费”筛选。
 //
 
 import UIKit
 import SnapKit
 
 final class OrdersViewController: BenefitsFlowViewController, RouteHosting {
-    private static let filters: [(title: String, status: OrderStatus?)] = [
-        ("全部", nil), ("待使用", .pendingUse), ("已使用", .used), ("已失效", .expired), ("已取消", .cancelled)
-    ]
-    private var filter = 0
+    private var filter = OrderListFilter.all
+    let ledger: FinanceLedgerStore
 
     var hostedRoute: AppRoute? { .orders }
+
+    init(ledger: FinanceLedgerStore = .shared, benefits: BenefitsStore = .shared, dates: BankingDateContext = .system) {
+        self.ledger = ledger
+        super.init(benefits: benefits, dates: dates)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     override func setupUI() {
         super.setupUI()
@@ -23,30 +28,44 @@ final class OrdersViewController: BenefitsFlowViewController, RouteHosting {
 
     override func refreshBankingData() {
         clearContent()
-        let bar = BranchChipBar(titles: Self.filters.map(\.title), selected: filter, idPrefix: "orders.filter")
+        let bar = BranchChipBar(titles: OrderListFilter.allCases.map(\.title), selected: filter.rawValue, idPrefix: "orders.filter")
         bar.onSelect = { [weak self] index in
-            self?.filter = index
+            self?.filter = OrderListFilter(rawValue: index) ?? .all
             self?.refreshBankingData()
         }
         contentStack.addArrangedSubview(bar)
 
-        let wanted = Self.filters[filter].status
-        let visible = benefits.orders.filter { wanted == nil || benefits.status(of: $0) == wanted }
+        let visible = OrderListBuilder.items(
+            filter: filter, reward: benefits.orders, payment: ledger.paymentOrders(),
+            status: { [benefits] in benefits.status(of: $0) }, dates: dates
+        )
         guard !visible.isEmpty else {
             addEmptyState("暂无订单", id: "orders.empty")
             return
         }
-        for order in visible {
-            let status = benefits.status(of: order)
-            let subtitle = "\(formattedAmount(order.cost)) \(order.currency.unit) · \(dateText(order.createdAt))"
-            let row = BenefitsRow(title: order.title, subtitle: subtitle,
-                                  trailing: BranchStatusTagView(text: status.title, active: status.tagActive),
-                                  id: "orders.row.\(order.id)", showsChevron: true)
-            row.onTap = { [weak self] in
-                guard let self else { return }
-                self.router.open(.orderDetail(orderID: order.id, justRedeemed: false), from: self)
+        for item in visible {
+            switch item {
+            case .reward(let order):
+                contentStack.addArrangedSubview(rewardRow(order))
+            case .payment(let order):
+                contentStack.addArrangedSubview(paymentOrderRow(order) { [weak self] in
+                    guard let self else { return }
+                    self.router.open(.paymentOrderDetail(orderID: order.id, justPaid: false), from: self)
+                })
             }
-            contentStack.addArrangedSubview(row)
         }
+    }
+
+    private func rewardRow(_ order: RewardOrder) -> BenefitsRow {
+        let status = benefits.status(of: order)
+        let subtitle = "\(formattedAmount(order.cost)) \(order.currency.unit) · \(dateText(order.createdAt))"
+        let row = BenefitsRow(title: order.title, subtitle: subtitle,
+                              trailing: BranchStatusTagView(text: status.title, active: status.tagActive),
+                              id: "orders.row.\(order.id)", showsChevron: true)
+        row.onTap = { [weak self] in
+            guard let self else { return }
+            self.router.open(.orderDetail(orderID: order.id, justRedeemed: false), from: self)
+        }
+        return row
     }
 }

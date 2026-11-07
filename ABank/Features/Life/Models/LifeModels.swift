@@ -14,6 +14,7 @@ struct LifeBannerItem {
     let systemIcon: String
     let isAd: Bool
     var artworkName: String? = nil
+    var featureID: FeatureID? = nil
 }
 
 struct LifeGridItem {

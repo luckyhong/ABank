@@ -15,14 +15,15 @@ struct FinanceLedgerRecord: Codable, Equatable {
     var dataTimestamp: String
     var transferRecords: [TransferRecord] = []
     var wealthOrders: [WealthOrder] = []
+    var paymentOrders: [PaymentOrder] = []
 
     private enum CodingKeys: String, CodingKey {
-        case accounts, transactions, loanContracts, assetLiabilityAnnouncement, dataTimestamp, transferRecords, wealthOrders
+        case accounts, transactions, loanContracts, assetLiabilityAnnouncement, dataTimestamp, transferRecords, wealthOrders, paymentOrders
     }
 
     init(accounts: [LedgerAccount], transactions: [LedgerTransaction], loanContracts: [LoanContract],
          assetLiabilityAnnouncement: String, dataTimestamp: String, transferRecords: [TransferRecord] = [],
-         wealthOrders: [WealthOrder] = []) {
+         wealthOrders: [WealthOrder] = [], paymentOrders: [PaymentOrder] = []) {
         self.accounts = accounts
         self.transactions = transactions
         self.loanContracts = loanContracts
@@ -30,6 +31,7 @@ struct FinanceLedgerRecord: Codable, Equatable {
         self.dataTimestamp = dataTimestamp
         self.transferRecords = transferRecords
         self.wealthOrders = wealthOrders
+        self.paymentOrders = paymentOrders
     }
 
     init(from decoder: Decoder) throws {
@@ -41,6 +43,7 @@ struct FinanceLedgerRecord: Codable, Equatable {
         dataTimestamp = try values.decode(String.self, forKey: .dataTimestamp)
         transferRecords = try values.decodeIfPresent([TransferRecord].self, forKey: .transferRecords) ?? []
         wealthOrders = try values.decodeIfPresent([WealthOrder].self, forKey: .wealthOrders) ?? []
+        paymentOrders = try values.decodeIfPresent([PaymentOrder].self, forKey: .paymentOrders) ?? []
     }
 }
 
@@ -416,6 +419,8 @@ enum IncomeExpenseFilterCatalog {
             .init(id: "transfer_out", title: "转账给他人", isAll: false),
             .init(id: "third_party_out", title: "三方转出", isAll: false),
             .init(id: "cash_withdraw", title: "现金取出", isAll: false),
+            .init(id: "mobile_recharge", title: "手机充值", isAll: false),
+            .init(id: "life_payment", title: "生活缴费", isAll: false),
             .init(id: "other_expense", title: "其他支出", isAll: false)
         ]
     )

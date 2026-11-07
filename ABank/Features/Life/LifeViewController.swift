@@ -176,6 +176,11 @@ final class LifeViewController: BaseViewController {
             self.router.open(.coupons, from: self)
         }
 
+        bannerView.onItemTapped = { [weak self] index in
+            guard let self, let id = self.pageData.banners[safe: index]?.featureID else { return }
+            self.router.open(feature: id, from: self)
+        }
+
         serviceGrid.onItemTapped = { [weak self] page, index in
             guard let self, let item = self.pageData.gridPages[safe: page]?[safe: index] else { return }
             if let id = item.featureID {

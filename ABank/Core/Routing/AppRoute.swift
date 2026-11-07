@@ -56,4 +56,9 @@ enum AppRoute: Equatable {
     case wealthPurchase(productID: String)
     case wealthOrderDetail(orderID: String, justPurchased: Bool)
     case wealthHoldings
+    case mobileRecharge
+    case mobileRechargeConfirm(phone: String, faceInCents: Int64)
+    case lifePayment
+    case utilityBill(billAccountID: String)
+    case paymentOrderDetail(orderID: String, justPaid: Bool)
 }
