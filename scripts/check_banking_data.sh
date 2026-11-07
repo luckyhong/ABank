@@ -33,6 +33,7 @@ sources=(
   ABank/Features/WealthProduct/Models/RiskAssessmentModels.swift
   ABank/Features/WealthProduct/RiskAssessmentStore.swift
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Wealth.swift
+  ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Payment.swift
   ABank/Features/Payment/Models/PaymentModels.swift
   ABank/Features/Payment/Models/PaymentCatalog.swift
   ABank/Features/Payment/Models/PaymentRules.swift

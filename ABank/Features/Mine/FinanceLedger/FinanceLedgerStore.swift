@@ -21,18 +21,21 @@ extension Notification.Name {
     private let simulationSucceeds: (TransferDraft) -> Bool
     private let transferLimitsProvider: @MainActor () -> TransferLimits
     let riskStateProvider: @MainActor () -> RiskAssessmentState
+    let benefitsProvider: @MainActor () -> BenefitsStore
     /// 当前生效的转账限额；每次读取都取安全设置中的最新值。
     var transferLimits: TransferLimits { transferLimitsProvider() }
 
     init(defaults: UserDefaults = .standard, dates: BankingDateContext = .system,
          transferLimitsProvider: @escaping @MainActor () -> TransferLimits = { SecuritySettingsStore.shared.transferLimits },
          riskStateProvider: @escaping @MainActor () -> RiskAssessmentState = { RiskAssessmentStore.shared.state },
+         benefitsProvider: @escaping @MainActor () -> BenefitsStore = { BenefitsStore.shared },
          dataWriter: ((Data) throws -> Void)? = nil,
          simulationSucceeds: @escaping (TransferDraft) -> Bool = { _ in true }) {
         self.defaults = defaults
         self.dates = dates
         self.transferLimitsProvider = transferLimitsProvider
         self.riskStateProvider = riskStateProvider
+        self.benefitsProvider = benefitsProvider
         self.dataWriter = dataWriter
         self.simulationSucceeds = simulationSucceeds
     }

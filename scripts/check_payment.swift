@@ -10,6 +10,14 @@ import Foundation
         try legacyLedgerDecodes()
         categories()
         try releaseCoupon()
+        try rechargeRules()
+        try rechargeCoupons()
+        try rechargeAmountRules()
+        try rechargeIdempotency()
+        try couponCompensation()
+        try utilityRules()
+        try corruptLedgerKeepsBytes()
+        try writeFailureIsAtomic()
         print("Payment checks passed")
     }
 
@@ -270,6 +278,305 @@ import Foundation
             do { try store.releaseCoupon(id: couponID); preconditionFailure("write failure ignored") }
             catch let error as BenefitsError { precondition(error == .saveFailed) }
             precondition(store.coupon(id: couponID).map(store.status) == .used, "state unchanged on failure")
+        }
+    }
+
+    // MARK: - 提交
+
+    @MainActor static func ledgerStore(_ defaults: UserDefaults, _ clock: TestClock, _ benefits: BenefitsStore,
+                                       balance: Double = 1499.66,
+                                       writer: ((Data) throws -> Void)? = nil) -> FinanceLedgerStore {
+        let store = FinanceLedgerStore(defaults: defaults, dates: BankingDateContext(now: { clock.now }),
+                                       benefitsProvider: { benefits }, dataWriter: writer)
+        precondition(store.save(fixture(balance: balance)), "seed")
+        return store
+    }
+
+    static func cents(_ value: Double) -> Int64 { TransferMoney.cents(from: value)! }
+
+    @MainActor static func balanceCents(_ store: FinanceLedgerStore) -> Int64 {
+        cents(store.load().accounts[0].balance)
+    }
+
+    @MainActor static func expect(_ expected: PaymentError, _ body: () throws -> Void, _ label: String) {
+        do {
+            try body()
+            preconditionFailure("\(label): expected \(expected), got success")
+        } catch let error as PaymentError {
+            precondition(error == expected, "\(label): expected \(expected), got \(error)")
+        } catch {
+            preconditionFailure("\(label): unexpected \(error)")
+        }
+    }
+
+    @MainActor static func status(_ benefits: BenefitsStore, _ couponID: String) -> CouponStatus {
+        benefits.status(of: benefits.coupon(id: couponID)!)
+    }
+
+    static let phone = "15288888684"
+
+    @MainActor static func rechargeRules() throws {
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let benefits = makeBenefits(defaults, clock)
+            let store = ledgerStore(defaults, clock, benefits)
+            let assetsBefore = cents(store.totalAssets())
+            let flowBefore = store.mineMonthlyFlow().expense
+            let order = try store.submitMobileRecharge(phone: "152 8888 8684", faceInCents: 2000, couponID: nil, requestID: "a")
+            precondition(order.kind == .mobile && order.paidInCents == 2000 && order.faceInCents == 2000)
+            precondition(order.couponID == nil && order.couponDiscountInCents == 0 && order.period == nil)
+            precondition(order.targetID == phone && order.targetTitle == "手机号 152****8684")
+            precondition(order.createdAt == "2026-11-06 10:00:00" && order.accountID == "acct_8472")
+            precondition(order.orderNo.hasPrefix("M820261106") && order.requestID == "a")
+            let transaction = store.transaction(id: order.transactionID)!
+            precondition(order.transactionID == "payment_" + order.id)
+            precondition(transaction.direction == .expense && cents(transaction.amount) == 2000)
+            precondition(transaction.includeInFlow && transaction.categoryId == "mobile_recharge")
+            precondition(transaction.title == "手机充值-152****8684" && transaction.transactionType == "手机充值")
+            precondition(transaction.channel == "本机模拟" && transaction.counterpartyName == "模拟通信服务商")
+            precondition(balanceCents(store) == 147_966, "cash reduced")
+            precondition(cents(store.totalAssets()) == assetsBefore - 2000, "assets reduced by payment")
+            precondition(cents(store.mineMonthlyFlow().expense) == cents(flowBefore) + 2000, "monthly flow includes payment")
+            precondition(store.paymentOrders() == [order] && store.paymentOrder(id: order.id) == order)
+            precondition(store.paymentOrder(id: "none") == nil)
+
+            @MainActor func attempt(_ expected: PaymentError, _ number: String, _ face: Int64, _ label: String) {
+                let orders = store.paymentOrders().count, balance = balanceCents(store)
+                expect(expected, { _ = try store.submitMobileRecharge(phone: number, faceInCents: face, couponID: nil, requestID: UUID().uuidString) }, label)
+                precondition(store.paymentOrders().count == orders && balanceCents(store) == balance, "\(label) changed state")
+            }
+            attempt(.invalidPhone, "12345", 2000, "short phone")
+            attempt(.invalidPhone, "25288888684", 2000, "bad prefix")
+            attempt(.invalidDenomination, phone, 1500, "off-menu face")
+            attempt(.invalidDenomination, phone, 0, "zero face")
+            attempt(.invalidDenomination, phone, -1000, "negative face")
+            try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: nil, requestID: "b")
+            precondition(store.paymentOrders().count == 2 && store.paymentOrders().first?.requestID == "b", "newest first")
+        }
+    }
+
+    @MainActor static func rechargeCoupons() throws {
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let benefits = makeBenefits(defaults, clock)
+            let store = ledgerStore(defaults, clock, benefits)
+            let c5 = try benefits.redeem(goodsID: "g.phone5").couponID
+            let c10 = try benefits.redeem(goodsID: "g.phone10").couponID
+            let coffee = try benefits.claim(benefitID: "coffeeMonthly").couponID!
+            precondition(Set(store.usableCoupons(forFaceInCents: 1000).map(\.id)) == [c5], "only phone5 under 10 yuan")
+            precondition(Set(store.usableCoupons(forFaceInCents: 2000).map(\.id)) == [c5, c10])
+            precondition(store.usableCoupons(forFaceInCents: 500).isEmpty)
+
+            expect(.couponUnavailable, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: c10, requestID: "a") }, "equal face")
+            precondition(status(benefits, c10) == .unused && store.paymentOrders().isEmpty, "rejected coupon stays unused")
+            expect(.couponUnavailable, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 5000, couponID: coffee, requestID: "b") }, "non-phone coupon")
+            expect(.couponUnavailable, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 5000, couponID: "nope", requestID: "c") }, "unknown coupon")
+            precondition(status(benefits, coffee) == .unused)
+
+            let order = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: c5, requestID: "d")
+            precondition(order.paidInCents == 500 && order.couponDiscountInCents == 500 && order.couponID == c5 && order.faceInCents == 1000)
+            precondition(status(benefits, c5) == .used && balanceCents(store) == 149_466)
+            precondition(cents(store.transaction(id: order.transactionID)!.amount) == 500, "transaction is paid amount")
+            expect(.couponUnavailable, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 2000, couponID: c5, requestID: "e") }, "used coupon")
+
+            let paid10 = try store.submitMobileRecharge(phone: phone, faceInCents: 2000, couponID: c10, requestID: "f")
+            precondition(paid10.paidInCents == 1000 && paid10.couponDiscountInCents == 1000 && status(benefits, c10) == .used)
+
+            let voided = try benefits.redeem(goodsID: "g.phone5")
+            try benefits.cancelOrder(id: voided.id)
+            expect(.couponUnavailable, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: voided.couponID, requestID: "g") }, "voided coupon")
+            precondition(store.usableCoupons(forFaceInCents: 20000).isEmpty, "no phone coupon left")
+        }
+    }
+
+    @MainActor static func rechargeAmountRules() throws {
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let store = ledgerStore(defaults, clock, makeBenefits(defaults, clock), balance: 10.00)
+            try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: nil, requestID: "a")
+            precondition(balanceCents(store) == 0, "exact balance payable")
+            expect(.insufficientBalance, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: nil, requestID: "b") }, "empty")
+        }
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let store = ledgerStore(defaults, clock, makeBenefits(defaults, clock), balance: 9.99)
+            expect(.insufficientBalance, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: nil, requestID: "a") }, "short by one cent")
+            precondition(balanceCents(store) == 999 && store.paymentOrders().isEmpty)
+        }
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let benefits = makeBenefits(defaults, clock)
+            let store = ledgerStore(defaults, clock, benefits, balance: 5.00)
+            let c5 = try benefits.redeem(goodsID: "g.phone5").couponID
+            let order = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: c5, requestID: "a")
+            precondition(order.paidInCents == 500 && balanceCents(store) == 0 && status(benefits, c5) == .used, "coupon makes it affordable")
+        }
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let store = ledgerStore(defaults, clock, makeBenefits(defaults, clock))
+            for index in 0..<7 {
+                try store.submitMobileRecharge(phone: phone, faceInCents: 20_000, couponID: nil, requestID: "r\(index)")
+            }
+            precondition(balanceCents(store) == 9_966)
+            expect(.insufficientBalance, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 20_000, couponID: nil, requestID: "last") }, "eighth")
+        }
+    }
+
+    @MainActor static func rechargeIdempotency() throws {
+        try withSuite { defaults in
+            let center = NotificationCenter()
+            let changes = count(center, BenefitsStore.didChangeNotification)
+            let clock = TestClock("2026-11-06 10:00")
+            let benefits = makeBenefits(defaults, clock, center: center)
+            let store = ledgerStore(defaults, clock, benefits)
+            let first = try store.submitMobileRecharge(phone: phone, faceInCents: 2000, couponID: nil, requestID: "a")
+            let second = try store.submitMobileRecharge(phone: "13012345678", faceInCents: 5000, couponID: nil, requestID: "a")
+            precondition(first == second, "same request returns original")
+            precondition(store.paymentOrders().count == 1 && store.load().transactions.count == 1)
+            precondition(balanceCents(store) == 147_966, "charged once")
+
+            let c5 = try benefits.redeem(goodsID: "g.phone5").couponID
+            let withCoupon = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: c5, requestID: "b")
+            let afterFirst = (changes.count, balanceCents(store))
+            let again = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: c5, requestID: "b")
+            precondition(again == withCoupon && status(benefits, c5) == .used)
+            precondition(changes.count == afterFirst.0 && balanceCents(store) == afterFirst.1, "no second charge or coupon write")
+
+            let restarted = FinanceLedgerStore(defaults: defaults, dates: BankingDateContext(now: { clock.now }),
+                                               benefitsProvider: { benefits })
+            let replay = try restarted.submitMobileRecharge(phone: phone, faceInCents: 2000, couponID: nil, requestID: "a")
+            precondition(replay == first, "restart keeps idempotency")
+            precondition(restarted.paymentOrders().count == 2)
+
+            expect(.invalidRequest, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 2000, couponID: nil, requestID: "") }, "empty id")
+            expect(.invalidRequest, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 2000, couponID: nil, requestID: String(repeating: "x", count: 101)) }, "long id")
+        }
+    }
+
+    @MainActor static func couponCompensation() throws {
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let benefitCenter = NotificationCenter()
+            let benefitChanges = count(benefitCenter, BenefitsStore.didChangeNotification)
+            let benefits = makeBenefits(defaults, clock, center: benefitCenter)
+            var failing = false
+            let store = ledgerStore(defaults, clock, benefits, writer: { data in
+                if failing { throw WriteFailure() }
+                defaults.set(data, forKey: ledgerKey)
+            })
+            try store.submitMobileRecharge(phone: phone, faceInCents: 2000, couponID: nil, requestID: "plain")
+            let c5 = try benefits.redeem(goodsID: "g.phone5").couponID
+            let ledgerChanges = count(NotificationCenter.default, .financeLedgerDidChange)
+            let before = store.load()
+            failing = true
+            expect(.persistence, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: c5, requestID: "x") }, "write failure")
+            precondition(store.load() == before, "orders, transactions and balance unchanged")
+            precondition(status(benefits, c5) == .unused, "coupon released")
+            precondition(ledgerChanges.count == 0, "no ledger notification")
+            failing = false
+            let order = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: c5, requestID: "x")
+            precondition(order.couponID == c5 && status(benefits, c5) == .used && ledgerChanges.count == 1, "retry succeeds")
+
+            let c5b = try benefits.redeem(goodsID: "g.phone5").couponID
+            let writes = benefitChanges.count
+            expect(.invalidPhone, { _ = try store.submitMobileRecharge(phone: "123", faceInCents: 1000, couponID: c5b, requestID: "y1") }, "bad phone")
+            expect(.invalidDenomination, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1500, couponID: c5b, requestID: "y2") }, "bad face")
+            precondition(status(benefits, c5b) == .unused && benefitChanges.count == writes, "validation never touches the coupon")
+        }
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let center = NotificationCenter()
+            let benefitChanges = count(center, BenefitsStore.didChangeNotification)
+            let benefits = makeBenefits(defaults, clock, center: center)
+            let c5 = try benefits.redeem(goodsID: "g.phone5").couponID
+            let store = ledgerStore(defaults, clock, benefits, balance: 4.99)
+            let writes = benefitChanges.count
+            expect(.insufficientBalance, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: c5, requestID: "z") }, "short even with coupon")
+            precondition(status(benefits, c5) == .unused && benefitChanges.count == writes, "balance check precedes coupon use")
+        }
+    }
+
+    @MainActor static func utilityRules() throws {
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let store = ledgerStore(defaults, clock, makeBenefits(defaults, clock))
+            let water = account("bill.water.home")
+            let amount = PaymentRules.billAmountInCents(for: water, period: "2026-11")
+            let bill = store.currentBill(for: water)
+            precondition(bill.amountInCents == amount && !bill.isPaid && bill.period == "2026-11")
+            let order = try store.submitUtilityPayment(billAccountID: water.id, requestID: "a")
+            precondition(order.kind == .water && order.period == "2026-11" && order.targetID == water.id)
+            precondition(order.paidInCents == amount && order.faceInCents == amount && order.couponID == nil && order.couponDiscountInCents == 0)
+            precondition(order.targetTitle == "水费 · 家庭住宅" && order.createdAt == "2026-11-06 10:00:00")
+            let transaction = store.transaction(id: order.transactionID)!
+            precondition(transaction.direction == .expense && cents(transaction.amount) == amount && transaction.includeInFlow)
+            precondition(transaction.categoryId == "life_payment" && transaction.title == "水费缴费-家庭住宅")
+            precondition(transaction.transactionType == "生活缴费" && transaction.counterpartyName == water.provider)
+            precondition(balanceCents(store) == 149_966 - amount && store.currentBill(for: water).isPaid)
+            expect(.alreadyPaid, { _ = try store.submitUtilityPayment(billAccountID: water.id, requestID: "b") }, "second payment same period")
+            let replayed = try store.submitUtilityPayment(billAccountID: water.id, requestID: "a")
+            precondition(replayed == order, "same request idempotent")
+            precondition(store.paymentOrders().count == 1)
+            let parents = try store.submitUtilityPayment(billAccountID: "bill.water.parents", requestID: "c")
+            precondition(parents.targetTitle == "水费 · 父母住宅", "other account unaffected")
+            expect(.billNotFound, { _ = try store.submitUtilityPayment(billAccountID: "nope", requestID: "d") }, "unknown account")
+
+            clock.set("2026-11-30 23:59")
+            precondition(store.currentBill(for: water).isPaid, "still November")
+            expect(.alreadyPaid, { _ = try store.submitUtilityPayment(billAccountID: water.id, requestID: "e") }, "month end")
+            clock.set(utc: "2026-11-30T16:00:00Z")
+            precondition(!store.currentBill(for: water).isPaid && store.currentBill(for: water).period == "2026-12", "new period")
+            let december = try store.submitUtilityPayment(billAccountID: water.id, requestID: "f")
+            precondition(december.period == "2026-12" && store.paymentOrders().count == 3)
+        }
+        let electric = account("bill.electric.home")
+        let due = PaymentRules.billAmountInCents(for: electric, period: "2026-11")
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let store = ledgerStore(defaults, clock, makeBenefits(defaults, clock), balance: Double(due) / 100)
+            try store.submitUtilityPayment(billAccountID: electric.id, requestID: "a")
+            precondition(balanceCents(store) == 0, "exact balance payable")
+        }
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let store = ledgerStore(defaults, clock, makeBenefits(defaults, clock), balance: Double(due - 1) / 100)
+            expect(.insufficientBalance, { _ = try store.submitUtilityPayment(billAccountID: electric.id, requestID: "a") }, "short by one cent")
+            precondition(store.paymentOrders().isEmpty && balanceCents(store) == due - 1)
+        }
+    }
+
+    @MainActor static func corruptLedgerKeepsBytes() throws {
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let benefits = makeBenefits(defaults, clock)
+            let store = ledgerStore(defaults, clock, benefits)
+            let c5 = try benefits.redeem(goodsID: "g.phone5").couponID
+            let garbage = Data(#"{"accounts":"x"}"#.utf8)
+            defaults.set(garbage, forKey: ledgerKey)
+            expect(.corruptLedger, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: c5, requestID: "a") }, "recharge")
+            expect(.corruptLedger, { _ = try store.submitUtilityPayment(billAccountID: "bill.water.home", requestID: "b") }, "utility")
+            precondition(defaults.data(forKey: ledgerKey) == garbage, "bytes untouched")
+            precondition(status(benefits, c5) == .unused, "coupon untouched")
+        }
+    }
+
+    @MainActor static func writeFailureIsAtomic() throws {
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            var failing = false
+            let store = ledgerStore(defaults, clock, makeBenefits(defaults, clock), writer: { data in
+                if failing { throw WriteFailure() }
+                defaults.set(data, forKey: ledgerKey)
+            })
+            let counter = count(NotificationCenter.default, .financeLedgerDidChange)
+            let before = store.load()
+            failing = true
+            expect(.persistence, { _ = try store.submitUtilityPayment(billAccountID: "bill.gas.home", requestID: "a") }, "utility")
+            precondition(store.load() == before, "unchanged")
+            precondition(counter.count == 0, "no notification on failed write")
+            failing = false
+            try store.submitUtilityPayment(billAccountID: "bill.gas.home", requestID: "a")
+            precondition(counter.count == 1 && store.paymentOrders().count == 1)
         }
     }
 }
