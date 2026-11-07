@@ -187,6 +187,19 @@ final class HomeViewController: BaseViewController {
         preferencesObserver = NotificationCenter.default.addObserver(
             forName: FeaturePreferencesStore.didChangeNotification, object: nil, queue: .main
         ) { [weak self] _ in self?.reloadFavoriteGrid() }
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadBranchCard),
+                                               name: CitySelectionStore.didChangeNotification, object: nil)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        reloadBranchCard()
+    }
+
+    /// 网点卡显示当前城市默认网点与实时营业状态。
+    @objc private func reloadBranchCard() {
+        guard isViewLoaded else { return }
+        branchService.configure(with: MockDataProvider.shared.homeBranchInfo())
     }
 
     override func viewDidLayoutSubviews() {
@@ -277,7 +290,8 @@ final class HomeViewController: BaseViewController {
             self?.showToast("正在拨打网点电话")
         }
         branchService.onRefreshTapped = { [weak self] in
-            self?.showToast("已刷新附近网点")
+            self?.reloadBranchCard()
+            self?.showToast("已刷新")
         }
 
         consumerProtection.onItemTapped = { [weak self] item in

@@ -89,17 +89,7 @@ final class MockDataProvider {
                 HomePensionServiceItem(title: "个人养老金", systemIcon: "doc.text"),
                 HomePensionServiceItem(title: "退休年龄", systemIcon: "function")
             ],
-            branch: HomeBranchInfo(
-                name: "西安沣东新城支行",
-                status: "营业中",
-                distance: "距您约2552米",
-                address: "陕西省西安市沣东新城大明宫·沣东一路88号",
-                services: [
-                    HomeBranchServiceItem(title: "我要开卡", imageName: "abc_home_branch_open", systemIcon: "creditcard.fill", featureID: .openCard),
-                    HomeBranchServiceItem(title: "纪念币预约", imageName: "abc_home_branch_coin", systemIcon: "bitcoinsign.circle", featureID: .coinReservation),
-                    HomeBranchServiceItem(title: "同号换卡", imageName: "abc_home_branch_replace", systemIcon: "arrow.triangle.2.circlepath", featureID: .sameNumberReplace)
-                ]
-            ),
+            branch: homeBranchInfo(),
             infoMarket: HomeInfoMarketItem(
                 title: "市场观点",
                 source: "财经全视角",
@@ -331,11 +321,42 @@ final class MockDataProvider {
         )
     }
 
+    // MARK: - 网点卡（当前城市默认网点 + 实时营业状态）
+
+    func homeBranchInfo(cities: CitySelectionStore = .shared, dates: BankingDateContext = .system) -> HomeBranchInfo {
+        let summary = BranchCardSummary.make(cityID: cities.currentCity.id, at: dates.now, dates: dates)
+        return HomeBranchInfo(
+            name: summary.name,
+            status: summary.status,
+            distance: "距您约" + summary.distanceText,
+            address: summary.address,
+            services: [
+                HomeBranchServiceItem(title: "我要开卡", imageName: "abc_home_branch_open", systemIcon: "creditcard.fill", featureID: .openCard),
+                HomeBranchServiceItem(title: "纪念币预约", imageName: "abc_home_branch_coin", systemIcon: "bitcoinsign.circle", featureID: .coinReservation),
+                HomeBranchServiceItem(title: "同号换卡", imageName: "abc_home_branch_replace", systemIcon: "arrow.triangle.2.circlepath", featureID: .sameNumberReplace)
+            ]
+        )
+    }
+
+    func mineBranchInfo(cities: CitySelectionStore = .shared, dates: BankingDateContext = .system) -> MineBranchInfo {
+        let summary = BranchCardSummary.make(cityID: cities.currentCity.id, at: dates.now, dates: dates)
+        return MineBranchInfo(
+            name: summary.name,
+            distance: summary.distanceText,
+            services: [
+                MineGridItem(title: "我要开卡", imageName: "abc_mine_branch_open", systemIcon: "creditcard.badge.plus", featureID: .openCard),
+                MineGridItem(title: "纪念币预约", imageName: "abc_mine_branch_coin", systemIcon: "bitcoinsign.circle", featureID: .coinReservation),
+                MineGridItem(title: "同号换卡", imageName: "abc_mine_branch_replace", systemIcon: "iphone.and.arrow.forward", featureID: .sameNumberReplace),
+                MineGridItem(title: "网点查询", imageName: "abc_mine_branch_find", systemIcon: "building.columns", featureID: .branchQuery)
+            ]
+        )
+    }
+
     // MARK: - 生活
 
     func getLifePageData() -> LifePageData {
         LifePageData(
-            city: "西安市",
+            city: CitySelectionStore.shared.currentCity.name,
             searchPlaceholders: ["本地优惠", "实物贵金属", "生活缴费", "手机充值"],
             banners: [
                 LifeBannerItem(
@@ -458,16 +479,7 @@ final class MockDataProvider {
             ],
             assetLiability: FinanceLedgerStore.shared.mineAssetLiability(),
             monthlyFlow: FinanceLedgerStore.shared.mineMonthlyFlow(),
-            branch: MineBranchInfo(
-                name: "西安沣东新城支行",
-                distance: "2552米",
-                services: [
-                    MineGridItem(title: "我要开卡", imageName: "abc_mine_branch_open", systemIcon: "creditcard.badge.plus", featureID: .openCard),
-                    MineGridItem(title: "纪念币预约", imageName: "abc_mine_branch_coin", systemIcon: "bitcoinsign.circle", featureID: .coinReservation),
-                    MineGridItem(title: "同号换卡", imageName: "abc_mine_branch_replace", systemIcon: "iphone.and.arrow.forward", featureID: .sameNumberReplace),
-                    MineGridItem(title: "网点查询", imageName: "abc_mine_branch_find", systemIcon: "building.columns", featureID: .branchQuery)
-                ]
-            ),
+            branch: mineBranchInfo(),
             securityItems: [
                 MineGridItem(title: "登录设置", imageName: "abc_mine_security_login", systemIcon: "door.left.hand.open", featureID: .loginSettings),
                 MineGridItem(title: "转账设置", imageName: "abc_mine_security_transfer", systemIcon: "shield.lefthalf.filled", featureID: .transferLimits),

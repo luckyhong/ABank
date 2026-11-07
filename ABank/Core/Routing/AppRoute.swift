@@ -31,4 +31,13 @@ enum AppRoute: Equatable {
     case paymentSettings
     case loginDevices
     case loginDeviceDetail(deviceID: String)
+    case cityPicker
+    case branchList
+    /// 网点取号入口：有有效号进入号票详情，否则进入网点列表。
+    case branchQueue
+    case branchDetail(branchID: String)
+    case takeTicket(branchID: String)
+    case ticketDetail(ticketID: String)
+    case branchReservation(business: BranchBusiness?, branchID: String?)
+    case branchServiceHistory
 }

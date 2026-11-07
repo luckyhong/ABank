@@ -70,6 +70,17 @@ final class MineViewController: BankingDataViewController {
         applyAmountVisibility()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        reloadBranchCard()
+    }
+
+    /// 我的网点显示当前城市默认网点。
+    @objc private func reloadBranchCard() {
+        guard isViewLoaded else { return }
+        branchCard.configure(with: MockDataProvider.shared.mineBranchInfo())
+    }
+
     @objc private func securitySettingsDidChange() {
         guard isViewLoaded else { return }
         applyAmountVisibility()
@@ -155,6 +166,8 @@ final class MineViewController: BankingDataViewController {
     private func bindActions() {
         NotificationCenter.default.addObserver(self, selector: #selector(securitySettingsDidChange),
                                                name: SecuritySettingsStore.didChangeNotification, object: security)
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadBranchCard),
+                                               name: CitySelectionStore.didChangeNotification, object: nil)
         assetLiabilityCard.onEyeTapped = { [weak self] in self?.toggleAmountVisibility() }
         monthlyFlowCard.onEyeTapped = { [weak self] in self?.toggleAmountVisibility() }
         topActionBar.onLogoutTapped = { [weak self] in
@@ -207,7 +220,8 @@ final class MineViewController: BankingDataViewController {
             self.router.open(feature: .branchQuery, from: self)
         }
         branchCard.onRefreshTapped = { [weak self] in
-            self?.showToast("刷新网点信息")
+            self?.reloadBranchCard()
+            self?.showToast("已刷新")
         }
         branchCard.onItemTapped = { [weak self] index in
             guard let self, let id = self.pageData.branch.services[safe: index]?.featureID else { return }

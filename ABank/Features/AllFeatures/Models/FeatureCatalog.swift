@@ -92,7 +92,6 @@ enum FeatureCatalog {
     private static let byID: [FeatureID: FeatureDescriptor] =
         Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
 
-    private static let branchStage = "M5 网点服务"
     private static let benefitsStage = "M6 权益订单"
     private static let wealthStage = "M7 财富产品"
     private static let paymentStage = "M8 充值缴费"
@@ -125,9 +124,9 @@ enum FeatureCatalog {
         item(.customerInfo, "客户资料", .account, icon: "person.text.rectangle",
              keywords: ["个人信息", "手机号", "税收"], .available(.customerInfo)),
         item(.openCard, "我要开卡", .account, image: "abc_mine_branch_open", icon: "creditcard.and.123",
-             keywords: ["开户", "办卡"], .planned(stage: branchStage)),
+             keywords: ["开户", "办卡", "预约"], .available(.branchReservation(business: .openCard, branchID: nil))),
         item(.sameNumberReplace, "同号换卡", .account, image: "abc_mine_branch_replace", icon: "arrow.triangle.2.circlepath",
-             keywords: ["换卡"], .planned(stage: branchStage)),
+             keywords: ["换卡", "预约"], .available(.branchReservation(business: .sameNumberReplace, branchID: nil))),
 
         // MARK: 转账
         item(.transfer, "转账", .transfer, image: "abc_home_transfer", icon: "arrow.left.arrow.right",
@@ -235,11 +234,11 @@ enum FeatureCatalog {
 
         // MARK: 网点与安全
         item(.branchQuery, "网点查询", .service, image: "abc_mine_branch_find", icon: "building.columns",
-             keywords: ["网点", "附近", "营业时间"], .planned(stage: branchStage)),
+             keywords: ["网点", "附近", "营业时间"], .available(.branchList)),
         item(.branchQueue, "网点取号", .service, icon: "number.circle",
-             keywords: ["排队", "取号", "网点"], .planned(stage: branchStage)),
+             keywords: ["排队", "取号", "网点"], .available(.branchQueue)),
         item(.coinReservation, "纪念币预约", .service, image: "abc_mine_branch_coin", icon: "bitcoinsign.circle",
-             keywords: ["纪念币", "预约"], .planned(stage: branchStage)),
+             keywords: ["纪念币", "预约"], .available(.branchReservation(business: .commemorativeCoin, branchID: nil))),
         item(.securityCenter, "安全中心", .service, icon: "lock.shield.fill",
              keywords: ["安全", "设置"], .available(.securityCenter)),
         item(.loginSettings, "登录设置", .service, image: "abc_mine_security_login", icon: "door.left.hand.open",

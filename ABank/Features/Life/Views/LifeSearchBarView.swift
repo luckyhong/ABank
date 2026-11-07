@@ -39,6 +39,10 @@ final class LifeSearchBarView: UIView {
 
     deinit { rotateTimer?.invalidate() }
 
+    func setCity(_ city: String) {
+        cityLabel.text = city
+    }
+
     func configure(city: String, placeholders: [String]) {
         cityLabel.text = city
         self.placeholders = placeholders.isEmpty ? ["搜索"] : placeholders
