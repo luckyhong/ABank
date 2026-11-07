@@ -69,13 +69,14 @@ final class UtilityBillViewController: PaymentFlowViewController, RouteHosting {
 
     private func payTapped(_ bill: UtilityBill) {
         confirm("确认缴纳 \(wealthMoneyText(bill.amountInCents)) 元？", confirmTitle: "确认缴费") { [weak self] in
-            self?.pay()
+            self?.pay(bill)
         }
     }
 
-    private func pay() {
+    private func pay(_ bill: UtilityBill) {
         do {
-            let order = try ledger.submitUtilityPayment(billAccountID: billAccountID, requestID: requestID)
+            let order = try ledger.submitUtilityPayment(billAccountID: billAccountID, requestID: requestID,
+                                                        expectedPeriod: bill.period, expectedAmountInCents: bill.amountInCents)
             requestID = UUID().uuidString
             router.open(.paymentOrderDetail(orderID: order.id, justPaid: true), from: self)
         } catch {

@@ -68,7 +68,7 @@ final class MobileRechargeConfirmViewController: PaymentFlowViewController, Rout
         payLabel.accessibilityIdentifier = "recharge.pay"
         addCard([payLabel])
 
-        _ = addButton("确认充值", id: "recharge.submit") { [weak self] in self?.submitTapped(paid: paid) }
+        _ = addButton("确认充值", id: "recharge.submit") { [weak self] in self?.submitTapped(paid: paid, couponID: selected?.id) }
         addNotice("本机模拟 · 不发生真实资金交易")
     }
 
@@ -95,16 +95,17 @@ final class MobileRechargeConfirmViewController: PaymentFlowViewController, Rout
         present(sheet, animated: true)
     }
 
-    private func submitTapped(paid: Int64) {
+    /// 弹窗确认的是此刻的券与实付金额；提交时携带它们，状态在弹窗期间变化则拒绝而不是替换。
+    private func submitTapped(paid: Int64, couponID: String?) {
         confirm("确认充值 \(wealthMoneyText(faceInCents)) 元？实付 \(wealthMoneyText(paid)) 元。", confirmTitle: "确认充值") { [weak self] in
-            self?.submit()
+            self?.submit(paid: paid, couponID: couponID)
         }
     }
 
-    private func submit() {
+    private func submit(paid: Int64, couponID: String?) {
         do {
-            let order = try ledger.submitMobileRecharge(phone: phone, faceInCents: faceInCents,
-                                                        couponID: selectedCouponID, requestID: requestID)
+            let order = try ledger.submitMobileRecharge(phone: phone, faceInCents: faceInCents, couponID: couponID,
+                                                        requestID: requestID, expectedPaidInCents: paid)
             requestID = UUID().uuidString
             selectedCouponID = nil
             router.open(.paymentOrderDetail(orderID: order.id, justPaid: true), from: self)

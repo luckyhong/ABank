@@ -43,11 +43,14 @@ extension FinanceLedgerStore {
     }
 
     @discardableResult
-    func submitMobileRecharge(phone: String, faceInCents: Int64, couponID: String?, requestID: String) throws -> PaymentOrder {
+    func submitMobileRecharge(phone: String, faceInCents: Int64, couponID: String?, requestID: String,
+                              expectedPaidInCents: Int64? = nil) throws -> PaymentOrder {
         guard !requestID.isEmpty, requestID.count <= 100 else { throw PaymentError.invalidRequest }
         var root = try strictPaymentRecord()
         if let existing = root.paymentOrders.first(where: { $0.requestID == requestID }) { return existing }
         let checked = try checkedRecharge(phone: phone, faceInCents: faceInCents, couponID: couponID, record: root)
+        // 用户确认的实付金额与此刻重新算出的不一致时拒绝，且在动券之前。
+        if let expectedPaidInCents, expectedPaidInCents != checked.paid { throw PaymentError.amountChanged }
         let benefits = benefitsProvider()
         if let couponID {
             do { try benefits.useCoupon(id: couponID) } catch { throw PaymentError.couponUnavailable }
@@ -78,13 +81,17 @@ extension FinanceLedgerStore {
     // MARK: - 生活缴费
 
     @discardableResult
-    func submitUtilityPayment(billAccountID: String, requestID: String) throws -> PaymentOrder {
+    func submitUtilityPayment(billAccountID: String, requestID: String, expectedPeriod: String? = nil,
+                              expectedAmountInCents: Int64? = nil) throws -> PaymentOrder {
         guard !requestID.isEmpty, requestID.count <= 100 else { throw PaymentError.invalidRequest }
         var root = try strictPaymentRecord()
         if let existing = root.paymentOrders.first(where: { $0.requestID == requestID }) { return existing }
         guard let billAccount = PaymentCatalog.billAccount(id: billAccountID) else { throw PaymentError.billNotFound }
         let now = dates.now
         let bill = PaymentRules.bill(for: billAccount, orders: root.paymentOrders, now: now, dates: dates)
+        // 确认弹窗期间账期跨月或金额变化时拒绝，避免扣款与用户确认的不一致。
+        if let expectedPeriod, expectedPeriod != bill.period { throw PaymentError.amountChanged }
+        if let expectedAmountInCents, expectedAmountInCents != bill.amountInCents { throw PaymentError.amountChanged }
         guard !bill.isPaid else { throw PaymentError.alreadyPaid }
         let account = try payerAccount(in: root, payingInCents: bill.amountInCents)
         let timestamp = dates.string(from: now, format: "yyyy-MM-dd HH:mm:ss")

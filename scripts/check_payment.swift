@@ -19,6 +19,7 @@ import Foundation
         try corruptLedgerKeepsBytes()
         try writeFailureIsAtomic()
         orderListMerge()
+        try expectedAmountGuards()
         print("Payment checks passed")
     }
 
@@ -606,6 +607,37 @@ import Foundation
         let broken = [order(target: "z", period: nil, created: "bad").withID("p3")] + payments
         precondition(ids(.all, payment: broken) == ["p1", "r2", "r1", "p2", "p3"], "unparsable date sorts last")
         precondition(OrderListFilter.allCases.map(\.title) == ["全部", "待使用", "已使用", "已失效", "已取消", "充值缴费"])
+    }
+
+    // MARK: - 确认金额与实际扣款一致（审查修复）
+
+    @MainActor static func expectedAmountGuards() throws {
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let benefits = makeBenefits(defaults, clock)
+            let store = ledgerStore(defaults, clock, benefits)
+            let c5 = try benefits.redeem(goodsID: "g.phone5").couponID
+            let before = store.load()
+            expect(.amountChanged, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: nil, requestID: "a", expectedPaidInCents: 500) }, "coupon dropped after confirm")
+            expect(.amountChanged, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: c5, requestID: "b", expectedPaidInCents: 1000) }, "coupon applied after confirm")
+            precondition(store.load() == before && status(benefits, c5) == .unused, "mismatch changes nothing and never consumes the coupon")
+            let order = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: c5, requestID: "c", expectedPaidInCents: 500)
+            precondition(order.paidInCents == 500 && status(benefits, c5) == .used, "matching expectation succeeds")
+        }
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-30 23:59")
+            let store = ledgerStore(defaults, clock, makeBenefits(defaults, clock))
+            let water = account("bill.water.home")
+            let november = PaymentRules.billAmountInCents(for: water, period: "2026-11")
+            clock.set(utc: "2026-11-30T16:00:00Z")
+            let before = store.load()
+            expect(.amountChanged, { _ = try store.submitUtilityPayment(billAccountID: water.id, requestID: "a", expectedPeriod: "2026-11", expectedAmountInCents: november) }, "period rolled over while confirming")
+            precondition(store.load() == before, "rollover mismatch charges nothing")
+            let december = try store.submitUtilityPayment(billAccountID: water.id, requestID: "b", expectedPeriod: "2026-12",
+                                                         expectedAmountInCents: PaymentRules.billAmountInCents(for: water, period: "2026-12"))
+            precondition(december.period == "2026-12")
+            expect(.alreadyPaid, { _ = try store.submitUtilityPayment(billAccountID: water.id, requestID: "c", expectedPeriod: "2026-12", expectedAmountInCents: december.paidInCents) }, "same period still reports paid")
+        }
     }
 }
 
