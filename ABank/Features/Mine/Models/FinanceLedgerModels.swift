@@ -14,19 +14,22 @@ struct FinanceLedgerRecord: Codable, Equatable {
     var assetLiabilityAnnouncement: String
     var dataTimestamp: String
     var transferRecords: [TransferRecord] = []
+    var wealthOrders: [WealthOrder] = []
 
     private enum CodingKeys: String, CodingKey {
-        case accounts, transactions, loanContracts, assetLiabilityAnnouncement, dataTimestamp, transferRecords
+        case accounts, transactions, loanContracts, assetLiabilityAnnouncement, dataTimestamp, transferRecords, wealthOrders
     }
 
     init(accounts: [LedgerAccount], transactions: [LedgerTransaction], loanContracts: [LoanContract],
-         assetLiabilityAnnouncement: String, dataTimestamp: String, transferRecords: [TransferRecord] = []) {
+         assetLiabilityAnnouncement: String, dataTimestamp: String, transferRecords: [TransferRecord] = [],
+         wealthOrders: [WealthOrder] = []) {
         self.accounts = accounts
         self.transactions = transactions
         self.loanContracts = loanContracts
         self.assetLiabilityAnnouncement = assetLiabilityAnnouncement
         self.dataTimestamp = dataTimestamp
         self.transferRecords = transferRecords
+        self.wealthOrders = wealthOrders
     }
 
     init(from decoder: Decoder) throws {
@@ -37,6 +40,7 @@ struct FinanceLedgerRecord: Codable, Equatable {
         assetLiabilityAnnouncement = try values.decode(String.self, forKey: .assetLiabilityAnnouncement)
         dataTimestamp = try values.decode(String.self, forKey: .dataTimestamp)
         transferRecords = try values.decodeIfPresent([TransferRecord].self, forKey: .transferRecords) ?? []
+        wealthOrders = try values.decodeIfPresent([WealthOrder].self, forKey: .wealthOrders) ?? []
     }
 }
 
@@ -670,4 +674,5 @@ extension FinanceLedgerRecord {
     static let defaultLoanId = "loan_housing"
     static let demandDepositCategoryId = "demand_deposit"
     static let loanCategoryId = "loan"
+    static let wealthCategoryId = "wealth"
 }
