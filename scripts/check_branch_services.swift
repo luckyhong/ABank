@@ -9,6 +9,14 @@ import Foundation
         ticketStatusProgression()
         numbersAndCodes()
         reservationStatus()
+        cityStore()
+        try takeTicketRules()
+        try reserveRules()
+        reserveRevalidatesAtSubmit()
+        try cancelTwice()
+        try persistence()
+        try corruptRecordsKeepOriginal()
+        unknownBranchName()
         print("Branch service checks passed")
     }
 
@@ -188,5 +196,256 @@ import Foundation
         r.cancelledAt = at("2026-11-06 09:00")
         precondition(BranchSchedule.status(of: r, at: at("2026-11-06 09:30"), dates: dates) == .cancelled)
         precondition(ReservationStatus.pending.title == "待办理")
+    }
+
+    // MARK: - Store 工具
+
+    struct WriteFailure: Error {}
+
+    final class Clock {
+        var now: Date
+        init(_ now: Date) { self.now = now }
+        var context: BankingDateContext { BankingDateContext(now: { [unowned self] in self.now }) }
+    }
+
+    @MainActor static func withSuite(_ body: (UserDefaults) throws -> Void) rethrows {
+        let suite = "ABank.BranchChecks." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        try body(defaults)
+    }
+
+    static func expect(_ expected: BranchServiceError, _ label: String, _ body: () throws -> Void) {
+        do {
+            try body()
+            preconditionFailure("\(label): expected \(expected), got success")
+        } catch let error as BranchServiceError {
+            precondition(error == expected, "\(label): expected \(expected), got \(error)")
+        } catch {
+            preconditionFailure("\(label): unexpected \(error)")
+        }
+    }
+
+    @MainActor static func counting(_ center: NotificationCenter, _ name: Notification.Name, _ body: () throws -> Void) rethrows -> Int {
+        var count = 0
+        let token = center.addObserver(forName: name, object: nil, queue: nil) { _ in count += 1 }
+        defer { center.removeObserver(token) }
+        try body()
+        return count
+    }
+
+    static var fullBranch: Branch { BranchCatalog.branch(id: "xa-fengdong")! }
+
+    /// 首个可约日期中的首个可用时段。
+    static func firstAvailableSlot(_ branch: Branch, dates: BankingDateContext) -> (Date, Int) {
+        for day in BranchSchedule.reservableDays(for: branch, dates: dates) {
+            if let slot = BranchSchedule.slots(for: branch, on: day, dates: dates).first(where: \.isAvailable) {
+                return (day, slot.startMinute)
+            }
+        }
+        preconditionFailure("no slot")
+    }
+
+    // MARK: - CitySelectionStore
+
+    @MainActor static func cityStore() {
+        precondition(CitySelectionStore.storageKey == "abank.selectedCity.v1")
+        withSuite { defaults in
+            let center = NotificationCenter()
+            let store = CitySelectionStore(defaults: defaults, notificationCenter: center)
+            precondition(store.currentCity.id == "xian")
+            let posts = counting(center, CitySelectionStore.didChangeNotification) {
+                precondition(store.select(cityID: "beijing"))
+                precondition(store.select(cityID: "beijing"))
+                precondition(!store.select(cityID: "mars"))
+            }
+            precondition(posts == 1, "city posts \(posts)")
+            precondition(store.currentCity.id == "beijing")
+            precondition(CitySelectionStore(defaults: defaults).currentCity.id == "beijing")
+            defaults.set(Data("garbage".utf8), forKey: CitySelectionStore.storageKey)
+            precondition(CitySelectionStore(defaults: defaults).currentCity.id == "xian")
+        }
+        withSuite { defaults in
+            let center = NotificationCenter()
+            let store = CitySelectionStore(defaults: defaults, notificationCenter: center,
+                                           dataWriter: { _ in throw WriteFailure() })
+            let posts = counting(center, CitySelectionStore.didChangeNotification) {
+                precondition(!store.select(cityID: "shanghai"))
+            }
+            precondition(posts == 0 && store.currentCity.id == "xian")
+        }
+    }
+
+    // MARK: - 取号
+
+    @MainActor static func takeTicketRules() throws {
+        try withSuite { defaults in
+            let clock = Clock(at("2026-11-06 10:00"))
+            let store = BranchServiceStore(defaults: defaults, dates: clock.context)
+            let ticket = try store.takeTicket(branchID: fullBranch.id, business: .personalCash)
+            precondition(ticket.number.hasPrefix("A") && ticket.takenAt == clock.now)
+            precondition(store.activeTicket == ticket && store.tickets == [ticket])
+            precondition(store.status(of: ticket).isActive)
+            expect(.activeTicketExists, "second ticket") { _ = try store.takeTicket(branchID: lunchBranch.id, business: .personalCash) }
+            try store.cancelTicket(id: ticket.id)
+            precondition(store.activeTicket == nil && store.status(of: store.tickets[0]) == .cancelled)
+
+            clock.now = at("2026-11-06 12:30")
+            expect(.branchNotOpen, "lunch") { _ = try store.takeTicket(branchID: lunchBranch.id, business: .personalCash) }
+            expect(.businessNotSupported, "self service") { _ = try store.takeTicket(branchID: selfServiceBranch.id, business: .personalCash) }
+            expect(.businessNotSupported, "open card ticket") { _ = try store.takeTicket(branchID: fullBranch.id, business: .openCard) }
+            expect(.businessNotSupported, "unknown branch") { _ = try store.takeTicket(branchID: "gone", business: .personalCash) }
+            clock.now = at("2026-11-06 10:01")
+            let again = try store.takeTicket(branchID: fullBranch.id, business: .corporate)
+            precondition(again.number.hasPrefix("C") && store.tickets.first == again && store.tickets.count == 2)
+            precondition(store.queueAhead(branchID: fullBranch.id, business: .corporate) == again.aheadAtTaking)
+        }
+    }
+
+    // MARK: - 预约
+
+    @MainActor static func reserveRules() throws {
+        try withSuite { defaults in
+            let clock = Clock(at("2026-11-06 10:20"))
+            let store = BranchServiceStore(defaults: defaults, dates: clock.context)
+            let (day, start) = firstAvailableSlot(fullBranch, dates: clock.context)
+            let r = try store.reserve(branchID: fullBranch.id, business: .openCard, day: day, slotStartMinute: start, quantity: 3)
+            precondition(r.code.count == 8 && r.quantity == nil && store.reservations == [r])
+            precondition(store.status(of: r) == .pending)
+            expect(.duplicateReservation, "dup") {
+                _ = try store.reserve(branchID: fullBranch.id, business: .openCard, day: day, slotStartMinute: start, quantity: nil)
+            }
+            _ = try store.reserve(branchID: fullBranch.id, business: .sameNumberReplace, day: day, slotStartMinute: start, quantity: nil)
+            for bad in [0, 21, nil] as [Int?] {
+                expect(.invalidQuantity, "coin \(String(describing: bad))") {
+                    _ = try store.reserve(branchID: fullBranch.id, business: .commemorativeCoin, day: day, slotStartMinute: start, quantity: bad)
+                }
+            }
+            let coin = try store.reserve(branchID: fullBranch.id, business: .commemorativeCoin, day: day, slotStartMinute: start, quantity: 20)
+            precondition(coin.quantity == 20)
+            expect(.businessNotSupported, "cash reservation") {
+                _ = try store.reserve(branchID: fullBranch.id, business: .personalCash, day: day, slotStartMinute: start, quantity: nil)
+            }
+            expect(.businessNotSupported, "coin at no-coin branch") {
+                _ = try store.reserve(branchID: lunchBranch.id, business: .commemorativeCoin, day: day, slotStartMinute: start, quantity: 1)
+            }
+            let today = at("2026-11-06 00:00")
+            expect(.slotUnavailable, "past slot") {
+                _ = try store.reserve(branchID: fullBranch.id, business: .personalNonCash, day: today, slotStartMinute: 540, quantity: nil)
+            }
+            expect(.slotUnavailable, "not a slot") {
+                _ = try store.reserve(branchID: fullBranch.id, business: .personalNonCash, day: day, slotStartMinute: start + 30, quantity: nil)
+            }
+            expect(.slotUnavailable, "closed day") {
+                _ = try store.reserve(branchID: lunchBranch.id, business: .personalNonCash, day: at("2026-11-07 00:00"), slotStartMinute: 600, quantity: nil)
+            }
+            expect(.slotUnavailable, "beyond 7 days") {
+                _ = try store.reserve(branchID: fullBranch.id, business: .personalNonCash, day: at("2026-11-20 00:00"), slotStartMinute: 600, quantity: nil)
+            }
+            let fullSlot = BranchSchedule.reservableDays(for: fullBranch, dates: clock.context).lazy.compactMap { d in
+                BranchSchedule.slots(for: fullBranch, on: d, dates: clock.context)
+                    .first { !$0.isAvailable && d > today }.map { (d, $0.startMinute) }
+            }.first!
+            expect(.slotUnavailable, "full slot") {
+                _ = try store.reserve(branchID: fullBranch.id, business: .personalNonCash, day: fullSlot.0, slotStartMinute: fullSlot.1, quantity: nil)
+            }
+            try store.cancelReservation(id: r.id)
+            precondition(store.status(of: store.reservation(id: r.id)!) == .cancelled)
+            _ = try store.reserve(branchID: fullBranch.id, business: .openCard, day: day, slotStartMinute: start, quantity: nil)
+            precondition(store.reservations.count == 4)
+        }
+    }
+
+    @MainActor static func reserveRevalidatesAtSubmit() {
+        withSuite { defaults in
+            let clock = Clock(at("2026-11-06 09:58"))
+            let store = BranchServiceStore(defaults: defaults, dates: clock.context)
+            let today = at("2026-11-06 00:00")
+            let slot = BranchSchedule.slots(for: fullBranch, on: today, dates: clock.context).first { $0.startMinute == 600 }!
+            precondition(slot.isAvailable, "10:00 slot must be open at 09:58")
+            clock.now = at("2026-11-06 10:01")
+            expect(.slotUnavailable, "revalidate") {
+                _ = try store.reserve(branchID: fullBranch.id, business: .personalNonCash, day: today, slotStartMinute: 600, quantity: nil)
+            }
+        }
+    }
+
+    // MARK: - 取消
+
+    @MainActor static func cancelTwice() throws {
+        try withSuite { defaults in
+            let center = NotificationCenter()
+            let clock = Clock(at("2026-11-06 10:00"))
+            let store = BranchServiceStore(defaults: defaults, notificationCenter: center, dates: clock.context)
+            let first = try store.takeTicket(branchID: fullBranch.id, business: .personalCash)
+            try store.cancelTicket(id: first.id)
+            let second = try store.takeTicket(branchID: fullBranch.id, business: .personalNonCash)
+            let (day, start) = firstAvailableSlot(fullBranch, dates: clock.context)
+            let r = try store.reserve(branchID: fullBranch.id, business: .openCard, day: day, slotStartMinute: start, quantity: nil)
+            clock.now = clock.now.addingTimeInterval(3 * 86_400)
+            let posts = counting(center, BranchServiceStore.didChangeNotification) {
+                expect(.notCancellable, "cancel twice") { try store.cancelTicket(id: first.id) }
+                expect(.notCancellable, "completed ticket") { try store.cancelTicket(id: second.id) }
+                expect(.notCancellable, "expired reservation") { try store.cancelReservation(id: r.id) }
+                expect(.notCancellable, "missing ticket") { try store.cancelTicket(id: "none") }
+                expect(.notCancellable, "missing reservation") { try store.cancelReservation(id: "none") }
+            }
+            precondition(posts == 0, "cancel posts \(posts)")
+        }
+    }
+
+    // MARK: - 持久化
+
+    @MainActor static func persistence() throws {
+        try withSuite { defaults in
+            precondition(BranchServiceStore.storageKey == "abank.branchServices.v1")
+            let center = NotificationCenter()
+            let clock = Clock(at("2026-11-06 10:00"))
+            let store = BranchServiceStore(defaults: defaults, notificationCenter: center, dates: clock.context)
+            let posts = try counting(center, BranchServiceStore.didChangeNotification) {
+                _ = try store.takeTicket(branchID: fullBranch.id, business: .personalCash)
+                let (day, start) = firstAvailableSlot(fullBranch, dates: clock.context)
+                _ = try store.reserve(branchID: fullBranch.id, business: .commemorativeCoin, day: day, slotStartMinute: start, quantity: 5)
+            }
+            precondition(posts == 2)
+            let reloaded = BranchServiceStore(defaults: defaults, dates: clock.context)
+            precondition(reloaded.tickets == store.tickets && reloaded.reservations == store.reservations)
+        }
+        withSuite { defaults in
+            let center = NotificationCenter()
+            let clock = Clock(at("2026-11-06 10:00"))
+            let store = BranchServiceStore(defaults: defaults, notificationCenter: center, dates: clock.context,
+                                           dataWriter: { _ in throw WriteFailure() })
+            let posts = counting(center, BranchServiceStore.didChangeNotification) {
+                expect(.saveFailed, "write failure") { _ = try store.takeTicket(branchID: fullBranch.id, business: .personalCash) }
+            }
+            precondition(posts == 0 && store.tickets.isEmpty && store.activeTicket == nil)
+        }
+    }
+
+    @MainActor static func corruptRecordsKeepOriginal() throws {
+        try withSuite { defaults in
+            let original = Data(#"{"tickets":[{"id":1}],"reservations":[]}"#.utf8)
+            defaults.set(original, forKey: BranchServiceStore.storageKey)
+            let clock = Clock(at("2026-11-06 10:00"))
+            let store = BranchServiceStore(defaults: defaults, dates: clock.context)
+            precondition(store.tickets.isEmpty && store.reservations.isEmpty)
+            precondition(defaults.data(forKey: BranchServiceStore.storageKey) == original)
+            _ = try store.takeTicket(branchID: fullBranch.id, business: .personalCash)
+            precondition(defaults.data(forKey: BranchServiceStore.storageKey) != original)
+            precondition(BranchServiceStore(defaults: defaults, dates: clock.context).tickets.count == 1)
+        }
+    }
+
+    @MainActor static func unknownBranchName() {
+        withSuite { defaults in
+            let ticket = QueueTicket(id: "old", branchID: "gone", business: .personalCash, number: "A001",
+                                     takenAt: at("2026-11-01 10:00"), aheadAtTaking: 3, cancelledAt: nil)
+            let data = try! JSONEncoder().encode(BranchServiceRecords(tickets: [ticket], reservations: []))
+            defaults.set(data, forKey: BranchServiceStore.storageKey)
+            let store = BranchServiceStore(defaults: defaults, dates: clock("2026-11-06 10:00"))
+            precondition(store.tickets == [ticket] && store.activeTicket == nil)
+            precondition(BranchCatalog.displayName(branchID: store.tickets[0].branchID) == "网点已停用")
+        }
     }
 }
