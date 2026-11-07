@@ -30,6 +30,8 @@ sources=(
   ABank/Features/WealthProduct/Models/WealthProductModels.swift
   ABank/Features/WealthProduct/Models/WealthProductCatalog.swift
   ABank/Features/WealthProduct/Models/WealthRules.swift
+  ABank/Features/WealthProduct/Models/RiskAssessmentModels.swift
+  ABank/Features/WealthProduct/RiskAssessmentStore.swift
 )
 for check in banking transfer insights feature security branch benefits wealth; do
   if [[ $check == feature ]]; then

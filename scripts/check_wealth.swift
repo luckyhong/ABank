@@ -7,6 +7,10 @@ import Foundation
         interestMath()
         holdingDays()
         statusAndRedeemable()
+        try questionnaire()
+        try assessmentStoreRules()
+        try assessmentExpiry()
+        try assessmentPersistence()
         print("Wealth checks passed")
     }
 
@@ -134,5 +138,123 @@ import Foundation
         precondition(WealthRules.holdingValueInCents(of: redeemed, now: later.now, dates: later) == 0)
         let value = WealthRules.holdingValueInCents(of: one, now: later.now, dates: later)
         precondition(value == 100_000 + WealthRules.accruedInterestInCents(principal: 100_000, rateBasisPoints: 240, days: 30))
+    }
+
+    // MARK: - 风险测评
+
+    final class TestClock {
+        var now: Date
+        init(_ text: String) { now = WealthChecks.at(text) }
+        func set(_ text: String) { now = WealthChecks.at(text) }
+    }
+
+    final class Counter { var count = 0 }
+
+    struct WriteFailure: Error {}
+
+    @MainActor static func withSuite(_ body: (UserDefaults) throws -> Void) rethrows {
+        let suite = "ABank.WealthChecks." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        try body(defaults)
+    }
+
+    @MainActor static func makeRiskStore(_ defaults: UserDefaults, _ clock: TestClock,
+                                         center: NotificationCenter = NotificationCenter(),
+                                         writer: ((Data) throws -> Void)? = nil) -> RiskAssessmentStore {
+        RiskAssessmentStore(defaults: defaults, notificationCenter: center,
+                            dates: BankingDateContext(now: { clock.now }), dataWriter: writer)
+    }
+
+    @MainActor static func count(_ center: NotificationCenter, _ name: Notification.Name) -> Counter {
+        let counter = Counter()
+        center.addObserver(forName: name, object: nil, queue: nil) { _ in counter.count += 1 }
+        return counter
+    }
+
+    @MainActor static func questionnaire() throws {
+        let questions = RiskQuestionnaire.questions
+        precondition(questions.count == 5 && questions.allSatisfy { $0.options.count == 4 && !$0.title.isEmpty })
+        precondition(RiskQuestionnaire.score(answers: [0, 0, 0, 0, 0]) == 5)
+        precondition(RiskQuestionnaire.score(answers: [3, 3, 3, 3, 3]) == 20)
+        precondition(RiskQuestionnaire.score(answers: [1, 1, 1, 1, 1]) == 10)
+        precondition(RiskQuestionnaire.score(answers: [0, 0, 0, 0]) == nil)
+        precondition(RiskQuestionnaire.score(answers: [0, 0, 0, 0, 4]) == nil)
+        precondition(RiskQuestionnaire.score(answers: [0, 0, 0, 0, -1]) == nil)
+        let cases: [(Int, RiskProfile)] = [
+            (5, .c1), (8, .c1), (9, .c2), (11, .c2), (12, .c3), (14, .c3), (15, .c4), (17, .c4), (18, .c5), (20, .c5)
+        ]
+        for (score, profile) in cases {
+            precondition(RiskQuestionnaire.profile(forScore: score) == profile, "profile for \(score)")
+        }
+    }
+
+    @MainActor static func assessmentStoreRules() throws {
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let center = NotificationCenter()
+            let counter = count(center, RiskAssessmentStore.didChangeNotification)
+            let store = makeRiskStore(defaults, clock, center: center)
+            precondition(store.state == .none && store.record == nil)
+            let record = try store.submit(answers: [1, 1, 1, 1, 1])
+            precondition(record.level == .c2 && store.record == record)
+            precondition(store.state == .valid(.c2, expiresOn: "2027-11-05") && counter.count == 1)
+            do {
+                try store.submit(answers: [1])
+                preconditionFailure("expected incompleteAnswers")
+            } catch let error as RiskAssessmentError {
+                precondition(error == .incompleteAnswers)
+            }
+            precondition(counter.count == 1, "failure does not notify")
+            let reloaded = makeRiskStore(defaults, clock)
+            precondition(reloaded.record == record)
+        }
+    }
+
+    @MainActor static func assessmentExpiry() throws {
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let store = makeRiskStore(defaults, clock)
+            let record = try store.submit(answers: [1, 1, 1, 1, 1])
+            precondition(RiskAssessmentRules.expiresAt(record, dates: BankingDateContext(now: { clock.now })) == at("2027-11-06 00:00"))
+            clock.set("2027-11-05 23:59")
+            precondition(store.state == .valid(.c2, expiresOn: "2027-11-05"))
+            clock.set("2027-11-06 00:00")
+            precondition(store.state == .expired(.c2))
+            try store.submit(answers: [3, 3, 3, 3, 3])
+            precondition(store.state == .valid(.c5, expiresOn: "2028-11-04"), "retest replaces expired record")
+        }
+    }
+
+    @MainActor static func assessmentPersistence() throws {
+        try withSuite { defaults in
+            let original = Data(#"{"answers":"x"}"#.utf8)
+            defaults.set(original, forKey: RiskAssessmentStore.storageKey)
+            let clock = TestClock("2026-11-06 10:00")
+            let store = makeRiskStore(defaults, clock)
+            precondition(store.state == .none)
+            precondition(defaults.data(forKey: RiskAssessmentStore.storageKey) == original, "bytes untouched on load")
+            try store.submit(answers: [0, 0, 0, 0, 0])
+            precondition(defaults.data(forKey: RiskAssessmentStore.storageKey) != original, "replaced after successful save")
+        }
+        try withSuite { defaults in
+            let clock = TestClock("2026-11-06 10:00")
+            let center = NotificationCenter()
+            let counter = count(center, RiskAssessmentStore.didChangeNotification)
+            var failing = false
+            let store = makeRiskStore(defaults, clock, center: center, writer: { data in
+                if failing { throw WriteFailure() }
+                defaults.set(data, forKey: RiskAssessmentStore.storageKey)
+            })
+            let record = try store.submit(answers: [1, 1, 1, 1, 1])
+            failing = true
+            do {
+                try store.submit(answers: [3, 3, 3, 3, 3])
+                preconditionFailure("expected saveFailed")
+            } catch let error as RiskAssessmentError {
+                precondition(error == .saveFailed)
+            }
+            precondition(store.record == record && counter.count == 1, "memory unchanged, no notification")
+        }
     }
 }
