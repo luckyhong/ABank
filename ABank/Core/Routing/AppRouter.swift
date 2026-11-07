@@ -149,6 +149,16 @@ final class AppRouter: AppRouting {
             return OrderDetailViewController(orderID: orderID, justRedeemed: justRedeemed)
         case .customerLevel:
             return CustomerLevelViewController()
+        case .wealthProducts:
+            return WealthProductListViewController()
+        case .wealthProductDetail(let productID):
+            return WealthProductDetailViewController(productID: productID)
+        case .riskAssessment:
+            return ComingSoonViewController(featureID: .wealthProduct) // 由 Task 5 替换
+        case .wealthPurchase, .wealthOrderDetail:
+            return ComingSoonViewController(featureID: .wealthProduct) // 由 Task 6 替换
+        case .wealthHoldings:
+            return ComingSoonViewController(featureID: .wealthProduct) // 由 Task 7 替换
         }
     }
 }
