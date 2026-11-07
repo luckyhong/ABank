@@ -36,3 +36,35 @@ func wealthProductRow(_ product: WealthProduct, onTap: @escaping () -> Void) -> 
     row.onTap = onTap
     return row
 }
+
+/// 单选项行：圆形选中标记 + 文案，整行可点。
+final class RiskOptionRow: UIControl {
+    var onTap: (() -> Void)?
+
+    init(title: String, selected: Bool, id: String) {
+        super.init(frame: .zero)
+        accessibilityIdentifier = id
+        isAccessibilityElement = true
+        accessibilityTraits = selected ? [.button, .selected] : .button
+        accessibilityLabel = title
+        let mark = UIImageView(image: UIImage(systemName: selected ? "largecircle.fill.circle" : "circle"))
+        mark.tintColor = selected ? .abankPrimary : .abankTextTertiary
+        mark.setContentHuggingPriority(.required, for: .horizontal)
+        mark.isUserInteractionEnabled = false
+        let label = UILabel()
+        label.text = title
+        label.font = .abankBody()
+        label.textColor = .abankTextPrimary
+        label.numberOfLines = 0
+        label.isUserInteractionEnabled = false
+        let row = UIStackView(arrangedSubviews: [mark, label])
+        row.spacing = Spacing.sm
+        row.alignment = .center
+        row.isUserInteractionEnabled = false
+        addSubview(row)
+        row.snp.makeConstraints { $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)) }
+        addAction(UIAction { [weak self] _ in self?.onTap?() }, for: .touchUpInside)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+}

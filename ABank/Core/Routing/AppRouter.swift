@@ -154,7 +154,7 @@ final class AppRouter: AppRouting {
         case .wealthProductDetail(let productID):
             return WealthProductDetailViewController(productID: productID)
         case .riskAssessment:
-            return ComingSoonViewController(featureID: .wealthProduct) // 由 Task 5 替换
+            return RiskAssessmentViewController()
         case .wealthPurchase, .wealthOrderDetail:
             return ComingSoonViewController(featureID: .wealthProduct) // 由 Task 6 替换
         case .wealthHoldings:
