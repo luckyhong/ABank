@@ -161,6 +161,15 @@ final class AppRouter: AppRouting {
             return WealthOrderDetailViewController(orderID: orderID, justPurchased: justPurchased)
         case .wealthHoldings:
             return WealthHoldingsViewController()
+        case .mobileRecharge:
+            return MobileRechargeViewController()
+        case .mobileRechargeConfirm(let phone, let faceInCents):
+            return MobileRechargeConfirmViewController(phone: phone, faceInCents: faceInCents)
+        case .lifePayment, .utilityBill:
+            // 由 Task 5 替换
+            return ComingSoonViewController(featureID: .lifePayment)
+        case .paymentOrderDetail(let orderID, let justPaid):
+            return PaymentOrderDetailViewController(orderID: orderID, justPaid: justPaid)
         }
     }
 }
