@@ -69,9 +69,13 @@ final class TakeTicketViewController: BranchFlowViewController, RouteHosting {
             let ticket = try services.takeTicket(branchID: branch.id, business: business)
             replaceSelf(with: TicketDetailViewController(ticketID: ticket.id, cities: cities, services: services, dates: dates))
         } catch BranchServiceError.activeTicketExists {
-            showToast(BranchServiceError.activeTicketExists.errorDescription!)
             if let active = services.activeTicket {
-                replaceSelf(with: TicketDetailViewController(ticketID: active.id, cities: cities, services: services, dates: dates))
+                let detail = TicketDetailViewController(ticketID: active.id, cities: cities, services: services, dates: dates)
+                replaceSelf(with: detail)
+                detail.loadViewIfNeeded()
+                detail.showToast(BranchServiceError.activeTicketExists.errorDescription!)
+            } else {
+                showToast(BranchServiceError.activeTicketExists.errorDescription!)
             }
         } catch {
             showError(error)

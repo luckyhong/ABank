@@ -106,8 +106,10 @@ final class BranchDetailViewController: BranchFlowViewController, RouteHosting {
 
     private func takeTicket(_ branch: Branch) {
         if let active = services.activeTicket {
-            showToast(BranchServiceError.activeTicketExists.errorDescription!)
             router.open(.ticketDetail(ticketID: active.id), from: self)
+            // 提示显示在推入的号票页上，否则会被新页面遮住。
+            (navigationController?.topViewController as? BaseViewController)?
+                .showToast(BranchServiceError.activeTicketExists.errorDescription!)
             return
         }
         router.open(.takeTicket(branchID: branch.id), from: self)
