@@ -12,7 +12,7 @@ final class LoanPrepaymentResultViewController: BaseViewController {
 
     private let record: LoanServiceRecord
     private let store: FinanceLedgerStore
-    let actionStack = UIStackView()
+    private let actionStack = UIStackView()
 
     init(record: LoanServiceRecord, store: FinanceLedgerStore = .shared) {
         self.record = record
@@ -76,6 +76,14 @@ final class LoanPrepaymentResultViewController: BaseViewController {
         back.addTarget(self, action: #selector(backToLoan), for: .touchUpInside)
         back.snp.makeConstraints { $0.height.equalTo(44) }
         actionStack.addArrangedSubview(back)
+        let progress = UIButton(type: .system)
+        progress.setTitle("查看办理进度", for: .normal)
+        progress.setTitleColor(.abankOrange, for: .normal)
+        progress.titleLabel?.font = .systemFont(ofSize: 16)
+        progress.accessibilityIdentifier = "loan.prepay.result.progress"
+        progress.addTarget(self, action: #selector(showProgress), for: .touchUpInside)
+        progress.snp.makeConstraints { $0.height.equalTo(44) }
+        actionStack.addArrangedSubview(progress)
 
         let column = UIStackView(arrangedSubviews: [header, rowsStack, actionStack])
         column.axis = .vertical
@@ -92,23 +100,14 @@ final class LoanPrepaymentResultViewController: BaseViewController {
     }
 
     private func resultRows() -> [(String, String)] {
-        func money(_ cents: Int64?) -> String { cents.map { TransferMoney.text($0) } ?? "--" }
-        var rows: [(String, String)] = [
-            ("还款金额", "\(money(record.amountInCents))元"),
-            ("还款方式", record.method?.title ?? "--"),
-            ("未还本金", "\(money(record.principalBefore)) → \(money(record.principalAfter))")
-        ]
-        if record.method == .reduceInstallment {
-            rows.append(("每期还款额", "\(money(record.installmentBefore)) → \(money(record.installmentAfter))"))
-        } else {
-            rows.append(("剩余期数", "\(record.termsBefore.map(String.init) ?? "--") → \(record.termsAfter.map(String.init) ?? "--")"))
+        record.prepaymentComparisonRows(store: store) + [("办理时间", record.createdAt), ("业务编号", record.businessNo)]
+    }
+
+    @objc private func showProgress() {
+        guard let item = store.loanProgressItems().first(where: { $0.record?.id == record.id }) else {
+            return showToast("暂未查到办理进度")
         }
-        rows.append(("贷款到期日", record.maturityAfter.map(LoanAmortization.maturityText) ?? "--"))
-        let payer = record.accountID.flatMap { store.account(id: $0)?.cardLabel } ?? "--"
-        rows.append(("付款账户", payer))
-        rows.append(("办理时间", record.createdAt))
-        rows.append(("业务编号", record.businessNo))
-        return rows
+        navigationController?.pushViewController(LoanProgressDetailViewController(item: item, store: store), animated: true)
     }
 
     @objc private func backToLoan() {
@@ -118,5 +117,25 @@ final class LoanPrepaymentResultViewController: BaseViewController {
         } else {
             nav.popToRootViewController(animated: true)
         }
+    }
+}
+
+extension LoanServiceRecord {
+    /// 提前还款的前后对比行：结果页与办理进度详情共用，全部取自办理时保存的记录。
+    func prepaymentComparisonRows(store: FinanceLedgerStore) -> [(String, String)] {
+        func money(_ cents: Int64?) -> String { cents.map { TransferMoney.text($0) } ?? "--" }
+        var rows: [(String, String)] = [
+            ("还款金额", "\(money(amountInCents))元"),
+            ("还款方式", method?.title ?? "--"),
+            ("未还本金", "\(money(principalBefore)) → \(money(principalAfter))")
+        ]
+        if method == .reduceInstallment {
+            rows.append(("每期还款额", "\(money(installmentBefore)) → \(money(installmentAfter))"))
+        } else {
+            rows.append(("剩余期数", "\(termsBefore.map(String.init) ?? "--") → \(termsAfter.map(String.init) ?? "--")"))
+        }
+        rows.append(("贷款到期日", maturityAfter.map(LoanAmortization.maturityText) ?? "--"))
+        rows.append(("付款账户", accountID.flatMap { store.account(id: $0)?.cardLabel } ?? "--"))
+        return rows
     }
 }

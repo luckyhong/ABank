@@ -116,7 +116,15 @@ final class MyLoanViewController: BaseViewController {
         }
         actionGrid.onItemTapped = { [weak self] index in
             let titles = ["待办任务", "进度查询", "贷款续贷", "结清证明"]
-            self?.showToast(titles[safe: index] ?? "功能")
+            let controller: UIViewController
+            switch index {
+            case 0: controller = LoanTasksViewController()
+            case 1: controller = LoanProgressListViewController()
+            default:
+                self?.showToast(titles[safe: index] ?? "功能")
+                return
+            }
+            self?.navigationController?.pushViewController(controller, animated: true)
         }
         contractSection.onContractTapped = { [weak self] id in
             guard let self,
