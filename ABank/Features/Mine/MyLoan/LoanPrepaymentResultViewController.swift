@@ -123,7 +123,7 @@ final class LoanPrepaymentResultViewController: BaseViewController {
 extension LoanServiceRecord {
     /// 提前还款的前后对比行：结果页与办理进度详情共用，全部取自办理时保存的记录。
     func prepaymentComparisonRows(store: FinanceLedgerStore) -> [(String, String)] {
-        func money(_ cents: Int64?) -> String { cents.map { TransferMoney.text($0) } ?? "--" }
+        func money(_ cents: Int64?) -> String { cents.map { TransferMoney.amount($0).abankPlainAmountString() } ?? "--" }
         var rows: [(String, String)] = [
             ("还款金额", "\(money(amountInCents))元"),
             ("还款方式", method?.title ?? "--"),

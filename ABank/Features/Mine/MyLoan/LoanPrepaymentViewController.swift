@@ -180,13 +180,14 @@ final class LoanPrepaymentViewController: BankingDataViewController {
     }
 
     private func previewRows(_ result: LoanPrepaymentPreview) -> [(String, String)] {
-        var rows = [("还款后未还本金", "\(TransferMoney.text(result.principalAfter))元")]
+        func money(_ cents: Int64) -> String { TransferMoney.amount(cents).abankPlainAmountString() }
+        var rows = [("还款后未还本金", "\(money(result.principalAfter))元")]
         switch method {
         case .shortenTerm:
             rows.append(("剩余期数", "\(result.termsBefore) → \(result.termsAfter)"))
             rows.append(("预计到期日", LoanAmortization.maturityText(result.maturityAfter)))
         case .reduceInstallment:
-            rows.append(("每期还款额", "\(TransferMoney.text(result.installmentBefore)) → \(TransferMoney.text(result.installmentAfter))"))
+            rows.append(("每期还款额", "\(money(result.installmentBefore)) → \(money(result.installmentAfter))"))
         }
         return rows
     }
@@ -204,7 +205,7 @@ final class LoanPrepaymentViewController: BankingDataViewController {
         let payer = store.account(id: FinanceLedgerRecord.defaultAccountId)?.cardLabel ?? "--"
         let alert = UIAlertController(
             title: "确认提前还款",
-            message: "还款金额 \(TransferMoney.text(preview.amountInCents)) 元\n还款方式 \(method.title)\n付款账户 \(payer)",
+            message: "还款金额 \(TransferMoney.amount(preview.amountInCents).abankPlainAmountString()) 元\n还款方式 \(method.title)\n付款账户 \(payer)",
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "取消", style: .cancel))
