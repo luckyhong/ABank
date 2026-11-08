@@ -58,7 +58,7 @@ final class WealthPurchaseViewController: WealthFlowViewController, RouteHosting
         let account = ledger.load().accounts.first { $0.id == FinanceLedgerRecord.defaultAccountId }
         let balance = account.flatMap { TransferMoney.cents(from: $0.balance) } ?? 0
         addGroup([
-            TransferInfoRow("付款账户", value: account.map { "借记卡 尾号\($0.tailNumber)" } ?? "无可用账户"),
+            TransferInfoRow("付款账户", value: account?.cardLabel ?? "无可用账户"),
             TransferInfoRow("可用余额", value: "\(wealthMoneyText(balance)) 元"),
             amountRow
         ])

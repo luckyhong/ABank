@@ -12,7 +12,7 @@ import Foundation
 enum FeatureID: String, Codable, CaseIterable {
     // 账户
     case myAccount, accountDetail, debitCard, incomeExpense, monthlyBill, ledgerSearch
-    case assetLiability, customerInfo, openCard, sameNumberReplace
+    case assetLiability, customerInfo, openCard, sameNumberReplace, accountPermissions
     // 转账
     case transfer, accountTransfer, phoneTransfer, transferRecords, transferLimits, receipts
     case creditCardRepay, scheduledTransfer, multiTransfer, otherBankIn, crossBorder
@@ -125,6 +125,8 @@ enum FeatureCatalog {
              keywords: ["开户", "办卡", "预约"], .available(.branchReservation(business: .openCard, branchID: nil))),
         item(.sameNumberReplace, "同号换卡", .account, image: "abc_mine_branch_replace", icon: "arrow.triangle.2.circlepath",
              keywords: ["换卡", "预约"], .available(.branchReservation(business: .sameNumberReplace, branchID: nil))),
+        item(.accountPermissions, "交易权限", .account, icon: "switch.2",
+             keywords: ["权限", "开关", "网上支付"], .available(.accountPermissions(accountID: nil))),
 
         // MARK: 转账
         item(.transfer, "转账", .transfer, image: "abc_home_transfer", icon: "arrow.left.arrow.right",

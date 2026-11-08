@@ -61,4 +61,8 @@ enum AppRoute: Equatable {
     case lifePayment
     case utilityBill(billAccountID: String)
     case paymentOrderDetail(orderID: String, justPaid: Bool)
+    /// 借记卡别名、查看/分享、交易权限；accountID 为 nil 时取默认借记卡。
+    case accountAlias(accountID: String?)
+    case accountShare(accountID: String?)
+    case accountPermissions(accountID: String?)
 }

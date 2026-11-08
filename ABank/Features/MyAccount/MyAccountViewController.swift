@@ -56,7 +56,9 @@ final class MyAccountViewController: BankingDataViewController {
         let accounts = FinanceLedgerStore.shared.load().accounts
         pageData.debitCards = pageData.debitCards.map { card in
             var updated = card
-            updated.availableBalance = accounts.first(where: { $0.id == card.accountId })?.balance ?? 0
+            let account = accounts.first(where: { $0.id == card.accountId })
+            updated.availableBalance = account?.balance ?? 0
+            updated.alias = account?.alias
             return updated
         }
         if let card = pageData.debitCards.first { debitCardView.configure(with: card) }
@@ -106,6 +108,10 @@ final class MyAccountViewController: BankingDataViewController {
 
     private func handle(_ action: MyAccountAction) {
         switch action {
+        case .setAlias:
+            router.open(.accountAlias(accountID: pageData.debitCards.first?.accountId), from: self)
+        case .viewShare:
+            router.open(.accountShare(accountID: pageData.debitCards.first?.accountId), from: self)
         case .transfer:
             router.open(.transfer(payerAccountID: pageData.debitCards.first?.accountId), from: self)
         case .queryDetail:

@@ -86,6 +86,7 @@ extension FinanceLedgerStore {
         guard !requestID.isEmpty, requestID.count <= 100 else { throw PaymentError.invalidRequest }
         var root = try strictPaymentRecord()
         if let existing = root.paymentOrders.first(where: { $0.requestID == requestID }) { return existing }
+        try requireOnlinePayment(in: root)
         guard let billAccount = PaymentCatalog.billAccount(id: billAccountID) else { throw PaymentError.billNotFound }
         let now = dates.now
         let bill = PaymentRules.bill(for: billAccount, orders: root.paymentOrders, now: now, dates: dates)
@@ -113,7 +114,25 @@ extension FinanceLedgerStore {
         return order
     }
 
+    /// 缴费确认前校验：权限、账单存在、本期未缴清、余额充足。
+    func validateUtilityPayment(billAccountID: String) throws {
+        let root = try strictPaymentRecord()
+        try requireOnlinePayment(in: root)
+        guard let billAccount = PaymentCatalog.billAccount(id: billAccountID) else { throw PaymentError.billNotFound }
+        let bill = PaymentRules.bill(for: billAccount, orders: root.paymentOrders, now: dates.now, dates: dates)
+        guard !bill.isPaid else { throw PaymentError.alreadyPaid }
+        _ = try payerAccount(in: root, payingInCents: bill.amountInCents)
+    }
+
     // MARK: - 内部
+
+    /// 网上支付权限最先检查，早于余额、优惠券与金额变化校验。
+    private func requireOnlinePayment(in record: FinanceLedgerRecord) throws {
+        guard let account = record.accounts.first(where: { $0.id == FinanceLedgerRecord.defaultAccountId }) else {
+            throw PaymentError.invalidRequest
+        }
+        guard account.permissions.onlinePayment else { throw PaymentError.onlinePaymentDisabled }
+    }
 
     private func strictPaymentRecord() throws -> FinanceLedgerRecord {
         do { return try loadForTransfer() } catch { throw PaymentError.corruptLedger }
@@ -131,6 +150,7 @@ extension FinanceLedgerStore {
 
     private func checkedRecharge(phone: String, faceInCents: Int64, couponID: String?,
                                  record: FinanceLedgerRecord) throws -> (phone: String, couponFace: Int64, paid: Int64, account: LedgerAccount) {
+        try requireOnlinePayment(in: record)
         let normalized = PaymentRules.normalizedPhone(phone)
         guard PaymentRules.isValidPhone(normalized) else { throw PaymentError.invalidPhone }
         guard PaymentCatalog.denominationsInCents.contains(faceInCents) else { throw PaymentError.invalidDenomination }

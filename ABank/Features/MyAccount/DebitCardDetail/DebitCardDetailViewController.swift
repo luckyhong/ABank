@@ -45,7 +45,9 @@ final class DebitCardDetailViewController: BankingDataViewController {
     }
 
     override func refreshBankingData() {
-        let balance = FinanceLedgerStore.shared.load().accounts.first(where: { $0.id == accountId })?.balance ?? 0
+        let account = FinanceLedgerStore.shared.load().accounts.first(where: { $0.id == accountId })
+        let balance = account?.balance ?? 0
+        infoCardView.setAlias(account?.alias)
         pageData.availableBalance = balance
         pageData.accountBalance = balance
         balanceSectionView.configure(with: pageData)
@@ -88,9 +90,15 @@ final class DebitCardDetailViewController: BankingDataViewController {
         switch title {
         case "更多":
             let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-            ["账户别名", "账户限额", "交易权限"].forEach { item in
+            let routes: [(String, AppRoute)] = [
+                ("账户别名", .accountAlias(accountID: accountId)),
+                ("账户限额", .transferLimits),
+                ("交易权限", .accountPermissions(accountID: accountId))
+            ]
+            for (item, route) in routes {
                 alert.addAction(UIAlertAction(title: item, style: .default) { [weak self] _ in
-                    self?.showToast(item)
+                    guard let self else { return }
+                    self.router.open(route, from: self)
                 })
             }
             alert.addAction(UIAlertAction(title: "取消", style: .cancel))

@@ -8,6 +8,8 @@ final class MyAccountDebitCardView: UIView {
     private let cardView = UIView()
     private let classBadge = UILabel()
     private let cardNumberLabel = UILabel()
+    /// 卡号上方的别名行；未设置别名时隐藏。
+    private let aliasLabel = UILabel()
     private let viewShareButton = UIButton(type: .system)
     private let aliasButton = UIButton(type: .system)
     private let balanceCaptionLabel = UILabel()
@@ -30,6 +32,8 @@ final class MyAccountDebitCardView: UIView {
     func configure(with card: MyAccountDebitCard) {
         classBadge.text = card.accountClass
         cardNumberLabel.text = card.maskedNumber
+        aliasLabel.text = card.alias
+        aliasLabel.isHidden = card.alias == nil
         balanceLabel.text = card.availableBalance.abankPlainAmountString()
         actions = card.actions
         actionBar.arrangedSubviews.forEach { $0.removeFromSuperview() }
@@ -160,17 +164,24 @@ final class MyAccountDebitCardView: UIView {
         balanceRow.axis = .horizontal
         balanceRow.alignment = .center
         balanceRow.spacing = 4
-        [topRow, balanceRow, detailsButton, actionDivider, actionBar, flexibleBadge].forEach { cardView.addSubview($0) }
+        aliasLabel.font = .systemFont(ofSize: 15, weight: .medium)
+        aliasLabel.textColor = .abankTextPrimary
+        aliasLabel.accessibilityIdentifier = "myAccount.alias"
+        aliasLabel.isHidden = true
+        let headerStack = UIStackView(arrangedSubviews: [aliasLabel, topRow])
+        headerStack.axis = .vertical
+        headerStack.spacing = 6
+        [headerStack, balanceRow, detailsButton, actionDivider, actionBar, flexibleBadge].forEach { cardView.addSubview($0) }
         sectionTitleLabel.snp.makeConstraints { $0.top.leading.equalToSuperview() }
         cardView.snp.makeConstraints { make in
             make.top.equalTo(sectionTitleLabel.snp.bottom).offset(32)
             make.leading.trailing.bottom.equalToSuperview()
         }
-        topRow.snp.makeConstraints { make in
+        headerStack.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(12)
             make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(30)
         }
+        topRow.snp.makeConstraints { $0.height.equalTo(30) }
         classBadge.snp.makeConstraints { $0.size.equalTo(30) }
         viewShareButton.snp.makeConstraints { $0.width.equalTo(56); $0.height.equalTo(16) }
         aliasButton.snp.makeConstraints { $0.width.equalTo(80) }

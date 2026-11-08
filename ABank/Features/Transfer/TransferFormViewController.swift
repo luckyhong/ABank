@@ -105,7 +105,9 @@ final class TransferFormViewController: TransferFlowViewController {
         do {
             try store.validateTransfer(draft)
             navigationController?.pushViewController(TransferConfirmViewController(draft: draft, store: store), animated: true)
-        } catch { addError(error) }
+        } catch {
+            if !presentPermissionBlockedIfNeeded(error, router: router) { addError(error) }
+        }
     }
 
     private func chooseRecipient() {

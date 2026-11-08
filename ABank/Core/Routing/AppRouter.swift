@@ -92,6 +92,12 @@ final class AppRouter: AppRouting {
             return AssetLiabilityViewController()
         case .myLoan:
             return MyLoanViewController()
+        case .accountAlias(let accountID):
+            return AccountAliasViewController(accountID: accountID ?? FinanceLedgerRecord.defaultAccountId, ledger: ledger)
+        case .accountShare(let accountID):
+            return AccountShareViewController(accountID: accountID ?? FinanceLedgerRecord.defaultAccountId, ledger: ledger)
+        case .accountPermissions(let accountID):
+            return AccountPermissionsViewController(accountID: accountID ?? FinanceLedgerRecord.defaultAccountId, ledger: ledger)
         case .customerInfo:
             return CustomerInfoViewController()
         case .allFeatures(let keyword):

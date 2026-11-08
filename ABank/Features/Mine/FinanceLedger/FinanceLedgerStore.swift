@@ -135,6 +135,8 @@ extension Notification.Name {
         let recipient = try resolveRecipient(draft, record: record)
         guard recipient.method == draft.method else { throw TransferError.invalidRecipient }
         guard let payer = record.accounts.first(where: { $0.id == draft.payerAccountID }), payer.currency == "人民币" else { throw TransferError.missingAccount }
+        // 权限最先检查：关闭时不再提示余额或限额问题。
+        guard payer.permissions.mobileTransfer else { throw TransferError.transferPermissionDisabled }
         guard recipient.linkedAccountID != payer.id else { throw TransferError.sameAccount }
         let limits = transferLimits
         guard draft.amountInCents <= limits.perTransferInCents else { throw TransferError.singleLimit }

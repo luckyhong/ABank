@@ -72,6 +72,6 @@ final class PaymentOrderDetailViewController: PaymentFlowViewController, RouteHo
     }
 
     private func accountLabel(_ accountID: String) -> String {
-        ledger.load().accounts.first { $0.id == accountID }.map { "借记卡 尾号\($0.tailNumber)" } ?? "借记卡"
+        ledger.load().accounts.first { $0.id == accountID }?.cardLabel ?? "借记卡"
     }
 }

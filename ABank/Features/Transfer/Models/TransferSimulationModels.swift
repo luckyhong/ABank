@@ -69,6 +69,7 @@ nonisolated struct TransferLimits {
 nonisolated enum TransferError: LocalizedError, Equatable {
     case invalidAmount, invalidRecipient, invalidDestination, missingAccount, sameAccount
     case insufficientBalance, singleLimit, dailyLimit, persistence, invalidRequest, corruptLedger
+    case transferPermissionDisabled
     var errorDescription: String? {
         switch self {
         case .invalidAmount: return "请输入大于0的金额，最多保留两位小数"
@@ -82,6 +83,7 @@ nonisolated enum TransferError: LocalizedError, Equatable {
         case .persistence: return "本地保存失败，本次未扣款，请重试"
         case .invalidRequest: return "转账请求无效，请返回重新确认"
         case .corruptLedger: return "本地账本无法读取，请先检查账本数据"
+        case .transferPermissionDisabled: return "手机银行转账已关闭，请先在交易权限中开启"
         }
     }
 }

@@ -111,6 +111,9 @@ final class MobileRechargeViewController: PaymentFlowViewController, RouteHostin
     private func nextTapped() {
         let phone = normalizedPhone
         guard PaymentRules.isValidPhone(phone) else { return }
+        // 只在确认前拦截权限问题；其他校验交给确认页的原有逻辑。
+        do { _ = try ledger.validateMobileRecharge(phone: phone, faceInCents: selectedFace, couponID: nil) }
+        catch { if presentPermissionBlockedIfNeeded(error, router: router) { return } }
         router.open(.mobileRechargeConfirm(phone: phone, faceInCents: selectedFace), from: self)
     }
 }
