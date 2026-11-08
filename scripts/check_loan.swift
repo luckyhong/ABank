@@ -88,7 +88,7 @@ import Foundation
         precondition(p.principalBefore == 33_031_893 && p.principalAfter == 32_831_893, "\(p)")
         precondition(p.termsBefore == 134 && p.termsAfter == 134, "\(p)")
         precondition(p.installmentBefore == 293_491 && p.installmentAfter == 293_491, "\(p)")
-        precondition(p.lastInstallmentAfter == 7_832, "\(p)")
+        precondition(p.lastInstallmentBefore == 293_587 && p.lastInstallmentAfter == 7_832, "\(p)")
         precondition(p.maturityBefore == "2037-10-08" && p.maturityAfter == "2037-10-08", "\(p)")
         precondition(p.amountInCents == 200_000 && p.balanceInCents == 251_966)
     }
@@ -206,6 +206,8 @@ import Foundation
             precondition(record.principalBefore == 33_031_893 && record.principalAfter == 32_781_893)
             precondition(record.termsBefore == 134 && record.termsAfter == 133 && record.method == .shortenTerm)
             precondition(record.businessNo.hasPrefix("DK20261108"), record.businessNo)
+            // 缩短期限：末期还款额前后也随记录保存，结果页/进度页可展示。
+            precondition(record.lastInstallmentBefore == 293_587 && record.lastInstallmentAfter == 230_047, "\(record)")
         }
     }
 

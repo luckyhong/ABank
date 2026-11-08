@@ -99,6 +99,9 @@ enum LoanAmortization {
             termsAfter = termsBefore
             installmentAfter = self.installment(principalInCents: principalAfter, terms: termsAfter, annualPercent: rate)
         }
+        let lastBefore = schedule(principalInCents: principal, installmentInCents: installment, terms: termsBefore,
+                                  annualPercent: rate, firstPeriod: contract.nextPeriod, firstDueDate: contract.nextDueDate,
+                                  contractNumber: contract.contractNumber, dates: dates).last
         let last = schedule(principalInCents: principalAfter, installmentInCents: installmentAfter, terms: termsAfter,
                             annualPercent: rate, firstPeriod: contract.nextPeriod, firstDueDate: contract.nextDueDate,
                             contractNumber: contract.contractNumber, dates: dates).last
@@ -109,6 +112,7 @@ enum LoanAmortization {
             termsBefore: termsBefore, termsAfter: termsAfter,
             maturityBefore: maturityDate(firstDueDate: contract.nextDueDate, terms: termsBefore, dates: dates),
             maturityAfter: maturityDate(firstDueDate: contract.nextDueDate, terms: termsAfter, dates: dates),
+            lastInstallmentBefore: lastBefore.flatMap { TransferMoney.cents(from: $0.repaymentAmount) } ?? 0,
             lastInstallmentAfter: last.flatMap { TransferMoney.cents(from: $0.repaymentAmount) } ?? 0
         )
     }

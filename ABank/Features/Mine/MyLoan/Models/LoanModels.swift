@@ -55,6 +55,8 @@ struct LoanServiceRecord: Codable, Equatable, Identifiable {
     /// yyyy-MM-dd
     var maturityBefore: String? = nil
     var maturityAfter: String? = nil
+    var lastInstallmentBefore: Int64? = nil
+    var lastInstallmentAfter: Int64? = nil
     var certificateNo: String? = nil
 }
 
@@ -70,6 +72,7 @@ struct LoanPrepaymentPreview: Equatable {
     let termsAfter: Int
     let maturityBefore: String
     let maturityAfter: String
+    let lastInstallmentBefore: Int64
     let lastInstallmentAfter: Int64
 }
 

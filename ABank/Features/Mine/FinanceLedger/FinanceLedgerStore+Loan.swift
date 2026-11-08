@@ -120,7 +120,8 @@ extension FinanceLedgerStore {
             principalBefore: preview.principalBefore, principalAfter: preview.principalAfter,
             installmentBefore: preview.installmentBefore, installmentAfter: preview.installmentAfter,
             termsBefore: preview.termsBefore, termsAfter: preview.termsAfter,
-            maturityBefore: preview.maturityBefore, maturityAfter: preview.maturityAfter
+            maturityBefore: preview.maturityBefore, maturityAfter: preview.maturityAfter,
+            lastInstallmentBefore: preview.lastInstallmentBefore, lastInstallmentAfter: preview.lastInstallmentAfter
         )
         root.loanContracts[index].unpaidPrincipal = TransferMoney.amount(preview.principalAfter)
         root.loanContracts[index].installmentAmount = TransferMoney.amount(preview.installmentAfter)

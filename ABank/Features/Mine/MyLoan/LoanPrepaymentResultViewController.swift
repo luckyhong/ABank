@@ -133,6 +133,9 @@ extension LoanServiceRecord {
             rows.append(("每期还款额", "\(money(installmentBefore)) → \(money(installmentAfter))"))
         } else {
             rows.append(("剩余期数", "\(termsBefore.map(String.init) ?? "--") → \(termsAfter.map(String.init) ?? "--")"))
+            if lastInstallmentBefore != nil || lastInstallmentAfter != nil {
+                rows.append(("末期还款额", "\(money(lastInstallmentBefore)) → \(money(lastInstallmentAfter))"))
+            }
         }
         rows.append(("贷款到期日", maturityAfter.map(LoanAmortization.maturityText) ?? "--"))
         rows.append(("付款账户", accountID.flatMap { store.account(id: $0)?.cardLabel } ?? "--"))

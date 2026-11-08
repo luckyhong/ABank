@@ -185,6 +185,7 @@ final class LoanPrepaymentViewController: BankingDataViewController {
         switch method {
         case .shortenTerm:
             rows.append(("剩余期数", "\(result.termsBefore) → \(result.termsAfter)"))
+            rows.append(("末期还款额", "\(money(result.lastInstallmentBefore)) → \(money(result.lastInstallmentAfter))"))
             rows.append(("预计到期日", LoanAmortization.maturityText(result.maturityAfter)))
         case .reduceInstallment:
             rows.append(("每期还款额", "\(money(result.installmentBefore)) → \(money(result.installmentAfter))"))
