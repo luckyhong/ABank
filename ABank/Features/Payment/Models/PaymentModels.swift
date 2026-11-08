@@ -92,6 +92,7 @@ nonisolated struct PaymentOrder: Codable, Equatable {
 nonisolated enum PaymentError: LocalizedError, Equatable {
     case invalidRequest, invalidPhone, invalidDenomination, billNotFound, alreadyPaid
     case couponUnavailable, insufficientBalance, orderNotFound, corruptLedger, persistence, amountChanged
+    case onlinePaymentDisabled
 
     var errorDescription: String? {
         switch self {
@@ -106,6 +107,7 @@ nonisolated enum PaymentError: LocalizedError, Equatable {
         case .corruptLedger: return "本地账本无法读取，请先检查账本数据"
         case .persistence: return "本地保存失败，本次未成交，请重试"
         case .amountChanged: return "金额已发生变化，请重新确认"
+        case .onlinePaymentDisabled: return "网上支付已关闭，请先在交易权限中开启"
         }
     }
 }
