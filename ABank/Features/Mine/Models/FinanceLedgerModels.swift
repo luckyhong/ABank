@@ -16,14 +16,17 @@ struct FinanceLedgerRecord: Codable, Equatable {
     var transferRecords: [TransferRecord] = []
     var wealthOrders: [WealthOrder] = []
     var paymentOrders: [PaymentOrder] = []
+    var loanServiceRecords: [LoanServiceRecord] = []
 
     private enum CodingKeys: String, CodingKey {
         case accounts, transactions, loanContracts, assetLiabilityAnnouncement, dataTimestamp, transferRecords, wealthOrders, paymentOrders
+        case loanServiceRecords
     }
 
     init(accounts: [LedgerAccount], transactions: [LedgerTransaction], loanContracts: [LoanContract],
          assetLiabilityAnnouncement: String, dataTimestamp: String, transferRecords: [TransferRecord] = [],
-         wealthOrders: [WealthOrder] = [], paymentOrders: [PaymentOrder] = []) {
+         wealthOrders: [WealthOrder] = [], paymentOrders: [PaymentOrder] = [],
+         loanServiceRecords: [LoanServiceRecord] = []) {
         self.accounts = accounts
         self.transactions = transactions
         self.loanContracts = loanContracts
@@ -32,6 +35,7 @@ struct FinanceLedgerRecord: Codable, Equatable {
         self.transferRecords = transferRecords
         self.wealthOrders = wealthOrders
         self.paymentOrders = paymentOrders
+        self.loanServiceRecords = loanServiceRecords
     }
 
     init(from decoder: Decoder) throws {
@@ -44,6 +48,7 @@ struct FinanceLedgerRecord: Codable, Equatable {
         transferRecords = try values.decodeIfPresent([TransferRecord].self, forKey: .transferRecords) ?? []
         wealthOrders = try values.decodeIfPresent([WealthOrder].self, forKey: .wealthOrders) ?? []
         paymentOrders = try values.decodeIfPresent([PaymentOrder].self, forKey: .paymentOrders) ?? []
+        loanServiceRecords = try values.decodeIfPresent([LoanServiceRecord].self, forKey: .loanServiceRecords) ?? []
     }
 }
 
@@ -279,6 +284,19 @@ struct LoanContract: Codable, Equatable, Identifiable {
     var maturityDateText: String
     /// 贷款状态
     var statusText: String
+    /// 每期还款额（等额本息）
+    var installmentAmount: Double
+    /// 自 nextPeriod 起的剩余期数
+    var remainingTerms: Int
+    /// 下一期还款日 yyyy-MM-dd
+    var nextDueDate: String
+    /// 下一期期次
+    var nextPeriod: Int
+
+    static let defaultInstallmentAmount = 2934.91
+    static let defaultRemainingTerms = 134
+    static let defaultNextDueDate = "2026-09-09"
+    static let defaultNextPeriod = 107
 
     var usedLimit: Double {
         max(0, contractLimit - availableLimit)
@@ -304,7 +322,11 @@ struct LoanContract: Codable, Equatable, Identifiable {
         repricingCycle: String = "",
         repricingDatesText: String = "",
         maturityDateText: String = "",
-        statusText: String = "正常"
+        statusText: String = "正常",
+        installmentAmount: Double = LoanContract.defaultInstallmentAmount,
+        remainingTerms: Int = LoanContract.defaultRemainingTerms,
+        nextDueDate: String = LoanContract.defaultNextDueDate,
+        nextPeriod: Int = LoanContract.defaultNextPeriod
     ) {
         self.id = id
         self.name = name
@@ -326,6 +348,10 @@ struct LoanContract: Codable, Equatable, Identifiable {
         self.repricingDatesText = repricingDatesText
         self.maturityDateText = maturityDateText
         self.statusText = statusText
+        self.installmentAmount = installmentAmount
+        self.remainingTerms = remainingTerms
+        self.nextDueDate = nextDueDate
+        self.nextPeriod = nextPeriod
     }
 
     init(from decoder: Decoder) throws {
@@ -350,6 +376,10 @@ struct LoanContract: Codable, Equatable, Identifiable {
         repricingDatesText = try container.decodeIfPresent(String.self, forKey: .repricingDatesText) ?? ""
         maturityDateText = try container.decodeIfPresent(String.self, forKey: .maturityDateText) ?? ""
         statusText = try container.decodeIfPresent(String.self, forKey: .statusText) ?? "正常"
+        installmentAmount = try container.decodeIfPresent(Double.self, forKey: .installmentAmount) ?? Self.defaultInstallmentAmount
+        remainingTerms = try container.decodeIfPresent(Int.self, forKey: .remainingTerms) ?? Self.defaultRemainingTerms
+        nextDueDate = try container.decodeIfPresent(String.self, forKey: .nextDueDate) ?? Self.defaultNextDueDate
+        nextPeriod = try container.decodeIfPresent(Int.self, forKey: .nextPeriod) ?? Self.defaultNextPeriod
     }
 }
 
@@ -446,6 +476,7 @@ enum IncomeExpenseFilterCatalog {
             .init(id: "cash_withdraw", title: "现金取出", isAll: false),
             .init(id: "mobile_recharge", title: "手机充值", isAll: false),
             .init(id: "life_payment", title: "生活缴费", isAll: false),
+            .init(id: "loan_repay", title: "还贷款", isAll: false),
             .init(id: "other_expense", title: "其他支出", isAll: false)
         ]
     )

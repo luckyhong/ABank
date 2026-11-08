@@ -40,6 +40,8 @@ sources=(
   ABank/Features/Benefits/Models/OrderListItem.swift
   ABank/Features/MyAccount/Models/AccountSettingsModels.swift
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+AccountSettings.swift
+  ABank/Features/Mine/MyLoan/Models/LoanModels.swift
+  ABank/Features/Mine/MyLoan/Models/LoanAmortization.swift
 )
 # 卡名统一走 LedgerAccount.cardLabel（含别名），禁止手写“借记卡 尾号\(…)”
 if grep -rn '借记卡 尾号\\(' ABank; then
@@ -47,7 +49,7 @@ if grep -rn '借记卡 尾号\\(' ABank; then
   exit 1
 fi
 echo "Card label checks passed"
-for check in banking transfer insights feature security branch benefits wealth payment account; do
+for check in banking transfer insights feature security branch benefits wealth payment account loan; do
   if [[ $check == feature ]]; then
     check_file=scripts/check_feature_catalog.swift
   elif [[ $check == security ]]; then
@@ -62,6 +64,8 @@ for check in banking transfer insights feature security branch benefits wealth p
     check_file=scripts/check_payment.swift
   elif [[ $check == account ]]; then
     check_file=scripts/check_account_settings.swift
+  elif [[ $check == loan ]]; then
+    check_file=scripts/check_loan.swift
   else
     check_file="scripts/check_${check}_data.swift"
   fi
