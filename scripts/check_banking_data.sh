@@ -38,8 +38,10 @@ sources=(
   ABank/Features/Payment/Models/PaymentCatalog.swift
   ABank/Features/Payment/Models/PaymentRules.swift
   ABank/Features/Benefits/Models/OrderListItem.swift
+  ABank/Features/MyAccount/Models/AccountSettingsModels.swift
+  ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+AccountSettings.swift
 )
-for check in banking transfer insights feature security branch benefits wealth payment; do
+for check in banking transfer insights feature security branch benefits wealth payment account; do
   if [[ $check == feature ]]; then
     check_file=scripts/check_feature_catalog.swift
   elif [[ $check == security ]]; then
@@ -52,6 +54,8 @@ for check in banking transfer insights feature security branch benefits wealth p
     check_file=scripts/check_wealth.swift
   elif [[ $check == payment ]]; then
     check_file=scripts/check_payment.swift
+  elif [[ $check == account ]]; then
+    check_file=scripts/check_account_settings.swift
   else
     check_file="scripts/check_${check}_data.swift"
   fi

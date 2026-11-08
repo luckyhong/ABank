@@ -55,9 +55,34 @@ struct LedgerAccount: Codable, Equatable, Identifiable {
     let currency: String
     var balance: Double
     var openingBalance: Double
+    /// 用户设置的别名；nil 表示未设置。
+    var alias: String? = nil
+    /// 模拟交易权限；旧数据缺失时视为全部开启。
+    var permissions: AccountPermissions = .allEnabled
 
     var displayName: String { "尾号\(tailNumber) (\(currency))" }
-    var cardLabel: String { "借记卡\(tailNumber)" }
+    /// 所有页面统一使用的卡名：有别名时为“别名（尾号）”。
+    var cardLabel: String {
+        if let alias { return "\(alias)（\(tailNumber)）" }
+        return "借记卡\(tailNumber)"
+    }
+}
+
+extension LedgerAccount {
+    private enum CodingKeys: String, CodingKey {
+        case id, tailNumber, currency, balance, openingBalance, alias, permissions
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        tailNumber = try container.decode(String.self, forKey: .tailNumber)
+        currency = try container.decode(String.self, forKey: .currency)
+        balance = try container.decode(Double.self, forKey: .balance)
+        openingBalance = try container.decode(Double.self, forKey: .openingBalance)
+        alias = try container.decodeIfPresent(String.self, forKey: .alias)
+        permissions = try container.decodeIfPresent(AccountPermissions.self, forKey: .permissions) ?? .allEnabled
+    }
 }
 
 // MARK: - 流水
