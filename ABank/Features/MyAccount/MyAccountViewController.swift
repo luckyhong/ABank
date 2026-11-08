@@ -106,6 +106,10 @@ final class MyAccountViewController: BankingDataViewController {
 
     private func handle(_ action: MyAccountAction) {
         switch action {
+        case .setAlias:
+            router.open(.accountAlias(accountID: pageData.debitCards.first?.accountId), from: self)
+        case .viewShare:
+            router.open(.accountShare(accountID: pageData.debitCards.first?.accountId), from: self)
         case .transfer:
             router.open(.transfer(payerAccountID: pageData.debitCards.first?.accountId), from: self)
         case .queryDetail:

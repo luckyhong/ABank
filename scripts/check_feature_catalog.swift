@@ -12,9 +12,9 @@ import Foundation
 
     @MainActor static func catalogIntegrity() {
         let ids = FeatureCatalog.all.map(\.id)
-        precondition(Set(ids).count == ids.count && ids.count == FeatureID.allCases.count && ids.count == 69, "ids \(ids.count)")
-        precondition(Set(FeatureCatalog.all.map(\.title)).count == 69, "titles must be unique")
-        precondition(FeatureCatalog.all.filter(\.isAvailable).count == 32)
+        precondition(Set(ids).count == ids.count && ids.count == FeatureID.allCases.count && ids.count == 70, "ids \(ids.count)")
+        precondition(Set(FeatureCatalog.all.map(\.title)).count == 70, "titles must be unique")
+        precondition(FeatureCatalog.all.filter(\.isAvailable).count == 33)
         precondition(FeatureCatalog.descriptor(.branchQuery).availability == .available(.branchList))
         precondition(FeatureCatalog.descriptor(.branchQueue).availability == .available(.branchQueue))
         precondition(FeatureCatalog.descriptor(.openCard).availability == .available(.branchReservation(business: .openCard, branchID: nil)))
@@ -52,6 +52,11 @@ import Foundation
         precondition(FeatureSearch.search("账单").map(\.id).prefix(2).contains(.monthlyBill))
         precondition(FeatureSearch.search("网点").contains { $0.id == .branchQueue })
         precondition(FeatureSearch.search("理财").contains { $0.id == .wealthProduct })
+        precondition(FeatureCatalog.descriptor(.accountPermissions).availability == .available(.accountPermissions(accountID: nil)))
+        precondition(FeatureCatalog.descriptor(.accountPermissions).category == .account)
+        for keyword in ["权限", "开关", "网上支付", "交易权限"] {
+            precondition(FeatureSearch.search(keyword).contains { $0.id == .accountPermissions }, "\(keyword) 应命中交易权限")
+        }
         for (keyword, id) in [("话费", FeatureID.mobileRecharge), ("水费", .lifePayment), ("电费", .lifePayment), ("燃气", .lifePayment)] {
             precondition(FeatureSearch.search(keyword).contains { $0.id == id && $0.isAvailable }, "\(keyword) 应命中可用入口")
         }
