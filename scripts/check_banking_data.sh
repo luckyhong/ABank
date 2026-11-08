@@ -41,6 +41,12 @@ sources=(
   ABank/Features/MyAccount/Models/AccountSettingsModels.swift
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+AccountSettings.swift
 )
+# 卡名统一走 LedgerAccount.cardLabel（含别名），禁止手写“借记卡 尾号\(…)”
+if grep -rn '借记卡 尾号\\(' ABank; then
+  echo "Card label check failed: use account.cardLabel" >&2
+  exit 1
+fi
+echo "Card label checks passed"
 for check in banking transfer insights feature security branch benefits wealth payment account; do
   if [[ $check == feature ]]; then
     check_file=scripts/check_feature_catalog.swift

@@ -31,7 +31,7 @@ final class AccountPermissionsViewController: TransferFlowViewController, RouteH
             addNotice(AccountSettingsError.accountNotFound.localizedDescription)
             return
         }
-        addNotice("借记卡 尾号\(account.tailNumber)")
+        addNotice(account.cardLabel)
         transferRow.onChange = { [weak self] isOn in self?.update { $0.mobileTransfer = isOn } }
         paymentRow.onChange = { [weak self] isOn in self?.update { $0.onlinePayment = isOn } }
         addGroup([transferRow, paymentRow])
