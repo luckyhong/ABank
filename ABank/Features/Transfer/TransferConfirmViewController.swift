@@ -53,6 +53,11 @@ final class TransferConfirmViewController: TransferFlowViewController {
             do {
                 let record = try self.store.submitTransfer(draft: self.draft, requestID: self.requestID)
                 result = TransferResultViewController(record: record, store: self.store)
+            } catch TransferError.transferPermissionDisabled {
+                // 权限关闭：留在确认页，恢复可操作状态后提示去开启。
+                self.restoreAfterBlockedSubmit()
+                self.presentPermissionBlockedIfNeeded(TransferError.transferPermissionDisabled, router: self.router)
+                return
             } catch {
                 result = TransferResultViewController(draft: self.draft, error: error, store: self.store)
             }
@@ -64,6 +69,14 @@ final class TransferConfirmViewController: TransferFlowViewController {
             stack.append(result)
             nav.setViewControllers(stack, animated: true)
         }
+    }
+
+    private func restoreAfterBlockedSubmit() {
+        isSubmitting = false
+        submitButton.isEnabled = true
+        submitButton.setTitle("确认模拟转账", for: .normal)
+        navigationItem.hidesBackButton = false
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = previousGestureEnabled
     }
 
     override func viewDidDisappear(_ animated: Bool) {

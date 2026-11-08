@@ -68,6 +68,12 @@ final class UtilityBillViewController: PaymentFlowViewController, RouteHosting {
     }
 
     private func payTapped(_ bill: UtilityBill) {
+        do { try ledger.validateUtilityPayment(billAccountID: billAccountID) }
+        catch {
+            showError(error)
+            refreshBankingData()
+            return
+        }
         confirm("确认缴纳 \(wealthMoneyText(bill.amountInCents)) 元？", confirmTitle: "确认缴费") { [weak self] in
             self?.pay(bill)
         }

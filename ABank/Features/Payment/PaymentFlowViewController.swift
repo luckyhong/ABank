@@ -72,6 +72,7 @@ class PaymentFlowViewController: TransferFlowViewController {
     }
 
     func showError(_ error: Error) {
+        if presentPermissionBlockedIfNeeded(error, router: router) { return }
         showToast(error.localizedDescription)
     }
 
