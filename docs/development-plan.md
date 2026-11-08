@@ -280,7 +280,7 @@ M8 已合并到本地 main（未推送），先做账户别名/分享/模拟权�
 
 ### M9a 实施记录（2026-11-07）
 
-- 分支 `feat/m9-account-loan`，起点 `aaa6357`（main）。M9 拆为 M9a 账户设置与 M9b 贷款，本记录只覆盖 M9a。设计与计划见 `docs/superpowers/specs/2026-11-07-m9a-account-settings-design.md`、`docs/superpowers/plans/2026-11-07-m9a-account-settings.md`。按计划逐任务提交，未合并、未推送。
+- 分支 `feat/m9-account-loan`，起点 `e5250dc`（main）。M9 拆为 M9a 账户设置与 M9b 贷款，本记录只覆盖 M9a。设计与计划见 `docs/superpowers/specs/2026-11-07-m9a-account-settings-design.md`、`docs/superpowers/plans/2026-11-07-m9a-account-settings.md`。按计划逐任务提交，未合并、未推送。
 - 数据：`LedgerAccount` 新增 `alias`（可空）与 `permissions`（手机银行转账、网上支付，默认全开），自定义解码兼容旧账本（存储键不变）。别名去首尾空白，空即恢复默认，最多 10 个字符（按字符计，emoji 算 1 个），不可含换行。`cardLabel` 有别名时为“别名（尾号）”，否则为“借记卡尾号”。写入走 `FinanceLedgerStore.setAlias/setPermissions`，失败时账本不变并提示“本地保存失败，请重试”。
 - 拦截：转账校验先查 `mobileTransfer`（早于同户、限额、余额）；手机充值与生活缴费在校验与提交时先查 `onlinePayment`（早于号码、券、金额）。同 `requestID` 幂等重放不受后来关闭权限影响；理财申购不受影响。表单“下一步”、确认页提交、充值“下一步”、缴费“立即缴费”都会弹出“去开启”提示，跳到交易权限页；确认页被拦截时留在原页并恢复按钮。
 - 页面：账户别名（剩余字数、错误提示、保存后返回并提示）、查看/分享（户名脱敏、卡号显隐、开户行、账户类型、复制卡号、系统分享并注明“模拟数据，非真实账户”）、交易权限（两项开关即时保存，失败回滚）。借记卡详情“更多”接入账户别名、账户限额（复用 M4 转账设置页）、交易权限；功能目录新增“交易权限”（70 项、33 项可用）。我的账户卡片、借记卡详情、转账表单/确认/结果、缴费付款账户统一显示别名。
