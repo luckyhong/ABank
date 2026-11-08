@@ -45,7 +45,9 @@ final class DebitCardDetailViewController: BankingDataViewController {
     }
 
     override func refreshBankingData() {
-        let balance = FinanceLedgerStore.shared.load().accounts.first(where: { $0.id == accountId })?.balance ?? 0
+        let account = FinanceLedgerStore.shared.load().accounts.first(where: { $0.id == accountId })
+        let balance = account?.balance ?? 0
+        infoCardView.setAlias(account?.alias)
         pageData.availableBalance = balance
         pageData.accountBalance = balance
         balanceSectionView.configure(with: pageData)

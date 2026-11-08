@@ -13,6 +13,8 @@ final class DebitCardDetailInfoCardView: UIView {
 
     private let classBadge = UILabel()
     private let cardNumberLabel = UILabel()
+    /// 卡号上方的别名行；未设置别名时隐藏。
+    private let aliasLabel = UILabel()
     private let eyeButton = UIButton(type: .system)
     private let infoStack = UIStackView()
     private let actionStack = UIStackView()
@@ -51,6 +53,11 @@ final class DebitCardDetailInfoCardView: UIView {
         }
     }
 
+    func setAlias(_ alias: String?) {
+        aliasLabel.text = alias
+        aliasLabel.isHidden = alias == nil
+    }
+
     private func setupUI() {
         backgroundColor = .white
         layer.cornerRadius = CornerRadius.md
@@ -84,7 +91,15 @@ final class DebitCardDetailInfoCardView: UIView {
         headerRow.alignment = .center
         headerRow.spacing = 8
 
-        addSubview(headerRow)
+        aliasLabel.font = .systemFont(ofSize: 15, weight: .medium)
+        aliasLabel.textColor = .abankTextPrimary
+        aliasLabel.accessibilityIdentifier = "debitDetail.alias"
+        aliasLabel.isHidden = true
+        let headerStack = UIStackView(arrangedSubviews: [aliasLabel, headerRow])
+        headerStack.axis = .vertical
+        headerStack.spacing = 6
+
+        addSubview(headerStack)
         addSubview(infoStack)
         addSubview(actionStack)
 
@@ -94,12 +109,12 @@ final class DebitCardDetailInfoCardView: UIView {
         eyeButton.snp.makeConstraints { make in
             make.size.equalTo(28)
         }
-        headerRow.snp.makeConstraints { make in
+        headerStack.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.leading.trailing.equalToSuperview().inset(14)
         }
         infoStack.snp.makeConstraints { make in
-            make.top.equalTo(headerRow.snp.bottom).offset(10)
+            make.top.equalTo(headerStack.snp.bottom).offset(10)
             make.leading.trailing.equalToSuperview().inset(14)
         }
         actionStack.snp.makeConstraints { make in

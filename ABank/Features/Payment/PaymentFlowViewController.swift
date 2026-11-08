@@ -83,6 +83,6 @@ class PaymentFlowViewController: TransferFlowViewController {
     func payerAccount() -> (label: String, balanceInCents: Int64) {
         let account = ledger.load().accounts.first { $0.id == FinanceLedgerRecord.defaultAccountId }
         let balance = account.flatMap { TransferMoney.cents(from: $0.balance) } ?? 0
-        return (account.map { "借记卡 尾号\($0.tailNumber)" } ?? "无可用账户", balance)
+        return (account?.cardLabel ?? "无可用账户", balance)
     }
 }

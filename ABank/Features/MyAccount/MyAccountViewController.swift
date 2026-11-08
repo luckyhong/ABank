@@ -56,7 +56,9 @@ final class MyAccountViewController: BankingDataViewController {
         let accounts = FinanceLedgerStore.shared.load().accounts
         pageData.debitCards = pageData.debitCards.map { card in
             var updated = card
-            updated.availableBalance = accounts.first(where: { $0.id == card.accountId })?.balance ?? 0
+            let account = accounts.first(where: { $0.id == card.accountId })
+            updated.availableBalance = account?.balance ?? 0
+            updated.alias = account?.alias
             return updated
         }
         if let card = pageData.debitCards.first { debitCardView.configure(with: card) }
