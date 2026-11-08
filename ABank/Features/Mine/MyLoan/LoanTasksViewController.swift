@@ -36,8 +36,7 @@ final class LoanTasksViewController: LoanStackPageViewController {
         case .insufficientBalance:
             controller = MyAccountViewController()
         case .certificatePending:
-            showToast("结清证明")
-            return
+            controller = LoanCertificateListViewController(store: store)
         }
         navigationController?.pushViewController(controller, animated: true)
     }
