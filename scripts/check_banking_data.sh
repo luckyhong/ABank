@@ -42,6 +42,7 @@ sources=(
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+AccountSettings.swift
   ABank/Features/Mine/MyLoan/Models/LoanModels.swift
   ABank/Features/Mine/MyLoan/Models/LoanAmortization.swift
+  ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Loan.swift
 )
 # 卡名统一走 LedgerAccount.cardLabel（含别名），禁止手写“借记卡 尾号\(…)”
 if grep -rn '借记卡 尾号\\(' ABank; then

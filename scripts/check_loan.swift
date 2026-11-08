@@ -13,6 +13,17 @@ import Foundation
         try legacyDecode()
         errorCopy()
         history()
+        try submitShorten()
+        try submitReduce()
+        try linkedPages()
+        try idempotentReplay()
+        try changedWhileConfirming()
+        try failuresUnchanged()
+        try permissionsIgnored()
+        try certificate()
+        try tasks()
+        try progress()
+        totalsExcludeHistory()
         print("Loan checks passed")
     }
 
@@ -139,5 +150,190 @@ import Foundation
         let loan = LoanHistoryCatalog.loan(id: "loan_consumer_2019")
         precondition(loan?.settledDate == "2021-12-20" && loan?.amountInCents == 5_000_000)
         precondition(LoanHistoryCatalog.settledLoans.count == 1)
+    }
+
+    // MARK: - 账本读写
+
+    struct WriteFailure: Error {}
+    static let loanID = FinanceLedgerRecord.defaultLoanId
+    static let ledgerKey = "abank.financeLedger.record.v8"
+
+    @MainActor static func withStore(_ body: (FinanceLedgerStore, UserDefaults) throws -> Void) rethrows {
+        let suite = "ABank.LoanChecks." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = FinanceLedgerStore(defaults: defaults, dates: dates)
+        _ = store.load()
+        try body(store, defaults)
+    }
+
+    @MainActor static func topUp(_ store: FinanceLedgerStore, by amount: Double) {
+        var record = store.load()
+        record.accounts[0].openingBalance += amount
+        store.recalculate(&record)
+        precondition(store.save(record))
+    }
+
+    struct Snapshot: Equatable {
+        let balance: Double, principal: Double, installment: Double, terms: Int, transactions: Int, records: Int
+        @MainActor init(_ store: FinanceLedgerStore) {
+            let record = store.load()
+            balance = record.accounts[0].balance
+            principal = record.loanContracts[0].unpaidPrincipal
+            installment = record.loanContracts[0].installmentAmount
+            terms = record.loanContracts[0].remainingTerms
+            transactions = record.transactions.count
+            records = record.loanServiceRecords.count
+        }
+    }
+
+    @MainActor static func submitShorten() throws {
+        try withStore { store, _ in
+            topUp(store, by: 1_000)   // 种子余额 1519.66 → 2519.66
+            let before = Snapshot(store)
+            let record = try store.submitPrepayment(contractID: loanID, amountInCents: 250_000, method: .shortenTerm,
+                                                    requestID: "p1", expected: nil)
+            let ledger = store.load()
+            precondition(cents(ledger.accounts[0].balance) == 1_966, "balance \(ledger.accounts[0].balance)")
+            let contract = ledger.loanContracts[0]
+            precondition(cents(contract.unpaidPrincipal) == 32_781_893 && contract.remainingTerms == 133)
+            precondition(contract.maturityDateText == "2037年9月8日" && cents(contract.installmentAmount) == 293_491)
+            precondition(ledger.transactions.count == before.transactions + 1)
+            let tx = ledger.transactions.first { $0.id == record.transactionID }!
+            precondition(tx.categoryId == "loan_repay" && tx.includeInFlow && tx.amount == 2500 && tx.date == "2026-11-08")
+            precondition(tx.direction == .expense && tx.title == "提前还款-个人住房贷款")
+            precondition(ledger.loanServiceRecords.count == 1 && record.kind == .prepayment)
+            precondition(record.principalBefore == 33_031_893 && record.principalAfter == 32_781_893)
+            precondition(record.termsBefore == 134 && record.termsAfter == 133 && record.method == .shortenTerm)
+            precondition(record.businessNo.hasPrefix("DK20261108"), record.businessNo)
+        }
+    }
+
+    @MainActor static func submitReduce() throws {
+        try withStore { store, _ in
+            topUp(store, by: 1_000)
+            _ = try store.submitPrepayment(contractID: loanID, amountInCents: 200_000, method: .reduceInstallment,
+                                           requestID: "p1", expected: nil)
+            let contract = store.load().loanContracts[0]
+            precondition(cents(contract.installmentAmount) == 291_715 && contract.remainingTerms == 134)
+        }
+    }
+
+    @MainActor static func linkedPages() throws {
+        try withStore { store, _ in
+            topUp(store, by: 1_000)
+            _ = try store.submitPrepayment(contractID: loanID, amountInCents: 200_000, method: .reduceInstallment,
+                                           requestID: "p1", expected: nil)
+            precondition(cents(store.loanDuePageData(period: .nextMonth).totalAmount) == 291_715)
+            var filter = LoanRepaymentFilter.default()
+            filter.applyCustom(start: "2026-09-01", end: "2026-12-31", sortOrder: .farToNear)
+            let page = store.loanRepaymentPageData(contractId: loanID, filter: filter)
+            precondition(page.planItems.first?.period == 107 && cents(page.planItems.first!.repaymentAmount) == 291_715,
+                         "\(String(describing: page.planItems.first))")
+            precondition(page.detailItems.contains { $0.date == "2026-11-08" && cents($0.principal) == 200_000 })
+            let usage = store.loanUsageRecordsPageData(contractId: loanID, page: 0).records.first!
+            precondition(usage.title == "提前还款" && cents(usage.totalAmount) == 200_000 && usage.interest == 0)
+            precondition(store.loanPrepaymentInfo(contractId: loanID)?.maturityDate == "2037-10-08")
+        }
+    }
+
+    @MainActor static func idempotentReplay() throws {
+        try withStore { store, _ in
+            let first = try store.submitPrepayment(contractID: loanID, amountInCents: 10_000, method: .shortenTerm,
+                                                   requestID: "same", expected: nil)
+            let after = Snapshot(store)
+            let again = try store.submitPrepayment(contractID: loanID, amountInCents: 10_000, method: .shortenTerm,
+                                                   requestID: "same", expected: nil)
+            precondition(again == first && Snapshot(store) == after)
+        }
+    }
+
+    @MainActor static func changedWhileConfirming() throws {
+        try withStore { store, _ in
+            let preview = try store.previewPrepayment(contractID: loanID, amountInCents: 10_000, method: .shortenTerm)
+            topUp(store, by: 480.34)
+            let before = Snapshot(store)
+            expect(LoanError.changed, {
+                _ = try store.submitPrepayment(contractID: loanID, amountInCents: 10_000, method: .shortenTerm,
+                                               requestID: "c", expected: preview)
+            }, "changed")
+            precondition(Snapshot(store) == before)
+        }
+    }
+
+    @MainActor static func failuresUnchanged() throws {
+        try withStore { store, defaults in
+            let before = Snapshot(store)
+            expect(LoanError.insufficientBalance, {
+                _ = try store.submitPrepayment(contractID: loanID, amountInCents: 300_000, method: .shortenTerm, requestID: "a", expected: nil)
+            }, "balance")
+            expect(LoanError.contractUnavailable, {
+                _ = try store.submitPrepayment(contractID: "missing", amountInCents: 10_000, method: .shortenTerm, requestID: "b", expected: nil)
+            }, "contract")
+            expect(LoanError.invalidRequest, {
+                _ = try store.submitPrepayment(contractID: loanID, amountInCents: 10_000, method: .shortenTerm, requestID: "", expected: nil)
+            }, "request")
+            let failing = FinanceLedgerStore(defaults: defaults, dates: dates, dataWriter: { _ in throw WriteFailure() })
+            expect(LoanError.persistence, {
+                _ = try failing.submitPrepayment(contractID: loanID, amountInCents: 10_000, method: .shortenTerm, requestID: "d", expected: nil)
+            }, "write")
+            precondition(Snapshot(store) == before)
+            let garbage = Data("not json".utf8)
+            defaults.set(garbage, forKey: ledgerKey)
+            expect(LoanError.corruptLedger, {
+                _ = try store.submitPrepayment(contractID: loanID, amountInCents: 10_000, method: .shortenTerm, requestID: "e", expected: nil)
+            }, "corrupt")
+            expect(LoanError.corruptLedger, { _ = try store.requestSettlementCertificate(loanID: "loan_consumer_2019", requestID: "f") }, "corrupt cert")
+            precondition(defaults.data(forKey: ledgerKey) == garbage)
+        }
+    }
+
+    @MainActor static func permissionsIgnored() throws {
+        try withStore { store, _ in
+            try store.setPermissions(AccountPermissions(mobileTransfer: false, onlinePayment: false),
+                                     accountID: FinanceLedgerRecord.defaultAccountId)
+            _ = try store.submitPrepayment(contractID: loanID, amountInCents: 10_000, method: .shortenTerm, requestID: "x", expected: nil)
+        }
+    }
+
+    @MainActor static func certificate() throws {
+        try withStore { store, _ in
+            let first = try store.requestSettlementCertificate(loanID: "loan_consumer_2019", requestID: "c1")
+            let again = try store.requestSettlementCertificate(loanID: "loan_consumer_2019", requestID: "c2")
+            precondition(first == again && store.load().loanServiceRecords.count == 1)
+            precondition(first.kind == .settlementCertificate && first.certificateNo?.hasPrefix("JQ20261108") == true)
+            precondition(store.settlementCertificate(loanID: "loan_consumer_2019") == first)
+            expect(LoanError.contractUnavailable, { _ = try store.requestSettlementCertificate(loanID: "nope", requestID: "c3") }, "unknown")
+        }
+    }
+
+    @MainActor static func tasks() throws {
+        try withStore { store, _ in
+            let initial = store.loanTasks()
+            precondition(initial.map(\.kind) == [.repaymentReminder, .insufficientBalance, .certificatePending(loanID: "loan_consumer_2019")],
+                         "\(initial)")
+            precondition(initial[0].detail == "09-09 应还 2934.91 元", initial[0].detail)
+            precondition(initial[1].detail == "账户余额不足以支付下期还款，还差 1415.25 元", initial[1].detail)
+            _ = try store.requestSettlementCertificate(loanID: "loan_consumer_2019", requestID: "c1")
+            precondition(!store.loanTasks().contains { if case .certificatePending = $0.kind { return true }; return false })
+            topUp(store, by: 2_000)
+            precondition(!store.loanTasks().contains { $0.kind == .insufficientBalance })
+        }
+    }
+
+    @MainActor static func progress() throws {
+        try withStore { store, _ in
+            let record = try store.submitPrepayment(contractID: loanID, amountInCents: 10_000, method: .shortenTerm, requestID: "g", expected: nil)
+            let items = store.loanProgressItems()
+            precondition(items.first?.record == record && items.first?.status == "已办结" && items.first?.steps.count == 3)
+            precondition(items.last?.title == "住房贷款申请" && items.last?.status == "已放款", "\(String(describing: items.last))")
+            precondition(items.count == 3)
+        }
+    }
+
+    @MainActor static func totalsExcludeHistory() {
+        withStore { store, _ in
+            precondition(store.myLoanPageData().totalUnpaidPrincipal == store.load().loanContracts[0].unpaidPrincipal)
+        }
     }
 }

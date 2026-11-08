@@ -550,7 +550,20 @@ extension Notification.Name {
             ? (contract?.contractNumber ?? "")
             : "26135157700004774"
 
-        let plans = Self.seedRepaymentPlans(contractNumber: contractNumber)
+        // 下一期之前保留历史种子；之后按当前本金与每期还款额由等额本息生成。
+        var allPlans = Self.seedRepaymentPlans(contractNumber: contractNumber)
+        if let contract {
+            allPlans = allPlans.filter { $0.period < contract.nextPeriod }
+            if let principal = TransferMoney.cents(from: contract.unpaidPrincipal),
+               let installment = TransferMoney.cents(from: contract.installmentAmount) {
+                allPlans += LoanAmortization.schedule(
+                    principalInCents: principal, installmentInCents: installment, terms: contract.remainingTerms,
+                    annualPercent: contract.annualRatePercent, firstPeriod: contract.nextPeriod,
+                    firstDueDate: contract.nextDueDate, contractNumber: contractNumber, dates: dates
+                )
+            }
+        }
+        let plans = allPlans
             .filter { Self.isDate($0.date, in: filter) }
             .sorted { lhs, rhs in
                 filter.sortOrder == .nearToFar
@@ -558,7 +571,13 @@ extension Notification.Name {
                     : lhs.date < rhs.date || (lhs.date == rhs.date && lhs.period < rhs.period)
             }
 
-        let details = Self.seedRepaymentDetails(contractNumber: contractNumber)
+        let prepaid = prepaymentRecords(contractId: contractId).map { record in
+            LoanRepaymentDetailItem(
+                id: "detail_" + record.id, contractNumber: contractNumber, date: String(record.createdAt.prefix(10)),
+                principal: TransferMoney.amount(record.amountInCents ?? 0), interest: 0, penalty: 0, compoundInterest: 0
+            )
+        }
+        let details = (prepaid + Self.seedRepaymentDetails(contractNumber: contractNumber))
             .filter { Self.isDate($0.date, in: filter) }
             .sorted { lhs, rhs in
                 filter.sortOrder == .nearToFar ? lhs.date > rhs.date : lhs.date < rhs.date
@@ -572,8 +591,14 @@ extension Notification.Name {
         page: Int,
         pageSize: Int = 10
     ) -> LoanUsageRecordsPageData {
-        _ = contractId
-        let all = Self.seedUsageRecords()
+        let prepaid = prepaymentRecords(contractId: contractId).map { record in
+            LoanUsageRecord(
+                id: "usage_" + record.id, title: "提前还款", dateTime: String(record.createdAt.prefix(16)),
+                totalAmount: TransferMoney.amount(record.amountInCents ?? 0),
+                principal: TransferMoney.amount(record.amountInCents ?? 0), interest: 0, penalty: 0, compoundPenalty: 0
+            )
+        }
+        let all = prepaid + Self.seedUsageRecords()
         let start = max(0, page * pageSize)
         guard start < all.count else {
             return LoanUsageRecordsPageData(records: [], hasMore: false)
@@ -590,7 +615,8 @@ extension Notification.Name {
             contractNumber: contract.contractNumber.isEmpty
                 ? "26135157700004774"
                 : contract.contractNumber,
-            maturityDate: "2037-10-08",
+            maturityDate: LoanAmortization.maturityDate(firstDueDate: contract.nextDueDate,
+                                                        terms: contract.remainingTerms, dates: dates),
             usageDate: "2017-10-09",
             annualRatePercent: contract.annualRatePercent,
             unpaidPrincipal: contract.unpaidPrincipal
@@ -613,8 +639,8 @@ extension Notification.Name {
             let items: [LoanDueInstallment] = contracts.map { contract in
                 LoanDueInstallment(
                     id: "due_next_\(contract.id)",
-                    date: "2026-09-09",
-                    amount: 2_934.91,
+                    date: contract.nextDueDate,
+                    amount: contract.installmentAmount,
                     loanName: contract.name,
                     contractNumber: contract.contractNumber.isEmpty
                         ? "26135157700004774"
@@ -629,6 +655,11 @@ extension Notification.Name {
                 tip: tip
             )
         }
+    }
+
+    /// 该合同的提前还款记录，新→旧。
+    private func prepaymentRecords(contractId: String) -> [LoanServiceRecord] {
+        loanServiceRecords().filter { $0.kind == .prepayment && $0.contractID == contractId }
     }
 
     private static func isDate(_ date: String, in filter: LoanRepaymentFilter) -> Bool {
