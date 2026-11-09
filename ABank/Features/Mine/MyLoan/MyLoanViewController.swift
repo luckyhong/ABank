@@ -115,8 +115,15 @@ final class MyLoanViewController: BaseViewController {
             self.applyAmountVisibility()
         }
         actionGrid.onItemTapped = { [weak self] index in
-            let titles = ["待办任务", "进度查询", "贷款续贷", "结清证明"]
-            self?.showToast(titles[safe: index] ?? "功能")
+            let controller: UIViewController
+            switch index {
+            case 0: controller = LoanTasksViewController()
+            case 1: controller = LoanProgressListViewController()
+            case 2: controller = LoanRenewalViewController()
+            case 3: controller = LoanCertificateListViewController()
+            default: return
+            }
+            self?.navigationController?.pushViewController(controller, animated: true)
         }
         contractSection.onContractTapped = { [weak self] id in
             guard let self,
@@ -155,7 +162,9 @@ final class MyLoanViewController: BaseViewController {
         navigationController?.popViewController(animated: true)
     }
 
-    @objc private func historyTapped() { showToast("历史贷款") }
+    @objc private func historyTapped() {
+        navigationController?.pushViewController(LoanHistoryViewController(), animated: true)
+    }
 }
 
 private extension Array {
