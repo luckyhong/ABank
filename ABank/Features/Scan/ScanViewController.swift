@@ -35,6 +35,15 @@ final class ScanViewController: BaseViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             image: UIImage.abankBackIndicator, style: .plain, target: self, action: #selector(backTapped)
         )
+        navigationItem.leftBarButtonItem?.tintColor = .white
+        // 透明导航栏、白色标题，只作用于本页，不改共享样式。
+        let appearance = ABankNavigationController.makeStandardAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white, .font: UIFont.systemFont(ofSize: 17, weight: .semibold)]
+        appearance.shadowColor = .clear
+        navigationItem.standardAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance = appearance
     }
 
     override func setupUI() {
@@ -155,7 +164,11 @@ final class ScanViewController: BaseViewController {
         column.spacing = 12
         resultCard.addSubview(column)
         view.addSubview(resultCard)
-        column.snp.makeConstraints { $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 20, left: 16, bottom: 20, right: 16)) }
+        column.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(20)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
+        }
         resultCard.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
         }
