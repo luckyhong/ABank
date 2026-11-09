@@ -10,6 +10,7 @@ import Foundation
         assistantFilters()
         assistantSensitive()
         assistantFallback()
+        quickActions()
         print("Entry checks passed")
     }
 
@@ -86,5 +87,17 @@ import Foundation
         let r = AssistantEngine.reply(to: "今天天气怎么样")!
         precondition(r.text == "没找到相关内容，换个说法试试，或看看这些常用功能：" && r.features == [.transfer, .incomeExpense, .branchQuery])
         precondition(AssistantEngine.reply(to: "  \n ") == nil && AssistantEngine.reply(to: "？！") == nil)
+    }
+
+    static func quickActions() {
+        precondition(QuickAction.route(forType: "com.abank.shortcut.scan") == .scan)
+        precondition(QuickAction.route(forType: "com.abank.shortcut.transfer") == .transfer(payerAccountID: nil))
+        precondition(QuickAction.route(forType: "com.abank.shortcut.incomeExpense") == .incomeExpense(accountID: nil))
+        precondition(QuickAction.route(forType: "com.abank.shortcut.assistant") == .assistant)
+        precondition(QuickAction.route(forType: "") == nil && QuickAction.route(forType: "com.abank.shortcut.pay") == nil)
+        let plist = NSDictionary(contentsOfFile: "ABank/Info.plist")!
+        let items = plist["UIApplicationShortcutItems"] as! [[String: Any]]
+        let types = items.compactMap { $0["UIApplicationShortcutItemType"] as? String }
+        precondition(items.count == 4 && types.count == 4 && types.allSatisfy { QuickAction.route(forType: $0) != nil })
     }
 }

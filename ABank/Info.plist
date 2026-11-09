@@ -19,5 +19,40 @@
 			</array>
 		</dict>
 	</dict>
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>qrcode.viewfinder</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>扫一扫</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.abank.shortcut.scan</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>arrow.left.arrow.right</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>转账</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.abank.shortcut.transfer</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>list.bullet.rectangle</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>收支明细</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.abank.shortcut.incomeExpense</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>headphones</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>在线助手</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.abank.shortcut.assistant</string>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -10,6 +10,7 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    private var pendingRoute: AppRoute?
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -19,6 +20,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let mainTabBarController = MainTabBarController()
         window?.rootViewController = mainTabBarController
         window?.makeKeyAndVisible()
+
+        if let item = connectionOptions.shortcutItem {
+            pendingRoute = QuickAction.route(forType: item.type)
+            DispatchQueue.main.async { [weak self] in
+                guard let self, let route = self.pendingRoute else { return }
+                self.pendingRoute = nil
+                mainTabBarController.openFromShortcut(route)
+            }
+        }
+    }
+
+    func windowScene(_ windowScene: UIWindowScene, performActionFor shortcutItem: UIApplicationShortcutItem,
+                     completionHandler: @escaping (Bool) -> Void) {
+        guard let route = QuickAction.route(forType: shortcutItem.type),
+              let tabBar = window?.rootViewController as? MainTabBarController else {
+            completionHandler(false)
+            return
+        }
+        tabBar.openFromShortcut(route)
+        completionHandler(true)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
