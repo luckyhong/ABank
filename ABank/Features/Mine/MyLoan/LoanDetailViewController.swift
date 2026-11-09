@@ -208,7 +208,7 @@ final class LoanDetailViewController: BaseViewController {
         navigationController?.popViewController(animated: true)
     }
 
-    @objc private func serviceTapped() { showToast("客服") }
+    @objc private func serviceTapped() { AppRouter.shared.open(.assistant, from: self) }
     @objc private func repaymentDetailTapped() {
         let controller = LoanRepaymentDetailViewController(contractId: contractId)
         navigationController?.pushViewController(controller, animated: true)

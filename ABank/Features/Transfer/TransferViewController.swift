@@ -251,7 +251,7 @@ final class TransferViewController: BankingDataViewController {
     }
 
     @objc private func serviceTapped() {
-        showToast("正在为您接入在线客服")
+        AppRouter.shared.open(.assistant, from: self)
     }
 
     private func makeIconItem(

@@ -253,7 +253,8 @@ final class HomeViewController: BaseViewController {
             self?.showToast("已切换至标准版")
         }
         topSearchBar.onServiceTapped = { [weak self] in
-            self?.showToast("正在为您接入在线客服")
+            guard let self else { return }
+            self.router.open(.assistant, from: self)
         }
         topSearchBar.onMessageTapped = { [weak self] in
             let count = self?.pageData.messageBadge ?? 0

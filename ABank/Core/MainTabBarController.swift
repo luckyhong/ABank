@@ -16,6 +16,16 @@ final class MainTabBarController: UITabBarController {
         setupViewControllers()
     }
 
+    /// 桌面快捷操作：切到首页，关闭模态页，回到根页后打开目标页。
+    func openFromShortcut(_ route: AppRoute) {
+        selectedIndex = 0
+        presentedViewController?.dismiss(animated: false)
+        guard let nav = viewControllers?.first as? UINavigationController else { return }
+        nav.popToRootViewController(animated: false)
+        guard let root = nav.viewControllers.first else { return }
+        AppRouter.shared.open(route, from: root)
+    }
+
     private func setupTabBar() {
         tabBar.tintColor = .abankPrimary
         tabBar.unselectedItemTintColor = .abankTextTertiary

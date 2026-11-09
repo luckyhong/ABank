@@ -427,9 +427,9 @@ final class NewsViewController: BaseViewController {
             placeholders: pageData.searchPlaceholders,
             badgeCount: pageData.messageBadge
         )
-        searchBar.onScanTapped = { [weak self] in self?.showToast("扫一扫") }
+        searchBar.onScanTapped = { [weak self] in guard let self else { return }; self.router.open(.scan, from: self) }
         searchBar.onSearchTapped = { [weak self] _ in self?.showSearch() }
-        searchBar.onServiceTapped = { [weak self] in self?.showToast("在线客服") }
+        searchBar.onServiceTapped = { [weak self] in guard let self else { return }; self.router.open(.assistant, from: self) }
         searchBar.onMessageTapped = { [weak self] in self?.showToast("消息中心") }
 
         primaryTabs.onTabChanged = { [weak self] tab in
