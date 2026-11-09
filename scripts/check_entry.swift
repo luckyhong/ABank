@@ -14,6 +14,8 @@ import Foundation
         widgetSnapshotRoundTrip()
         widgetSnapshotStore()
         try widgetSnapshotBuild()
+        widgetLinks()
+        plistUrlScheme()
         print("Entry checks passed")
     }
 
@@ -158,5 +160,28 @@ import Foundation
             precondition(store.save(record))
             precondition(store.widgetSnapshot() == nil)
         }
+    }
+
+    static func widgetLinks() {
+        let expected: [(WidgetLink.Target, AppRoute)] = [
+            (.account, .myAccount), (.scan, .scan),
+            (.transfer, .transfer(payerAccountID: nil)), (.incomeExpense, .incomeExpense(accountID: nil))
+        ]
+        for (target, route) in expected {
+            let url = WidgetLink.url(for: target)
+            precondition(url.absoluteString == "abank://widget/\(target.rawValue)")
+            precondition(WidgetLink.route(for: url) == route)
+        }
+        let bad = ["abank://widget/", "abank://widget", "abank://widget/unknown", "abank://widget/scan/extra",
+                   "abank://widget/scan?x=1", "abank://widget/scan#f", "ABANK://widget/scan", "abank://WIDGET/scan",
+                   "http://widget/scan", "abank://other/scan", "abank:///scan", "abank://widget/Scan"]
+        for text in bad { precondition(URL(string: text).flatMap(WidgetLink.route(for:)) == nil, text) }
+    }
+
+    static func plistUrlScheme() {
+        let plist = NSDictionary(contentsOfFile: "ABank/Info.plist")!
+        let types = plist["CFBundleURLTypes"] as! [[String: Any]]
+        let schemes = types.flatMap { $0["CFBundleURLSchemes"] as? [String] ?? [] }
+        precondition(schemes == ["abank"])
     }
 }
