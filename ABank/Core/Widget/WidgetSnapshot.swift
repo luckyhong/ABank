@@ -48,3 +48,29 @@ struct WidgetSnapshotStore {
         WidgetSnapshot.decode(defaults?.data(forKey: WidgetSnapshot.storageKey))
     }
 }
+
+/// 写入去重：快照为 nil 不写；与上次内容相同（忽略更新时间）不写、不刷新。
+struct WidgetSnapshotSync {
+    private let store: WidgetSnapshotStore
+    private let reload: () -> Void
+    private var last: WidgetSnapshot?
+
+    init(store: WidgetSnapshotStore, reload: @escaping () -> Void) {
+        self.store = store
+        self.reload = reload
+        self.last = store.load()
+    }
+
+    mutating func sync(_ snapshot: WidgetSnapshot?) {
+        guard let snapshot, !Self.sameContent(snapshot, last) else { return }
+        store.save(snapshot)
+        last = snapshot
+        reload()
+    }
+
+    private static func sameContent(_ a: WidgetSnapshot, _ b: WidgetSnapshot?) -> Bool {
+        guard let b else { return false }
+        return a.balanceInCents == b.balanceInCents && a.monthIncomeInCents == b.monthIncomeInCents
+            && a.monthExpenseInCents == b.monthExpenseInCents && a.month == b.month
+    }
+}

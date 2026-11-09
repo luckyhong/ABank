@@ -16,6 +16,7 @@ import Foundation
         try widgetSnapshotBuild()
         widgetLinks()
         plistUrlScheme()
+        widgetWriterSkipsDuplicates()
         print("Entry checks passed")
     }
 
@@ -183,5 +184,24 @@ import Foundation
         let types = plist["CFBundleURLTypes"] as! [[String: Any]]
         let schemes = types.flatMap { $0["CFBundleURLSchemes"] as? [String] ?? [] }
         precondition(schemes == ["abank"])
+    }
+
+    static func widgetWriterSkipsDuplicates() {
+        let name = "abank.test.widgetsync.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: name)!
+        defer { defaults.removePersistentDomain(forName: name) }
+        var reloads = 0
+        var sync = WidgetSnapshotSync(store: WidgetSnapshotStore(defaults: defaults), reload: { reloads += 1 })
+        let a = WidgetSnapshot(balanceInCents: 1, monthIncomeInCents: 0, monthExpenseInCents: 0, month: "2026-11", updatedAt: "t1")
+        sync.sync(nil); precondition(reloads == 0)
+        sync.sync(a); precondition(reloads == 1)
+        var later = a; later.updatedAt = "t2"
+        sync.sync(later); precondition(reloads == 1)
+        var changed = a; changed.balanceInCents = 2
+        sync.sync(changed); precondition(reloads == 2)
+        precondition(WidgetSnapshotStore(defaults: defaults).load()?.balanceInCents == 2)
+        var reloads2 = 0
+        var restarted = WidgetSnapshotSync(store: WidgetSnapshotStore(defaults: defaults), reload: { reloads2 += 1 })
+        restarted.sync(changed); precondition(reloads2 == 0)
     }
 }
