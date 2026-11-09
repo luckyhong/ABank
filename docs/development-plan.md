@@ -321,6 +321,7 @@ M9a 已合并到本地 main（未推送），分支已删除；M9b 从 main 新�
 - 工程：新增 `ABankWidget` 扩展 target（bundle id `com.axdxa.AtlasBarKit.ABank.widget`，iOS 15.6，小号/中号，显示名“模拟余额”），App 嵌入该扩展；entitlements 放在 `Config/`（避免被同步组当作资源）；共享源文件 `WidgetSnapshot.swift`、`WidgetFormat.swift`、`WidgetLink.swift` 同属两个 target。
 - 验证：`scripts/check_banking_data.sh` 的 `entry` 组新增快照、存储、构建、链接、URL scheme、写入去重、格式化检查，11 组全部通过；常规构建与带 ad-hoc 签名的模拟器构建均通过，`ABank.app/PlugIns/ABankWidget.appex` 存在。
 - 模拟器（iPhone 16 Pro，ad-hoc 签名构建）：App 启动后在共享 App Group 里写出快照（余额 1,418.66、本月支出 101.00，与账本一致）；`xcrun simctl openurl abank://widget/incomeExpense` 打开收支页，系统识别 `abank` scheme。截图 `artifacts/abc-resources/verification/m10b-*.png`（被 Git 忽略）。
+- 终审：opus 整分支审查无 Critical；跨月后仍显示上月收支（Important）已修复；App Group 签名风险（真机需团队能供应 App Group，否则 App 本身签名失败）已记录在任务文档。
 - 未验证：Widget 本身的界面。模拟器的小组件库连系统自带小组件也为空，无法添加；小号/中号布局、点击入口、转账后 Widget 刷新均未在界面上验证。真机需在开发者账号 DX4MURAK7P 下注册 App Group（Xcode 自动签名通常会自动完成）并实测；视觉待截图校准。
 
 #### 后续
