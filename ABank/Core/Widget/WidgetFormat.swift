@@ -22,6 +22,15 @@ enum WidgetFormat {
         return cents < 0 ? "-" + text : text
     }
 
+    /// 北京时间（UTC+8）的 yyyy-MM；Widget 用它判断快照是否还是“本月”。
+    static func beijingMonth(_ date: Date) -> String {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 8 * 3600)!
+        let parts = calendar.dateComponents([.year, .month], from: date)
+        let month = parts.month ?? 1
+        return "\(parts.year ?? 1970)-\(month < 10 ? "0" : "")\(month)"
+    }
+
     /// "yyyy-MM-dd HH:mm:ss" → "HH:mm"；格式不符返回 "--:--"。
     static func time(_ updatedAt: String) -> String {
         let parts = updatedAt.split(separator: " ")

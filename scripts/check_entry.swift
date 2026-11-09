@@ -18,6 +18,7 @@ import Foundation
         plistUrlScheme()
         widgetWriterSkipsDuplicates()
         widgetFormat()
+        widgetMonthRollover()
         print("Entry checks passed")
     }
 
@@ -212,5 +213,18 @@ import Foundation
         precondition(WidgetFormat.money(-1_230) == "-¥12.30")
         precondition(WidgetFormat.money(10_000_000_000) == "¥100,000,000.00")
         precondition(WidgetFormat.time("2026-11-08 20:05:09") == "20:05" && WidgetFormat.time("") == "--:--" && WidgetFormat.time("x") == "--:--")
+    }
+
+    static func widgetMonthRollover() {
+        let s = WidgetSnapshot(balanceInCents: 500, monthIncomeInCents: 700, monthExpenseInCents: 900, month: "2026-10", updatedAt: "2026-10-31 20:00:00")
+        let same = s.monthlyFlow(inMonth: "2026-10")
+        precondition(same.income == 700 && same.expense == 900)
+        let stale = s.monthlyFlow(inMonth: "2026-11")
+        precondition(stale.income == 0 && stale.expense == 0)
+        // 北京时间：UTC 2026-10-31 17:00 已是 11 月 1 日
+        let utc1700 = ISO8601DateFormatter().date(from: "2026-10-31T17:00:00Z")!
+        precondition(WidgetFormat.beijingMonth(utc1700) == "2026-11")
+        let utc1559 = ISO8601DateFormatter().date(from: "2026-10-31T15:59:00Z")!
+        precondition(WidgetFormat.beijingMonth(utc1559) == "2026-10")
     }
 }

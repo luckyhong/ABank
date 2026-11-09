@@ -26,6 +26,11 @@ struct WidgetSnapshot: Codable, Equatable {
         return try? JSONDecoder().decode(WidgetSnapshot.self, from: data)
     }
 
+    /// 快照月份不是当前月份时，“本月”收支视为 0，避免跨月后仍显示上月数字。
+    func monthlyFlow(inMonth currentMonth: String) -> (income: Int64, expense: Int64) {
+        month == currentMonth ? (monthIncomeInCents, monthExpenseInCents) : (0, 0)
+    }
+
     func encoded() -> Data {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .sortedKeys

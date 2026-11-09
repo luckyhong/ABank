@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 #if canImport(WidgetKit)
 import WidgetKit
 #endif
@@ -27,6 +28,10 @@ final class WidgetSnapshotWriter {
         started = true
         NotificationCenter.default.addObserver(
             self, selector: #selector(ledgerDidChange), name: .financeLedgerDidChange, object: nil
+        )
+        // 回到前台也同步一次：跨月或后台期间数据变化后，快照不会停在旧状态（内容不变则不刷新 Widget）。
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(ledgerDidChange), name: UIApplication.willEnterForegroundNotification, object: nil
         )
         refresh()
     }

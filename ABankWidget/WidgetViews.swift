@@ -68,12 +68,13 @@ private struct MediumContent: View {
     let snapshot: WidgetSnapshot
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let flow = snapshot.monthlyFlow(inMonth: WidgetFormat.beijingMonth(Date()))
+        return VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 12) {
                 BalanceBlock(snapshot: snapshot)
                 VStack(alignment: .leading, spacing: 4) {
-                    flowRow("本月收入", snapshot.monthIncomeInCents)
-                    flowRow("本月支出", snapshot.monthExpenseInCents)
+                    flowRow("本月收入", flow.income)
+                    flowRow("本月支出", flow.expense)
                 }
                 .frame(maxWidth: 110, alignment: .leading)
             }
