@@ -254,6 +254,6 @@ enum FeatureCatalog {
         item(.orders, "我的订单", .service, icon: "doc.plaintext",
              keywords: ["订单"], .available(.orders)),
         item(.scan, "扫一扫", .service, image: "abc_home_scan", icon: "qrcode.viewfinder",
-             keywords: ["二维码", "付款码"], .planned(stage: "M10 快捷与扫码"))
+             keywords: ["二维码", "付款码"], .available(.scan))
     ]
 }
