@@ -186,7 +186,7 @@ final class AccountDetailQueryViewController: BankingDataViewController {
     }
 
     @objc private func serviceTapped() {
-        showToast("正在为您接入在线客服")
+        AppRouter.shared.open(.assistant, from: self)
     }
 
     @objc private func statementTapped() {

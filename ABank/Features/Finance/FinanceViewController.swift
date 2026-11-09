@@ -182,11 +182,11 @@ final class WealthViewController: BaseViewController {
     }
 
     private func bindActions() {
-        searchBar.onScanTapped = { [weak self] in self?.showToast("扫一扫") }
+        searchBar.onScanTapped = { [weak self] in guard let self else { return }; self.router.open(.scan, from: self) }
         searchBar.onSearchTapped = { [weak self] in
             self?.showToast("搜索「\(self?.pageData.searchPlaceholder ?? "")」")
         }
-        searchBar.onServiceTapped = { [weak self] in self?.showToast("正在为您接入在线客服") }
+        searchBar.onServiceTapped = { [weak self] in guard let self else { return }; self.router.open(.assistant, from: self) }
         searchBar.onMessageTapped = { [weak self] in
             self?.showToast("您有 \(self?.pageData.messageBadge ?? 0) 条未读消息")
         }

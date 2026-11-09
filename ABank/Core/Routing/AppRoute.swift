@@ -67,5 +67,6 @@ enum AppRoute: Equatable {
     case accountPermissions(accountID: String?)
     /// 扫码收款码：预填收款人与账号，金额由用户输入。
     case scan
+    case assistant
     case transferToPayee(name: String, bankName: String, account: String)
 }

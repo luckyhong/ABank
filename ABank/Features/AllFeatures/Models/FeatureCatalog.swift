@@ -28,7 +28,7 @@ enum FeatureID: String, Codable, CaseIterable {
     // 网点与安全
     case branchQuery, branchQueue, coinReservation
     case securityCenter, loginSettings, paymentSettings, loginDevices
-    case benefits, customerLevel, orders, scan
+    case benefits, customerLevel, orders, scan, assistant
 }
 
 enum FeatureCategory: String, CaseIterable {
@@ -254,6 +254,8 @@ enum FeatureCatalog {
         item(.orders, "我的订单", .service, icon: "doc.plaintext",
              keywords: ["订单"], .available(.orders)),
         item(.scan, "扫一扫", .service, image: "abc_home_scan", icon: "qrcode.viewfinder",
-             keywords: ["二维码", "付款码"], .available(.scan))
+             keywords: ["二维码", "付款码"], .available(.scan)),
+        item(.assistant, "在线助手", .service, icon: "headphones",
+             keywords: ["客服", "帮助", "助手", "咨询"], .available(.assistant))
     ]
 }

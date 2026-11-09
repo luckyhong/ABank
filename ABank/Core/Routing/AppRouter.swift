@@ -69,6 +69,8 @@ final class AppRouter: AppRouting {
             return TransferViewController(payerAccountID: payerAccountID)
         case .transferForm(let method):
             return TransferFormViewController(method: method, store: ledger)
+        case .assistant:
+            return AssistantViewController()
         case .scan:
             return ScanViewController()
         case .transferToPayee(let name, let bankName, let account):

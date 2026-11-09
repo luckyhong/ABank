@@ -12,10 +12,12 @@ import Foundation
 
     @MainActor static func catalogIntegrity() {
         let ids = FeatureCatalog.all.map(\.id)
-        precondition(Set(ids).count == ids.count && ids.count == FeatureID.allCases.count && ids.count == 70, "ids \(ids.count)")
-        precondition(Set(FeatureCatalog.all.map(\.title)).count == 70, "titles must be unique")
-        precondition(FeatureCatalog.all.filter(\.isAvailable).count == 34)
+        precondition(Set(ids).count == ids.count && ids.count == FeatureID.allCases.count && ids.count == 71, "ids \(ids.count)")
+        precondition(Set(FeatureCatalog.all.map(\.title)).count == 71, "titles must be unique")
+        precondition(FeatureCatalog.all.filter(\.isAvailable).count == 35)
         precondition(FeatureCatalog.descriptor(.scan).availability == .available(.scan))
+        precondition(FeatureCatalog.descriptor(.assistant).availability == .available(.assistant))
+        precondition(FeatureSearch.search("客服").first?.id == .assistant)
         precondition(FeatureCatalog.descriptor(.branchQuery).availability == .available(.branchList))
         precondition(FeatureCatalog.descriptor(.branchQueue).availability == .available(.branchQueue))
         precondition(FeatureCatalog.descriptor(.openCard).availability == .available(.branchReservation(business: .openCard, branchID: nil)))
