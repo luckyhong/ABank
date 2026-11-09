@@ -48,6 +48,8 @@ sources=(
   ABank/Core/Routing/QuickAction.swift
   ABank/Core/Widget/WidgetSnapshot.swift
   ABank/Core/Routing/WidgetLink.swift
+  ABank/Core/Routing/WidgetLink+Route.swift
+  ABank/Core/Widget/WidgetFormat.swift
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Widget.swift
 )
 # 卡名统一走 LedgerAccount.cardLabel（含别名），禁止手写“借记卡 尾号\(…)”

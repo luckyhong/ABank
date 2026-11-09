@@ -17,6 +17,7 @@ import Foundation
         widgetLinks()
         plistUrlScheme()
         widgetWriterSkipsDuplicates()
+        widgetFormat()
         print("Entry checks passed")
     }
 
@@ -203,5 +204,13 @@ import Foundation
         var reloads2 = 0
         var restarted = WidgetSnapshotSync(store: WidgetSnapshotStore(defaults: defaults), reload: { reloads2 += 1 })
         restarted.sync(changed); precondition(reloads2 == 0)
+    }
+
+    static func widgetFormat() {
+        precondition(WidgetFormat.money(123_456) == "¥1,234.56")
+        precondition(WidgetFormat.money(0) == "¥0.00" && WidgetFormat.money(5) == "¥0.05")
+        precondition(WidgetFormat.money(-1_230) == "-¥12.30")
+        precondition(WidgetFormat.money(10_000_000_000) == "¥100,000,000.00")
+        precondition(WidgetFormat.time("2026-11-08 20:05:09") == "20:05" && WidgetFormat.time("") == "--:--" && WidgetFormat.time("x") == "--:--")
     }
 }

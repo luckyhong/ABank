@@ -7,14 +7,55 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A74302EB3188910B42ECCF7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 539320055EED194A82B66E02 /* Foundation.framework */; };
+		330D77ABB9CFFDBA93485C7E /* ABankWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0EEC70DFA9782F07A3D90E /* ABankWidget.swift */; };
+		35ED184CFF12C7CD96905E2C /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB31FD44B917207176F969A1 /* WidgetViews.swift */; };
+		3F413A5225AF5D75286E9A4D /* WidgetLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88903BDC54B78FB7F790385A /* WidgetLink.swift */; };
 		520939AE30DBDFB692AD23C4 /* Pods_ABank.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93782B8372A9592C6EF146FC /* Pods_ABank.framework */; };
+		8BB789648AAA97FBD2ABDB5C /* ABankWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A33A78B1CEF3BCA014ADAB92 /* ABankWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CD2534E9D2D5E4157C0CAAE1 /* WidgetFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66360CBB006C82F009088510 /* WidgetFormat.swift */; };
+		F818AA79D050DC5897C8DA59 /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF11176B698224CD1CE9A0E7 /* WidgetSnapshot.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		50C5AE89B5D3BFD07A501B10 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D4BDEA422EAF12D6001D244A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA431FCD459C315FFBF33100;
+			remoteInfo = ABankWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6ABFB1B6FAA27BBB6CEEF0E9 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8BB789648AAA97FBD2ABDB5C /* ABankWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		36BD6E51C8F134B2E099FE46 /* ABank.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = ABank.entitlements; sourceTree = "<group>"; };
 		41287A80D0E068ED4A2E34A2 /* Pods-ABank.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ABank.release.xcconfig"; path = "Target Support Files/Pods-ABank/Pods-ABank.release.xcconfig"; sourceTree = "<group>"; };
+		539320055EED194A82B66E02 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		66360CBB006C82F009088510 /* WidgetFormat.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetFormat.swift; path = ABank/Core/Widget/WidgetFormat.swift; sourceTree = SOURCE_ROOT; };
+		88903BDC54B78FB7F790385A /* WidgetLink.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetLink.swift; path = ABank/Core/Routing/WidgetLink.swift; sourceTree = SOURCE_ROOT; };
 		93782B8372A9592C6EF146FC /* Pods_ABank.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ABank.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2AB4B312F371F58361DC59C /* ABankWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = ABankWidget.entitlements; sourceTree = "<group>"; };
+		A33A78B1CEF3BCA014ADAB92 /* ABankWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ABankWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB0EEC70DFA9782F07A3D90E /* ABankWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ABankWidget.swift; sourceTree = "<group>"; };
 		C7000D724B79A5412398A23D /* Pods-ABank.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ABank.debug.xcconfig"; path = "Target Support Files/Pods-ABank/Pods-ABank.debug.xcconfig"; sourceTree = "<group>"; };
 		D4BDEA4A2EAF12D6001D244A /* ABank.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ABank.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DCB5BA9DBA583E7AD9FDE139 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EB31FD44B917207176F969A1 /* WidgetViews.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetViews.swift; sourceTree = "<group>"; };
+		FF11176B698224CD1CE9A0E7 /* WidgetSnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetSnapshot.swift; path = ABank/Core/Widget/WidgetSnapshot.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -47,13 +88,61 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FC1A1DB49945E29E75C38CAA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A74302EB3188910B42ECCF7 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2FB34E0D89789DD177556324 /* ABankWidget */ = {
+			isa = PBXGroup;
+			children = (
+				AB0EEC70DFA9782F07A3D90E /* ABankWidget.swift */,
+				EB31FD44B917207176F969A1 /* WidgetViews.swift */,
+				DCB5BA9DBA583E7AD9FDE139 /* Info.plist */,
+			);
+			name = ABankWidget;
+			path = ABankWidget;
+			sourceTree = "<group>";
+		};
+		7FE333C25C66A9F137719583 /* WidgetShared */ = {
+			isa = PBXGroup;
+			children = (
+				FF11176B698224CD1CE9A0E7 /* WidgetSnapshot.swift */,
+				66360CBB006C82F009088510 /* WidgetFormat.swift */,
+				88903BDC54B78FB7F790385A /* WidgetLink.swift */,
+			);
+			name = WidgetShared;
+			sourceTree = "<group>";
+		};
+		83E9BE1EB98AED79877B173E /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				539320055EED194A82B66E02 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		9262D2CF9E99E5DABE8F9C76 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				36BD6E51C8F134B2E099FE46 /* ABank.entitlements */,
+				A2AB4B312F371F58361DC59C /* ABankWidget.entitlements */,
+			);
+			name = Config;
+			path = Config;
+			sourceTree = "<group>";
+		};
 		9B52D21548C12181E162D4CF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				93782B8372A9592C6EF146FC /* Pods_ABank.framework */,
+				83E9BE1EB98AED79877B173E /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -65,6 +154,9 @@
 				D4BDEA4B2EAF12D6001D244A /* Products */,
 				FADD129C2228980FBCCFC033 /* Pods */,
 				9B52D21548C12181E162D4CF /* Frameworks */,
+				2FB34E0D89789DD177556324 /* ABankWidget */,
+				7FE333C25C66A9F137719583 /* WidgetShared */,
+				9262D2CF9E99E5DABE8F9C76 /* Config */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,6 +164,7 @@
 			isa = PBXGroup;
 			children = (
 				D4BDEA4A2EAF12D6001D244A /* ABank.app */,
+				A33A78B1CEF3BCA014ADAB92 /* ABankWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -88,6 +181,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AA431FCD459C315FFBF33100 /* ABankWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2612A75D9546620AFAAD13EF /* Build configuration list for PBXNativeTarget "ABankWidget" */;
+			buildPhases = (
+				0AE137B264F3FC64067CC727 /* Sources */,
+				FC1A1DB49945E29E75C38CAA /* Frameworks */,
+				3589E2958EFE6673F5C0B12A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ABankWidget;
+			productName = ABankWidget;
+			productReference = A33A78B1CEF3BCA014ADAB92 /* ABankWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		D4BDEA492EAF12D6001D244A /* ABank */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D4BDEA5D2EAF12D7001D244A /* Build configuration list for PBXNativeTarget "ABank" */;
@@ -97,10 +207,12 @@
 				D4BDEA472EAF12D6001D244A /* Frameworks */,
 				D4BDEA482EAF12D6001D244A /* Resources */,
 				DA86247CF795F88ABECB9E11 /* [CP] Embed Pods Frameworks */,
+				6ABFB1B6FAA27BBB6CEEF0E9 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D508E06E36E7CF24F5CF7E53 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D4BDEA4C2EAF12D6001D244A /* ABank */,
@@ -140,11 +252,19 @@
 			projectRoot = "";
 			targets = (
 				D4BDEA492EAF12D6001D244A /* ABank */,
+				AA431FCD459C315FFBF33100 /* ABankWidget */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3589E2958EFE6673F5C0B12A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D4BDEA482EAF12D6001D244A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -201,6 +321,18 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0AE137B264F3FC64067CC727 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				330D77ABB9CFFDBA93485C7E /* ABankWidget.swift in Sources */,
+				35ED184CFF12C7CD96905E2C /* WidgetViews.swift in Sources */,
+				F818AA79D050DC5897C8DA59 /* WidgetSnapshot.swift in Sources */,
+				CD2534E9D2D5E4157C0CAAE1 /* WidgetFormat.swift in Sources */,
+				3F413A5225AF5D75286E9A4D /* WidgetLink.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D4BDEA462EAF12D6001D244A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -210,13 +342,49 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		D508E06E36E7CF24F5CF7E53 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ABankWidget;
+			target = AA431FCD459C315FFBF33100 /* ABankWidget */;
+			targetProxy = 50C5AE89B5D3BFD07A501B10 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		CC44004A7044E99A62E67327 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = Config/ABankWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DX4MURAK7P;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ABankWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.axdxa.AtlasBarKit.ABank.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		D4BDEA5E2EAF12D7001D244A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C7000D724B79A5412398A23D /* Pods-ABank.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Config/ABank.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DX4MURAK7P;
@@ -253,6 +421,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Config/ABank.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DX4MURAK7P;
@@ -404,9 +573,45 @@
 			};
 			name = Release;
 		};
+		DE0849A0A657E24D9EC5C8CE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = Config/ABankWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DX4MURAK7P;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ABankWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.axdxa.AtlasBarKit.ABank.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2612A75D9546620AFAAD13EF /* Build configuration list for PBXNativeTarget "ABankWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE0849A0A657E24D9EC5C8CE /* Release */,
+				CC44004A7044E99A62E67327 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		D4BDEA452EAF12D6001D244A /* Build configuration list for PBXProject "ABank" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
