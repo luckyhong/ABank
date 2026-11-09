@@ -21,8 +21,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = mainTabBarController
         window?.makeKeyAndVisible()
 
+        // 快捷操作优先于链接；两者共用 pendingRoute，取出即清空，只打开一次。
         if let item = connectionOptions.shortcutItem {
             pendingRoute = QuickAction.route(forType: item.type)
+        } else if let url = connectionOptions.urlContexts.first?.url {
+            pendingRoute = WidgetLink.route(for: url)
+        }
+        if pendingRoute != nil {
             DispatchQueue.main.async { [weak self] in
                 guard let self, let route = self.pendingRoute else { return }
                 self.pendingRoute = nil
@@ -40,6 +45,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         tabBar.openFromShortcut(route)
         completionHandler(true)
+    }
+
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let url = URLContexts.first?.url, let route = WidgetLink.route(for: url),
+              let tabBar = window?.rootViewController as? MainTabBarController else { return }
+        tabBar.openFromShortcut(route)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

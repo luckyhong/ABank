@@ -2,6 +2,7 @@
 
 先核对实际 Git 状态，再读取对应任务。历史叙述不是当前代码证明。
 
+- [m10b-widget](tasks/m10b-widget.md)
 - [m10a-shortcuts](tasks/m10a-shortcuts.md)
 - [m9b-loan](tasks/m9b-loan.md)
 - [m9a-account-settings](tasks/m9a-account-settings.md)

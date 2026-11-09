@@ -19,6 +19,17 @@
 			</array>
 		</dict>
 	</dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.axdxa.AtlasBarKit.ABank.widget</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>abank</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIApplicationShortcutItems</key>
 	<array>
 		<dict>

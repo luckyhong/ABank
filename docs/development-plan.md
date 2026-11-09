@@ -51,7 +51,7 @@
 | M7 | 已完成 | 财富子页：先完成一种模拟理财产品的列表/筛选/详情、风险测评、购买及持仓，再扩存款和基金 | 依赖账本及订单基础；现金与持仓转换保持资产汇总一致 |
 | M8 | 已完成 | 先手机充值，再水电缴费：输入、确认、结果、记录与订单 | 依赖 M5/M6；模拟户号/账单，付款账户、流水和订单一致 |
 | M9 | 已完成（M9a、M9b） | 账户别名/分享/模拟权限；贷款任务/进度/证明/提前还款结果 | 复用已有详情；提前还款成功才更新余额、本金和记录 |
-| M10 | 进行中（M10a 已完成，M10b 未开始） | 桌面快捷操作、模拟余额 Widget、演示扫码、本地关键词助手 | 最后实施；只跳转已完成页面，组件读取共享模拟快照 |
+| M10 | 已完成（M10a、M10b） | 桌面快捷操作、模拟余额 Widget、演示扫码、本地关键词助手 | 最后实施；只跳转已完成页面，组件读取共享模拟快照 |
 
 阶段内部按“数据能力 → 页面与路由 → 资源与视觉 → 验证”推进。M7/M8 首轮只做指定业务，再扩同类功能，不铺开大量占位页。
 
@@ -313,6 +313,17 @@ M9a 已合并到本地 main（未推送），分支已删除；M9b 从 main 新�
 - 模拟器（iPhone 16 Pro）：首页扫一扫→演示扫码页；收款码识别→结果卡片（收款人脱敏）→前往→转账表单预填且金额为空；客服→助手，“提前还款”标签得到回答与贷款卡片并可跳转；长按图标显示 4 个快捷操作；从后台在贷款页点“在线助手”、冷启动点“扫一扫”均正确打开。
 - 未验证：网点码/缴费码/无效码界面、转账与收支明细快捷操作、模态页弹出时点击快捷操作、助手敏感提示与键盘上移界面、320pt 宽度；视觉待截图校准。
 
-#### 下一会话：M10b 模拟余额 Widget
+### M10b 实施记录（2026-11-08）
 
-M10a 已合并到本地 main（`04439c6 merge: M10a 快捷操作、演示扫码与关键词助手`，合并后检查与构建通过），未推送，分支已删除。M10b 新增 Widget 扩展 target 与 App Group，让小组件读取共享的模拟余额快照；只展示模拟数据，点击跳转已完成页面。需改工程配置与签名，单独开分支。
+- 分支 `feat/m10b-widget`，起点 `3cebcde`（main）。设计与计划见 `docs/superpowers/specs/2026-11-08-m10b-balance-widget-design.md`、`docs/superpowers/plans/2026-11-08-m10b-balance-widget.md`。
+- 数据：`WidgetSnapshot`（余额、本月收入/支出、月份、更新时间，不含卡号姓名）与 `WidgetSnapshotStore` 读写 App Group `group.com.axdxa.AtlasBarKit.ABank`；`FinanceLedgerStore.widgetSnapshot()` 由默认借记卡与当月汇总构建；`WidgetSnapshotWriter` 在启动和账本变化后写入，内容不变不重复写、不重复刷新 Widget。
+- 链接：`abank://widget/<account|scan|transfer|incomeExpense>`（区分大小写，带 query、fragment、多段路径一律忽略），由 `SceneDelegate` 冷启动/运行中处理并复用 M10a 的 `openFromShortcut`。AppRoute 映射在仅 App 使用的 `WidgetLink+Route.swift`，共享文件不依赖 AppRoute。
+- 工程：新增 `ABankWidget` 扩展 target（bundle id `com.axdxa.AtlasBarKit.ABank.widget`，iOS 15.6，小号/中号，显示名“模拟余额”），App 嵌入该扩展；entitlements 放在 `Config/`（避免被同步组当作资源）；共享源文件 `WidgetSnapshot.swift`、`WidgetFormat.swift`、`WidgetLink.swift` 同属两个 target。
+- 验证：`scripts/check_banking_data.sh` 的 `entry` 组新增快照、存储、构建、链接、URL scheme、写入去重、格式化检查，11 组全部通过；常规构建与带 ad-hoc 签名的模拟器构建均通过，`ABank.app/PlugIns/ABankWidget.appex` 存在。
+- 模拟器（iPhone 16 Pro，ad-hoc 签名构建）：App 启动后在共享 App Group 里写出快照（余额 1,418.66、本月支出 101.00，与账本一致）；`xcrun simctl openurl abank://widget/incomeExpense` 打开收支页，系统识别 `abank` scheme。截图 `artifacts/abc-resources/verification/m10b-*.png`（被 Git 忽略）。
+- 终审：opus 整分支审查无 Critical；跨月后仍显示上月收支（Important）已修复；App Group 签名风险（真机需团队能供应 App Group，否则 App 本身签名失败）已记录在任务文档。
+- 未验证：Widget 本身的界面。模拟器的小组件库连系统自带小组件也为空，无法添加；小号/中号布局、点击入口、转账后 Widget 刷新均未在界面上验证。真机需在开发者账号 DX4MURAK7P 下注册 App Group（Xcode 自动签名通常会自动完成）并实测；视觉待截图校准。
+
+#### 后续
+
+M10 全部完成。计划内阶段已全部实施；后续由用户决定新增范围。
