@@ -11,6 +11,9 @@ import Foundation
         assistantSensitive()
         assistantFallback()
         quickActions()
+        widgetSnapshotRoundTrip()
+        widgetSnapshotStore()
+        try widgetSnapshotBuild()
         print("Entry checks passed")
     }
 
@@ -99,5 +102,61 @@ import Foundation
         let items = plist["UIApplicationShortcutItems"] as! [[String: Any]]
         let types = items.compactMap { $0["UIApplicationShortcutItemType"] as? String }
         precondition(items.count == 4 && types.count == 4 && types.allSatisfy { QuickAction.route(forType: $0) != nil })
+    }
+
+    static func widgetSnapshotRoundTrip() {
+        let s = WidgetSnapshot(balanceInCents: 151_966, monthIncomeInCents: 0, monthExpenseInCents: 12_300, month: "2026-11", updatedAt: "2026-11-08 20:00:00")
+        precondition(WidgetSnapshot.decode(s.encoded()) == s)
+        precondition(WidgetSnapshot.decode(nil) == nil && WidgetSnapshot.decode(Data()) == nil)
+        precondition(WidgetSnapshot.decode(Data("{\"balanceInCents\":1}".utf8)) == nil)
+        precondition(WidgetSnapshot.decode(Data("not json".utf8)) == nil)
+        let keys = Set((try! JSONSerialization.jsonObject(with: s.encoded()) as! [String: Any]).keys)
+        precondition(keys == ["balanceInCents", "monthIncomeInCents", "monthExpenseInCents", "month", "updatedAt"])
+    }
+
+    static func widgetSnapshotStore() {
+        let name = "abank.test.widget.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: name)!
+        defer { defaults.removePersistentDomain(forName: name) }
+        let store = WidgetSnapshotStore(defaults: defaults)
+        precondition(store.load() == nil)
+        let a = WidgetSnapshot(balanceInCents: 100, monthIncomeInCents: 1, monthExpenseInCents: 2, month: "2026-11", updatedAt: "x")
+        store.save(a); precondition(store.load() == a)
+        var b = a; b.balanceInCents = 200
+        store.save(b); precondition(store.load() == b)
+        precondition(WidgetSnapshotStore(defaults: nil).load() == nil)
+        WidgetSnapshotStore(defaults: nil).save(a)
+    }
+
+    @MainActor static func withStore(_ body: (FinanceLedgerStore, UserDefaults) throws -> Void) rethrows {
+        let suite = "ABank.EntryChecks." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let dates = BankingDateContext(now: { ISO8601DateFormatter().date(from: "2026-11-08T02:00:00Z")! })
+        let store = FinanceLedgerStore(defaults: defaults, dates: dates)
+        _ = store.load()
+        try body(store, defaults)
+    }
+
+    @MainActor static func widgetSnapshotBuild() throws {
+        try withStore { store, _ in
+            let snap = store.widgetSnapshot()!
+            let account = store.account(id: FinanceLedgerRecord.defaultAccountId)!
+            precondition(snap.balanceInCents == TransferMoney.cents(from: account.balance)!)
+            let flow = store.analysis(query: IncomeExpenseQuery(dateMode: .month(store.dates.currentMonth))).summary
+            precondition(snap.monthIncomeInCents == TransferMoney.cents(from: flow.income)!)
+            precondition(snap.monthExpenseInCents == TransferMoney.cents(from: flow.expense)!)
+            precondition(snap.month == "2026-11" && snap.updatedAt.count == 19, snap.month)
+            let draft = TransferDraft(payerAccountID: FinanceLedgerRecord.defaultAccountId, method: .account, recipientName: "演示客户",
+                                      bankName: "中国建设银行", destination: "6217000000000593", amountInCents: 100, note: "")
+            _ = try store.submitTransfer(draft: draft, requestID: "w1")
+            precondition(store.widgetSnapshot()!.balanceInCents == snap.balanceInCents - 100)
+            // 没有默认账户时不生成快照
+            var record = store.load()
+            let old = record.accounts[0]
+            record.accounts[0] = LedgerAccount(id: "other", tailNumber: old.tailNumber, currency: old.currency, balance: old.balance, openingBalance: old.openingBalance)
+            precondition(store.save(record))
+            precondition(store.widgetSnapshot() == nil)
+        }
     }
 }
