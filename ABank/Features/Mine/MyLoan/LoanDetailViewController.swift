@@ -168,8 +168,8 @@ final class LoanDetailViewController: BaseViewController {
             progress: progress,
             ringColor: ringColor
         )
-        totalAmountLabel.text = contract.contractLimit.abankPlainAmountString()
-        usedAmountLabel.text = contract.usedLimit.abankPlainAmountString()
+        totalAmountLabel.text = contract.hasOriginalContractDetails ? contract.contractLimit.abankPlainAmountString() : "—"
+        usedAmountLabel.text = contract.hasOriginalContractDetails ? contract.usedLimit.abankPlainAmountString() : "—"
 
         infoStack.arrangedSubviews.forEach {
             infoStack.removeArrangedSubview($0)
@@ -178,7 +178,7 @@ final class LoanDetailViewController: BaseViewController {
 
         let rows: [(String, String, Bool)] = [
             ("贷款发放日", contract.disbursementDateText, false),
-            ("贷款金额", "\(contract.loanAmount.abankPlainAmountString())元", false),
+            ("贷款金额", contract.hasOriginalContractDetails ? "\(contract.loanAmount.abankPlainAmountString())元" : "—", false),
             ("未还本金", "\(contract.unpaidPrincipal.abankPlainAmountString())元", false),
             ("贷款年化利率", String(format: "%.1f%%", contract.annualRatePercent), true),
             ("利率定价方式", contract.pricingMethod, false),

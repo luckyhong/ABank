@@ -2,6 +2,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 sources=(
+  ABank/Data/BankingDemoFixture.generated.swift
+  ABank/Data/BankingDemoMigration.swift
   ABank/Shared/Utilities/BankingDateContext.swift
   ABank/Features/Transfer/Models/TransferSimulationModels.swift
   ABank/Features/Mine/Models/FinanceLedgerModels.swift
@@ -58,8 +60,11 @@ if grep -rn '借记卡 尾号\\(' ABank; then
   exit 1
 fi
 echo "Card label checks passed"
-for check in banking transfer insights feature security branch benefits wealth payment account loan entry; do
-  if [[ $check == feature ]]; then
+python3 scripts/generate_ledger_fixture.py --check
+for check in fixture banking transfer insights feature security branch benefits wealth payment account loan entry; do
+  if [[ $check == fixture ]]; then
+    check_file=scripts/check_ledger_fixture.swift
+  elif [[ $check == feature ]]; then
     check_file=scripts/check_feature_catalog.swift
   elif [[ $check == security ]]; then
     check_file=scripts/check_security_settings.swift

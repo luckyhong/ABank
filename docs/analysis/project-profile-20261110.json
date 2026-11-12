@@ -1,0 +1,515 @@
+{
+  "schema_version": 1,
+  "project": {
+    "name": "ABank",
+    "root": "/Users/hanjihong/workspace/projects/ABank",
+    "analyzed_at": "2026-11-10T09:20:41.146Z",
+    "platforms": [
+      {
+        "kind": "ios",
+        "tech_stack": [
+          "Swift 5",
+          "UIKit",
+          "SnapKit 5.6.0",
+          "CocoaPods",
+          "SwiftUI / WidgetKit",
+          "UserDefaults / Codable"
+        ],
+        "evidence": [
+          {
+            "path": "ABank.xcodeproj/",
+            "reason": "manifest signal: xcode"
+          },
+          {
+            "path": "ABank.xcodeproj/project.xcworkspace/",
+            "reason": "manifest signal: xcode"
+          },
+          {
+            "path": "ABank.xcworkspace/",
+            "reason": "manifest signal: xcode"
+          },
+          {
+            "path": "Podfile",
+            "reason": "manifest signal: cocoapods"
+          }
+        ]
+      }
+    ],
+    "summary": "ABank 是使用 UIKit、SnapKit 和本地模拟数据的 iOS 银行界面学习项目。五个主 Tab 连接账户、转账、账单、安全、网点、权益、理财、缴费与贷款流程；资讯独立读取公开 RSS，SwiftUI Widget 只读 App Group 模拟快照。业务按目录组织，主要银行数据由共享根账本维护。",
+    "repository": {
+      "revision": "ea8a238d8e09c593f76a8982921f7efd8f9c9806"
+    }
+  },
+  "modules": [
+    {
+      "id": "shell",
+      "name": "应用与导航容器",
+      "kind": "infrastructure",
+      "path": "ABank/Core",
+      "description": "五个 Tab、独立导航栈和通用页面刷新生命周期。",
+      "sources": [
+        {
+          "path": "ABank/Core/MainTabBarController.swift",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "id": "routing",
+      "name": "统一路由",
+      "kind": "infrastructure",
+      "path": "ABank/Core/Routing",
+      "description": "类型化 AppRoute、功能路由去重、快捷操作及 Widget 链接接入。",
+      "sources": [
+        {
+          "path": "ABank/Core/Routing/AppRouter.swift",
+          "line": 35
+        }
+      ]
+    },
+    {
+      "id": "design",
+      "name": "设计系统",
+      "kind": "shared",
+      "path": "ABank/Shared/DesignSystem",
+      "description": "复用主题颜色、字体、间距和圆角；主 App 使用 UIKit 设计常量。",
+      "sources": [
+        {
+          "path": "ABank/Shared/DesignSystem/Color.swift",
+          "line": 10
+        }
+      ]
+    },
+    {
+      "id": "dates",
+      "name": "业务日期上下文",
+      "kind": "shared",
+      "path": "ABank/Shared/Utilities",
+      "description": "统一业务日历及时钟注入，页面在北京时间跨日后重新读取数据。",
+      "sources": [
+        {
+          "path": "ABank/Core/Base/BankingDataViewController.swift",
+          "line": 36
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "name": "展示假数据",
+      "kind": "shared",
+      "path": "ABank/Data",
+      "description": "为各首页提供静态展示模型及功能入口，动态账务来自账本。",
+      "sources": [
+        {
+          "path": "ABank/Data/MockDataProvider.swift",
+          "line": 19
+        }
+      ]
+    },
+    {
+      "id": "home",
+      "name": "首页",
+      "kind": "business",
+      "path": "ABank/Features/Home",
+      "description": "搜索、快捷功能、常用功能和网点入口，部分营销内容仍仅显示提示。",
+      "sources": [
+        {
+          "path": "ABank/Features/Home/HomeViewController.swift",
+          "line": 244
+        }
+      ]
+    },
+    {
+      "id": "finance",
+      "name": "财富首页",
+      "kind": "business",
+      "path": "ABank/Features/Finance",
+      "description": "财富内容展示和产品入口；部分搜索、资讯及专区按钮仍为提示。",
+      "sources": [
+        {
+          "path": "ABank/Features/Finance/FinanceViewController.swift",
+          "line": 184
+        }
+      ]
+    },
+    {
+      "id": "life",
+      "name": "生活首页",
+      "kind": "business",
+      "path": "ABank/Features/Life",
+      "description": "城市、缴费、充值、权益、订单和卡券入口，部分活动内容为提示。",
+      "sources": [
+        {
+          "path": "ABank/Features/Life/LifeViewController.swift",
+          "line": 160
+        }
+      ]
+    },
+    {
+      "id": "mine",
+      "name": "我的与账务分析",
+      "kind": "business",
+      "path": "ABank/Features/Mine",
+      "description": "个人资料、资产负债、收支、统计和贷款入口，账务页面读取共享账本。",
+      "sources": [
+        {
+          "path": "ABank/Features/Mine/MineViewController.swift",
+          "line": 180
+        }
+      ]
+    },
+    {
+      "id": "ledger",
+      "name": "共享模拟账本",
+      "kind": "shared",
+      "path": "ABank/Features/Mine/FinanceLedger",
+      "description": "主 actor 管理根账本，统一持久化账户、流水、转账及新增订单；通过通知刷新订阅页面。物理位置仍在 Mine 内。",
+      "sources": [
+        {
+          "path": "ABank/Features/Mine/FinanceLedger/FinanceLedgerStore.swift",
+          "line": 12
+        }
+      ]
+    },
+    {
+      "id": "account",
+      "name": "账户",
+      "kind": "business",
+      "path": "ABank/Features/MyAccount",
+      "description": "账户卡片、借记卡详情、交易查询、别名、脱敏分享及模拟权限。",
+      "sources": [
+        {
+          "path": "ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+AccountSettings.swift",
+          "line": 15
+        }
+      ]
+    },
+    {
+      "id": "transfer",
+      "name": "转账",
+      "kind": "business",
+      "path": "ABank/Features/Transfer",
+      "description": "账号与手机号转账、确认结果、记录和回单；主流程按请求 ID 去重并校验最新余额与限额。",
+      "sources": [
+        {
+          "path": "ABank/Features/Mine/FinanceLedger/FinanceLedgerStore.swift",
+          "line": 164
+        }
+      ]
+    },
+    {
+      "id": "catalog",
+      "name": "功能目录",
+      "kind": "business",
+      "path": "ABank/Features/AllFeatures",
+      "description": "71 项功能定义，35 项标为可用、36 项为规划；支持搜索、常用编辑与最近使用。",
+      "sources": [
+        {
+          "path": "ABank/Features/AllFeatures/Models/FeatureCatalog.swift",
+          "line": 106
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "name": "安全设置",
+      "kind": "business",
+      "path": "ABank/Features/Security",
+      "description": "本地登录、设备、支付、转账限额和金额显隐设置；提交成功后更新内存和通知。",
+      "sources": [
+        {
+          "path": "ABank/Features/Security/SecuritySettingsStore.swift",
+          "line": 124
+        }
+      ]
+    },
+    {
+      "id": "branch",
+      "name": "网点服务",
+      "kind": "business",
+      "path": "ABank/Features/BranchService",
+      "description": "本地城市、网点、营业时间、取号预约与历史。",
+      "sources": [
+        {
+          "path": "ABank/Features/BranchService/BranchServiceStore.swift",
+          "line": 66
+        }
+      ]
+    },
+    {
+      "id": "benefits",
+      "name": "权益与订单",
+      "kind": "business",
+      "path": "ABank/Features/Benefits",
+      "description": "积分、小豆、领取兑换和卡券；订单页合并兑换与充值缴费记录。",
+      "sources": [
+        {
+          "path": "ABank/Features/Benefits/OrdersViewController.swift",
+          "line": 38
+        }
+      ]
+    },
+    {
+      "id": "wealth",
+      "name": "模拟理财",
+      "kind": "business",
+      "path": "ABank/Features/WealthProduct",
+      "description": "产品、风险测评、购买赎回与持仓；订单和账户流水写入同一根账本。",
+      "sources": [
+        {
+          "path": "ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Wealth.swift",
+          "line": 71
+        }
+      ]
+    },
+    {
+      "id": "payment",
+      "name": "充值与缴费",
+      "kind": "business",
+      "path": "ABank/Features/Payment",
+      "description": "手机充值、优惠券、模拟账单及订单。账务同份保存；跨权益 Store 采用失败补偿。",
+      "sources": [
+        {
+          "path": "ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Payment.swift",
+          "line": 46
+        }
+      ]
+    },
+    {
+      "id": "loan",
+      "name": "模拟贷款",
+      "kind": "business",
+      "path": "ABank/Features/Mine/MyLoan",
+      "description": "任务、进度、证明、还款计划和提前还款；提交校验最新确认快照。",
+      "sources": [
+        {
+          "path": "ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Loan.swift",
+          "line": 100
+        }
+      ]
+    },
+    {
+      "id": "news",
+      "name": "公开资讯",
+      "kind": "business",
+      "path": "ABank/Features/News",
+      "description": "actor 管理公开 RSS 并行读取、分源缓存和失败降级；原文由系统浏览器组件打开。",
+      "sources": [
+        {
+          "path": "ABank/Features/News/Data/NewsRepository.swift",
+          "line": 34
+        }
+      ]
+    },
+    {
+      "id": "scan",
+      "name": "演示扫码",
+      "kind": "business",
+      "path": "ABank/Features/Scan",
+      "description": "固定示例码解析到收款人、取号或缴费页面；为本地演示能力。",
+      "sources": [
+        {
+          "path": "ABank/Features/Scan/Models/ScanCode.swift",
+          "line": 16
+        }
+      ]
+    },
+    {
+      "id": "assistant",
+      "name": "本地助手",
+      "kind": "business",
+      "path": "ABank/Features/Assistant",
+      "description": "关键词规则与本地功能搜索，最多返回三个已可用入口。",
+      "sources": [
+        {
+          "path": "ABank/Features/Assistant/Models/AssistantEngine.swift",
+          "line": 61
+        }
+      ]
+    },
+    {
+      "id": "widgetSnapshot",
+      "name": "Widget 快照",
+      "kind": "shared",
+      "path": "ABank/Core/Widget",
+      "description": "App 监听账本和回到前台，将无姓名卡号的金额快照写到 App Group 并请求刷新。",
+      "sources": [
+        {
+          "path": "ABank/Core/Widget/WidgetSnapshotWriter.swift",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "id": "widget",
+      "name": "余额 Widget 扩展",
+      "kind": "business",
+      "path": "ABankWidget",
+      "description": "独立 SwiftUI/WidgetKit target，小号及中号读取 App Group 快照，以白名单链接导航回 App。",
+      "sources": [
+        {
+          "path": "ABankWidget/ABankWidget.swift",
+          "line": 23
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "from": "shell",
+      "to": "routing",
+      "kind": "calls",
+      "label": "外部入口转为统一页面路由",
+      "evidence": [
+        {
+          "path": "ABank/Core/MainTabBarController.swift",
+          "line": 26
+        }
+      ]
+    },
+    {
+      "from": "routing",
+      "to": "catalog",
+      "kind": "reads_from",
+      "label": "功能状态解析",
+      "evidence": [
+        {
+          "path": "ABank/Core/Routing/AppRouter.swift",
+          "line": 51
+        }
+      ]
+    },
+    {
+      "from": "home",
+      "to": "routing",
+      "kind": "calls",
+      "label": "首页搜索与功能跳转",
+      "evidence": [
+        {
+          "path": "ABank/Features/Home/HomeViewController.swift",
+          "line": 247
+        }
+      ]
+    },
+    {
+      "from": "finance",
+      "to": "routing",
+      "kind": "calls",
+      "label": "产品详情入口",
+      "evidence": [
+        {
+          "path": "ABank/Features/Finance/FinanceViewController.swift",
+          "line": 218
+        }
+      ]
+    },
+    {
+      "from": "life",
+      "to": "routing",
+      "kind": "calls",
+      "label": "订单入口",
+      "evidence": [
+        {
+          "path": "ABank/Features/Life/LifeViewController.swift",
+          "line": 172
+        }
+      ]
+    },
+    {
+      "from": "routing",
+      "to": "ledger",
+      "kind": "reads_from",
+      "label": "收款人转账草稿使用账本账户",
+      "evidence": [
+        {
+          "path": "ABank/Core/Routing/AppRouter.swift",
+          "line": 77
+        }
+      ]
+    },
+    {
+      "from": "ledger",
+      "to": "security",
+      "kind": "reads_from",
+      "label": "读取当前转账限额",
+      "evidence": [
+        {
+          "path": "ABank/Features/Mine/FinanceLedger/FinanceLedgerStore.swift",
+          "line": 29
+        }
+      ]
+    },
+    {
+      "from": "ledger",
+      "to": "benefits",
+      "kind": "calls",
+      "label": "使用话费券",
+      "evidence": [
+        {
+          "path": "ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Payment.swift",
+          "line": 56
+        }
+      ]
+    },
+    {
+      "from": "benefits",
+      "to": "ledger",
+      "kind": "reads_from",
+      "label": "合并充值缴费订单",
+      "evidence": [
+        {
+          "path": "ABank/Features/Benefits/OrdersViewController.swift",
+          "line": 39
+        }
+      ]
+    },
+    {
+      "from": "scan",
+      "to": "routing",
+      "kind": "depends_on",
+      "label": "示例解析为 AppRoute",
+      "evidence": [
+        {
+          "path": "ABank/Features/Scan/Models/ScanCode.swift",
+          "line": 19
+        }
+      ]
+    },
+    {
+      "from": "assistant",
+      "to": "catalog",
+      "kind": "calls",
+      "label": "本地功能搜索兜底",
+      "evidence": [
+        {
+          "path": "ABank/Features/Assistant/Models/AssistantEngine.swift",
+          "line": 78
+        }
+      ]
+    },
+    {
+      "from": "widgetSnapshot",
+      "to": "ledger",
+      "kind": "reads_from",
+      "label": "构建快照",
+      "evidence": [
+        {
+          "path": "ABank/Core/Widget/WidgetSnapshotWriter.swift",
+          "line": 42
+        }
+      ]
+    },
+    {
+      "from": "widget",
+      "to": "widgetSnapshot",
+      "kind": "reads_from",
+      "label": "扩展读取共享快照",
+      "evidence": [
+        {
+          "path": "ABankWidget/ABankWidget.swift",
+          "line": 28
+        }
+      ]
+    }
+  ]
+}

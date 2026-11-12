@@ -16,8 +16,6 @@ final class AccountDetailQueryTransactionCell: UITableViewCell {
     private let arrowView = UIImageView()
     private let separator = UIView()
 
-    private let incomeColor = UIColor(red: 245 / 255, green: 166 / 255, blue: 35 / 255, alpha: 1)
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -30,7 +28,7 @@ final class AccountDetailQueryTransactionCell: UITableViewCell {
         timeLabel.text = transaction.datetimeText
 
         amountLabel.text = transaction.signedAmountText
-        amountLabel.textColor = transaction.direction == .income ? incomeColor : .abankTextPrimary
+        amountLabel.textColor = transaction.direction == .income ? .abankIncomeAmount : .abankTextPrimary
 
         balanceLabel.text = "余额： \(transaction.balanceAfter.abankPlainAmountString())"
         separator.isHidden = isLast

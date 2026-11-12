@@ -60,7 +60,13 @@ extension FinanceLedgerStore {
                 record: record
             )
         }
-        return (recorded + Self.seededLoanApplications).sorted { $0.time > $1.time }
+        let knowsOriginalHousingContract = load().loanContracts.contains {
+            $0.id == FinanceLedgerRecord.defaultLoanId && $0.hasOriginalContractDetails
+        }
+        let applications = Self.seededLoanApplications.filter {
+            $0.id != "apply_housing_2017" || knowsOriginalHousingContract
+        }
+        return (recorded + applications).sorted { $0.time > $1.time }
     }
 
     func loanTasks() -> [LoanTask] {
@@ -127,6 +133,10 @@ extension FinanceLedgerStore {
         root.loanContracts[index].installmentAmount = TransferMoney.amount(preview.installmentAfter)
         root.loanContracts[index].remainingTerms = preview.termsAfter
         root.loanContracts[index].maturityDateText = LoanAmortization.maturityText(preview.maturityAfter)
+        if contract.finalDueDate != nil {
+            root.loanContracts[index].finalDueDate = preview.maturityAfter
+            root.loanContracts[index].expiryDate = preview.maturityAfter
+        }
         root.transactions.append(LedgerTransaction(
             id: "loan_" + numbers.id, accountId: account.id, date: dates.string(from: now),
             time: dates.string(from: now, format: "HH:mm:ss"), title: "提前还款-" + contract.name, direction: .expense,

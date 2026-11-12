@@ -62,7 +62,7 @@ final class AccountDetailQueryDetailViewController: BankingDataViewController {
         amountTitleLabel.textColor = .abankTextSecondary
 
         amountValueLabel.font = .systemFont(ofSize: 28, weight: .semibold)
-        amountValueLabel.textColor = .abankTextPrimary
+        amountValueLabel.textColor = .abankExpenseAmount
         amountValueLabel.textAlignment = .right
 
         sectionGap.backgroundColor = UIColor(red: 245 / 255, green: 245 / 255, blue: 245 / 255, alpha: 1)
@@ -128,6 +128,7 @@ final class AccountDetailQueryDetailViewController: BankingDataViewController {
 
     private func applyTransaction() {
         amountValueLabel.text = transaction.signedAmountText
+        amountValueLabel.textColor = transaction.direction == .income ? .abankIncomeAmount : .abankExpenseAmount
 
         let values = [
             transaction.datetimeText,

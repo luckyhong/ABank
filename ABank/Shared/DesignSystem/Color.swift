@@ -32,6 +32,10 @@ extension UIColor {
     static let abankTextTertiary = UIColor(red: 153 / 255, green: 153 / 255, blue: 153 / 255, alpha: 1)
     /// 大额金额展示色（略浅于主文字，避免过粗过黑）
     static let abankAmount = UIColor(red: 88 / 255, green: 88 / 255, blue: 88 / 255, alpha: 1)
+    /// 明细详情支出金额：比通用金额灰色略深。
+    static let abankExpenseAmount = UIColor(red: 80 / 255, green: 80 / 255, blue: 80 / 255, alpha: 1)
+    /// 明细收入金额：与参考页橙黄色及明细列表保持一致。
+    static let abankIncomeAmount = UIColor(red: 245 / 255, green: 166 / 255, blue: 35 / 255, alpha: 1)
 
     // MARK: - 功能色
     static let abankSuccess = UIColor(red: 0 / 255, green: 179 / 255, blue: 102 / 255, alpha: 1)

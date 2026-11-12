@@ -306,7 +306,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
     private func bindActions() {
         includeRow.onToggle = { [weak self] isOn in
             guard let self else { return }
-            FinanceLedgerStore.shared.updateTransactionDetail(id: self.transactionId, includeInFlow: isOn)
+            self.finishLedgerEdit(FinanceLedgerStore.shared.updateTransactionDetail(id: self.transactionId, includeInFlow: isOn))
         }
         categoryRow.onTap = { [weak self] in self?.showCategoryPicker() }
         ledgerRow.onTap = { [weak self] in self?.showLedgerPicker() }
@@ -377,7 +377,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         let sheet = IncomeExpenseOptionPickerSheet()
         sheet.onSelect = { [weak self] id in
             guard let self else { return }
-            FinanceLedgerStore.shared.updateTransactionDetail(id: self.transactionId, categoryId: id)
+            self.finishLedgerEdit(FinanceLedgerStore.shared.updateTransactionDetail(id: self.transactionId, categoryId: id))
             self.activeSheet = nil
         }
         sheet.onCancel = { [weak self] in self?.activeSheet = nil }
@@ -395,7 +395,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         let sheet = IncomeExpenseOptionPickerSheet()
         sheet.onSelect = { [weak self] id in
             guard let self else { return }
-            FinanceLedgerStore.shared.updateTransactionLedger(id: self.transactionId, ledgerId: id)
+            self.finishLedgerEdit(FinanceLedgerStore.shared.updateTransactionLedger(id: self.transactionId, ledgerId: id))
             self.activeSheet = nil
         }
         sheet.onCancel = { [weak self] in self?.activeSheet = nil }
@@ -429,8 +429,14 @@ final class IncomeExpenseDetailViewController: BaseViewController {
     @objc private func noteEditingEnded() {
         let text = noteField.text ?? ""
         if text != transaction.note {
-            FinanceLedgerStore.shared.updateTransactionDetail(id: transactionId, note: text)
+            finishLedgerEdit(FinanceLedgerStore.shared.updateTransactionDetail(id: transactionId, note: text))
         }
+    }
+
+    private func finishLedgerEdit(_ saved: Bool) {
+        guard !saved else { return }
+        reloadTransaction()
+        showToast("账单保存失败，请稍后重试")
     }
 
     @objc private func endEditingTap() {

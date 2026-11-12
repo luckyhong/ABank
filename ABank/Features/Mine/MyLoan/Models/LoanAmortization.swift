@@ -42,7 +42,7 @@ enum LoanAmortization {
 
     static func schedule(principalInCents: Int64, installmentInCents: Int64, terms: Int, annualPercent: Double,
                          firstPeriod: Int, firstDueDate: String, contractNumber: String,
-                         dates: BankingDateContext) -> [LoanRepaymentPlanItem] {
+                         dates: BankingDateContext, finalDueDate: String? = nil) -> [LoanRepaymentPlanItem] {
         guard terms > 0, let first = dates.date(from: firstDueDate) else { return [] }
         var remaining = principalInCents
         var items: [LoanRepaymentPlanItem] = []
@@ -50,7 +50,10 @@ enum LoanAmortization {
             let interest = interest(principalInCents: remaining, annualPercent: annualPercent)
             let principal = index == terms - 1 ? remaining : min(remaining, installmentInCents - interest)
             remaining -= principal
-            let date = dates.calendar.date(byAdding: .month, value: index, to: first) ?? first
+            var date = dates.calendar.date(byAdding: .month, value: index, to: first) ?? first
+            if index == terms - 1, let finalDueDate, let end = dates.date(from: finalDueDate), end < date {
+                date = end
+            }
             let period = firstPeriod + index
             items.append(LoanRepaymentPlanItem(
                 id: "plan_\(period)", contractNumber: contractNumber, period: period,
@@ -99,19 +102,24 @@ enum LoanAmortization {
             termsAfter = termsBefore
             installmentAfter = self.installment(principalInCents: principalAfter, terms: termsAfter, annualPercent: rate)
         }
+        let maturityBefore = contract.finalDueDate ?? maturityDate(firstDueDate: contract.nextDueDate, terms: termsBefore, dates: dates)
+        let maturityAfter = termsAfter == termsBefore ? maturityBefore
+            : maturityDate(firstDueDate: contract.nextDueDate, terms: termsAfter, dates: dates)
         let lastBefore = schedule(principalInCents: principal, installmentInCents: installment, terms: termsBefore,
                                   annualPercent: rate, firstPeriod: contract.nextPeriod, firstDueDate: contract.nextDueDate,
-                                  contractNumber: contract.contractNumber, dates: dates).last
+                                  contractNumber: contract.contractNumber, dates: dates,
+                                  finalDueDate: contract.finalDueDate).last
         let last = schedule(principalInCents: principalAfter, installmentInCents: installmentAfter, terms: termsAfter,
                             annualPercent: rate, firstPeriod: contract.nextPeriod, firstDueDate: contract.nextDueDate,
-                            contractNumber: contract.contractNumber, dates: dates).last
+                            contractNumber: contract.contractNumber, dates: dates,
+                            finalDueDate: contract.finalDueDate == nil ? nil : maturityAfter).last
         return LoanPrepaymentPreview(
             amountInCents: amountInCents, balanceInCents: balanceInCents,
             principalBefore: principal, principalAfter: principalAfter,
             installmentBefore: installment, installmentAfter: installmentAfter,
             termsBefore: termsBefore, termsAfter: termsAfter,
-            maturityBefore: maturityDate(firstDueDate: contract.nextDueDate, terms: termsBefore, dates: dates),
-            maturityAfter: maturityDate(firstDueDate: contract.nextDueDate, terms: termsAfter, dates: dates),
+            maturityBefore: maturityBefore,
+            maturityAfter: maturityAfter,
             lastInstallmentBefore: lastBefore.flatMap { TransferMoney.cents(from: $0.repaymentAmount) } ?? 0,
             lastInstallmentAfter: last.flatMap { TransferMoney.cents(from: $0.repaymentAmount) } ?? 0
         )

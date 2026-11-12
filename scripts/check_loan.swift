@@ -43,7 +43,8 @@ import Foundation
 
     static func cents(_ value: Double) -> Int64 { TransferMoney.cents(from: value)! }
 
-    static var seedContract: LoanContract { FinanceLedgerStore.makeSeedRecord().loanContracts[0] }
+    // 旧贷款数值保留为算法兼容性向量，新默认数据另由check_ledger_fixture覆盖。
+    static var seedContract: LoanContract { FinanceLedgerStore.makeLegacySeedRecord().loanContracts[0] }
 
     // MARK: - 等额本息
 
@@ -122,7 +123,7 @@ import Foundation
         let contract = try JSONDecoder().decode(LoanContract.self, from: Data(json.utf8))
         precondition(contract.installmentAmount == 2934.91 && contract.remainingTerms == 134)
         precondition(contract.nextDueDate == "2026-09-09" && contract.nextPeriod == 107)
-        var record = FinanceLedgerStore.makeSeedRecord()
+        var record = FinanceLedgerStore.makeLegacySeedRecord()
         record.loanServiceRecords = []
         var object = try JSONSerialization.jsonObject(with: JSONEncoder().encode(record)) as! [String: Any]
         object.removeValue(forKey: "loanServiceRecords")
@@ -163,7 +164,9 @@ import Foundation
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         let store = FinanceLedgerStore(defaults: defaults, dates: dates)
-        _ = store.load()
+        var legacy = FinanceLedgerStore.makeLegacySeedRecord()
+        legacy.demoDataVersion = "legacy-loan-regression-vector"
+        precondition(store.save(legacy))
         try body(store, defaults)
     }
 

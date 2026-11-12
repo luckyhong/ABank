@@ -17,10 +17,13 @@ struct FinanceLedgerRecord: Codable, Equatable {
     var wealthOrders: [WealthOrder] = []
     var paymentOrders: [PaymentOrder] = []
     var loanServiceRecords: [LoanServiceRecord] = []
+    /// 已应用的演示基线版本；旧账本缺失时保持兼容，不据此清空自定义数据。
+    var demoDataVersion: String? = nil
 
     private enum CodingKeys: String, CodingKey {
         case accounts, transactions, loanContracts, assetLiabilityAnnouncement, dataTimestamp, transferRecords, wealthOrders, paymentOrders
         case loanServiceRecords
+        case demoDataVersion
     }
 
     init(accounts: [LedgerAccount], transactions: [LedgerTransaction], loanContracts: [LoanContract],
@@ -49,6 +52,7 @@ struct FinanceLedgerRecord: Codable, Equatable {
         wealthOrders = try values.decodeIfPresent([WealthOrder].self, forKey: .wealthOrders) ?? []
         paymentOrders = try values.decodeIfPresent([PaymentOrder].self, forKey: .paymentOrders) ?? []
         loanServiceRecords = try values.decodeIfPresent([LoanServiceRecord].self, forKey: .loanServiceRecords) ?? []
+        demoDataVersion = try values.decodeIfPresent(String.self, forKey: .demoDataVersion)
     }
 }
 
@@ -102,6 +106,8 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
     let accountId: String
     let date: String          // yyyy-MM-dd
     let time: String          // HH:mm 或 HH:mm:ss
+    /// 缺少原始时刻的演示记录仅用于排序，不向用户展示为真实交易时间。
+    var orderingTime: String? = nil
     var title: String
     var direction: LedgerTransactionDirection
     var amount: Double        // 正数
@@ -153,7 +159,8 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         transactionType: String = "转账",
         channel: String = "手机银行",
         ledgerId: String? = nil,
-        note: String = ""
+        note: String = "",
+        orderingTime: String? = nil
     ) {
         self.id = id
         self.accountId = accountId
@@ -176,6 +183,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         self.channel = channel
         self.ledgerId = ledgerId
         self.note = note
+        self.orderingTime = orderingTime
     }
 
     init(from decoder: Decoder) throws {
@@ -184,6 +192,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         accountId = try container.decode(String.self, forKey: .accountId)
         date = try container.decode(String.self, forKey: .date)
         time = try container.decode(String.self, forKey: .time)
+        orderingTime = try container.decodeIfPresent(String.self, forKey: .orderingTime)
         title = try container.decode(String.self, forKey: .title)
         direction = try container.decode(LedgerTransactionDirection.self, forKey: .direction)
         amount = try container.decode(Double.self, forKey: .amount)
@@ -215,11 +224,14 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
     }
 
     var datetimeText: String {
+        guard !time.isEmpty else { return date }
         if time.count >= 8 {
             return "\(date) \(time)"
         }
         return "\(date) \(time):00"
     }
+
+    var chronologicalTime: String { orderingTime ?? time }
 
     var categoryTitle: String {
         IncomeExpenseFilterCatalog.title(for: categoryId) ?? categoryId
@@ -250,6 +262,14 @@ enum LedgerBookCatalog {
 }
 
 // MARK: - 贷款合同
+
+struct RecordedLoanRepayment: Codable, Equatable {
+    let period: Int
+    let date: String
+    let principalInCents: Int64
+    let interestInCents: Int64
+    let balanceInCents: Int64
+}
 
 struct LoanContract: Codable, Equatable, Identifiable {
     let id: String
@@ -292,6 +312,10 @@ struct LoanContract: Codable, Equatable, Identifiable {
     var nextDueDate: String
     /// 下一期期次
     var nextPeriod: Int
+    /// nil 表示兼容旧演示历史；非 nil 时只展示已确认的还款数据段。
+    var recordedRepayments: [RecordedLoanRepayment]? = nil
+    var finalDueDate: String? = nil
+    var hasOriginalContractDetails = true
 
     static let defaultInstallmentAmount = 2934.91
     static let defaultRemainingTerms = 134
@@ -380,6 +404,9 @@ struct LoanContract: Codable, Equatable, Identifiable {
         remainingTerms = try container.decodeIfPresent(Int.self, forKey: .remainingTerms) ?? Self.defaultRemainingTerms
         nextDueDate = try container.decodeIfPresent(String.self, forKey: .nextDueDate) ?? Self.defaultNextDueDate
         nextPeriod = try container.decodeIfPresent(Int.self, forKey: .nextPeriod) ?? Self.defaultNextPeriod
+        recordedRepayments = try container.decodeIfPresent([RecordedLoanRepayment].self, forKey: .recordedRepayments)
+        finalDueDate = try container.decodeIfPresent(String.self, forKey: .finalDueDate)
+        hasOriginalContractDetails = try container.decodeIfPresent(Bool.self, forKey: .hasOriginalContractDetails) ?? true
     }
 }
 
@@ -461,6 +488,7 @@ enum IncomeExpenseFilterCatalog {
         options: [
             .init(id: "income_all", title: "全部收入", isAll: true),
             .init(id: "salary", title: "工资福利", isAll: false),
+            .init(id: "interest_income", title: "利息收入", isAll: false),
             .init(id: "transfer_in", title: "他人转入", isAll: false),
             .init(id: "third_party_in", title: "三方转入", isAll: false),
             .init(id: "cash_deposit", title: "现金存入", isAll: false)

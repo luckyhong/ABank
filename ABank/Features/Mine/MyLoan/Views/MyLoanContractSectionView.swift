@@ -116,7 +116,7 @@ private final class MyLoanContractCardView: UIView {
         titleRow.addTarget(self, action: #selector(contractTapped), for: .touchUpInside)
 
         let separator = makeSeparator()
-        let limitRow = makeInfoRow(title: "合同额度", value: "¥\(contract.contractLimit.abankPlainAmountString())")
+        let limitRow = makeInfoRow(title: "合同额度", value: contract.hasOriginalContractDetails ? "¥\(contract.contractLimit.abankPlainAmountString())" : "—")
         let expiryRow = makeInfoRow(title: "合同到期日", value: contract.expiryDate)
         let taxRow = makeTaxRow()
 

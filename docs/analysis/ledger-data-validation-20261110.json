@@ -1,0 +1,26 @@
+{
+  "dataset_id": "abank-simulated-ledger-20261110-r1",
+  "result": "passed",
+  "check_group_count": 14,
+  "checks": [
+    "unique_ids_and_37_ordered_records",
+    "all_running_balances_and_as_of_cutoff",
+    "known_times_ordered_unknown_times_remain_null",
+    "independent_monthly_expected_totals",
+    "wechat_counts_1_1_0_and_each_at_most_3000",
+    "three_user_specified_salary_amounts",
+    "latest_salary_and_retained_10000_transfer",
+    "excluded_entries_and_cancelled_november_wechat_absent",
+    "three_refunds_match_prior_debits_without_duplicates",
+    "three_historical_payments_principal_interest_and_ledger_links",
+    "131_fixed_future_payments_settle_to_zero_with_exact_totals",
+    "future_schedule_separate_from_actual_ledger_and_within_maturity",
+    "asset_liability_snapshot_matches_ledger_and_loan",
+    "september_to_now_independent_total_reconciliation"
+  ],
+  "total_transactions": 37,
+  "september_to_now_transactions": 31,
+  "minimum_balance_cents": 8581,
+  "final_balance_cents": 826923,
+  "scope": "数据计算与来源约束校验；不代表已导入App、UI验收或真实银行验证"
+}

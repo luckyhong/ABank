@@ -13,6 +13,7 @@ extension Notification.Name {
     static let shared = FinanceLedgerStore()
 
     private let defaultsKey = "abank.financeLedger.record.v8"
+    static let demoBackupKey = "abank.financeLedger.backup.before20261110"
     private let defaults: UserDefaults
     let dates: BankingDateContext
     private let encoder = JSONEncoder()
@@ -44,8 +45,11 @@ extension Notification.Name {
 
     func load() -> FinanceLedgerRecord {
         if let data = defaults.data(forKey: defaultsKey) {
-            // Keep unreadable bytes intact; transfer submission reports an explicit error.
-            return (try? decoder.decode(FinanceLedgerRecord.self, from: data)) ?? Self.makeSeedRecord()
+            // 展示降级不写回损坏字节；所有修改仍须通过严格读取。
+            guard let stored = try? decoder.decode(FinanceLedgerRecord.self, from: data) else {
+                return Self.makeSeedRecord()
+            }
+            return (try? upgradeDemoRecord(stored, originalData: data)) ?? stored
         }
         let seeded = Self.makeSeedRecord()
         save(seeded)
@@ -69,8 +73,22 @@ extension Notification.Name {
     // Transfers read strictly: corrupt persisted data must not be replaced with new seed data.
     func loadForTransfer() throws -> FinanceLedgerRecord {
         guard let data = defaults.data(forKey: defaultsKey) else { return Self.makeSeedRecord() }
-        do { return try decoder.decode(FinanceLedgerRecord.self, from: data) }
+        let stored: FinanceLedgerRecord
+        do { stored = try decoder.decode(FinanceLedgerRecord.self, from: data) }
         catch { throw TransferError.corruptLedger }
+        do { return try upgradeDemoRecord(stored, originalData: data) }
+        catch { throw TransferError.persistence }
+    }
+
+    /// 只更新可识别的旧演示基线，备份原始字节；版本随根记录同次保存，失败可安全重试。
+    private func upgradeDemoRecord(_ stored: FinanceLedgerRecord, originalData: Data) throws -> FinanceLedgerRecord {
+        guard var updated = BankingDemoMigration.upgrade(stored) else { return stored }
+        if defaults.data(forKey: Self.demoBackupKey) == nil {
+            defaults.set(originalData, forKey: Self.demoBackupKey)
+        }
+        recalculate(&updated)
+        try persist(updated)
+        return updated
     }
 
     func transferRecords() -> [TransferRecord] {
@@ -197,12 +215,12 @@ extension Notification.Name {
         return transfer
     }
 
-    func update(_ transform: (inout FinanceLedgerRecord) -> Void) {
-        var record = load()
+    @discardableResult func update(_ transform: (inout FinanceLedgerRecord) -> Void) -> Bool {
+        guard var record = try? loadForTransfer() else { return false }
         transform(&record)
         recalculate(&record)
         record.dataTimestamp = dates.string(from: dates.now, format: "yyyy-MM-dd HH:mm:ss")
-        save(record)
+        return save(record)
     }
 
     // MARK: - 派生读取
@@ -230,13 +248,13 @@ extension Notification.Name {
         load().transactions.first(where: { $0.id == id })
     }
 
-    func updateTransactionDetail(
+    @discardableResult func updateTransactionDetail(
         id: String,
         includeInFlow: Bool? = nil,
         categoryId: String? = nil,
         note: String? = nil
-    ) {
-        update { record in
+    ) -> Bool {
+        return update { record in
             guard let index = record.transactions.firstIndex(where: { $0.id == id }) else { return }
             if let includeInFlow { record.transactions[index].includeInFlow = includeInFlow }
             if let categoryId { record.transactions[index].categoryId = categoryId }
@@ -244,8 +262,8 @@ extension Notification.Name {
         }
     }
 
-    func updateTransactionLedger(id: String, ledgerId: String?) {
-        update { record in
+    @discardableResult func updateTransactionLedger(id: String, ledgerId: String?) -> Bool {
+        return update { record in
             guard let index = record.transactions.firstIndex(where: { $0.id == id }) else { return }
             record.transactions[index].ledgerId = ledgerId
         }
@@ -345,7 +363,7 @@ extension Notification.Name {
         txs = txs.enumerated().sorted { lhs, rhs in
             let l = lhs.element, r = rhs.element
             if l.date != r.date { return l.date > r.date }
-            if l.time != r.time { return l.time > r.time }
+            if l.chronologicalTime != r.chronologicalTime { return l.chronologicalTime > r.chronologicalTime }
             return lhs.offset > rhs.offset
         }.map(\.element)
 
@@ -470,7 +488,7 @@ extension Notification.Name {
         txs = txs.enumerated().sorted { lhs, rhs in
             let l = lhs.element, r = rhs.element
             if l.date != r.date { return l.date > r.date }
-            if l.time != r.time { return l.time > r.time }
+            if l.chronologicalTime != r.chronologicalTime { return l.chronologicalTime > r.chronologicalTime }
             return lhs.offset > rhs.offset
         }.map(\.element)
         return AccountDetailQueryPageData(
@@ -493,13 +511,28 @@ extension Notification.Name {
             txs.sort { lhs, rhs in
                 let l = lhs.element, r = rhs.element
                 if l.date != r.date { return l.date < r.date }
-                if l.time != r.time { return l.time < r.time }
+                if l.chronologicalTime != r.chronologicalTime { return l.chronologicalTime < r.chronologicalTime }
                 return lhs.offset < rhs.offset
             }
 
             var balance = record.accounts[accountIndex].openingBalance
+            var runningCents = TransferMoney.cents(from: balance)
             for (globalIndex, var tx) in txs {
-                balance += tx.direction == .income ? tx.amount : -tx.amount
+                if let current = runningCents, let cents = TransferMoney.cents(from: tx.amount) {
+                    let delta = tx.direction == .income ? cents : -cents
+                    let addition = current.addingReportingOverflow(delta)
+                    if !addition.overflow {
+                        runningCents = addition.partialValue
+                        balance = TransferMoney.amount(addition.partialValue)
+                    } else {
+                        runningCents = nil
+                        balance += tx.direction == .income ? tx.amount : -tx.amount
+                    }
+                } else {
+                    // 非法金额留给编码/业务校验拒绝，不能因金额转换失败而归零。
+                    runningCents = nil
+                    balance += tx.direction == .income ? tx.amount : -tx.amount
+                }
                 tx.balanceAfter = balance
                 record.transactions[globalIndex] = tx
             }
@@ -533,7 +566,7 @@ extension Notification.Name {
     }
 
     func toggleLoanDetailExpanded(id: String) {
-        var record = load()
+        guard var record = try? loadForTransfer() else { return }
         guard let index = record.loanContracts.firstIndex(where: { $0.id == id }) else { return }
         record.loanContracts[index].isDetailExpanded.toggle()
         save(record)
@@ -548,10 +581,16 @@ extension Notification.Name {
         let contract = loanContract(id: contractId)
         let contractNumber = contract?.contractNumber.isEmpty == false
             ? (contract?.contractNumber ?? "")
-            : "26135157700004774"
+            : "—"
 
         // 下一期之前保留历史种子；之后按当前本金与每期还款额由等额本息生成。
-        var allPlans = Self.seedRepaymentPlans(contractNumber: contractNumber)
+        var allPlans = contract?.recordedRepayments?.map { repayment in
+            LoanRepaymentPlanItem(id: "plan_\(repayment.period)", contractNumber: contractNumber,
+                period: repayment.period, date: repayment.date,
+                repaymentAmount: TransferMoney.amount(repayment.principalInCents + repayment.interestInCents),
+                principal: TransferMoney.amount(repayment.principalInCents),
+                interest: TransferMoney.amount(repayment.interestInCents), balance: TransferMoney.amount(repayment.balanceInCents))
+        } ?? Self.seedRepaymentPlans(contractNumber: contractNumber)
         if let contract {
             allPlans = allPlans.filter { $0.period < contract.nextPeriod }
             if let principal = TransferMoney.cents(from: contract.unpaidPrincipal),
@@ -559,7 +598,8 @@ extension Notification.Name {
                 allPlans += LoanAmortization.schedule(
                     principalInCents: principal, installmentInCents: installment, terms: contract.remainingTerms,
                     annualPercent: contract.annualRatePercent, firstPeriod: contract.nextPeriod,
-                    firstDueDate: contract.nextDueDate, contractNumber: contractNumber, dates: dates
+                    firstDueDate: contract.nextDueDate, contractNumber: contractNumber, dates: dates,
+                    finalDueDate: contract.finalDueDate
                 )
             }
         }
@@ -577,7 +617,12 @@ extension Notification.Name {
                 principal: TransferMoney.amount(record.amountInCents ?? 0), interest: 0, penalty: 0, compoundInterest: 0
             )
         }
-        let details = (prepaid + Self.seedRepaymentDetails(contractNumber: contractNumber))
+        let historicalDetails = contract?.recordedRepayments?.map { repayment in
+            LoanRepaymentDetailItem(id: "detail_\(repayment.period)", contractNumber: contractNumber,
+                date: repayment.date, principal: TransferMoney.amount(repayment.principalInCents),
+                interest: TransferMoney.amount(repayment.interestInCents), penalty: 0, compoundInterest: 0)
+        } ?? Self.seedRepaymentDetails(contractNumber: contractNumber)
+        let details = (prepaid + historicalDetails)
             .filter { Self.isDate($0.date, in: filter) }
             .sorted { lhs, rhs in
                 filter.sortOrder == .nearToFar ? lhs.date > rhs.date : lhs.date < rhs.date
@@ -598,7 +643,13 @@ extension Notification.Name {
                 principal: TransferMoney.amount(record.amountInCents ?? 0), interest: 0, penalty: 0, compoundPenalty: 0
             )
         }
-        let all = prepaid + Self.seedUsageRecords()
+        let history = loanContract(id: contractId)?.recordedRepayments?.map { repayment in
+            LoanUsageRecord(id: "usage_\(repayment.period)", title: "正常还款", dateTime: repayment.date,
+                totalAmount: TransferMoney.amount(repayment.principalInCents + repayment.interestInCents),
+                principal: TransferMoney.amount(repayment.principalInCents),
+                interest: TransferMoney.amount(repayment.interestInCents), penalty: 0, compoundPenalty: 0)
+        } ?? Self.seedUsageRecords()
+        let all = (prepaid + history).sorted { $0.dateTime > $1.dateTime }
         let start = max(0, page * pageSize)
         guard start < all.count else {
             return LoanUsageRecordsPageData(records: [], hasMore: false)
@@ -611,13 +662,13 @@ extension Notification.Name {
     func loanPrepaymentInfo(contractId: String) -> LoanPrepaymentInfo? {
         guard let contract = loanContract(id: contractId) else { return nil }
         return LoanPrepaymentInfo(
-            voucherNumber: "610220170047751",
+            voucherNumber: contract.hasOriginalContractDetails ? "610220170047751" : "—",
             contractNumber: contract.contractNumber.isEmpty
-                ? "26135157700004774"
+                ? "—"
                 : contract.contractNumber,
-            maturityDate: LoanAmortization.maturityDate(firstDueDate: contract.nextDueDate,
+            maturityDate: contract.finalDueDate ?? LoanAmortization.maturityDate(firstDueDate: contract.nextDueDate,
                                                         terms: contract.remainingTerms, dates: dates),
-            usageDate: "2017-10-09",
+            usageDate: contract.hasOriginalContractDetails ? "2017-10-09" : "—",
             annualRatePercent: contract.annualRatePercent,
             unpaidPrincipal: contract.unpaidPrincipal
         )
@@ -643,7 +694,7 @@ extension Notification.Name {
                     amount: contract.installmentAmount,
                     loanName: contract.name,
                     contractNumber: contract.contractNumber.isEmpty
-                        ? "26135157700004774"
+                        ? "—"
                         : contract.contractNumber
                 )
             }
@@ -810,6 +861,11 @@ extension Notification.Name {
     // MARK: - 种子数据
 
     static func makeSeedRecord() -> FinanceLedgerRecord {
+        BankingDemoFixture.makeRecord()
+    }
+
+    /// 旧快照仅用于识别/迁移及兼容性回归，不能再作为新安装默认数据。
+    static func makeLegacySeedRecord() -> FinanceLedgerRecord {
         let accountId = FinanceLedgerRecord.defaultAccountId
         var record = FinanceLedgerRecord(
             accounts: [
