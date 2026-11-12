@@ -7,7 +7,7 @@ import UIKit
 import SnapKit
 
 /// 本月应还 / 下月应还
-final class LoanDueViewController: BaseViewController {
+final class LoanDueViewController: BankingDataViewController {
 
     private let period: LoanDuePeriod
     private var pageData: LoanDuePageData
@@ -102,39 +102,16 @@ final class LoanDueViewController: BaseViewController {
             make.bottom.equalToSuperview().offset(-28)
         }
 
-        if period == .thisMonth {
-            // 本月无明细：灰底区域直接展示温馨提示
-            tableView.isHidden = true
-            let tipContainer = UIView()
-            tipContainer.backgroundColor = pageGray
-            view.addSubview(tipContainer)
-            tipContainer.addSubview(tipLabel)
-            tipContainer.snp.makeConstraints { make in
-                make.top.equalTo(headerContainer.snp.bottom)
-                make.leading.trailing.bottom.equalToSuperview()
-            }
-            tipLabel.snp.makeConstraints { make in
-                make.top.equalToSuperview().offset(16)
-                make.leading.trailing.equalToSuperview().inset(16)
-            }
-        } else {
-            let divider = UIView()
-            divider.backgroundColor = pageGray
-            view.addSubview(divider)
-            divider.snp.makeConstraints { make in
-                make.top.equalTo(headerContainer.snp.bottom)
-                make.leading.trailing.equalToSuperview()
-                make.height.equalTo(8)
-            }
-            tableView.snp.makeConstraints { make in
-                make.top.equalTo(divider.snp.bottom)
-                make.leading.trailing.bottom.equalToSuperview()
-            }
-            rebuildFooter()
-        }
+        let divider = UIView()
+        divider.backgroundColor = pageGray
+        view.addSubview(divider)
+        divider.snp.makeConstraints { $0.top.equalTo(headerContainer.snp.bottom); $0.leading.trailing.equalToSuperview(); $0.height.equalTo(8) }
+        tableView.snp.makeConstraints { $0.top.equalTo(divider.snp.bottom); $0.leading.trailing.bottom.equalToSuperview() }
 
         applyPageData()
     }
+
+    override func refreshBankingData() { applyPageData() }
 
     private func rebuildFooter() {
         let width = UIScreen.main.bounds.width
@@ -156,10 +133,13 @@ final class LoanDueViewController: BaseViewController {
         amountLabel.text = pageData.totalAmount.abankPlainAmountString()
         captionLabel.text = period.amountCaption
         tipLabel.text = pageData.tip
-        expandedIds.removeAll()
-        if period == .nextMonth {
-            rebuildFooter()
-        }
+        expandedIds.formIntersection(Set(pageData.installments.map(\.id)))
+        rebuildFooter()
+        let empty = UILabel()
+        empty.text = "该月份暂无待还分期"
+        empty.textAlignment = .center
+        empty.textColor = .abankTextSecondary
+        tableView.backgroundView = pageData.installments.isEmpty ? empty : nil
         tableView.reloadData()
     }
 

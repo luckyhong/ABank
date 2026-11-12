@@ -38,17 +38,17 @@ extension FinanceLedgerStore {
     // MARK: - 手机充值
 
     /// 校验并返回实付分；不写入、不动券。
-    func validateMobileRecharge(phone: String, faceInCents: Int64, couponID: String?) throws -> Int64 {
-        try checkedRecharge(phone: phone, faceInCents: faceInCents, couponID: couponID, record: try strictPaymentRecord()).paid
+    func validateMobileRecharge(phone: String, faceInCents: Int64, couponID: String?, accountID: String? = nil) throws -> Int64 {
+        try checkedRecharge(phone: phone, faceInCents: faceInCents, couponID: couponID, record: try strictPaymentRecord(), accountID: accountID).paid
     }
 
     @discardableResult
     func submitMobileRecharge(phone: String, faceInCents: Int64, couponID: String?, requestID: String,
-                              expectedPaidInCents: Int64? = nil) throws -> PaymentOrder {
+                              expectedPaidInCents: Int64? = nil, accountID: String? = nil) throws -> PaymentOrder {
         guard !requestID.isEmpty, requestID.count <= 100 else { throw PaymentError.invalidRequest }
         var root = try strictPaymentRecord()
         if let existing = root.paymentOrders.first(where: { $0.requestID == requestID }) { return existing }
-        let checked = try checkedRecharge(phone: phone, faceInCents: faceInCents, couponID: couponID, record: root)
+        let checked = try checkedRecharge(phone: phone, faceInCents: faceInCents, couponID: couponID, record: root, accountID: accountID)
         // 用户确认的实付金额与此刻重新算出的不一致时拒绝，且在动券之前。
         if let expectedPaidInCents, expectedPaidInCents != checked.paid { throw PaymentError.amountChanged }
         let benefits = benefitsProvider()
@@ -82,19 +82,19 @@ extension FinanceLedgerStore {
 
     @discardableResult
     func submitUtilityPayment(billAccountID: String, requestID: String, expectedPeriod: String? = nil,
-                              expectedAmountInCents: Int64? = nil) throws -> PaymentOrder {
+                              expectedAmountInCents: Int64? = nil, accountID: String? = nil, period: String? = nil) throws -> PaymentOrder {
         guard !requestID.isEmpty, requestID.count <= 100 else { throw PaymentError.invalidRequest }
         var root = try strictPaymentRecord()
         if let existing = root.paymentOrders.first(where: { $0.requestID == requestID }) { return existing }
-        try requireOnlinePayment(in: root)
+        try requireOnlinePayment(in: root, accountID: accountID)
         guard let billAccount = PaymentCatalog.billAccount(id: billAccountID) else { throw PaymentError.billNotFound }
         let now = dates.now
-        let bill = PaymentRules.bill(for: billAccount, orders: root.paymentOrders, now: now, dates: dates)
+        let bill = try utilityBill(account: billAccount, orders: root.paymentOrders, period: period)
         // 确认弹窗期间账期跨月或金额变化时拒绝，避免扣款与用户确认的不一致。
         if let expectedPeriod, expectedPeriod != bill.period { throw PaymentError.amountChanged }
         if let expectedAmountInCents, expectedAmountInCents != bill.amountInCents { throw PaymentError.amountChanged }
         guard !bill.isPaid else { throw PaymentError.alreadyPaid }
-        let account = try payerAccount(in: root, payingInCents: bill.amountInCents)
+        let account = try payerAccount(in: root, payingInCents: bill.amountInCents, accountID: accountID)
         let timestamp = dates.string(from: now, format: "yyyy-MM-dd HH:mm:ss")
         let id = UUID().uuidString
         let order = PaymentOrder(
@@ -115,20 +115,26 @@ extension FinanceLedgerStore {
     }
 
     /// 缴费确认前校验：权限、账单存在、本期未缴清、余额充足。
-    func validateUtilityPayment(billAccountID: String) throws {
+    func validateUtilityPayment(billAccountID: String, accountID: String? = nil, period: String? = nil) throws {
         let root = try strictPaymentRecord()
-        try requireOnlinePayment(in: root)
+        try requireOnlinePayment(in: root, accountID: accountID)
         guard let billAccount = PaymentCatalog.billAccount(id: billAccountID) else { throw PaymentError.billNotFound }
-        let bill = PaymentRules.bill(for: billAccount, orders: root.paymentOrders, now: dates.now, dates: dates)
+        let bill = try utilityBill(account: billAccount, orders: root.paymentOrders, period: period)
         guard !bill.isPaid else { throw PaymentError.alreadyPaid }
-        _ = try payerAccount(in: root, payingInCents: bill.amountInCents)
+        _ = try payerAccount(in: root, payingInCents: bill.amountInCents, accountID: accountID)
+    }
+
+    func utilityBill(account: BillAccount, orders: [PaymentOrder]? = nil, period: String?) throws -> UtilityBill {
+        let value = period ?? dates.currentMonth
+        guard dates.date(from: value + "-01") != nil, value <= dates.currentMonth else { throw PaymentError.billNotFound }
+        return PaymentRules.bill(for: account, orders: orders ?? load().paymentOrders, period: value, dates: dates)
     }
 
     // MARK: - 内部
 
     /// 网上支付权限最先检查，早于余额、优惠券与金额变化校验。
-    private func requireOnlinePayment(in record: FinanceLedgerRecord) throws {
-        guard let account = record.accounts.first(where: { $0.id == FinanceLedgerRecord.defaultAccountId }) else {
+    private func requireOnlinePayment(in record: FinanceLedgerRecord, accountID: String?) throws {
+        guard let account = record.accounts.first(where: { $0.id == (accountID ?? FinanceLedgerRecord.defaultAccountId) }) else {
             throw PaymentError.invalidRequest
         }
         guard !account.isReportedLost else { throw AccountSettingsError.cardReportedLost }
@@ -140,8 +146,8 @@ extension FinanceLedgerStore {
     }
 
     /// 付款账户固定为默认人民币借记卡；实付不得超过余额。
-    private func payerAccount(in record: FinanceLedgerRecord, payingInCents paid: Int64) throws -> LedgerAccount {
-        guard let account = record.accounts.first(where: { $0.id == FinanceLedgerRecord.defaultAccountId }),
+    private func payerAccount(in record: FinanceLedgerRecord, payingInCents paid: Int64, accountID: String?) throws -> LedgerAccount {
+        guard let account = record.accounts.first(where: { $0.id == (accountID ?? FinanceLedgerRecord.defaultAccountId) }),
               account.currency == "人民币" else { throw PaymentError.invalidRequest }
         guard let balance = TransferMoney.cents(from: account.balance), paid <= balance else {
             throw PaymentError.insufficientBalance
@@ -150,8 +156,8 @@ extension FinanceLedgerStore {
     }
 
     private func checkedRecharge(phone: String, faceInCents: Int64, couponID: String?,
-                                 record: FinanceLedgerRecord) throws -> (phone: String, couponFace: Int64, paid: Int64, account: LedgerAccount) {
-        try requireOnlinePayment(in: record)
+                                 record: FinanceLedgerRecord, accountID: String?) throws -> (phone: String, couponFace: Int64, paid: Int64, account: LedgerAccount) {
+        try requireOnlinePayment(in: record, accountID: accountID)
         let normalized = PaymentRules.normalizedPhone(phone)
         guard PaymentRules.isValidPhone(normalized) else { throw PaymentError.invalidPhone }
         guard PaymentCatalog.denominationsInCents.contains(faceInCents) else { throw PaymentError.invalidDenomination }
@@ -165,7 +171,7 @@ extension FinanceLedgerStore {
             couponFace = face
         }
         let paid = faceInCents - couponFace
-        let account = try payerAccount(in: record, payingInCents: paid)
+        let account = try payerAccount(in: record, payingInCents: paid, accountID: accountID)
         return (normalized, couponFace, paid, account)
     }
 

@@ -59,7 +59,7 @@ final class TransferResultViewController: TransferFlowViewController {
                 TransferInfoRow("收款银行", value: record.bankName),
                 TransferInfoRow("付款账户", value: record.payerLabel),
                 TransferInfoRow("交易时间", value: record.createdAt),
-                TransferInfoRow("交易单号", value: String(record.id.suffix(12))),
+                TransferInfoRow("交易单号", value: record.businessReference),
                 TransferInfoRow("附言", value: record.note.isEmpty ? "无" : record.note)
             ])
             if succeeded {

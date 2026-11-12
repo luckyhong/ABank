@@ -44,6 +44,8 @@ struct HomeHeroBannerItem {
     let subtitle: String
     let actionTitle: String
     let isAd: Bool
+    var imageName: String? = nil
+    var featureID: FeatureID? = nil
 }
 
 struct HomePromoBannerItem {

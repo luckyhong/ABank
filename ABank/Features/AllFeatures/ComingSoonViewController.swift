@@ -33,8 +33,8 @@ final class ComingSoonViewController: BaseViewController, RouteHosting {
         iconView.tintColor = .abankPrimary
 
         let titleLabel = makeLabel(descriptor.title, font: .abankTitle3(), color: .abankTextPrimary)
-        let messageLabel = makeLabel("该功能正在建设中", font: .abankSubheadline(), color: .abankTextSecondary)
-        let stageLabel = makeLabel(descriptor.plannedStageText, font: .abankCaptionMedium(), color: .abankPrimary)
+        let messageLabel = makeLabel("该服务当前暂未开放", font: .abankSubheadline(), color: .abankTextSecondary)
+        let stageLabel = makeLabel("可先查看已开通的账户、理财和生活服务", font: .abankCaptionMedium(), color: .abankPrimary)
         stageLabel.accessibilityIdentifier = "comingSoon.stage"
         let noteLabel = makeLabel("功能介绍", font: .abankCaption(), color: .abankTextTertiary)
 
@@ -45,7 +45,7 @@ final class ComingSoonViewController: BaseViewController, RouteHosting {
         stack.setCustomSpacing(Spacing.md, after: iconView)
 
         let backButton = UIButton(type: .system)
-        backButton.setTitle("返回", for: .normal)
+        backButton.setTitle("查看全部功能", for: .normal)
         backButton.setTitleColor(.white, for: .normal)
         backButton.titleLabel?.font = .abankHeadline()
         backButton.backgroundColor = .abankPrimary
@@ -77,6 +77,6 @@ final class ComingSoonViewController: BaseViewController, RouteHosting {
     }
 
     @objc private func backTapped() {
-        navigationController?.popViewController(animated: true)
+        router.open(.allFeatures(searchKeyword: nil), from: self)
     }
 }

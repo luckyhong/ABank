@@ -65,7 +65,7 @@ final class LoginDeviceRow: UIControl {
         icon.snp.makeConstraints { $0.size.equalTo(28) }
 
         let name = UILabel()
-        name.text = device.name
+        name.text = device.displayName
         name.font = .abankBody()
         name.textColor = .abankTextPrimary
         let nameLine = UIStackView(arrangedSubviews: [name])
@@ -88,7 +88,7 @@ final class LoginDeviceRow: UIControl {
         nameLine.addArrangedSubview(UIView())
 
         let detail = UILabel()
-        detail.text = "最近登录 " + dates.string(from: device.lastLogin, format: "yyyy-MM-dd HH:mm") + " · " + device.city
+        detail.text = "最近登录 " + device.displayLastLogin(dates: dates) + (device.isCurrent ? "" : " · " + device.city)
         detail.font = .abankCaption()
         detail.textColor = .abankTextSecondary
         detail.numberOfLines = 0
@@ -119,7 +119,7 @@ final class LoginDeviceRow: UIControl {
             $0.bottom.equalToSuperview()
             $0.height.equalTo(0.5)
         }
-        accessibilityLabel = [device.name, device.isCurrent ? "本机" : nil, detail.text].compactMap { $0 }.joined(separator: "，")
+        accessibilityLabel = [device.displayName, device.isCurrent ? "本机" : nil, detail.text].compactMap { $0 }.joined(separator: "，")
         addAction(UIAction { [weak self] _ in self?.onTap?() }, for: .touchUpInside)
     }
 
@@ -127,5 +127,15 @@ final class LoginDeviceRow: UIControl {
 
     override var isHighlighted: Bool {
         didSet { backgroundColor = isHighlighted ? .abankSectionBackground : .clear }
+    }
+}
+
+extension LoginDevice {
+    var displayName: String { isCurrent ? UIDevice.current.model : name }
+    var displayModel: String { isCurrent ? UIDevice.current.model : model }
+    var displaySystem: String { isCurrent ? UIDevice.current.systemName + " " + UIDevice.current.systemVersion : system }
+    func displayLastLogin(dates: BankingDateContext) -> String {
+        if isCurrent { return CustomerSessionStore.shared.lastLogin.isEmpty ? "本次会话" : CustomerSessionStore.shared.lastLogin }
+        return dates.string(from: lastLogin, format: "yyyy-MM-dd HH:mm")
     }
 }

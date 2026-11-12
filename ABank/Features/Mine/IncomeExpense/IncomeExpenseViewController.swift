@@ -57,7 +57,9 @@ final class IncomeExpenseViewController: BankingDataViewController {
             target: self,
             action: #selector(moreTapped)
         )
-        navigationItem.rightBarButtonItems = [moreItem, searchItem]
+        let addItem = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil"), style: .plain, target: self, action: #selector(addEntry))
+        addItem.accessibilityLabel = "记一笔"
+        navigationItem.rightBarButtonItems = [moreItem, addItem, searchItem]
     }
 
     override func refreshBankingData() {
@@ -215,6 +217,8 @@ final class IncomeExpenseViewController: BankingDataViewController {
     }
 
     @objc private func searchTapped() { navigationController?.pushViewController(LedgerSearchViewController(query: query), animated: true) }
+    @objc private func addEntry() { navigationController?.pushViewController(ManualEntryViewController(), animated: true) }
+
     @objc private func moreTapped() {
         let alert = UIAlertController(title: "账单管理", message: nil, preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "记一笔", style: .default) { [weak self] _ in

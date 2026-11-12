@@ -7,6 +7,8 @@ import UIKit
 import SnapKit
 
 final class WealthSelectionView: UIView {
+    var onFeatured: (() -> Void)?
+    var onSide: ((Int) -> Void)?
 
     private let header = SectionHeaderView(title: "财富优选")
     private let featuredCard = UIView()
@@ -23,6 +25,7 @@ final class WealthSelectionView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        featuredButton.addAction(UIAction { [weak self] _ in self?.onFeatured?() }, for: .touchUpInside)
     }
 
     required init?(coder: NSCoder) {
@@ -42,9 +45,16 @@ final class WealthSelectionView: UIView {
         featuredButton.setTitle(featured.actionTitle, for: .normal)
 
         sideStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        sides.forEach { sideStack.addArrangedSubview(makeSideCard(item: $0)) }
+        for (index, item) in sides.enumerated() {
+            let card = makeSideCard(item: item)
+            let button = UIButton(type: .custom)
+            button.accessibilityLabel = item.title
+            button.addAction(UIAction { [weak self] _ in self?.onSide?(index) }, for: .touchUpInside)
+            card.addSubview(button); button.snp.makeConstraints { $0.edges.equalToSuperview() }
+            sideStack.addArrangedSubview(card)
+        }
 
-        quoteLabel.text = quotes.map { "\($0.name) \($0.value)" }.joined(separator: "    ")
+        quoteLabel.text = "参考报价　" + quotes.map { "\($0.name) \($0.value)" }.joined(separator: "    ")
     }
 
     private func setupUI() {

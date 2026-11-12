@@ -18,7 +18,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window = UIWindow(windowScene: windowScene)
         let mainTabBarController = MainTabBarController()
-        window?.rootViewController = mainTabBarController
+        window?.rootViewController = CustomerSessionStore.shared.isSignedIn ? mainTabBarController : ABankNavigationController(rootViewController: CustomerLoginViewController())
+        NotificationCenter.default.addObserver(self, selector: #selector(sessionDidChange), name: CustomerSessionStore.didChange, object: nil)
         window?.makeKeyAndVisible()
 
         // 快捷操作优先于链接；两者共用 pendingRoute，取出即清空，只打开一次。
@@ -27,7 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         } else if let url = connectionOptions.urlContexts.first?.url {
             pendingRoute = WidgetLink.route(for: url)
         }
-        if pendingRoute != nil {
+        if pendingRoute != nil && CustomerSessionStore.shared.isSignedIn {
             DispatchQueue.main.async { [weak self] in
                 guard let self, let route = self.pendingRoute else { return }
                 self.pendingRoute = nil
@@ -36,21 +37,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
 
+    @objc private func sessionDidChange() {
+        window?.rootViewController = CustomerSessionStore.shared.isSignedIn ? MainTabBarController() : ABankNavigationController(rootViewController: CustomerLoginViewController())
+        if CustomerSessionStore.shared.isSignedIn, let route = pendingRoute, let tab = window?.rootViewController as? MainTabBarController {
+            pendingRoute = nil
+            DispatchQueue.main.async { tab.openFromShortcut(route) }
+        }
+    }
+
     func windowScene(_ windowScene: UIWindowScene, performActionFor shortcutItem: UIApplicationShortcutItem,
                      completionHandler: @escaping (Bool) -> Void) {
-        guard let route = QuickAction.route(forType: shortcutItem.type),
-              let tabBar = window?.rootViewController as? MainTabBarController else {
-            completionHandler(false)
-            return
-        }
-        tabBar.openFromShortcut(route)
+        guard let route = QuickAction.route(forType: shortcutItem.type) else { completionHandler(false); return }
+        if let tabBar = window?.rootViewController as? MainTabBarController { tabBar.openFromShortcut(route) }
+        else { pendingRoute = route }
         completionHandler(true)
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        guard let url = URLContexts.first?.url, let route = WidgetLink.route(for: url),
-              let tabBar = window?.rootViewController as? MainTabBarController else { return }
-        tabBar.openFromShortcut(route)
+        guard let url = URLContexts.first?.url, let route = WidgetLink.route(for: url) else { return }
+        if let tabBar = window?.rootViewController as? MainTabBarController { tabBar.openFromShortcut(route) }
+        else { pendingRoute = route }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

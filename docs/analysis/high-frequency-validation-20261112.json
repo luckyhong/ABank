@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-12",
+  "baseline": "e03f8d7",
+  "devices": [
+    {
+      "device": "iphone16pro",
+      "checks": 136,
+      "failed": 0,
+      "screenshots": 60,
+      "pdfPages": 1
+    },
+    {
+      "device": "iphonese3",
+      "checks": 136,
+      "failed": 0,
+      "screenshots": 60,
+      "pdfPages": 1
+    },
+    {
+      "device": "ipad11",
+      "checks": 136,
+      "failed": 0,
+      "screenshots": 60,
+      "pdfPages": 1
+    }
+  ],
+  "dataSuites": [
+    "retail",
+    "frequent",
+    "accounts",
+    "fixture",
+    "banking",
+    "transfer",
+    "insights",
+    "feature",
+    "security",
+    "branch",
+    "benefits",
+    "wealth",
+    "payment",
+    "account",
+    "loan",
+    "entry"
+  ],
+  "dataResult": "passed",
+  "normalSimulatorDebugBuild": "passed",
+  "importedAssets": 7,
+  "confirmedTransactionsPreserved": 37,
+  "qaBundleID": "com.axdxa.AtlasBarKit.ABank.FrequentQA"
+}

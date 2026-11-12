@@ -125,3 +125,17 @@ struct WealthPageData {
     let studyBanner: WealthStudyBanner
     let studyCards: [WealthStudyCard]
 }
+
+// Recommendation fields resolve from the same catalog used by purchase/detail.
+extension WealthProductTab {
+    var displayProduct: WealthFeaturedProduct {
+        guard let productID, let row = WealthProductCatalog.product(id: productID) else { return product }
+        return WealthFeaturedProduct(name: row.name, yieldRate: row.rateText, yieldLabel: "参考年化", yieldDateRange: "按实际持有天数估算", riskLevel: row.risk.title, riskLabel: "风险等级", holdingPeriod: "最低持有\(row.minHoldDays)天", holdingLabel: "最短持有期限", actionTitle: "查看产品", disclaimer: product.disclaimer, isAd: product.isAd)
+    }
+}
+extension WealthSteadyProduct {
+    var displayProduct: WealthSteadyProduct {
+        guard let productID, let row = WealthProductCatalog.product(id: productID) else { return self }
+        return WealthSteadyProduct(name: row.name, yieldRate: row.rateText, yieldLabel: "参考年化", yieldDateRange: "按实际持有天数估算", holdingPeriod: "最低持有\(row.minHoldDays)天", purchaseInfo: "\(TransferMoney.text(row.minPurchaseInCents))元起购 | \(row.risk.title)", isHot: isHot, disclaimer: disclaimer, productID: productID)
+    }
+}

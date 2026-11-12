@@ -27,6 +27,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
     private let includeRow = IncomeExpenseDetailToggleRow(title: "计入收支")
     private let categoryRow = IncomeExpenseDetailSelectRow(title: "分类")
     private let ledgerRow = IncomeExpenseDetailSelectRow(title: "归属账本")
+    private let purposeRow = IncomeExpenseDetailSelectRow(title: "用途")
     private let settingsCard = UIView()
 
     private let noteTitleLabel = UILabel()
@@ -216,6 +217,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         settingsCard.addSubview(includeRow)
         settingsCard.addSubview(categoryRow)
         settingsCard.addSubview(ledgerRow)
+        settingsCard.addSubview(purposeRow)
 
         topGap.snp.makeConstraints { make in
             make.top.equalTo(expandButton.snp.bottom).offset(8)
@@ -237,6 +239,11 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         }
         ledgerRow.snp.makeConstraints { make in
             make.top.equalTo(categoryRow.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(52)
+        }
+        purposeRow.snp.makeConstraints { make in
+            make.top.equalTo(ledgerRow.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
             make.height.equalTo(52)
         }
@@ -313,6 +320,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         }
         categoryRow.onTap = { [weak self] in self?.showCategoryPicker() }
         ledgerRow.onTap = { [weak self] in self?.showLedgerPicker() }
+        purposeRow.onTap = { [weak self] in self?.showPurposePicker() }
     }
 
     private func reloadTransaction() {
@@ -329,7 +337,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         headerTitleLabel.text = transaction.title
         amountLabel.text = transaction.signedAmountText
         amountLabel.textColor = transaction.direction == .income ? .abankIncomeAmount : .abankExpenseAmount
-        balanceLabel.text = transaction.isManual ? "手工记账 · 不影响银行卡余额" : "余额 ¥ \(transaction.balanceAfter.abankPlainAmountString())"
+        balanceLabel.text = transaction.channel == "信用卡" ? "信用卡消费 · 已计入本期账单" : transaction.isManual ? "手工记账 · 不影响银行卡余额" : "余额 ¥ \(transaction.balanceAfter.abankPlainAmountString())"
 
         headerIconBackground.backgroundColor = .clear
         headerIconView.image = LedgerTransactionArtwork.image(for: transaction)
@@ -344,6 +352,7 @@ final class IncomeExpenseDetailViewController: BaseViewController {
 
         includeRow.setOn(transaction.includeInFlow)
         categoryRow.configure(value: transaction.categoryTitle, placeholder: false)
+        purposeRow.configure(value: LedgerPurpose.title(transaction.purposeCategoryID) ?? "未设置", placeholder: transaction.purposeCategoryID == nil)
         if let ledgerTitle = LedgerBookCatalog.title(for: transaction.ledgerId) {
             ledgerRow.configure(value: ledgerTitle, placeholder: false)
         } else {
@@ -391,6 +400,19 @@ final class IncomeExpenseDetailViewController: BaseViewController {
             options: options.map { ($0.id, $0.title) },
             selectedId: transaction.categoryId
         )
+        activeSheet = sheet
+    }
+
+    private func showPurposePicker() {
+        dismissActiveSheet()
+        let sheet = IncomeExpenseOptionPickerSheet()
+        sheet.onSelect = { [weak self] id in
+            guard let self else { return }
+            self.finishLedgerEdit(FinanceLedgerStore.shared.setPurpose(id: self.transactionId, purpose: id.isEmpty ? nil : id))
+            self.activeSheet = nil
+        }
+        sheet.onCancel = { [weak self] in self?.activeSheet = nil }
+        sheet.present(in: navigationController?.view ?? view, title: "消费用途", options: [("", "未设置")] + LedgerPurpose.options, selectedId: transaction.purposeCategoryID)
         activeSheet = sheet
     }
 

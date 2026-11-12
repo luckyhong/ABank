@@ -65,7 +65,10 @@ nonisolated enum PaymentRules {
     }
 
     static func bill(for account: BillAccount, orders: [PaymentOrder], now: Date, dates: BankingDateContext) -> UtilityBill {
-        let period = currentPeriod(now: now, dates: dates)
+        bill(for: account, orders: orders, period: currentPeriod(now: now, dates: dates), dates: dates)
+    }
+
+    static func bill(for account: BillAccount, orders: [PaymentOrder], period: String, dates: BankingDateContext) -> UtilityBill {
         let paid = orders.contains { $0.targetID == account.id && $0.period == period }
         return UtilityBill(account: account, period: period, dueDate: dueDate(period: period, dates: dates),
                            amountInCents: billAmountInCents(for: account, period: period), isPaid: paid)
@@ -91,7 +94,7 @@ nonisolated enum PaymentRules {
 
     static func orderNo(id: String, createdAt: Date, dates: BankingDateContext) -> String {
         let digits = String(BranchSchedule.stableHash("payment", id) % 100_000_000)
-        return "M8" + dates.string(from: createdAt, format: "yyyyMMdd")
+        return "JF" + dates.string(from: createdAt, format: "yyyyMMdd")
             + String(repeating: "0", count: 8 - digits.count) + digits
     }
 

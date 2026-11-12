@@ -9,6 +9,14 @@ import UIKit
 import SnapKit
 
 final class WealthProductListViewController: WealthFlowViewController, RouteHosting {
+    private let accountID: String?
+    private let searchBar = UISearchBar()
+    private var keyword = ""
+    init(accountID: String? = nil) {
+        self.accountID = accountID
+        super.init()
+    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     private var categoryIndex = 0
     private var riskIndex = 0
     private var periodIndex = 0
@@ -18,6 +26,10 @@ final class WealthProductListViewController: WealthFlowViewController, RouteHost
     override func setupUI() {
         super.setupUI()
         title = "理财产品"
+        searchBar.placeholder = "搜索产品名称或关键词"
+        searchBar.delegate = self
+        searchBar.searchBarStyle = .minimal
+        searchBar.accessibilityIdentifier = "wealth.search"
     }
 
     override func setupNavigationBar() {
@@ -32,7 +44,8 @@ final class WealthProductListViewController: WealthFlowViewController, RouteHost
     }
 
     override func refreshBankingData() {
-        clearContent()
+        contentStack.arrangedSubviews.filter { $0 !== searchBar }.forEach { $0.removeFromSuperview() }
+        if searchBar.superview == nil { contentStack.addArrangedSubview(searchBar) }
         let categories = WealthCategory.allCases
         let risks = ProductRiskLevel.allCases
         let periods = HoldingPeriodFilter.allCases
@@ -45,7 +58,7 @@ final class WealthProductListViewController: WealthFlowViewController, RouteHost
             category: categoryIndex == 0 ? nil : categories[categoryIndex - 1],
             risk: riskIndex == 0 ? nil : risks[riskIndex - 1],
             period: periods[periodIndex]
-        )
+        ).filter { keyword.isEmpty || ($0.name + $0.summary).localizedStandardContains(keyword) }
         guard !products.isEmpty else {
             addEmptyState("暂无符合条件的产品", id: "wealth.empty")
             return
@@ -53,7 +66,7 @@ final class WealthProductListViewController: WealthFlowViewController, RouteHost
         for product in products {
             contentStack.addArrangedSubview(wealthProductRow(product) { [weak self] in
                 guard let self else { return }
-                self.router.open(.wealthProductDetail(productID: product.id), from: self)
+                self.router.open(self.accountID.map { .wealthAccount(accountID: $0, productID: product.id) } ?? .wealthProductDetail(productID: product.id), from: self)
             })
         }
         addNotice("查看产品详情与购买条件")
@@ -67,4 +80,12 @@ final class WealthProductListViewController: WealthFlowViewController, RouteHost
         }
         contentStack.addArrangedSubview(bar)
     }
+}
+
+extension WealthProductListViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        refreshBankingData()
+    }
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) { searchBar.resignFirstResponder() }
 }

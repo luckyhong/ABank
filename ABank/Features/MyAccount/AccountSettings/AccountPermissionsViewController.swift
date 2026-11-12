@@ -11,7 +11,7 @@ final class AccountPermissionsViewController: TransferFlowViewController, RouteH
     private let accountID: String
     private let ledger: FinanceLedgerStore
     private let transferRow = SecuritySwitchRow(title: "手机银行转账", subtitle: "关闭后无法转账", id: "permissions.transfer")
-    private let paymentRow = SecuritySwitchRow(title: "网上支付", subtitle: "关闭后无法手机充值和生活缴费", id: "permissions.payment")
+    private let paymentRow = SecuritySwitchRow(title: "网上支付", subtitle: "关闭后无法充值、缴费、存入定期或信用卡还款", id: "permissions.payment")
 
     var hostedRoute: AppRoute? { .accountPermissions(accountID: accountID) }
 

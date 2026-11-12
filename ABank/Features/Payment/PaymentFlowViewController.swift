@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 
 class PaymentFlowViewController: TransferFlowViewController {
+    var selectedPayerAccountID: String?
     let ledger: FinanceLedgerStore
     let benefits: BenefitsStore
     let dates: BankingDateContext
@@ -81,8 +82,17 @@ class PaymentFlowViewController: TransferFlowViewController {
     }
 
     /// 默认付款账户（当前账本仅一张人民币借记卡）及其可用余额（分）。
+    func payerPickerRow() -> UIView {
+        BankingAccountPickerRow(account: ledger.account(id: selectedPayerAccountID ?? FinanceLedgerRecord.defaultAccountId), id: "payment.payer") { [weak self] in
+            guard let self else { return }
+            BankingAccountPickerRow.choose(from: self, ledger: self.ledger, selected: self.selectedPayerAccountID) { [weak self] id in
+                self?.selectedPayerAccountID = id; self?.refreshBankingData()
+            }
+        }
+    }
+
     func payerAccount() -> (label: String, balanceInCents: Int64) {
-        let account = ledger.load().accounts.first { $0.id == FinanceLedgerRecord.defaultAccountId }
+        let account = ledger.load().accounts.first { $0.id == (selectedPayerAccountID ?? FinanceLedgerRecord.defaultAccountId) }
         let balance = account.flatMap { TransferMoney.cents(from: $0.balance) } ?? 0
         return (account?.cardLabel ?? "无可用账户", balance)
     }

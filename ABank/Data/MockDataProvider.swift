@@ -19,26 +19,11 @@ final class MockDataProvider {
     func getHomePageData() -> HomePageData {
         HomePageData(
             searchPlaceholders: ["分期借钱", "存金通", "个人养老金", "农银快e宝", "生活缴费"],
-            messageBadge: 322,
+            messageBadge: BankMessageStore.shared.unreadCount(),
             heroBanners: [
-                HomeHeroBannerItem(
-                    title: "微信首绑享优惠",
-                    subtitle: "16元返现券",
-                    actionTitle: "查看详情 >",
-                    isAd: true
-                ),
-                HomeHeroBannerItem(
-                    title: "掌银新客专享礼",
-                    subtitle: "最高88元立减金",
-                    actionTitle: "立即领取 >",
-                    isAd: true
-                ),
-                HomeHeroBannerItem(
-                    title: "信用卡笔笔返现",
-                    subtitle: "达标最高返88元",
-                    actionTitle: "去看看 >",
-                    isAd: true
-                )
+                HomeHeroBannerItem(title: "掌银收支", subtitle: "花多少 花在哪", actionTitle: "查看账单", isAd: false, imageName: "abc_home_bill_banner", featureID: .incomeExpense),
+                HomeHeroBannerItem(title: "签到领小豆", subtitle: "查看小豆权益", actionTitle: "去签到", isAd: false, imageName: "abc_home_beans_banner", featureID: .beans),
+                HomeHeroBannerItem(title: "掌银连接美好生活", subtitle: "便捷生活服务", actionTitle: "查看服务", isAd: false, imageName: "abc_home_life_banner", featureID: .lifePayment)
             ],
             shortcuts: [
                 HomeShortcutItem(title: "我的账户", imageName: "abc_home_account", systemIcon: "person.fill", backgroundColor: UIColor(red: 0.0, green: 0.68, blue: 0.58, alpha: 1), featureID: .myAccount),
@@ -142,10 +127,10 @@ final class MockDataProvider {
     func getWealthPageData() -> WealthPageData {
         WealthPageData(
             searchPlaceholder: "存款证明",
-            messageBadge: 322,
+            messageBadge: BankMessageStore.shared.unreadCount(),
             greeting: WealthGreeting(
-                message: "上午好，点击查看持仓",
-                loginTitle: "登录"
+                message: "欢迎回来，查看您的资产与持仓",
+                loginTitle: "我的持仓"
             ),
             gridItems: [
                 WealthGridItem(title: "存款", imageName: "abc_wealth_menu_deposit", systemIcon: "house.fill", featureID: .deposit),
@@ -472,12 +457,12 @@ final class MockDataProvider {
         MinePageData(
             profile: MineProfileInfo(
                 displayName: "*继宏",
-                lastLoginDevice: "上次登录 iPhone 15",
-                lastLoginTime: "2026-08-13 21:03:30",
+                lastLoginDevice: "当前设备 " + UIDevice.current.model,
+                lastLoginTime: CustomerSessionStore.shared.lastLogin.isEmpty ? "欢迎回来" : CustomerSessionStore.shared.lastLogin,
                 vipLevel: BenefitsStore.shared.level.title,
                 benefitsTitle: "权益中心"
             ),
-            assetStats: MineAssetStats.make(benefits: .shared, accountCount: FinanceLedgerStore.shared.load().accounts.count),
+            assetStats: MineAssetStats.make(benefits: .shared, accountCount: FinanceLedgerStore.shared.load().accounts.count + FinanceLedgerStore.shared.load().creditCards.count),
             assetLiability: FinanceLedgerStore.shared.mineAssetLiability(),
             monthlyFlow: FinanceLedgerStore.shared.mineMonthlyFlow(),
             branch: mineBranchInfo(),

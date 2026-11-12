@@ -208,6 +208,9 @@ final class AssetLiabilityViewController: BankingDataViewController {
             router.open(.incomeExpense(accountID: itemId), from: self)
         case FinanceLedgerRecord.loanCategoryId:
             router.open(.myLoan, from: self)
+        case "term_deposit":
+            router.open(itemId.map { .depositDetail(id: $0) } ?? .deposits, from: self)
+        case "credit_card": router.open(.creditCards, from: self)
         case FinanceLedgerRecord.wealthCategoryId:
             if let itemId {
                 router.open(.wealthOrderDetail(orderID: itemId, justPurchased: false), from: self)

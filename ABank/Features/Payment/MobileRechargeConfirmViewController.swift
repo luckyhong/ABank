@@ -44,7 +44,7 @@ final class MobileRechargeConfirmViewController: PaymentFlowViewController, Rout
             TransferInfoRow("充值号码", value: PaymentRules.maskedPhone(phone)),
             TransferInfoRow("运营商", value: PaymentRules.phoneOperator(of: phone).title),
             TransferInfoRow("充值面额", value: "\(wealthMoneyText(faceInCents)) 元"),
-            TransferInfoRow("付款账户", value: payer.label),
+            payerPickerRow(),
             TransferInfoRow("可用余额", value: "\(wealthMoneyText(payer.balanceInCents)) 元")
         ])
 
@@ -105,7 +105,7 @@ final class MobileRechargeConfirmViewController: PaymentFlowViewController, Rout
     private func submit(paid: Int64, couponID: String?) {
         do {
             let order = try ledger.submitMobileRecharge(phone: phone, faceInCents: faceInCents, couponID: couponID,
-                                                        requestID: requestID, expectedPaidInCents: paid)
+                                                        requestID: requestID, expectedPaidInCents: paid, accountID: selectedPayerAccountID)
             requestID = UUID().uuidString
             selectedCouponID = nil
             router.open(.paymentOrderDetail(orderID: order.id, justPaid: true), from: self)

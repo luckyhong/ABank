@@ -61,13 +61,15 @@ extension FinanceLedgerStore {
 }
 
 extension TransferRecord {
+    var businessReference: String {
+        "TR" + createdAt.prefix(10).replacingOccurrences(of: "-", with: "") + String(format: "%012llu", BranchSchedule.stableHash("receipt", id) % 1_000_000_000_000)
+    }
     var receiptText: String {
         """
         转账电子回单
         请核对交易时间、金额及收款信息
 
-        交易单号：\(id)
-        关联流水：\(transactionID ?? "无")
+        交易单号：\(businessReference)
         交易时间：\(createdAt)
         状态：\(status.title)
         金额：人民币 \(TransferMoney.text(amountInCents)) 元

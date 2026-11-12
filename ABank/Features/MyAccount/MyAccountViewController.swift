@@ -19,7 +19,9 @@ final class MyAccountViewController: BankingDataViewController {
     private let contentView = UIView()
 
     private let debitCardStack = UIStackView()
+    private let creditSection = UIStackView()
     private let creditAdView = MyAccountCreditAdView()
+    private let creditSummary = UIControl()
     private let openAccountButton = MyAccountOpenAccountButton()
 
     init(pageData: MyAccountPageData = MockDataProvider.shared.getMyAccountPageData()) {
@@ -55,6 +57,7 @@ final class MyAccountViewController: BankingDataViewController {
     override func refreshBankingData() {
         pageData = MockDataProvider.shared.getMyAccountPageData()
         renderCards()
+        renderCreditCard()
     }
 
     override func setupUI() {
@@ -62,7 +65,7 @@ final class MyAccountViewController: BankingDataViewController {
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
-        [debitCardStack, creditAdView, openAccountButton].forEach { contentView.addSubview($0) }
+        [debitCardStack, creditSection, openAccountButton].forEach { contentView.addSubview($0) }
 
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -77,23 +80,40 @@ final class MyAccountViewController: BankingDataViewController {
             make.top.equalToSuperview().offset(28)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
         }
-        creditAdView.snp.makeConstraints { make in
+        creditSection.axis = .vertical
+        creditSection.addArrangedSubview(creditAdView)
+        creditSection.addArrangedSubview(creditSummary)
+        creditSection.snp.makeConstraints { make in
             make.top.equalTo(debitCardStack.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
         }
         openAccountButton.snp.makeConstraints { make in
-            make.top.equalTo(creditAdView.snp.bottom).offset(32)
+            make.top.equalTo(creditSection.snp.bottom).offset(32)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
             make.bottom.equalToSuperview().offset(-Spacing.xl)
         }
 
         renderCards()
         creditAdView.configure(imageName: pageData.creditAdImageName)
+        creditSummary.addAction(UIAction { [weak self] _ in guard let self else { return }; self.router.open(.creditCards, from: self) }, for: .touchUpInside)
+        renderCreditCard()
 
         creditAdView.onAdTapped = { [weak self] in
             self?.handle(.creditAd)
         }
         openAccountButton.addTarget(self, action: #selector(openAccountTapped), for: .touchUpInside)
+    }
+
+    private func renderCreditCard() {
+        creditSummary.subviews.forEach { $0.removeFromSuperview() }
+        let card = FinanceLedgerStore.shared.load().creditCards.first
+        creditAdView.isHidden = card != nil; creditSummary.isHidden = card == nil
+        guard let card else { return }
+        let content = BankingPageStyle.surface([BankingPageStyle.section("信用卡 · " + card.tail),
+            BankingPageStyle.text("本期剩余应还 ¥ " + TransferMoney.text(card.remainingInCents), style: .title3),
+            BankingPageStyle.text("到期还款日 " + card.dueDate + "　查看账单 ›", style: .subheadline, color: .abankTextSecondary)])
+        content.isUserInteractionEnabled = false
+        creditSummary.addSubview(content); content.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 
     private func renderCards() {
@@ -131,7 +151,8 @@ final class MyAccountViewController: BankingDataViewController {
                 animated: true
             )
         case .flexibleWealth:
-            router.open(.wealthProducts, from: self)
+            if let card { router.open(.wealthAccount(accountID: card.accountId, productID: nil), from: self) }
+            else { router.open(.wealthProducts, from: self) }
         case .more:
             router.open(.transferLimits, from: self)
         case .openElectronic:
@@ -150,7 +171,7 @@ final class MyAccountViewController: BankingDataViewController {
             })
             present(alert, animated: true)
         case .creditAd:
-            router.open(.comingSoon(.creditCard), from: self)
+            router.open(.creditCards, from: self)
         }
     }
 

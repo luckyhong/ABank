@@ -249,11 +249,12 @@ extension Notification.Name {
     func totalAssets() -> Double {
         let record = load()
         return record.accounts.reduce(0) { $0 + $1.balance }
-            + TransferMoney.amount(holdingValueInCents(in: record))
+            + TransferMoney.amount(holdingValueInCents(in: record) + record.termDeposits.filter { $0.closedAt == nil }.reduce(0) { $0 + $1.principalInCents })
     }
 
     func totalLiabilities() -> Double {
-        load().loanContracts.reduce(0) { $0 + $1.unpaidPrincipal }
+        let record = load()
+        return record.loanContracts.reduce(0) { $0 + $1.unpaidPrincipal } + TransferMoney.amount(record.creditCards.reduce(0) { $0 + $1.remainingInCents })
     }
 
     func monthlyFlow(for month: String) -> MonthlyFlowSummary {
@@ -336,13 +337,17 @@ extension Notification.Name {
             )
         ]
         if let wealth = wealthAssetCategory(in: record) { assetCategories.append(wealth) }
+        let deposits = record.termDeposits.filter { $0.closedAt == nil }
+        if !deposits.isEmpty { assetCategories.append(AssetLiabilityCategory(id: "term_deposit", title: "定期存款", totalAmount: TransferMoney.amount(deposits.reduce(0) { $0 + $1.principalInCents }),
+            items: deposits.map { AssetLiabilityItem(id: $0.id, title: $0.title, amount: TransferMoney.amount($0.principalInCents), showsCurrencySymbol: true, subtitle: "到期日 " + $0.maturityDate, showsMenu: false) })) }
         return AssetLiabilityPageData(
             totalAssets: totalAssets(),
             totalLiabilities: totalLiabilities(),
             dataTimestamp: record.dataTimestamp,
             announcement: record.assetLiabilityAnnouncement,
             assetCategories: assetCategories,
-            liabilityCategories: [
+            liabilityCategories: (record.creditCards.isEmpty ? [] : [AssetLiabilityCategory(id: "credit_card", title: "信用卡", totalAmount: TransferMoney.amount(record.creditCards.reduce(0) { $0 + $1.remainingInCents }),
+                items: record.creditCards.map { AssetLiabilityItem(id: $0.id, title: "信用卡" + $0.tail, amount: TransferMoney.amount($0.remainingInCents), showsCurrencySymbol: true, subtitle: "剩余应还", showsMenu: false) })]) + [
                 AssetLiabilityCategory(
                     id: FinanceLedgerRecord.loanCategoryId,
                     title: "贷款",
@@ -418,6 +423,7 @@ extension Notification.Name {
         for account in record.accounts {
             options.append((.debitCard(id: account.id), account.cardLabel, "creditcard"))
         }
+        for card in record.creditCards { options.append((.debitCard(id: card.id), "信用卡" + card.tail, "creditcard")) }
         options.append((.manual, "手工记账", "pencil"))
         return options.map { (filter: $0.0, title: $0.1, icon: $0.2) }
     }
@@ -474,7 +480,7 @@ extension Notification.Name {
         case .all: return "全部账户"
         case .excludeManual: return "不含手工记账"
         case .debitCard(let id):
-            return accounts.first(where: { $0.id == id })?.cardLabel ?? "借记卡"
+            return accounts.first(where: { $0.id == id })?.cardLabel ?? load().creditCards.first(where: { $0.id == id }).map { "信用卡" + $0.tail } ?? "账户"
         case .manual: return "手工记账"
         }
     }
@@ -483,7 +489,7 @@ extension Notification.Name {
         let record = load()
         let contracts = record.loanContracts
         return MyLoanPageData(
-            monthlyDue: contracts.reduce(0) { $0 + $1.monthlyDue },
+            monthlyDue: loanDuePageData(period: .thisMonth).totalAmount,
             totalUnpaidPrincipal: contracts.reduce(0) { $0 + $1.unpaidPrincipal },
             availableLimit: contracts.reduce(0) { $0 + $1.availableLimit },
             contracts: contracts,
@@ -492,7 +498,7 @@ extension Notification.Name {
     }
 
     func accountCardLabel(for accountId: String) -> String {
-        accountId == "manual" ? "手工记账" : (load().accounts.first(where: { $0.id == accountId })?.cardLabel ?? "借记卡")
+        accountId == "manual" ? "手工记账" : (load().accounts.first(where: { $0.id == accountId })?.cardLabel ?? load().creditCards.first(where: { $0.id == accountId }).map { "信用卡" + $0.tail } ?? "账户")
     }
 
     func accountDetailQueryPageData(
@@ -698,38 +704,37 @@ extension Notification.Name {
         )
     }
 
+    func pendingLoanPlans() -> [(contract: LoanContract, plan: LoanRepaymentPlanItem)] {
+        load().loanContracts.flatMap { contract -> [(contract: LoanContract, plan: LoanRepaymentPlanItem)] in
+            guard let principal = TransferMoney.cents(from: contract.unpaidPrincipal), principal > 0,
+                  let installment = TransferMoney.cents(from: contract.installmentAmount) else { return [] }
+            return LoanAmortization.schedule(principalInCents: principal, installmentInCents: installment,
+                terms: contract.remainingTerms, annualPercent: contract.annualRatePercent,
+                firstPeriod: contract.nextPeriod, firstDueDate: contract.nextDueDate,
+                contractNumber: contract.contractNumber, dates: dates, finalDueDate: contract.finalDueDate)
+                .map { (contract: contract, plan: $0) }
+        }.sorted { $0.plan.date < $1.plan.date }
+    }
+
     func loanDuePageData(period: LoanDuePeriod) -> LoanDuePageData {
-        let tip = "温馨提示：以上内容仅供参考，如需了解详情请联系您的客户经理。"
-        let contracts = load().loanContracts
-        switch period {
-        case .thisMonth:
-            // 参考日 2026-08：本月已还清，应还为 0
-            return LoanDuePageData(
-                period: .thisMonth,
-                totalAmount: contracts.reduce(0) { $0 + $1.monthlyDue },
-                installments: [],
-                tip: tip
-            )
-        case .nextMonth:
-            let items: [LoanDueInstallment] = contracts.map { contract in
-                LoanDueInstallment(
-                    id: "due_next_\(contract.id)",
-                    date: contract.nextDueDate,
-                    amount: contract.installmentAmount,
-                    loanName: contract.name,
-                    contractNumber: contract.contractNumber.isEmpty
-                        ? "—"
-                        : contract.contractNumber
-                )
-            }
-            let total = items.reduce(0) { $0 + $1.amount }
-            return LoanDuePageData(
-                period: .nextMonth,
-                totalAmount: total,
-                installments: items,
-                tip: tip
-            )
+        let month: String
+        if period == .thisMonth { month = dates.currentMonth }
+        else {
+            let start = dates.calendar.dateInterval(of: .month, for: dates.now)!.start
+            month = dates.string(from: dates.calendar.date(byAdding: .month, value: 1, to: start)!, format: "yyyy-MM")
         }
+        let pending = pendingLoanPlans()
+        let items = pending.filter { $0.plan.date.hasPrefix(month) }.map { item in
+            LoanDueInstallment(id: "due_" + item.contract.id + "_" + String(item.plan.period),
+                date: item.plan.date, amount: item.plan.repaymentAmount, loanName: item.contract.name,
+                contractNumber: item.contract.contractNumber.isEmpty ? "—" : item.contract.contractNumber)
+        }
+        let earlier = pending.filter { String($0.plan.date.prefix(7)) < dates.currentMonth }
+        let tip = earlier.isEmpty
+            ? "应还金额依据还款计划列示，已完成的还款请以交易明细为准。"
+            : "另有\(earlier.count)期历史计划待处理，请在还款详情中查看。计划到期不会自动生成已还流水。"
+        let cents = items.reduce(Int64(0)) { $0 + (TransferMoney.cents(from: $1.amount) ?? 0) }
+        return LoanDuePageData(period: period, totalAmount: TransferMoney.amount(cents), installments: items, tip: tip)
     }
 
     /// 该合同的提前还款记录，新→旧。

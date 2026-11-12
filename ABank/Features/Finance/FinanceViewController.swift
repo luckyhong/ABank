@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-final class WealthViewController: BaseViewController {
+final class WealthViewController: BankingDataViewController {
 
     private let pageData = MockDataProvider.shared.getWealthPageData()
 
@@ -176,19 +176,23 @@ final class WealthViewController: BaseViewController {
         )
         steadyGrowth.configure(with: pageData.steadyProducts)
         incomeAdvance.configure(with: pageData.fundItems)
-        popularDeposit.configure(with: pageData.depositItems)
+        popularDeposit.configure(with: DepositProduct.all.map { WealthDepositItem(name: $0.title, rate: $0.rateText, rateLabel: "年利率", term: "\($0.months)个月", minPurchase: "50元起存") })
         bondIndex.configure(with: pageData.bondIndex)
         studySection.configure(banner: pageData.studyBanner, cards: pageData.studyCards)
+    }
+
+    override func refreshBankingData() {
+        searchBar.configure(placeholder: pageData.searchPlaceholder, badgeCount: BankMessageStore.shared.unreadCount())
     }
 
     private func bindActions() {
         searchBar.onScanTapped = { [weak self] in guard let self else { return }; self.router.open(.scan, from: self) }
         searchBar.onSearchTapped = { [weak self] in
-            self?.showToast("搜索「\(self?.pageData.searchPlaceholder ?? "")」")
+            guard let self else { return }; self.router.open(.wealthProducts, from: self)
         }
         searchBar.onServiceTapped = { [weak self] in guard let self else { return }; self.router.open(.assistant, from: self) }
         searchBar.onMessageTapped = { [weak self] in
-            self?.showToast("您有 \(self?.pageData.messageBadge ?? 0) 条未读消息")
+            guard let self else { return }; self.router.open(.messages, from: self)
         }
 
         loginCard.onLoginTapped = { [weak self] in
@@ -206,7 +210,7 @@ final class WealthViewController: BaseViewController {
         }
 
         hotspotView.onTap = { [weak self] in
-            self?.showToast(self?.pageData.hotspot.headline ?? "热点资讯")
+            guard let self else { return }; self.router.open(.newsFeed, from: self)
         }
 
         featuredProduct.onTabSelected = { [weak self] index in
@@ -221,16 +225,16 @@ final class WealthViewController: BaseViewController {
             }
         }
 
-        spareMoneyZone.onHeaderTapped = { [weak self] in self?.showToast("活钱专区") }
+        spareMoneyZone.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.wealthProducts, from: self) }
         spareMoneyZone.onFeaturedTapped = { [weak self] in
-            self?.showToast(self?.pageData.spareMoneyFeatured.title ?? "农银时时付")
+            guard let self else { return }; self.router.open(.wealthProductDetail(productID: "w.shishifu"), from: self)
         }
         spareMoneyZone.onSideTapped = { [weak self] index in
             let title = self?.pageData.spareMoneySides[safe: index]?.title ?? "产品"
-            self?.showToast(title)
+            guard let self else { return }; self.router.open(.wealthProducts, from: self)
         }
 
-        steadyGrowth.onHeaderTapped = { [weak self] in self?.showToast("稳健增长") }
+        steadyGrowth.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.wealthProducts, from: self) }
         steadyGrowth.onProductTapped = { [weak self] index in
             guard let self else { return }
             if let id = self.pageData.steadyProducts[safe: index]?.productID {
@@ -240,29 +244,26 @@ final class WealthViewController: BaseViewController {
             }
         }
 
-        incomeAdvance.onHeaderTapped = { [weak self] in self?.showToast("收益进阶") }
-        incomeAdvance.onItemTapped = { [weak self] index in
-            let name = self?.pageData.fundItems[safe: index]?.name ?? "基金"
-            self?.showToast(name)
+        incomeAdvance.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.comingSoon(.fund), from: self) }
+        incomeAdvance.onItemTapped = { [weak self] _ in
+            guard let self else { return }; self.router.open(.comingSoon(.fund), from: self)
         }
-
-        popularDeposit.onHeaderTapped = { [weak self] in self?.showToast("热门存款") }
-        popularDeposit.onItemTapped = { [weak self] index in
-            let name = self?.pageData.depositItems[safe: index]?.name ?? "大额存单"
-            self?.showToast(name)
+        popularDeposit.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.deposits, from: self) }
+        popularDeposit.onItemTapped = { [weak self] _ in
+            guard let self else { return }; self.router.open(.deposits, from: self)
         }
 
         bondIndex.onTap = { [weak self] in
-            self?.showToast(self?.pageData.bondIndex.name ?? "债券指数")
+            guard let self else { return }; self.router.open(.comingSoon(.bonds), from: self)
         }
 
-        studySection.onHeaderTapped = { [weak self] in self?.showToast("财富研习所") }
+        studySection.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.newsFeed, from: self) }
         studySection.onBannerTapped = { [weak self] in
-            self?.showToast(self?.pageData.studyBanner.title ?? "财富研习")
+            guard let self else { return }; self.router.open(.newsFeed, from: self)
         }
         studySection.onCardTapped = { [weak self] index in
             let title = self?.pageData.studyCards[safe: index]?.title ?? "文章"
-            self?.showToast(title)
+            guard let self else { return }; self.router.open(.newsFeed, from: self)
         }
     }
 

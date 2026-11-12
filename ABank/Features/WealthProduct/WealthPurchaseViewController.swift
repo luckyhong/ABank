@@ -11,6 +11,7 @@ import SnapKit
 
 final class WealthPurchaseViewController: WealthFlowViewController, RouteHosting {
     private let productID: String
+    private var accountID: String?
     private var requestID = UUID().uuidString
     private let amountRow = TransferInputRow("购买金额", placeholder: "请输入金额（元）", id: "wealth.amount", keyboard: .decimalPad)
     private let agreeSwitch = UISwitch()
@@ -19,9 +20,10 @@ final class WealthPurchaseViewController: WealthFlowViewController, RouteHosting
 
     var hostedRoute: AppRoute? { .wealthPurchase(productID: productID) }
 
-    init(productID: String, ledger: FinanceLedgerStore = .shared, risk: RiskAssessmentStore = .shared,
+    init(productID: String, accountID: String? = nil, ledger: FinanceLedgerStore = .shared, risk: RiskAssessmentStore = .shared,
          dates: BankingDateContext = .system) {
         self.productID = productID
+        self.accountID = accountID
         super.init(ledger: ledger, risk: risk, dates: dates)
     }
 
@@ -55,10 +57,10 @@ final class WealthPurchaseViewController: WealthFlowViewController, RouteHosting
         name.numberOfLines = 0
         addCard([name, branchCaption("\(product.risk.shortTitle) \(product.risk.title) · 年化 \(product.rateText) · 最低持有 \(product.minHoldDays) 天")])
 
-        let account = ledger.load().accounts.first { $0.id == FinanceLedgerRecord.defaultAccountId }
+        let account = ledger.load().accounts.first { $0.id == (accountID ?? FinanceLedgerRecord.defaultAccountId) }
         let balance = account.flatMap { TransferMoney.cents(from: $0.balance) } ?? 0
         addGroup([
-            TransferInfoRow("付款账户", value: account?.cardLabel ?? "无可用账户"),
+            BankingAccountPickerRow(account: account, id: "wealth.payer") { [weak self] in self?.chooseAccount() },
             TransferInfoRow("可用余额", value: "\(wealthMoneyText(balance)) 元"),
             amountRow
         ])
@@ -80,6 +82,13 @@ final class WealthPurchaseViewController: WealthFlowViewController, RouteHosting
         inputDidChange()
     }
 
+    private func chooseAccount() {
+        BankingAccountPickerRow.choose(from: self, ledger: ledger, selected: accountID) { [weak self] id in
+            self?.accountID = id
+            self?.refreshBankingData()
+        }
+    }
+
     private func redeemableDayText(_ product: WealthProduct) -> String {
         let start = dates.calendar.startOfDay(for: dates.now)
         let day = dates.calendar.date(byAdding: .day, value: product.minHoldDays, to: start)!
@@ -92,7 +101,7 @@ final class WealthPurchaseViewController: WealthFlowViewController, RouteHosting
         guard !text.isEmpty else { return (nil, nil) }
         guard let cents = TransferMoney.parse(text) else { return (WealthError.invalidAmount.localizedDescription, nil) }
         do {
-            try ledger.validateWealthPurchase(productID: product.id, amountInCents: cents)
+            try ledger.validateWealthPurchase(productID: product.id, amountInCents: cents, accountID: accountID)
             return (nil, cents)
         } catch {
             return (error.localizedDescription, nil)
@@ -118,7 +127,7 @@ final class WealthPurchaseViewController: WealthFlowViewController, RouteHosting
 
     private func submit(_ product: WealthProduct, cents: Int64) {
         do {
-            let order = try ledger.submitWealthPurchase(productID: product.id, amountInCents: cents, requestID: requestID)
+            let order = try ledger.submitWealthPurchase(productID: product.id, amountInCents: cents, requestID: requestID, accountID: accountID)
             requestID = UUID().uuidString
             amountRow.field.text = ""
             agreeSwitch.isOn = false

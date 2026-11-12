@@ -49,6 +49,8 @@ struct WidgetSnapshotStore {
         defaults?.set(snapshot.encoded(), forKey: WidgetSnapshot.storageKey)
     }
 
+    func clear() { defaults?.removeObject(forKey: WidgetSnapshot.storageKey) }
+
     func load() -> WidgetSnapshot? {
         WidgetSnapshot.decode(defaults?.data(forKey: WidgetSnapshot.storageKey))
     }
@@ -64,6 +66,11 @@ struct WidgetSnapshotSync {
         self.store = store
         self.reload = reload
         self.last = store.load()
+    }
+
+    mutating func clear() {
+        guard last != nil else { return }
+        store.clear(); last = nil; reload()
     }
 
     mutating func sync(_ snapshot: WidgetSnapshot?) {

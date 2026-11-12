@@ -17,13 +17,16 @@ struct FinanceLedgerRecord: Codable, Equatable {
     var wealthOrders: [WealthOrder] = []
     var paymentOrders: [PaymentOrder] = []
     var loanServiceRecords: [LoanServiceRecord] = []
+    var termDeposits: [TermDeposit] = []
+    var creditCards: [CreditCardAccount] = []
+    var creditRepayments: [CreditRepaymentRecord] = []
     /// 已应用的演示基线版本；旧账本缺失时保持兼容，不据此清空自定义数据。
     var demoDataVersion: String? = nil
 
     private enum CodingKeys: String, CodingKey {
         case accounts, transactions, loanContracts, assetLiabilityAnnouncement, dataTimestamp, transferRecords, wealthOrders, paymentOrders
         case loanServiceRecords
-        case demoDataVersion
+        case demoDataVersion, termDeposits, creditCards, creditRepayments
     }
 
     init(accounts: [LedgerAccount], transactions: [LedgerTransaction], loanContracts: [LoanContract],
@@ -53,10 +56,17 @@ struct FinanceLedgerRecord: Codable, Equatable {
         paymentOrders = try values.decodeIfPresent([PaymentOrder].self, forKey: .paymentOrders) ?? []
         loanServiceRecords = try values.decodeIfPresent([LoanServiceRecord].self, forKey: .loanServiceRecords) ?? []
         demoDataVersion = try values.decodeIfPresent(String.self, forKey: .demoDataVersion)
+        termDeposits = try values.decodeIfPresent([TermDeposit].self, forKey: .termDeposits) ?? []
+        creditCards = try values.decodeIfPresent([CreditCardAccount].self, forKey: .creditCards) ?? []
+        creditRepayments = try values.decodeIfPresent([CreditRepaymentRecord].self, forKey: .creditRepayments) ?? []
     }
 }
 
 // MARK: - 账户
+
+enum BankAccountKind: String, Codable { case debitCard, electronic
+    var title: String { self == .electronic ? "电子账户" : "借记卡" }
+}
 
 struct LedgerAccount: Codable, Equatable, Identifiable {
     let id: String
@@ -72,18 +82,20 @@ struct LedgerAccount: Codable, Equatable, Identifiable {
     var accountNumber: String? = nil
     var openedOn: String? = nil
     var branchName: String? = nil
+    var kind: BankAccountKind? = nil
+    var effectiveKind: BankAccountKind { kind ?? (id.hasPrefix("electronic_") ? .electronic : .debitCard) }
 
     var displayName: String { "尾号\(tailNumber) (\(currency))" }
     /// 所有页面统一使用的卡名：有别名时为“别名（尾号）”。
     var cardLabel: String {
         if let alias { return "\(alias)（\(tailNumber)）" }
-        return "借记卡\(tailNumber)"
+        return effectiveKind.title + tailNumber
     }
 }
 
 extension LedgerAccount {
     private enum CodingKeys: String, CodingKey {
-        case id, tailNumber, currency, balance, openingBalance, alias, permissions, isReportedLost, accountNumber, openedOn, branchName
+        case id, tailNumber, currency, balance, openingBalance, alias, permissions, isReportedLost, accountNumber, openedOn, branchName, kind
     }
 
     init(from decoder: Decoder) throws {
@@ -99,6 +111,7 @@ extension LedgerAccount {
         accountNumber = try container.decodeIfPresent(String.self, forKey: .accountNumber)
         openedOn = try container.decodeIfPresent(String.self, forKey: .openedOn)
         branchName = try container.decodeIfPresent(String.self, forKey: .branchName)
+        kind = try container.decodeIfPresent(BankAccountKind.self, forKey: .kind)
     }
 }
 
@@ -123,6 +136,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
     var iconKey: String
     /// 业务分类，对应筛选面板标签 id
     var categoryId: String
+    var purposeCategoryID: String? = nil
     /// 是否手工记账
     var isManual: Bool
     /// 是否计入收支汇总
@@ -168,7 +182,8 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         channel: String = "手机银行",
         ledgerId: String? = nil,
         note: String = "",
-        orderingTime: String? = nil
+        orderingTime: String? = nil,
+        purposeCategoryID: String? = nil
     ) {
         self.id = id
         self.accountId = accountId
@@ -192,6 +207,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         self.ledgerId = ledgerId
         self.note = note
         self.orderingTime = orderingTime
+        self.purposeCategoryID = purposeCategoryID
     }
 
     init(from decoder: Decoder) throws {
@@ -207,6 +223,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         balanceAfter = try container.decode(Double.self, forKey: .balanceAfter)
         iconKey = try container.decode(String.self, forKey: .iconKey)
         categoryId = try container.decodeIfPresent(String.self, forKey: .categoryId) ?? "other_expense"
+        purposeCategoryID = try container.decodeIfPresent(String.self, forKey: .purposeCategoryID)
         isManual = try container.decodeIfPresent(Bool.self, forKey: .isManual) ?? false
         includeInFlow = try container.decodeIfPresent(Bool.self, forKey: .includeInFlow) ?? true
         counterpartyName = try container.decodeIfPresent(String.self, forKey: .counterpartyName) ?? ""
@@ -524,7 +541,8 @@ enum IncomeExpenseFilterCatalog {
             .init(id: "self_transfer", title: "转账给自己", isAll: false),
             .init(id: "abc_credit_repay", title: "还农行信用卡", isAll: false),
             .init(id: "wealth_product", title: "理财产品", isAll: false),
-            .init(id: "fund", title: "基金", isAll: false)
+            .init(id: "fund", title: "基金", isAll: false),
+            .init(id: "term_deposit", title: "定期存款", isAll: false)
         ]
     )
 

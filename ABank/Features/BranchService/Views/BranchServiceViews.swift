@@ -111,9 +111,9 @@ final class BranchStatusTagView: UIView {
 
     init(text: String, active: Bool) {
         super.init(frame: .zero)
-        let color: UIColor = active ? .abankPrimary : .abankTextTertiary
+        let color: UIColor = active ? .abankPrimaryDark : .abankTextSecondary
         label.text = text
-        label.font = .systemFont(ofSize: 11)
+        label.font = .systemFont(ofSize: 12)
         label.textColor = color
         layer.borderColor = color.cgColor
         layer.borderWidth = 0.8
@@ -134,6 +134,11 @@ final class BranchStatusTagView: UIView {
 
     convenience init(reservationStatus: ReservationStatus) {
         self.init(text: reservationStatus.title, active: reservationStatus == .pending)
+    }
+
+    override var intrinsicContentSize: CGSize {
+        let size = label.intrinsicContentSize
+        return CGSize(width: size.width + 10, height: size.height + 2)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }

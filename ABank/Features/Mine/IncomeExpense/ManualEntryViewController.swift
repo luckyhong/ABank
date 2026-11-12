@@ -11,6 +11,8 @@ final class ManualEntryViewController: TransferFlowViewController {
     private let datePicker = UIDatePicker()
     private let categoryButton = UIButton(type: .system)
     private let bookButton = UIButton(type: .system)
+    private let purposeButton = UIButton(type: .system)
+    private var purposeID: String?
     private let errorLabel = UILabel()
     private var categoryID: String
     private var bookID: String?
@@ -18,6 +20,7 @@ final class ManualEntryViewController: TransferFlowViewController {
 
     init(transaction: LedgerTransaction? = nil) {
         existing = transaction
+        purposeID = transaction?.purposeCategoryID
         entryID = transaction?.id ?? "manual_" + UUID().uuidString
         categoryID = transaction?.categoryId ?? "other_expense"
         bookID = transaction?.ledgerId
@@ -56,7 +59,7 @@ final class ManualEntryViewController: TransferFlowViewController {
         dateRow.addSubview(datePicker)
         datePicker.snp.makeConstraints { $0.trailing.equalToSuperview().inset(16); $0.centerY.equalToSuperview() }
         addGroup([dateRow])
-        for (button, action) in [(categoryButton, #selector(chooseCategory)), (bookButton, #selector(chooseBook))] {
+        for (button, action) in [(categoryButton, #selector(chooseCategory)), (bookButton, #selector(chooseBook)), (purposeButton, #selector(choosePurpose))] {
             button.tintColor = .abankTeal
             button.titleLabel?.font = .systemFont(ofSize: 16)
             button.contentHorizontalAlignment = .leading
@@ -77,6 +80,7 @@ final class ManualEntryViewController: TransferFlowViewController {
     }
 
     private func renderOptions() {
+        purposeButton.setTitle("用途　\(LedgerPurpose.title(purposeID) ?? "未设置")", for: .normal)
         categoryButton.setTitle("分类　\(IncomeExpenseFilterCatalog.title(for: categoryID) ?? "请选择")　›", for: .normal)
         bookButton.setTitle("账本　\(LedgerBookCatalog.title(for: bookID) ?? "未归属")　›", for: .normal)
     }
@@ -86,6 +90,11 @@ final class ManualEntryViewController: TransferFlowViewController {
         sheet.onSelect = { [weak self] id in self?.categoryID = id; self?.renderOptions() }
         sheet.present(in: navigationController?.view ?? view, title: "选择分类",
                       options: IncomeExpenseFilterCatalog.selectableOptions(for: direction).map { ($0.id, $0.title) }, selectedId: categoryID)
+    }
+    @objc private func choosePurpose() {
+        let sheet = IncomeExpenseOptionPickerSheet()
+        sheet.onSelect = { [weak self] id in self?.purposeID = id.isEmpty ? nil : id; self?.renderOptions() }
+        sheet.present(in: navigationController?.view ?? view, title: "选择用途", options: [("", "未设置")] + LedgerPurpose.options, selectedId: purposeID ?? "")
     }
     @objc private func chooseBook() {
         let sheet = IncomeExpenseOptionPickerSheet()
@@ -100,7 +109,7 @@ final class ManualEntryViewController: TransferFlowViewController {
             let draft = ManualEntryDraft(title: name.field.text ?? "", amountInCents: cents,
                 direction: direction.selectedSegmentIndex == 1 ? .income : .expense,
                 date: BankingDateContext.system.string(from: datePicker.date), categoryID: categoryID,
-                ledgerID: bookID, note: note.field.text ?? "")
+                ledgerID: bookID, note: note.field.text ?? "", purposeID: purposeID)
             let saved = try FinanceLedgerStore.shared.saveManualEntry(draft, id: entryID)
             onSave?(saved)
             navigationController?.popViewController(animated: true)

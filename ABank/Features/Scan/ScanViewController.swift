@@ -2,15 +2,19 @@
 //  ScanViewController.swift
 //  ABank
 //
-//  演示扫码：不调用相机，选择示例码后显示识别结果，点“前往”才跳转，永不自动付款。
+//  二维码输入与识别结果；确认前往后才进入业务页，不自动付款。
 //
 
 import UIKit
 import SnapKit
+import AVFoundation
 
 final class ScanViewController: BaseViewController {
 
     private let frameView = UIView()
+    private let camera = ScanCameraInput()
+    private var cameraPreview: AVCaptureVideoPreviewLayer?
+    private var acceptsCameraResult = true
     private let scanLine = UIView()
     private let statusLabel = UILabel()
     private var sampleButtons: [UIButton] = []
@@ -32,6 +36,10 @@ final class ScanViewController: BaseViewController {
 
     override func setupNavigationBar() {
         title = "扫一扫"
+        let photo = UIBarButtonItem(title: "相册", style: .plain, target: self, action: #selector(pickCodeImage))
+        let camera = UIBarButtonItem(title: "相机", style: .plain, target: self, action: #selector(openCamera))
+        photo.tintColor = .white; camera.tintColor = .white
+        navigationItem.rightBarButtonItems = [photo, camera]
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             image: UIImage.abankBackIndicator, style: .plain, target: self, action: #selector(backTapped)
         )
@@ -50,7 +58,7 @@ final class ScanViewController: BaseViewController {
         view.backgroundColor = .black
 
         let hint = UILabel()
-        hint.text = "选择二维码，查看识别结果"
+        hint.text = "使用相机或相册识别二维码"
         hint.font = .systemFont(ofSize: 14)
         hint.textColor = UIColor.white.withAlphaComponent(0.7)
         hint.textAlignment = .center
@@ -61,7 +69,7 @@ final class ScanViewController: BaseViewController {
         scanLine.backgroundColor = .abankOrange
         frameView.addSubview(scanLine)
 
-        statusLabel.text = "请选择下方示例码"
+        statusLabel.text = "点击相机扫描，或从相册选择"
         statusLabel.font = .systemFont(ofSize: 14)
         statusLabel.textColor = .white
         statusLabel.textAlignment = .center
@@ -194,7 +202,46 @@ final class ScanViewController: BaseViewController {
 
     // MARK: - 交互
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews(); cameraPreview?.frame = frameView.bounds
+    }
+    override func viewDidDisappear(_ animated: Bool) { super.viewDidDisappear(animated); camera.stop() }
+    func pauseCamera() { acceptsCameraResult = false; camera.stop() }
+    func handleScannedText(_ text: String?) {
+        pauseCamera()
+        guard let text else { showToast("图片中未找到二维码"); return }
+        showResult(ScanCodeParser.parse(text))
+    }
+    @objc private func openCamera() {
+        guard AVCaptureDevice.default(for: .video) != nil else { showToast("当前设备没有可用相机，请从相册选择"); return }
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized: startCamera()
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { [weak self] allowed in
+                Task { @MainActor in if allowed { self?.startCamera() } else { self?.showToast("未获得相机权限，可从相册选择图片") } }
+            }
+        default: showToast("请在系统设置中允许相机访问，或从相册选择图片")
+        }
+    }
+    private func startCamera() {
+        guard viewIfLoaded?.window != nil else { return }
+        acceptsCameraResult = true
+        if cameraPreview == nil {
+            let preview = AVCaptureVideoPreviewLayer(session: camera.session); preview.videoGravity = .resizeAspectFill
+            frameView.layer.insertSublayer(preview, at: 0); cameraPreview = preview
+        }
+        cameraPreview?.frame = frameView.bounds
+        camera.onText = { [weak self] text in
+            Task { @MainActor in
+                guard let self, self.acceptsCameraResult else { return }
+                self.acceptsCameraResult = false; self.camera.stop(); self.handleScannedText(text)
+            }
+        }
+        camera.start(); statusLabel.text = "将二维码放入框内"
+    }
+
     @objc private func sampleTapped(_ sender: UIButton) {
+        pauseCamera()
         let sample = ScanSample.allCases[sender.tag]
         setSamplesEnabled(false)
         statusLabel.text = "识别中…"
@@ -238,7 +285,7 @@ final class ScanViewController: BaseViewController {
     @objc private func retryTapped() {
         resultCard.isHidden = true
         pendingRoute = nil
-        statusLabel.text = "请选择下方示例码"
+        statusLabel.text = "点击相机扫描，或从相册选择"
         setSamplesEnabled(true)
     }
 

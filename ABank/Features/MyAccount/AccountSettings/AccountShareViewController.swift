@@ -78,7 +78,7 @@ final class AccountShareViewController: TransferFlowViewController, RouteHosting
         numberLabel.adjustsFontSizeToFitWidth = true
         numberLabel.accessibilityIdentifier = "share.number"
         eyeButton.setContentHuggingPriority(.required, for: .horizontal)
-        eyeButton.snp.makeConstraints { $0.size.equalTo(32) }
+        eyeButton.snp.makeConstraints { $0.size.equalTo(44) }
         let stack = UIStackView(arrangedSubviews: [titleLabel, numberLabel, eyeButton])
         stack.spacing = 8
         stack.alignment = .center

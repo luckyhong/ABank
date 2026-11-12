@@ -10,12 +10,14 @@ import SnapKit
 
 final class WealthProductDetailViewController: WealthFlowViewController, RouteHosting {
     private let productID: String
+    private var accountID: String?
 
     var hostedRoute: AppRoute? { .wealthProductDetail(productID: productID) }
 
-    init(productID: String, ledger: FinanceLedgerStore = .shared, risk: RiskAssessmentStore = .shared,
+    init(productID: String, accountID: String? = nil, ledger: FinanceLedgerStore = .shared, risk: RiskAssessmentStore = .shared,
          dates: BankingDateContext = .system) {
         self.productID = productID
+        self.accountID = accountID
         super.init(ledger: ledger, risk: risk, dates: dates)
     }
 
@@ -49,10 +51,8 @@ final class WealthProductDetailViewController: WealthFlowViewController, RouteHo
             TransferInfoRow("最低持有", value: "\(product.minHoldDays) 天"),
             TransferInfoRow("起购金额", value: "\(wealthMoneyText(product.minPurchaseInCents)) 元")
         ])
-        addCard([branchCaption("产品简介"), branchCaption(product.summary, color: .abankTextPrimary),
-                 branchCaption("持有满 \(product.minHoldDays) 天后可赎回，本息即时回到账户。", color: .abankTextPrimary)])
-        addCard([branchCaption("风险提示"),
-                 branchCaption("理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎。")])
+        contentStack.addArrangedSubview(BankingReadSection(title: "产品简介", body: product.summary + "\n持有满\(product.minHoldDays)天后可赎回，本息返回原付款账户。"))
+        contentStack.addArrangedSubview(BankingReadSection(title: "风险提示", body: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益。请根据风险承受能力选择产品。"))
         _ = addButton("立即购买", id: "wealth.buy") { [weak self] in self?.buyTapped(product) }
         addNotice("请核对账户与交易信息后办理")
     }
@@ -74,7 +74,7 @@ final class WealthProductDetailViewController: WealthFlowViewController, RouteHo
                 self.router.open(.riskAssessment, from: self)
             }
         } else {
-            router.open(.wealthPurchase(productID: product.id), from: self)
+            router.open(accountID.map { .wealthAccountPurchase(productID: product.id, accountID: $0) } ?? .wealthPurchase(productID: product.id), from: self)
         }
     }
 }

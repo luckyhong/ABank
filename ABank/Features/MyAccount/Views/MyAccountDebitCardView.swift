@@ -30,6 +30,7 @@ final class MyAccountDebitCardView: UIView {
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func configure(with card: MyAccountDebitCard) {
+        sectionTitleLabel.text = card.accountTypeTitle
         classBadge.text = card.accountClass
         balanceCaptionLabel.text = card.statusText == "已挂失" ? "已挂失 · 人民币可用余额" : "人民币可用余额"
         cardNumberLabel.text = card.maskedNumber

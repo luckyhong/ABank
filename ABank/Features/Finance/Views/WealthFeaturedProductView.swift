@@ -66,7 +66,7 @@ final class WealthFeaturedProductView: UIView {
                 : .clear
             button.layer.cornerRadius = active ? 8 : 0
         }
-        guard let product = tabs[safe: index]?.product else { return }
+        guard let product = tabs[safe: index]?.displayProduct else { return }
         nameLabel.text = product.name
         yieldLabel.text = product.yieldRate
         yieldTitleLabel.text = product.yieldLabel
@@ -97,7 +97,8 @@ final class WealthFeaturedProductView: UIView {
         yieldLabel.textColor = .abankHighlight
         yieldTitleLabel.font = .systemFont(ofSize: 11)
         yieldTitleLabel.textColor = .abankTextTertiary
-        dateRangeLabel.font = .systemFont(ofSize: 10)
+        dateRangeLabel.font = .systemFont(ofSize: 11)
+        dateRangeLabel.numberOfLines = 0
         dateRangeLabel.textColor = .abankTextTertiary
 
         riskLabel.font = .systemFont(ofSize: 15, weight: .semibold)

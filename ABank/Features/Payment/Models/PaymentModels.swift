@@ -111,3 +111,13 @@ nonisolated enum PaymentError: LocalizedError, Equatable {
         }
     }
 }
+
+
+extension UtilityBill {
+    // The local tariff and displayed consumption reproduce the already-stable bill amount.
+    private var unitPrice: Int64 { account.kind == .water ? 320 : (account.kind == .electric ? 60 : 235) }
+    private var usageThousandths: Int64 { (amountInCents * 1000 + unitPrice / 2) / unitPrice }
+    var usageText: String { String(format: "%.3f", Double(usageThousandths) / 1000) + (account.kind == .electric ? " 千瓦时" : " 立方米") }
+    var unitPriceText: String { TransferMoney.text(unitPrice) + (account.kind == .electric ? " 元/千瓦时" : " 元/立方米") }
+    var calculatedChargeInCents: Int64 { (usageThousandths * unitPrice + 500) / 1000 }
+}

@@ -65,5 +65,9 @@
 			<string>com.abank.shortcut.assistant</string>
 		</dict>
 	</array>
+	<key>NSFaceIDUsageDescription</key>
+	<string>用于验证本机用户身份并快捷登录账户</string>
+	<key>NSCameraUsageDescription</key>
+	<string>用于识别二维码并打开对应服务，付款前仍需确认</string>
 </dict>
 </plist>

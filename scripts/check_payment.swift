@@ -164,7 +164,7 @@ import Foundation
 
         let created = at("2026-11-06 10:00")
         let number = PaymentRules.orderNo(id: "abc", createdAt: created, dates: shanghai)
-        precondition(number.hasPrefix("M820261106") && number.count == 18, number)
+        precondition(number.hasPrefix("JF20261106") && number.count == 18, number)
         precondition(number == PaymentRules.orderNo(id: "abc", createdAt: created, dates: shanghai), "stable")
         precondition(number != PaymentRules.orderNo(id: "abd", createdAt: created, dates: shanghai))
         precondition(PaymentRules.createdDate(of: order(target: "x", period: nil), dates: shanghai) == created)
@@ -329,7 +329,7 @@ import Foundation
             precondition(order.couponID == nil && order.couponDiscountInCents == 0 && order.period == nil)
             precondition(order.targetID == phone && order.targetTitle == "手机号 152****8684")
             precondition(order.createdAt == "2026-11-06 10:00:00" && order.accountID == "acct_8472")
-            precondition(order.orderNo.hasPrefix("M820261106") && order.requestID == "a")
+            precondition(order.orderNo.hasPrefix("JF20261106") && order.requestID == "a")
             let transaction = store.transaction(id: order.transactionID)!
             precondition(order.transactionID == "payment_" + order.id)
             precondition(transaction.direction == .expense && cents(transaction.amount) == 2000)

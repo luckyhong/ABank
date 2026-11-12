@@ -26,7 +26,7 @@ final class WealthSteadyGrowthView: UIView {
     func configure(with products: [WealthSteadyProduct]) {
         stack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         products.enumerated().forEach { index, product in
-            stack.addArrangedSubview(makeProductCard(product, index: index))
+            stack.addArrangedSubview(makeProductCard(product.displayProduct, index: index))
         }
     }
 
@@ -72,7 +72,7 @@ final class WealthSteadyGrowthView: UIView {
 
         let dateLabel = UILabel()
         dateLabel.text = product.yieldDateRange
-        dateLabel.font = .systemFont(ofSize: 10)
+        dateLabel.font = .systemFont(ofSize: 11)
         dateLabel.textColor = .abankTextTertiary
 
         let holdingLabel = UILabel()

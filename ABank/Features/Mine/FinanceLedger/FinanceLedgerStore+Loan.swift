@@ -73,9 +73,9 @@ extension FinanceLedgerStore {
         let record = load()
         var tasks: [LoanTask] = []
         let active = record.loanContracts.filter { $0.unpaidPrincipal > 0 }
-        if let nextDue = active.map(\.nextDueDate).min() {
+        if let nextDue = pendingLoanPlans().first?.plan.date {
             let due = active.reduce(Int64(0)) { $0 + (TransferMoney.cents(from: $1.installmentAmount) ?? 0) }
-            tasks.append(LoanTask(id: "task_repayment", title: "还款提醒",
+            tasks.append(LoanTask(id: "task_repayment", title: nextDue < dates.string(from: dates.now) ? "待处理还款计划" : "还款提醒",
                                   detail: "\(nextDue.dropFirst(5)) 应还 \(TransferMoney.text(due)) 元",
                                   kind: .repaymentReminder))
             let balance = record.accounts.first { $0.id == FinanceLedgerRecord.defaultAccountId }

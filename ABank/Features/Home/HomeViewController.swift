@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-final class HomeViewController: BaseViewController {
+final class HomeViewController: BankingDataViewController {
 
     private let pageData = MockDataProvider.shared.getHomePageData()
     private let preferences: FeaturePreferencesStore = .shared
@@ -191,6 +191,10 @@ final class HomeViewController: BaseViewController {
                                                name: CitySelectionStore.didChangeNotification, object: nil)
     }
 
+    override func refreshBankingData() {
+        topSearchBar.configure(placeholders: pageData.searchPlaceholders, badgeCount: BankMessageStore.shared.unreadCount())
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         reloadBranchCard()
@@ -242,23 +246,28 @@ final class HomeViewController: BaseViewController {
     }
 
     private func bindActions() {
+        wealthSelection.onFeatured = { [weak self] in guard let self else { return }; self.router.open(.comingSoon(.fund), from: self) }
+        wealthSelection.onSide = { [weak self] index in guard let self else { return }; self.router.open(index == 0 ? .deposits : .comingSoon(.preciousMetals), from: self) }
+        heroBanner.onItemTapped = { [weak self] index in
+            guard let self, let feature = self.pageData.heroBanners[safe: index]?.featureID else { return }
+            self.router.open(feature: feature, from: self)
+        }
         topSearchBar.onSearchTapped = { [weak self] keyword in
             guard let self else { return }
             self.router.open(.allFeatures(searchKeyword: keyword), from: self)
         }
         topSearchBar.onGiftTapped = { [weak self] in
-            self?.showToast("幸运抽奖活动即将开启")
+            guard let self else { return }; self.router.open(.benefits, from: self)
         }
         topSearchBar.onVersionTapped = { [weak self] in
-            self?.showToast("已切换至标准版")
+            guard let self else { return }; self.router.open(.settings, from: self)
         }
         topSearchBar.onServiceTapped = { [weak self] in
             guard let self else { return }
             self.router.open(.assistant, from: self)
         }
         topSearchBar.onMessageTapped = { [weak self] in
-            let count = self?.pageData.messageBadge ?? 0
-            self?.showToast("您有 \(count) 条未读消息")
+            guard let self else { return }; self.router.open(.messages, from: self)
         }
 
         shortcutRow.onItemTapped = { [weak self] index in
@@ -276,7 +285,7 @@ final class HomeViewController: BaseViewController {
         }
 
         noticeTicker.onItemTapped = { [weak self] item in
-            self?.showToast(item.text)
+            guard let self else { return }; self.router.open(.messages, from: self)
         }
 
         branchService.onQueueTapped = { [weak self] in
@@ -288,7 +297,7 @@ final class HomeViewController: BaseViewController {
             self.router.open(feature: id, from: self)
         }
         branchService.onPhoneTapped = { [weak self] in
-            self?.showToast("正在拨打网点电话")
+            guard let self else { return }; self.router.open(.branchList, from: self)
         }
         branchService.onRefreshTapped = { [weak self] in
             self?.reloadBranchCard()
@@ -296,7 +305,7 @@ final class HomeViewController: BaseViewController {
         }
 
         consumerProtection.onItemTapped = { [weak self] item in
-            self?.showToast(item.title)
+            guard let self else { return }; self.router.open(.assistant, from: self)
         }
     }
 

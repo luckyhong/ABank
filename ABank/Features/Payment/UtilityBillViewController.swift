@@ -11,6 +11,7 @@ import SnapKit
 
 final class UtilityBillViewController: PaymentFlowViewController, RouteHosting {
     private let billAccountID: String
+    private var selectedPeriod: String?
     private var requestID = UUID().uuidString
 
     var hostedRoute: AppRoute? { .utilityBill(billAccountID: billAccountID) }
@@ -26,6 +27,7 @@ final class UtilityBillViewController: PaymentFlowViewController, RouteHosting {
     override func setupUI() {
         super.setupUI()
         title = "账单详情"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "历史账单", style: .plain, target: self, action: #selector(choosePeriod))
     }
 
     override func refreshBankingData() {
@@ -34,7 +36,7 @@ final class UtilityBillViewController: PaymentFlowViewController, RouteHosting {
             addEmptyState("账单不存在", id: "bill.missing")
             return
         }
-        let bill = ledger.currentBill(for: account)
+        guard let bill = try? ledger.utilityBill(account: account, period: selectedPeriod) else { addNotice("该账期不可用"); return }
         let payer = payerAccount()
 
         let name = UILabel()
@@ -54,8 +56,10 @@ final class UtilityBillViewController: PaymentFlowViewController, RouteHosting {
             TransferInfoRow("地址", value: account.address),
             TransferInfoRow("账期", value: bill.period),
             TransferInfoRow("到期日", value: bill.dueDate),
+            TransferInfoRow("本期用量", value: bill.usageText),
+            TransferInfoRow("计费单价", value: bill.unitPriceText),
             TransferInfoRow("状态", value: bill.isPaid ? "本期已缴清" : "待缴"),
-            TransferInfoRow("付款账户", value: payer.label),
+            payerPickerRow(),
             TransferInfoRow("可用余额", value: "\(wealthMoneyText(payer.balanceInCents)) 元")
         ])
 
@@ -67,8 +71,22 @@ final class UtilityBillViewController: PaymentFlowViewController, RouteHosting {
         addNotice("请核对账户与交易信息后办理")
     }
 
+    @objc private func choosePeriod() {
+        let start = dates.calendar.dateInterval(of: .month, for: dates.now)!.start
+        let options = (0..<12).map { offset -> (String, String) in
+            let date = dates.calendar.date(byAdding: .month, value: -offset, to: start)!
+            let month = dates.string(from: date, format: "yyyy-MM")
+            return (month, month + (offset == 0 ? " · 本期" : ""))
+        }
+        let sheet = IncomeExpenseOptionPickerSheet()
+        sheet.onSelect = { [weak self] month in
+            guard let self else { return }; self.selectedPeriod = month == self.dates.currentMonth ? nil : month; self.refreshBankingData()
+        }
+        sheet.present(in: navigationController?.view ?? view, title: "选择账期", options: options, selectedId: selectedPeriod ?? dates.currentMonth)
+    }
+
     private func payTapped(_ bill: UtilityBill) {
-        do { try ledger.validateUtilityPayment(billAccountID: billAccountID) }
+        do { try ledger.validateUtilityPayment(billAccountID: billAccountID, accountID: selectedPayerAccountID, period: selectedPeriod) }
         catch {
             showError(error)
             refreshBankingData()
@@ -82,7 +100,7 @@ final class UtilityBillViewController: PaymentFlowViewController, RouteHosting {
     private func pay(_ bill: UtilityBill) {
         do {
             let order = try ledger.submitUtilityPayment(billAccountID: billAccountID, requestID: requestID,
-                                                        expectedPeriod: bill.period, expectedAmountInCents: bill.amountInCents)
+                                                        expectedPeriod: bill.period, expectedAmountInCents: bill.amountInCents, accountID: selectedPayerAccountID, period: selectedPeriod)
             requestID = UUID().uuidString
             router.open(.paymentOrderDetail(orderID: order.id, justPaid: true), from: self)
         } catch {

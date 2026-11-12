@@ -63,16 +63,16 @@ extension FinanceLedgerStore {
 
     // MARK: - 购买
 
-    func validateWealthPurchase(productID: String, amountInCents: Int64) throws {
-        _ = try checkedPurchase(productID: productID, amountInCents: amountInCents, record: try strictRecord())
+    func validateWealthPurchase(productID: String, amountInCents: Int64, accountID: String? = nil) throws {
+        _ = try checkedPurchase(productID: productID, amountInCents: amountInCents, record: try strictRecord(), accountID: accountID)
     }
 
     @discardableResult
-    func submitWealthPurchase(productID: String, amountInCents: Int64, requestID: String) throws -> WealthOrder {
+    func submitWealthPurchase(productID: String, amountInCents: Int64, requestID: String, accountID: String? = nil) throws -> WealthOrder {
         guard !requestID.isEmpty, requestID.count <= 100 else { throw WealthError.invalidRequest }
         var root = try strictRecord()
         if let existing = root.wealthOrders.first(where: { $0.requestID == requestID }) { return existing }
-        let (product, account) = try checkedPurchase(productID: productID, amountInCents: amountInCents, record: root)
+        let (product, account) = try checkedPurchase(productID: productID, amountInCents: amountInCents, record: root, accountID: accountID)
         let now = dates.now
         let timestamp = dates.string(from: now, format: "yyyy-MM-dd HH:mm:ss")
         let id = UUID().uuidString
@@ -131,7 +131,7 @@ extension FinanceLedgerStore {
     }
 
     private func checkedPurchase(productID: String, amountInCents: Int64,
-                                 record: FinanceLedgerRecord) throws -> (WealthProduct, LedgerAccount) {
+                                 record: FinanceLedgerRecord, accountID: String?) throws -> (WealthProduct, LedgerAccount) {
         guard let product = WealthProductCatalog.product(id: productID) else { throw WealthError.productNotFound }
         switch riskStateProvider() {
         case .none: throw WealthError.assessmentRequired
@@ -142,7 +142,7 @@ extension FinanceLedgerStore {
         guard amountInCents > 0 else { throw WealthError.invalidAmount }
         guard amountInCents >= product.minPurchaseInCents else { throw WealthError.belowMinimum }
         guard amountInCents <= WealthRules.maxPurchaseInCents else { throw WealthError.aboveMaximum }
-        guard let account = record.accounts.first(where: { $0.id == FinanceLedgerRecord.defaultAccountId }),
+        guard let account = record.accounts.first(where: { $0.id == (accountID ?? FinanceLedgerRecord.defaultAccountId) }),
               account.currency == "人民币" else { throw WealthError.invalidRequest }
         guard !account.isReportedLost else { throw AccountSettingsError.cardReportedLost }
         guard let balance = TransferMoney.cents(from: account.balance), amountInCents <= balance else {

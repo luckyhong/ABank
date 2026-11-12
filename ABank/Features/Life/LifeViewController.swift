@@ -165,7 +165,7 @@ final class LifeViewController: BaseViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(cityDidChange),
                                                name: CitySelectionStore.didChangeNotification, object: nil)
         searchBar.onSearchTapped = { [weak self] keyword in
-            self?.showToast("搜索「\(keyword)」")
+            guard let self else { return }; self.router.open(.allFeatures(searchKeyword: keyword), from: self)
         }
         searchBar.onOrdersTapped = { [weak self] in
             guard let self else { return }
@@ -190,14 +190,14 @@ final class LifeViewController: BaseViewController {
             }
         }
 
-        colorfulActivities.onHeaderTapped = { [weak self] in self?.showToast("缤纷活动") }
+        colorfulActivities.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.benefits, from: self) }
         colorfulActivities.onFeaturedTapped = { [weak self] in
             guard let self else { return }
             self.router.open(feature: .beans, from: self)
         }
         colorfulActivities.onSideTapped = { [weak self] index in
             let title = self?.pageData.colorfulSides[safe: index]?.title ?? "活动"
-            self?.showToast(title)
+            guard let self else { return }; self.router.open(.coupons, from: self)
         }
         colorfulActivities.onPromoTapped = { [weak self] in
             guard let self else { return }
@@ -205,8 +205,8 @@ final class LifeViewController: BaseViewController {
         }
 
         masonryGrid.onItemTapped = { [weak self] index in
-            let title = self?.pageData.feedItems[safe: index]?.title ?? "精彩内容"
-            self?.showToast(title)
+            guard let self, let item = self.pageData.feedItems[safe: index] else { return }
+            self.navigationController?.pushViewController(LifeOfferViewController(title: item.title, subtitle: item.subtitle), animated: true)
         }
     }
 

@@ -30,12 +30,12 @@ final class LoginDeviceDetailViewController: SecurityFlowViewController, RouteHo
         }
         let format = "yyyy-MM-dd HH:mm"
         addGroup([
-            TransferInfoRow("设备名称", value: device.name),
-            TransferInfoRow("型号", value: device.model),
-            TransferInfoRow("系统", value: device.system),
-            TransferInfoRow("首次登录", value: dates.string(from: device.firstLogin, format: format)),
-            TransferInfoRow("最近登录", value: dates.string(from: device.lastLogin, format: format)),
-            TransferInfoRow("登录城市", value: device.city)
+            TransferInfoRow("设备名称", value: device.displayName),
+            TransferInfoRow("型号", value: device.displayModel),
+            TransferInfoRow("系统", value: device.displaySystem),
+            TransferInfoRow("首次登录", value: device.isCurrent ? "—" : dates.string(from: device.firstLogin, format: format)),
+            TransferInfoRow("最近登录", value: device.displayLastLogin(dates: dates)),
+            TransferInfoRow("登录城市", value: device.isCurrent ? "—" : device.city)
         ])
         if device.isCurrent {
             addNotice(SecuritySettingsError.deviceNotRemovable.localizedDescription)

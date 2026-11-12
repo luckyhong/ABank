@@ -36,11 +36,14 @@ final class PaymentOrderDetailViewController: PaymentFlowViewController, RouteHo
         }
         if justPaid {
             let banner = UILabel()
-            banner.text = order.kind.isUtility ? "✓ 缴费成功" : "✓ 充值成功"
+            banner.text = order.kind.isUtility ? "缴费成功" : "充值成功"
             banner.font = .abankBodyMedium()
             banner.textColor = .abankSuccess
             banner.accessibilityIdentifier = "payment.success"
-            addCard([banner])
+            let icon = UIImageView(image: UIImage(systemName: "checkmark.circle.fill")); icon.tintColor = .abankSuccess
+            icon.snp.makeConstraints { $0.size.equalTo(22) }
+            let status = UIStackView(arrangedSubviews: [icon, banner, UIView()]); status.spacing = 8; status.alignment = .center
+            addCard([status])
         }
 
         let name = UILabel()
@@ -48,7 +51,9 @@ final class PaymentOrderDetailViewController: PaymentFlowViewController, RouteHo
         name.font = .abankTitle3()
         name.textColor = .abankTextPrimary
         name.numberOfLines = 0
-        let line = UIStackView(arrangedSubviews: [name, BranchStatusTagView(text: "已完成", active: false), UIView()])
+        let tag = BranchStatusTagView(text: "已完成", active: false)
+        tag.setContentCompressionResistancePriority(.required, for: .horizontal)
+        let line = UIStackView(arrangedSubviews: [name, tag])
         line.spacing = Spacing.sm
         line.alignment = .center
         addCard([line])
@@ -64,10 +69,13 @@ final class PaymentOrderDetailViewController: PaymentFlowViewController, RouteHo
         }
         rows.append(TransferInfoRow("实付金额", value: "\(wealthMoneyText(order.paidInCents)) 元", emphasized: true))
         rows.append(TransferInfoRow("付款账户", value: accountLabel(order.accountID)))
-        rows.append(TransferInfoRow("订单号", value: order.orderNo))
+        rows.append(TransferInfoRow("订单号", value: order.orderNo.hasPrefix("M8") ? "JF" + order.orderNo.dropFirst(2) : order.orderNo))
         rows.append(TransferInfoRow("创建时间", value: order.createdAt))
-        rows.append(TransferInfoRow("流水号", value: order.transactionID))
         addGroup(rows)
+        _ = addButton("查看关联流水", id: "payment.transaction", primary: false) { [weak self] in
+            guard let self, let transaction = self.ledger.transaction(id: order.transactionID) else { return }
+            self.navigationController?.pushViewController(IncomeExpenseDetailViewController(transaction: transaction), animated: true)
+        }
         addNotice("交易完成后不可撤销")
     }
 

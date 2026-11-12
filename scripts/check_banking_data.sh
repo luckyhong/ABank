@@ -11,8 +11,12 @@ sources=(
   ABank/Features/Mine/Models/AssetLiabilityModels.swift
   ABank/Features/MyAccount/Models/MyAccountModels.swift
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore.swift
+  ABank/Features/RetailBanking/RetailBankingModels.swift
+  ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Retail.swift
   ABank/Features/Mine/FinanceLedger/LedgerBookkeeping.swift
   ABank/Features/Mine/FinanceLedger/LedgerInsights.swift
+  ABank/Core/CustomerSession/CustomerSessionStore.swift
+  ABank/Features/Messages/BankMessageStore.swift
   ABank/Core/Routing/AppRoute.swift
   ABank/Features/AllFeatures/Models/FeatureCatalog.swift
   ABank/Features/AllFeatures/Models/FeatureSearch.swift
@@ -62,10 +66,14 @@ if grep -rn '借记卡 尾号\\(' ABank; then
 fi
 echo "Card label checks passed"
 python3 scripts/generate_ledger_fixture.py --check
-checks=(accounts fixture banking transfer insights feature security branch benefits wealth payment account loan entry)
+checks=(retail frequent accounts fixture banking transfer insights feature security branch benefits wealth payment account loan entry)
 if (( $# > 0 )); then checks=("$@"); fi
 for check in "${checks[@]}"; do
-  if [[ $check == accounts ]]; then
+  if [[ $check == retail ]]; then
+    check_file=scripts/check_retail_banking.swift
+  elif [[ $check == frequent ]]; then
+    check_file=scripts/check_frequent_pages.swift
+  elif [[ $check == accounts ]]; then
     check_file=scripts/check_ledger_accounts.swift
   elif [[ $check == fixture ]]; then
     check_file=scripts/check_ledger_fixture.swift

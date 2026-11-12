@@ -23,9 +23,10 @@ extension FinanceLedgerStore {
         // One electronic account per local customer; repeated taps return the same account.
         if let account = root.accounts.first(where: { $0.id.hasPrefix("electronic_") }) { return account }
         let number = "623048" + (0..<10).map { _ in String(Int.random(in: 0...9)) }.joined()
-        let account = LedgerAccount(id: "electronic_" + UUID().uuidString, tailNumber: String(number.suffix(4)),
+        var account = LedgerAccount(id: "electronic_" + UUID().uuidString, tailNumber: String(number.suffix(4)),
             currency: "人民币", balance: 0, openingBalance: 0, alias: "电子账户", accountNumber: number,
             openedOn: dates.string(from: dates.now), branchName: "手机银行")
+        account.kind = .electronic
         root.accounts.append(account)
         root.dataTimestamp = dates.string(from: dates.now, format: "yyyy-MM-dd HH:mm:ss")
         do { try persist(root) } catch { throw AccountSettingsError.persistence }
@@ -56,9 +57,9 @@ extension LedgerAccount {
     var maskedCardNumber: String { fullCardNumber.map { String($0.filter { !$0.isWhitespace }.prefix(4)) + " **** " + tailNumber } ?? "**** **** " + tailNumber }
     var openingBranch: String { branchName ?? (id == FinanceLedgerRecord.defaultAccountId ? "农行西安东关正街支行" : "—") }
     var debitCard: MyAccountDebitCard {
-        MyAccountDebitCard(accountClass: id == FinanceLedgerRecord.defaultAccountId ? "I类" : (accountNumber == nil ? "借记卡" : "II类"),
+        MyAccountDebitCard(accountClass: effectiveKind == .electronic ? "II类" : (id == FinanceLedgerRecord.defaultAccountId ? "I类" : "借记卡"),
             maskedNumber: maskedCardNumber, fullNumber: fullCardNumber ?? maskedCardNumber, availableBalance: balance,
             actions: [.init(title: "查询明细", badge: nil), .init(title: "我要转账", badge: nil), .init(title: "活钱理财", badge: "时时付")],
-            accountId: id, alias: alias, statusText: isReportedLost ? "已挂失" : "正常")
+            accountId: id, alias: alias, statusText: isReportedLost ? "已挂失" : "正常", accountTypeTitle: effectiveKind.title)
     }
 }

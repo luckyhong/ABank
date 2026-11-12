@@ -36,7 +36,7 @@ final class IncomeExpenseTransactionCell: UITableViewCell {
         amountLabel.text = prefix + transaction.amount.abankPlainAmountString()
         amountLabel.textColor = .abankTextPrimary
 
-        balanceLabel.text = transaction.isManual ? (transaction.includeInFlow ? "计入收支" : "不计入收支") : "余额: ¥ \(transaction.balanceAfter.abankPlainAmountString())"
+        balanceLabel.text = transaction.channel == "信用卡" ? "已计入账单" : transaction.isManual ? (transaction.includeInFlow ? "计入收支" : "不计入收支") : "余额: ¥ \(transaction.balanceAfter.abankPlainAmountString())"
 
         iconBackground.backgroundColor = .clear
         iconView.image = LedgerTransactionArtwork.image(for: transaction)

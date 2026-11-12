@@ -21,6 +21,7 @@ struct MyAccountDebitCard {
     /// 账本中的别名；nil 表示未设置。
     var alias: String? = nil
     var statusText: String = "正常"
+    var accountTypeTitle: String = "借记卡"
 }
 
 struct MyAccountDebitAction {

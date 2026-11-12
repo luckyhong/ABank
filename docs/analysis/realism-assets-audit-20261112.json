@@ -1,0 +1,322 @@
+{
+  "date": "2026-11-12",
+  "head": "e03f8d7",
+  "download_resource_rows": 3875,
+  "unique_original_hashes": 3047,
+  "imageset_count": 3183,
+  "raw_source_bytes": 43058617,
+  "loose_imagesets": 2134,
+  "catalog_imagesets": 852,
+  "equal_image_content_scale_groups": [
+    [
+      "my_account_credit_ad",
+      "abc_account_credit_banner"
+    ],
+    [
+      "abc_home_loan",
+      "abc_ledger_loan_repayment"
+    ],
+    [
+      "abc_home_all",
+      "abc_life_menu_all",
+      "abc_wealth_menu_all"
+    ],
+    [
+      "abc_home_wealth",
+      "abc_wealth_menu_wealth"
+    ],
+    [
+      "abc_home_payment",
+      "abc_life_menu_payment"
+    ],
+    [
+      "abc_ledger_cash_deposit",
+      "abc_ledger_other"
+    ],
+    [
+      "abc_allmenus_add",
+      "abc_resource_hp_allmenus_icon_add_b8a98a9e1ab8"
+    ],
+    [
+      "abc_allmenus_delete",
+      "abc_resource_hp_allmenus_icon_delete_c7006f39f5d4"
+    ],
+    [
+      "abc_mine_security_devices",
+      "abc_resource_safecenter_trusted_device_1100_native500_b828f3340198"
+    ],
+    [
+      "abc_news_toolbar_message",
+      "abc_wealth_toolbar_message"
+    ],
+    [
+      "abc_news_toolbar_service",
+      "abc_wealth_toolbar_service",
+      "abc_mine_detail_toolbar_service"
+    ],
+    [
+      "abc_news_toolbar_search",
+      "abc_life_toolbar_search",
+      "abc_wealth_toolbar_search",
+      "abc_mine_detail_toolbar_search"
+    ],
+    [
+      "abc_news_toolbar_microphone",
+      "abc_life_toolbar_microphone",
+      "abc_wealth_toolbar_microphone"
+    ],
+    [
+      "abc_news_toolbar_scan",
+      "abc_wealth_toolbar_scan"
+    ],
+    [
+      "abc_life_menu_points",
+      "abc_resource_credit_pointmall_webview_native500_29a563550b50"
+    ],
+    [
+      "abc_resource_close_Normal_2x_e30c104cf2a6",
+      "abc_resource_abc_keyboard_arrow_down_2x_784d5623639c"
+    ],
+    [
+      "abc_resource_close_Normal_3x_aa0b579b200e",
+      "abc_resource_abc_keyboard_arrow_down_3x_f25f5dc2f3e1"
+    ],
+    [
+      "abc_resource_LHRightArrow_be73483390ab",
+      "abc_resource_ABCEnglishMain_Card_Right_Arrow_f3666fa37561"
+    ],
+    [
+      "abc_resource_hp_mine_outlets_logo_8e50b6bfe483",
+      "abc_resource_nearby_logo_c7212f2eab08"
+    ],
+    [
+      "abc_resource_huinong_popads_close_9b43b5500ab9",
+      "abc_resource_homepage_first_popads_close_7267b7d9c453",
+      "abc_resource_my_bindcard_guide_close_af71b8d5b7e3"
+    ],
+    [
+      "abc_resource_hnhp_life_water_ba203f695d7b",
+      "abc_resource_1106_698a5c7e230b"
+    ],
+    [
+      "abc_resource_1112_0d68e3cfd511",
+      "abc_resource_hnhp_life_fire_d0d8a2ec2259"
+    ],
+    [
+      "abc_resource_ABCEnglishMain_Card_Reload_55b994c24dcf",
+      "abc_resource_LHRefreshIcon_4f8495497ecf"
+    ],
+    [
+      "abc_resource_bond_zone_native500_e80b4ce0986d",
+      "abc_wealth_menu_bonds"
+    ],
+    [
+      "abc_resource_orange_map_a73e6f1c8c82",
+      "abc_resource_orange_map_376fe1976b93"
+    ],
+    [
+      "abc_resource_tapexit_bg_2x_81b1d3b53838",
+      "abc_resource_toolbar_background_2x_680845b23540"
+    ],
+    [
+      "abc_resource_sd_zbgjj_webview_native500_be5878bd3725",
+      "abc_resource_beijing_gjjcx_webview_native500_775f4f4e76d0"
+    ],
+    [
+      "abc_resource_sunshine_map_a071de7b4d5e",
+      "abc_resource_sunshine_map_7f350b7eb0a9"
+    ],
+    [
+      "abc_resource_ice_map_a28e7e380f69",
+      "abc_resource_ice_map_6ba2bca186e4"
+    ]
+  ],
+  "candidates": [
+    {
+      "source": "bank_statement_qry_native500.png",
+      "sha256": "82d36c39cedd1b26d0e5b80e4d435a5f1feb13324ebd62822cf5858aad8720df",
+      "preview": "images/bank_statement_qry_native500.png",
+      "width": 96,
+      "height": 96,
+      "existing_semantic_assets": [],
+      "proposed_semantic_name": "abc_deposit_certificate",
+      "review_note": "图中为“存”字，优先核对存款证明语义，不能直接当流水图标",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "month_bills_native500.png",
+      "sha256": "6ea5c1ae6163234a55c97eac3fca24ebd032f0aa93ad53e45ca562b5c39fbe49",
+      "preview": "images/month_bills_native500.png",
+      "width": 96,
+      "height": 96,
+      "existing_semantic_assets": [],
+      "proposed_semantic_name": "abc_statement_monthly",
+      "review_note": "月度账单入口",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "monthbillurl_native500.png",
+      "sha256": "4b55c2557f2026fa00470015c69209e213c21be9c673a4599801d4953d0dc264",
+      "preview": "images/monthbillurl_native500.png",
+      "width": 96,
+      "height": 96,
+      "existing_semantic_assets": [],
+      "proposed_semantic_name": "abc_statement_monthly",
+      "review_note": "与上一资源比对哈希后复用，不重复导入",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "receiptinitact_webview_native500.png",
+      "sha256": "3af4750cd767151b346ae5f015309d285e3c5fb9c7153b31054475b96ce9a52c",
+      "preview": "images/receiptinitact_webview_native500.png",
+      "width": 96,
+      "height": 96,
+      "existing_semantic_assets": [],
+      "proposed_semantic_name": "abc_statement_receipt",
+      "review_note": "电子回单入口",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "facepay_set_native500.png",
+      "sha256": "8d562064c982073af14c0558eb73d373ef8be3bb9aea184f01bcd797ad62290a",
+      "preview": "images/facepay_set_native500.png",
+      "width": 96,
+      "height": 96,
+      "existing_semantic_assets": [],
+      "proposed_semantic_name": "abc_security_face_verify",
+      "review_note": "业务人脸核验/刷脸支付场景候选；不得仅因脸部图形相似就替代系统Face ID登录图标",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "fingerprint_pwd_reset_native500.png",
+      "sha256": "a7a3fc5266036741af4730a38f2104784e40a2baef79e9ddf01473bb5bae1c52",
+      "preview": "images/fingerprint_pwd_reset_native500.png",
+      "width": 96,
+      "height": 96,
+      "existing_semantic_assets": [],
+      "proposed_semantic_name": "abc_security_fingerprint",
+      "review_note": "指纹相关候选，仅在相应生物识别设备场景使用",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "hp_mine_customerservice.png",
+      "sha256": "140e42382dda33a934d2d966e9d760a1906b5df9c369bc3ab607bce12c83adb7",
+      "preview": "images/hp_mine_customerservice.png",
+      "width": 60,
+      "height": 60,
+      "existing_semantic_assets": [
+        "abc_account_toolbar_service"
+      ],
+      "proposed_semantic_name": null,
+      "review_note": "核对现有语义资源优先复用",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "Assets/UPSDK_receipt_record_nocontent_Normal@3x.png",
+      "sha256": "3cdb11c9c85f2393e13d88ebdaa95915b04c019768882f2757fdc34a2ec7bb75",
+      "preview": "catalog-images/Assets/UPSDK_receipt_record_nocontent_Normal@3x.png",
+      "width": 375,
+      "height": 375,
+      "existing_semantic_assets": [],
+      "proposed_semantic_name": "abc_empty_statement",
+      "review_note": "暂无回单/记录的候选，来源为UPSDK收单模块，需核对页面适用性",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "Assets/large_billing_recent_Normal@3x.png",
+      "sha256": "e4c909dfaa8611dbbee899e847afa58faf3e1f27e56e5ba7a3daae7d2e249c1e",
+      "preview": "catalog-images/Assets/large_billing_recent_Normal@3x.png",
+      "width": 270,
+      "height": 81,
+      "existing_semantic_assets": [],
+      "proposed_semantic_name": null,
+      "review_note": "含“最近动账”文字，保留原生UILabel，不作为标题图片接入",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "Assets/hp_mine_customermanger_wechat_Normal@3x.png",
+      "sha256": "2f20755df1f8e3310df671d1a36d69cdf06faeceb821f35235f62e2159c2b4da",
+      "preview": "catalog-images/Assets/hp_mine_customermanger_wechat_Normal@3x.png",
+      "width": 60,
+      "height": 60,
+      "existing_semantic_assets": [
+        "abc_mine_manager_wechat"
+      ],
+      "proposed_semantic_name": null,
+      "review_note": "核对现有语义资源优先复用",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "ck_interestrate_native500.png",
+      "sha256": "be22adf9e669a6ff7e8220fa9cffd46ede5c6858083328ae59adfa6e5c5b4d53",
+      "preview": "images/ck_interestrate_native500.png",
+      "width": 96,
+      "height": 96,
+      "existing_semantic_assets": [
+        "abc_ledger_interest"
+      ],
+      "proposed_semantic_name": null,
+      "review_note": "核对现有语义资源优先复用",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "LHPhoneRecharge.png",
+      "sha256": "ae1a46bfdff14efb487cc064eddbff6f5202d97ca4dc1f2d9175a24ccbe9bc51",
+      "preview": "images/LHPhoneRecharge.png",
+      "width": 120,
+      "height": 120,
+      "existing_semantic_assets": [
+        "abc_ledger_mobile_recharge"
+      ],
+      "proposed_semantic_name": null,
+      "review_note": "核对现有语义资源优先复用",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "LHLifeRechrge.png",
+      "sha256": "3b89c40f2aad87627e3af665885d271b8d9ee35b72bc50cb449b8b8cf2907f58",
+      "preview": "images/LHLifeRechrge.png",
+      "width": 120,
+      "height": 120,
+      "existing_semantic_assets": [
+        "abc_ledger_life_payment"
+      ],
+      "proposed_semantic_name": null,
+      "review_note": "核对现有语义资源优先复用",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "my_loan_overview_native500.png",
+      "sha256": "937f6e3653cea387f1cba7ada018afcf5b2ad8aedff3e242a718eba862bf9924",
+      "preview": "images/my_loan_overview_native500.png",
+      "width": 96,
+      "height": 96,
+      "existing_semantic_assets": [
+        "abc_ledger_loan_repayment"
+      ],
+      "proposed_semantic_name": null,
+      "review_note": "核对现有语义资源优先复用",
+      "status": "仅候选，已看实图，未导入或替换"
+    },
+    {
+      "source": "income_detail_native500.png",
+      "sha256": "e54eb24c8643482fdc1fe508c875ae5760f7e71f9a5d80b9eb603a804672f427",
+      "preview": "images/income_detail_native500.png",
+      "width": 96,
+      "height": 96,
+      "existing_semantic_assets": [
+        "abc_ledger_cash_deposit",
+        "abc_ledger_other"
+      ],
+      "proposed_semantic_name": null,
+      "review_note": "核对现有语义资源优先复用",
+      "status": "仅候选，已看实图，未导入或替换"
+    }
+  ],
+  "limits": [
+    "字面量引用统计不能证明动态引用缺失",
+    "重复组未比较template/original等渲染属性，不能据此直接删除",
+    "源文件大小不等于安装包大小",
+    "候选资源的业务语义需对照目标页面截图确认"
+  ]
+}

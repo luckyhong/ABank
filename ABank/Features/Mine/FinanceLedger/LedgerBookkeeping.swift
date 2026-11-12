@@ -8,6 +8,7 @@ struct ManualEntryDraft {
     var categoryID = "other_expense"
     var ledgerID: String? = nil
     var note = ""
+    var purposeID: String? = nil
 }
 
 enum LedgerEditError: LocalizedError {
@@ -35,6 +36,7 @@ extension FinanceLedgerStore {
         guard dates.date(from: draft.date) != nil, draft.date <= dates.string(from: dates.now) else { throw LedgerEditError.invalidDate }
         guard IncomeExpenseFilterCatalog.selectableOptions(for: draft.direction).contains(where: { $0.id == draft.categoryID }),
               draft.ledgerID == nil || LedgerBookCatalog.title(for: draft.ledgerID) != nil else { throw LedgerEditError.invalidCategory }
+        guard draft.purposeID == nil || LedgerPurpose.title(draft.purposeID) != nil else { throw LedgerEditError.invalidCategory }
         guard draft.note.count <= 200 else { throw LedgerEditError.invalidNote }
         var root = try loadForTransfer()
         let existing = root.transactions.first(where: { $0.id == id })
@@ -45,7 +47,7 @@ extension FinanceLedgerStore {
             title: title, direction: draft.direction, amount: TransferMoney.amount(draft.amountInCents), balanceAfter: 0,
             iconKey: "pencil", categoryId: draft.categoryID, isManual: true, includeInFlow: existing?.includeInFlow ?? true,
             summary: title, transactionType: "手工记账", channel: "手工记账", ledgerId: draft.ledgerID,
-            note: draft.note.trimmingCharacters(in: .whitespacesAndNewlines))
+            note: draft.note.trimmingCharacters(in: .whitespacesAndNewlines), purposeCategoryID: draft.purposeID)
         if let index = root.transactions.firstIndex(where: { $0.id == id }) { root.transactions[index] = transaction }
         else { root.transactions.append(transaction) }
         recalculate(&root)
@@ -92,13 +94,13 @@ extension FinanceLedgerStore {
             let safe = ["=", "+", "-", "@"].contains(String(trimmed.prefix(1))) ? "'" + value : value
             return "\"" + safe.replacingOccurrences(of: "\"", with: "\"\"") + "\""
         }
-        let header = ["日期", "时间", "名称", "方向", "金额(元)", "账户", "分类", "计入收支", "账本", "备注", "交易后余额(元)"]
+        let header = ["日期", "时间", "名称", "方向", "金额(元)", "账户", "分类", "计入收支", "账本", "备注", "用途", "交易后余额(元)"]
         let rows = items.map { tx in
             [tx.date, tx.time, tx.title, tx.direction == .income ? "收入" : "支出",
              TransferMoney.text(TransferMoney.cents(from: tx.amount) ?? 0),
              tx.isManual ? "手工记账" : accountCardLabel(for: tx.accountId), tx.categoryTitle,
-             tx.includeInFlow ? "是" : "否", LedgerBookCatalog.title(for: tx.ledgerId) ?? "未归属", tx.note,
-             tx.isManual ? "" : TransferMoney.text(TransferMoney.cents(from: tx.balanceAfter) ?? 0)]
+             tx.includeInFlow ? "是" : "否", LedgerBookCatalog.title(for: tx.ledgerId) ?? "未归属", tx.note, LedgerPurpose.title(tx.purposeCategoryID) ?? "未设置",
+             (tx.isManual || tx.channel == "信用卡") ? "" : TransferMoney.text(TransferMoney.cents(from: tx.balanceAfter) ?? 0)]
         }
         return "\u{FEFF}" + ([header] + rows).map { $0.map(cell).joined(separator: ",") }.joined(separator: "\r\n")
     }
@@ -114,5 +116,21 @@ extension LedgerTransaction {
     }
     var displayCounterparty: String {
         ["模拟通信服务商": "通信服务商", "农银理财（模拟）": "农银理财"][counterpartyName] ?? counterpartyName
+    }
+}
+
+
+enum LedgerPurpose {
+    static let options: [(String, String)] = [("food", "餐饮美食"), ("transport", "交通出行"), ("shopping", "购物消费"), ("housing", "居家生活"), ("health", "医疗健康"), ("education", "教育学习"), ("entertainment", "休闲娱乐"), ("travel", "旅行住宿"), ("other", "其他用途")]
+    static func title(_ id: String?) -> String? { options.first { $0.0 == id }?.1 }
+}
+
+extension FinanceLedgerStore {
+    @discardableResult func setPurpose(id: String, purpose: String?) -> Bool {
+        guard transaction(id: id) != nil, purpose == nil || LedgerPurpose.title(purpose) != nil else { return false }
+        return update { root in
+            guard let index = root.transactions.firstIndex(where: { $0.id == id }) else { return }
+            root.transactions[index].purposeCategoryID = purpose
+        }
     }
 }

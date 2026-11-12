@@ -32,7 +32,8 @@ class TransferFlowViewController: BankingDataViewController {
     func addNotice(_ text: String = "请核对账户与交易信息后办理") {
         let label = UILabel()
         label.text = text
-        label.font = .systemFont(ofSize: 13)
+        label.font = .preferredFont(forTextStyle: .footnote)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .abankTextSecondary
         label.numberOfLines = 0
         contentStack.addArrangedSubview(label)
@@ -50,7 +51,8 @@ class TransferFlowViewController: BankingDataViewController {
     func addButton(_ title: String, id: String, primary: Bool = true, action: @escaping () -> Void) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .medium)
+        button.titleLabel?.font = .preferredFont(forTextStyle: .headline)
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
         button.titleLabel?.numberOfLines = 0
         button.titleLabel?.textAlignment = .center
         button.contentEdgeInsets = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
@@ -73,20 +75,28 @@ class TransferFlowViewController: BankingDataViewController {
 
 final class TransferInfoRow: UIView {
     let valueLabel = UILabel()
+    private let horizontal = UIStackView()
     init(_ title: String, value: String, image: String? = nil, emphasized: Bool = false) {
         super.init(frame: .zero)
         let titleLabel = UILabel()
         titleLabel.text = title
-        titleLabel.font = .systemFont(ofSize: 15)
+        titleLabel.numberOfLines = 0
+        titleLabel.font = .preferredFont(forTextStyle: .body)
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.textColor = .abankTextSecondary
         titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        titleLabel.setContentHuggingPriority(.required, for: .horizontal)
         valueLabel.text = value
-        valueLabel.font = .systemFont(ofSize: emphasized ? 23 : 16, weight: emphasized ? .medium : .regular)
+        valueLabel.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: .systemFont(ofSize: emphasized ? 23 : 16, weight: emphasized ? .medium : .regular))
+        valueLabel.adjustsFontForContentSizeCategory = true
         valueLabel.textColor = .abankTextPrimary
         valueLabel.textAlignment = .right
         valueLabel.numberOfLines = 0
+        if ["订单号", "交易单号", "业务编号"].contains(title) {
+            valueLabel.numberOfLines = 1; valueLabel.adjustsFontSizeToFitWidth = true; valueLabel.minimumScaleFactor = 0.65
+        }
         valueLabel.accessibilityIdentifier = "transfer.value.\(title)"
-        let horizontal = UIStackView(arrangedSubviews: [titleLabel, valueLabel])
+        horizontal.addArrangedSubview(titleLabel); horizontal.addArrangedSubview(valueLabel)
         horizontal.spacing = 16
         horizontal.alignment = .center
         if let image {
@@ -103,35 +113,42 @@ final class TransferInfoRow: UIView {
         addSubview(line)
         line.snp.makeConstraints { $0.leading.trailing.equalToSuperview().inset(16); $0.bottom.equalToSuperview(); $0.height.equalTo(0.5) }
     }
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        let large = traitCollection.preferredContentSizeCategory.isAccessibilityCategory
+        horizontal.axis = large ? .vertical : .horizontal
+        horizontal.alignment = large ? .leading : .center
+        valueLabel.textAlignment = large ? .left : .right
+    }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
 
 final class TransferInputRow: UIView {
     let field = UITextField()
+    private let stack = UIStackView()
     init(_ title: String, placeholder: String, id: String, keyboard: UIKeyboardType = .default) {
         super.init(frame: .zero)
         let label = UILabel()
-        label.text = title
-        label.font = .systemFont(ofSize: 16)
-        label.textColor = .abankTextPrimary
-        addSubview(label)
-        addSubview(field)
-        label.snp.makeConstraints { $0.leading.equalToSuperview().offset(16); $0.centerY.equalToSuperview(); $0.width.equalTo(88) }
-        field.font = .systemFont(ofSize: 16)
-        field.textColor = .abankTextPrimary
-        field.placeholder = placeholder
-        field.keyboardType = keyboard
-        field.autocorrectionType = .no
-        field.accessibilityIdentifier = id
-        field.clearButtonMode = .whileEditing
-        field.adjustsFontSizeToFitWidth = true
-        field.minimumFontSize = 12
-        field.snp.makeConstraints { $0.leading.equalTo(label.snp.trailing).offset(8); $0.trailing.equalToSuperview().offset(-16); $0.top.bottom.equalToSuperview().inset(16) }
+        label.text = title; label.font = .preferredFont(forTextStyle: .body)
+        label.adjustsFontForContentSizeCategory = true; label.numberOfLines = 0; label.textColor = .abankTextPrimary
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
+        field.font = .preferredFont(forTextStyle: .body); field.adjustsFontForContentSizeCategory = true
+        field.textColor = .abankTextPrimary; field.placeholder = placeholder; field.keyboardType = keyboard
+        field.autocorrectionType = .no; field.accessibilityIdentifier = id; field.clearButtonMode = .whileEditing
+        field.adjustsFontSizeToFitWidth = true; field.minimumFontSize = 14
+        stack.addArrangedSubview(label); stack.addArrangedSubview(field); stack.spacing = 16; stack.alignment = .center
+        addSubview(stack)
+        stack.snp.makeConstraints { $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)) }
+        field.snp.makeConstraints { $0.height.greaterThanOrEqualTo(44) }
         snp.makeConstraints { $0.height.greaterThanOrEqualTo(60) }
-        let line = UIView()
-        line.backgroundColor = .abankSeparator.withAlphaComponent(0.5)
+        let line = UIView(); line.backgroundColor = .abankSeparator.withAlphaComponent(0.5)
         addSubview(line)
         line.snp.makeConstraints { $0.leading.trailing.equalToSuperview().inset(16); $0.bottom.equalToSuperview(); $0.height.equalTo(0.5) }
+    }
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        let large = traitCollection.preferredContentSizeCategory.isAccessibilityCategory
+        stack.axis = large ? .vertical : .horizontal; stack.alignment = large ? .fill : .center
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }

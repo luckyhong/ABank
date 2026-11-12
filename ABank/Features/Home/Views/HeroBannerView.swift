@@ -7,6 +7,7 @@ import UIKit
 import SnapKit
 
 final class HeroBannerView: UIView {
+    var onItemTapped: ((Int) -> Void)?
 
     private let collectionView: UICollectionView
     private let pageControl = UIPageControl()
@@ -103,6 +104,8 @@ extension HeroBannerView: UICollectionViewDataSource, UICollectionViewDelegateFl
         return cell
     }
 
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) { onItemTapped?(indexPath.item) }
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         collectionView.bounds.size
     }
@@ -124,100 +127,22 @@ extension HeroBannerView: UICollectionViewDataSource, UICollectionViewDelegateFl
 
 private final class HeroBannerCell: UICollectionViewCell {
     static let reuseId = "HeroBannerCell"
-
+    private let imageView = UIImageView()
     private let titleLabel = UILabel()
-    private let subtitleLabel = UILabel()
-    private let actionLabel = UILabel()
-    private let artContainer = UIView()
-    private let phoneView = UIView()
-    private let cardView = UIView()
-    private let coin1 = UIView()
-    private let coin2 = UIView()
-
     override init(frame: CGRect) {
         super.init(frame: frame)
-        titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        titleLabel.textColor = .abankOrangeDeep
-        subtitleLabel.font = .systemFont(ofSize: 15, weight: .medium)
-        subtitleLabel.textColor = .abankOrangeDeep
-        actionLabel.font = .systemFont(ofSize: 10, weight: .medium)
-        actionLabel.textColor = .abankOrangeDeep
-        actionLabel.backgroundColor = UIColor.white.withAlphaComponent(0.85)
-        actionLabel.textAlignment = .center
-        actionLabel.layer.cornerRadius = 10
-        actionLabel.layer.masksToBounds = true
-        actionLabel.layer.borderWidth = 0.6
-        actionLabel.layer.borderColor = UIColor.abankOrangeDeep.cgColor
-
-        phoneView.backgroundColor = UIColor.white.withAlphaComponent(0.9)
-        phoneView.layer.cornerRadius = 8
-        cardView.backgroundColor = UIColor(red: 0.2, green: 0.55, blue: 0.95, alpha: 1)
-        cardView.layer.cornerRadius = 4
-        coin1.backgroundColor = UIColor(red: 1, green: 0.8, blue: 0.2, alpha: 1)
-        coin1.layer.cornerRadius = 10
-        coin2.backgroundColor = UIColor(red: 1, green: 0.72, blue: 0.15, alpha: 1)
-        coin2.layer.cornerRadius = 8
-
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(subtitleLabel)
-        contentView.addSubview(actionLabel)
-        contentView.addSubview(artContainer)
-        artContainer.addSubview(phoneView)
-        artContainer.addSubview(cardView)
-        artContainer.addSubview(coin1)
-        artContainer.addSubview(coin2)
-
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(20)
-            make.top.equalToSuperview().offset(28)
-            make.trailing.lessThanOrEqualTo(artContainer.snp.leading).offset(-8)
-        }
-        subtitleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(titleLabel)
-            make.top.equalTo(titleLabel.snp.bottom).offset(8)
-        }
-        actionLabel.snp.makeConstraints { make in
-            make.leading.equalTo(subtitleLabel.snp.trailing).offset(8)
-            make.centerY.equalTo(subtitleLabel)
-            make.height.equalTo(20)
-            make.width.greaterThanOrEqualTo(76)
-        }
-        artContainer.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-16)
-            make.centerY.equalToSuperview().offset(-8)
-            make.width.equalTo(110)
-            make.height.equalTo(90)
-        }
-        phoneView.snp.makeConstraints { make in
-            make.leading.bottom.equalToSuperview()
-            make.width.equalTo(48)
-            make.height.equalTo(72)
-        }
-        cardView.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-8)
-            make.centerY.equalToSuperview()
-            make.width.equalTo(54)
-            make.height.equalTo(34)
-        }
-        coin1.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(4)
-            make.trailing.equalToSuperview().offset(-18)
-            make.size.equalTo(20)
-        }
-        coin2.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().offset(-6)
-            make.trailing.equalToSuperview()
-            make.size.equalTo(16)
-        }
+        imageView.contentMode = .scaleAspectFit
+        contentView.addSubview(imageView); contentView.addSubview(titleLabel)
+        imageView.snp.makeConstraints { $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 8, left: 16, bottom: 16, right: 16)) }
+        titleLabel.font = .preferredFont(forTextStyle: .title2); titleLabel.numberOfLines = 0
+        titleLabel.snp.makeConstraints { $0.edges.equalToSuperview().inset(20) }
+        isAccessibilityElement = true; accessibilityTraits = .button
     }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     func configure(with item: HomeHeroBannerItem) {
-        titleLabel.text = item.title
-        subtitleLabel.text = item.subtitle
-        actionLabel.text = item.actionTitle
+        imageView.image = item.imageName.flatMap { UIImage(named: $0) }
+        titleLabel.text = item.title + "\n" + item.subtitle
+        titleLabel.isHidden = imageView.image != nil
+        accessibilityLabel = item.title + "，" + item.subtitle + "，" + item.actionTitle
     }
 }

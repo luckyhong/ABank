@@ -51,6 +51,14 @@ enum AppRoute: Equatable {
     case orderDetail(orderID: String, justRedeemed: Bool)
     case customerLevel
     case wealthProducts
+    case wealthAccount(accountID: String, productID: String?)
+    case wealthAccountPurchase(productID: String, accountID: String)
+    case newsFeed
+    case messages
+    case deposits
+    case depositDetail(id: String)
+    case creditCards
+    case settings
     case wealthProductDetail(productID: String)
     case riskAssessment
     case wealthPurchase(productID: String)

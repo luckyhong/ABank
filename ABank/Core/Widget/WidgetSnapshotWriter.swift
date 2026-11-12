@@ -33,12 +33,14 @@ final class WidgetSnapshotWriter {
         NotificationCenter.default.addObserver(
             self, selector: #selector(ledgerDidChange), name: UIApplication.willEnterForegroundNotification, object: nil
         )
+        NotificationCenter.default.addObserver(self, selector: #selector(ledgerDidChange), name: CustomerSessionStore.didChange, object: nil)
         refresh()
     }
 
     @objc private func ledgerDidChange() { refresh() }
 
     private func refresh() {
-        sync.sync(FinanceLedgerStore.shared.widgetSnapshot())
+        if CustomerSessionStore.shared.isSignedIn { sync.sync(FinanceLedgerStore.shared.widgetSnapshot()) }
+        else { sync.clear() }
     }
 }

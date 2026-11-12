@@ -11,7 +11,7 @@ final class ModifyMobileViewController: BaseViewController {
     private let currentMobile: String
     private var countdown = 0
     private var timer: Timer?
-    private let presetCode = "123456"
+    private let challenge = VerificationChallenge()
 
     private let currentRow = CustomerInfoFormRowView(title: "原手机号")
     private let mobileField = UITextField()
@@ -116,7 +116,7 @@ final class ModifyMobileViewController: BaseViewController {
             make.leading.trailing.bottom.equalToSuperview()
         }
 
-        tipLabel.text = "请输入验证码： \(presetCode)"
+        tipLabel.text = "验证码有效期5分钟，修改手机号后请使用新号码登录"
         tipLabel.font = .systemFont(ofSize: 13)
         tipLabel.textColor = .abankTextTertiary
         tipLabel.numberOfLines = 0
@@ -183,7 +183,7 @@ final class ModifyMobileViewController: BaseViewController {
 
     @objc private func sendCode() {
         let mobile = mobileField.text ?? ""
-        guard mobile.count == 11, mobile.hasPrefix("1") else {
+        guard PaymentRules.isValidPhone(mobile) else {
             showToast("请输入11位新手机号码")
             return
         }
@@ -191,18 +191,18 @@ final class ModifyMobileViewController: BaseViewController {
             showToast("新手机号不能与原号码相同")
             return
         }
-        countdown = 60
-        sendButton.isEnabled = false
-        updateCountdownTitle()
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            self?.tick()
-        }
-        showToast("验证码已发送（\(presetCode)）")
+        do {
+            let value = try challenge.request(phone: mobile)
+            countdown = challenge.resendSeconds
+            sendButton.isEnabled = false; updateCountdownTitle()
+            timer?.invalidate()
+            timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in self?.tick() }
+            CustomerLoginViewController.presentCode(value, from: self)
+        } catch { showToast(error.localizedDescription) }
     }
 
     private func tick() {
-        countdown -= 1
+        countdown = challenge.resendSeconds
         if countdown <= 0 {
             timer?.invalidate()
             sendButton.isEnabled = true
@@ -220,7 +220,7 @@ final class ModifyMobileViewController: BaseViewController {
         view.endEditing(true)
         let mobile = mobileField.text ?? ""
         let code = codeField.text ?? ""
-        guard mobile.count == 11, mobile.hasPrefix("1") else {
+        guard PaymentRules.isValidPhone(mobile) else {
             showToast("请输入11位新手机号码")
             return
         }
@@ -228,10 +228,8 @@ final class ModifyMobileViewController: BaseViewController {
             showToast("新手机号不能与原号码相同")
             return
         }
-        guard code == presetCode else {
-            showToast("验证码不正确")
-            return
-        }
+        do { try challenge.verify(phone: mobile, code: code) }
+        catch { showToast(error.localizedDescription); return }
         CustomerInfoStore.shared.update { $0.mobile = mobile }
         showToast("手机号码修改成功")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in

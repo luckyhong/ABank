@@ -343,3 +343,13 @@ M10b 已合并到本地 main（`ed67f19 merge: M10b 模拟余额 Widget`，合�
 - 任务记录：[ledger-account-completion](continuity/tasks/ledger-account-completion.md)。
 - 验证：14组全量数据检查、末次2组定向复验及最终Debug模拟器构建通过；独立包在iPhone16 Pro、SE3和iPad11各25项断言通过，共36张截图，已卸载隔离包并恢复模拟器关闭状态。
 - 下一步：真机交互与Widget验收，以及审计报告列出的非账单功能；没有提交或推送。
+
+
+## 2026-11-12 高频页面分批覆盖
+
+基于真实感评估完成四批：入口和多账户数据一致性、账单分析及PDF回单、账户/个人服务交互、主频道资源与存款/信用卡闭环。保留已确认37笔交易和原始余额，不接银行网络。
+
+- 覆盖矩阵与业务边界：[high-frequency-coverage-20261112](analysis/high-frequency-coverage-20261112.md)。
+- 当前任务：[high-frequency-pages](continuity/tasks/high-frequency-pages.md)。
+- 16组数据回归、确认数据生成一致性及正常工作区Debug通用模拟器构建已通过；独立三尺寸各136项验收通过，共180张PNG及3份回单PDF，已复核小屏、iPad与大字号。
+- 提交与推送状态见当前任务记录。真机认证、相机及Widget完整交互仍需设备验收，基金/净值与其余规划业务不计为已完成。

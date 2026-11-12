@@ -11,8 +11,10 @@ enum LedgerTransactionArtwork {
         case "interest_income": imported = "interest"
         case "cash_withdraw": imported = "cash_withdrawal"
         case "cash_deposit": imported = "cash_deposit"
-        case "loan_repay", "abc_credit_repay": imported = "loan_repayment"
-        case "wealth_product", "fund": imported = "wealth"
+        case "loan_repay": imported = "loan_repayment"
+        case "abc_credit_repay": imported = "credit_repayment"
+        case "wealth_product", "term_deposit": imported = "wealth"
+        case "fund": imported = "fund"
         case "other_expense": imported = "other"
         default: imported = nil
         }

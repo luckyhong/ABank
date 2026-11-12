@@ -1,0 +1,58 @@
+[
+  {
+    "asset": "abc_statement_monthly",
+    "source": "month_bills_native500.png",
+    "sha256": "6ea5c1ae6163234a55c97eac3fca24ebd032f0aa93ad53e45ca562b5c39fbe49",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_statement_receipt",
+    "source": "receiptinitact_webview_native500.png",
+    "sha256": "3af4750cd767151b346ae5f015309d285e3c5fb9c7153b31054475b96ce9a52c",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_ledger_credit_repayment",
+    "source": "credit_trans_repay_native500.png",
+    "sha256": "b6b4b24c7d8ca4b1f88a161e3bdc6f7f3be1677c06040be8c26645d5cdd206af",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_ledger_fund",
+    "source": "home_fund_native500.png",
+    "sha256": "061b15c4c1805711151897e75801b1c0688545386cea0ea0b7d42fa6b6f5f6d4",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_home_bill_banner",
+    "source": "ABCHPAdImage.png",
+    "sha256": "50d166ec1001fbba42891a81412b343965b1da3edda39973e3752af85bada8c4",
+    "width": 1005,
+    "height": 300,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_home_beans_banner",
+    "source": "LHMengCengbanner.png",
+    "sha256": "afd2aca8f7b382cceb2c0ea794997befe3f4566e1ca43278f94e55e9e8fe6e52",
+    "width": 1005,
+    "height": 330,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_home_life_banner",
+    "source": "huinong_hp_recommend.png",
+    "sha256": "9c0e4172e84c9bd11fab5b7152b472b1aab4742a037a49fd3fa20d768842df49",
+    "width": 670,
+    "height": 220,
+    "scale": "3x"
+  }
+]

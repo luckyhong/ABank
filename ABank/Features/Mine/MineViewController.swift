@@ -53,7 +53,7 @@ final class MineViewController: BankingDataViewController {
     }
 
     private func refreshAssetStats() {
-        assetStats = MineAssetStats.make(benefits: benefits, accountCount: FinanceLedgerStore.shared.load().accounts.count)
+        assetStats = MineAssetStats.make(benefits: benefits, accountCount: FinanceLedgerStore.shared.load().accounts.count + FinanceLedgerStore.shared.load().creditCards.count)
         assetStatsCard.configure(with: assetStats)
     }
 
@@ -191,17 +191,17 @@ final class MineViewController: BankingDataViewController {
         assetLiabilityCard.onEyeTapped = { [weak self] in self?.toggleAmountVisibility() }
         monthlyFlowCard.onEyeTapped = { [weak self] in self?.toggleAmountVisibility() }
         topActionBar.onLogoutTapped = { [weak self] in
-            self?.showToast("退出登录")
+            if let self { AppSettingsViewController.confirmLogout(from: self) }
         }
         topActionBar.onSearchTapped = { [weak self] in
             guard let self else { return }
             self.router.open(.allFeatures(searchKeyword: nil), from: self)
         }
         topActionBar.onSettingsTapped = { [weak self] in
-            self?.showToast("设置")
+            guard let self else { return }; self.router.open(.settings, from: self)
         }
         topActionBar.onMoreTapped = { [weak self] in
-            self?.showToast("更多")
+            guard let self else { return }; self.router.open(.allFeatures(searchKeyword: nil), from: self)
         }
 
         profileHeader.onAvatarTapped = { [weak self] in

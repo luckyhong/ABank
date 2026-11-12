@@ -35,7 +35,6 @@ final class DebitCardDetailInfoCardView: UIView {
         classBadge.text = data.accountClass
         maskedNumber = data.maskedNumber
         fullNumber = data.fullNumber
-        isNumberVisible = false
         applyCardNumber()
 
         infoStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
@@ -107,7 +106,7 @@ final class DebitCardDetailInfoCardView: UIView {
             make.size.equalTo(CGSize(width: 28, height: 18))
         }
         eyeButton.snp.makeConstraints { make in
-            make.size.equalTo(28)
+            make.size.equalTo(44)
         }
         headerStack.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)

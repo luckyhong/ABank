@@ -28,7 +28,7 @@ enum FeatureID: String, Codable, CaseIterable {
     // 网点与安全
     case branchQuery, branchQueue, coinReservation
     case securityCenter, loginSettings, paymentSettings, loginDevices
-    case benefits, customerLevel, orders, scan, assistant
+    case benefits, customerLevel, orders, scan, assistant, messages, appSettings
 }
 
 enum FeatureCategory: String, CaseIterable {
@@ -67,6 +67,7 @@ struct FeatureDescriptor {
     }
 
     var plannedStageText: String {
+        if isAvailable { return "" }
         if case .planned(let stage?) = availability { return "计划阶段：\(stage)" }
         return "后续规划"
     }
@@ -74,8 +75,8 @@ struct FeatureDescriptor {
 
 enum FeatureCatalog {
     static let defaultFavorites: [FeatureID] = [
-        .creditCard, .pensionCommunity, .inclusiveFinance, .deposit, .wealthProduct,
-        .loan, .lifePayment, .hotActivities, .cityZone
+        .myAccount, .transfer, .incomeExpense, .wealthProduct, .loan,
+        .lifePayment, .mobileRecharge, .branchQuery, .benefits
     ]
 
     static func descriptor(_ id: FeatureID) -> FeatureDescriptor {
@@ -142,7 +143,7 @@ enum FeatureCatalog {
         item(.receipts, "电子回单", .transfer, icon: "doc.richtext",
              keywords: ["回单", "凭证"], .available(.transferReceipts)),
         item(.creditCardRepay, "信用卡还款", .transfer, image: "abc_transfer_repay", icon: "creditcard",
-             keywords: ["还款"], .planned(stage: nil)),
+             keywords: ["还款"], .available(.creditCards)),
         item(.scheduledTransfer, "预约转账", .transfer, image: "abc_transfer_schedule", icon: "clock",
              keywords: ["定时"], .planned(stage: nil)),
         item(.multiTransfer, "向多人转账", .transfer, image: "abc_transfer_multiple", icon: "person.3",
@@ -160,7 +161,7 @@ enum FeatureCatalog {
 
         // MARK: 财富
         item(.deposit, "存款", .wealth, image: "abc_home_deposit", icon: "banknote",
-             keywords: ["定期", "储蓄"], .planned(stage: wealthStage)),
+             keywords: ["定期", "储蓄"], .available(.deposits)),
         item(.wealthProduct, "理财产品", .wealth, image: "abc_home_wealth", icon: "chart.line.uptrend.xyaxis",
              keywords: ["理财", "收益", "农银快e宝"], .available(.wealthProducts)),
         item(.fund, "基金", .wealth, image: "abc_wealth_menu_fund", icon: "chart.line.uptrend.xyaxis",
@@ -182,7 +183,7 @@ enum FeatureCatalog {
         item(.loan, "贷款", .credit, image: "abc_home_loan", icon: "bag.fill",
              keywords: ["借款", "还款", "合同", "分期借钱"], .available(.myLoan)),
         item(.creditCard, "信用卡", .credit, image: "abc_home_credit", icon: "creditcard",
-             keywords: ["账单", "分期"], .planned(stage: nil)),
+             keywords: ["账单", "分期"], .available(.creditCards)),
         item(.inclusiveFinance, "普惠金融", .credit, image: "abc_home_inclusive", icon: "yensign.circle",
              keywords: ["小微", "贷款"], .planned(stage: nil)),
 
@@ -255,6 +256,8 @@ enum FeatureCatalog {
              keywords: ["订单"], .available(.orders)),
         item(.scan, "扫一扫", .service, image: "abc_home_scan", icon: "qrcode.viewfinder",
              keywords: ["二维码", "付款码"], .available(.scan)),
+        item(.messages, "消息中心", .service, image: "abc_home_message", icon: "envelope", keywords: ["通知", "未读", "消息"], .available(.messages)),
+        item(.appSettings, "设置", .service, icon: "gearshape", keywords: ["退出", "登录", "设置"], .available(.settings)),
         item(.assistant, "在线助手", .service, icon: "headphones",
              keywords: ["客服", "帮助", "助手", "咨询"], .available(.assistant))
     ]

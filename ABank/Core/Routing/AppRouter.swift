@@ -163,6 +163,17 @@ final class AppRouter: AppRouting {
             return OrderDetailViewController(orderID: orderID, justRedeemed: justRedeemed)
         case .customerLevel:
             return CustomerLevelViewController()
+        case .newsFeed: return NewsViewController()
+        case .messages: return MessagesViewController()
+        case .deposits: return DepositsViewController()
+        case .depositDetail(let id): return DepositDetailViewController(id: id)
+        case .creditCards: return CreditCardsViewController()
+        case .settings: return AppSettingsViewController()
+        case .wealthAccount(let accountID, let productID):
+            if let productID { return WealthProductDetailViewController(productID: productID, accountID: accountID) }
+            return WealthProductListViewController(accountID: accountID)
+        case .wealthAccountPurchase(let productID, let accountID):
+            return WealthPurchaseViewController(productID: productID, accountID: accountID)
         case .wealthProducts:
             return WealthProductListViewController()
         case .wealthProductDetail(let productID):
