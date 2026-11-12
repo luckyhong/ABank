@@ -35,7 +35,7 @@ final class AssistantViewController: BaseViewController {
         view.backgroundColor = UIColor(red: 245 / 255, green: 245 / 255, blue: 245 / 255, alpha: 1)
 
         let disclaimer = UILabel()
-        disclaimer.text = "智能助手为本地演示，回答仅供参考"
+        disclaimer.text = "智能助手的回答仅供参考"
         disclaimer.font = .systemFont(ofSize: 12)
         disclaimer.textColor = .abankTextTertiary
         disclaimer.textAlignment = .center

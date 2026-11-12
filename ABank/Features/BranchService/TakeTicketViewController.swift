@@ -57,7 +57,7 @@ final class TakeTicketViewController: BranchFlowViewController, RouteHosting {
             label.accessibilityIdentifier = "takeTicket.ahead"
             addCard([label])
         }
-        addNotice("取号后请留意叫号，叫号后 15 分钟内未办理视为完成（本机模拟）")
+        addNotice("取号后请留意叫号，叫号后 15 分钟内未办理视为完成")
         let confirm = addButton("确认取号", id: "takeTicket.confirm") { [weak self] in self?.submit(branch) }
         confirm.isEnabled = business != nil && state.allowsTicket
         confirm.alpha = confirm.isEnabled ? 1 : 0.4

@@ -335,7 +335,7 @@ import Foundation
             precondition(transaction.direction == .expense && cents(transaction.amount) == 2000)
             precondition(transaction.includeInFlow && transaction.categoryId == "mobile_recharge")
             precondition(transaction.title == "手机充值-152****8684" && transaction.transactionType == "手机充值")
-            precondition(transaction.channel == "本机模拟" && transaction.counterpartyName == "模拟通信服务商")
+            precondition(transaction.channel == "手机银行" && transaction.counterpartyName == "通信服务商")
             precondition(balanceCents(store) == 147_966, "cash reduced")
             precondition(cents(store.totalAssets()) == assetsBefore - 2000, "assets reduced by payment")
             precondition(cents(store.mineMonthlyFlow().expense) == cents(flowBefore) + 2000, "monthly flow includes payment")

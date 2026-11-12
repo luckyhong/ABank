@@ -20,6 +20,7 @@ struct MyAccountDebitCard {
     var accountId: String = FinanceLedgerRecord.defaultAccountId
     /// 账本中的别名；nil 表示未设置。
     var alias: String? = nil
+    var statusText: String = "正常"
 }
 
 struct MyAccountDebitAction {

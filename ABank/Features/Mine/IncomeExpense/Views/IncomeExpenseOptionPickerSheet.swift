@@ -17,6 +17,7 @@ final class IncomeExpenseOptionPickerSheet: UIView {
     private let titleLabel = UILabel()
     private let headerLine = UIView()
     private let stackView = UIStackView()
+    private let optionsScroll = UIScrollView()
 
     private var options: [(id: String, title: String)] = []
     private var selectedId: String?
@@ -42,6 +43,11 @@ final class IncomeExpenseOptionPickerSheet: UIView {
         frame = host.bounds
         autoresizingMask = [.flexibleWidth, .flexibleHeight]
         host.addSubview(self)
+        panel.snp.remakeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.height.equalTo(min(CGFloat(options.count) * 54 + 80 + host.safeAreaInsets.bottom,
+                                    max(200, host.bounds.height - host.safeAreaInsets.top - 28)))
+        }
         layoutIfNeeded()
         panel.transform = CGAffineTransform(translationX: 0, y: panel.bounds.height + 40)
         dimView.alpha = 0
@@ -78,7 +84,9 @@ final class IncomeExpenseOptionPickerSheet: UIView {
         panel.addSubview(closeButton)
         panel.addSubview(titleLabel)
         panel.addSubview(headerLine)
-        panel.addSubview(stackView)
+        panel.addSubview(optionsScroll)
+        optionsScroll.addSubview(stackView)
+        optionsScroll.alwaysBounceVertical = false
 
         dimView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -100,10 +108,14 @@ final class IncomeExpenseOptionPickerSheet: UIView {
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(0.5)
         }
-        stackView.snp.makeConstraints { make in
+        optionsScroll.snp.makeConstraints { make in
             make.top.equalTo(headerLine.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).offset(-8)
+            make.bottom.equalTo(panel.safeAreaLayoutGuide.snp.bottom).offset(-8)
+        }
+        stackView.snp.makeConstraints { make in
+            make.edges.equalTo(optionsScroll.contentLayoutGuide)
+            make.width.equalTo(optionsScroll.frameLayoutGuide)
         }
     }
 
@@ -117,12 +129,15 @@ final class IncomeExpenseOptionPickerSheet: UIView {
             let row = UIButton(type: .system)
             row.contentHorizontalAlignment = .fill
             row.tag = index
+            row.accessibilityLabel = option.title
+            row.accessibilityTraits = option.id == selectedId ? [.button, .selected] : .button
 
             let title = UILabel()
             title.text = option.title
             title.font = .systemFont(ofSize: 16)
             title.textColor = .abankTextPrimary
             title.isUserInteractionEnabled = false
+            title.numberOfLines = 0
 
             let check = UIImageView()
             let checkConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .semibold)
@@ -146,6 +161,7 @@ final class IncomeExpenseOptionPickerSheet: UIView {
             row.addSubview(separator)
             title.snp.makeConstraints { make in
                 make.leading.equalToSuperview().offset(16)
+                make.trailing.lessThanOrEqualTo(check.snp.leading).offset(-12)
                 make.centerY.equalToSuperview()
             }
             check.snp.makeConstraints { make in

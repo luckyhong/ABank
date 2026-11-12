@@ -132,7 +132,7 @@ final class ReservationFormViewController: BranchFlowViewController, RouteHostin
             addEmptyState("当天已无可预约时段，请选择其他日期", id: "reservation.noSlot")
         }
 
-        addNotice("预约后请按时段到网点办理，可在“我的记录”中取消（本机模拟）")
+        addNotice("预约后请按时段到网点办理，可在“我的记录”中取消")
         let submit = addButton("提交预约", id: "reservation.submit") { [weak self] in self?.submit(branch) }
         submit.isEnabled = slotStart != nil
         submit.alpha = submit.isEnabled ? 1 : 0.4

@@ -337,7 +337,7 @@ import Foundation
             precondition(order.purchaseTransactionID == "wealth_buy_" + order.id)
             precondition(transaction.direction == .expense && cents(transaction.amount) == 50_000)
             precondition(!transaction.includeInFlow && transaction.categoryId == "wealth_product" && transaction.iconKey == "wealth")
-            precondition(transaction.transactionType == "理财购买" && transaction.channel == "本机模拟")
+            precondition(transaction.transactionType == "理财购买" && transaction.channel == "手机银行")
             precondition(balanceCents(store) == 450_000, "cash reduced")
             precondition(cents(store.totalAssets()) == assetsBefore, "assets unchanged by purchase")
             precondition(store.mineMonthlyFlow().expense == flowBefore, "monthly flow unchanged")

@@ -69,7 +69,7 @@ final class MobileRechargeConfirmViewController: PaymentFlowViewController, Rout
         addCard([payLabel])
 
         _ = addButton("确认充值", id: "recharge.submit") { [weak self] in self?.submitTapped(paid: paid, couponID: selected?.id) }
-        addNotice("本机模拟 · 不发生真实资金交易")
+        addNotice("请核对账户与交易信息后办理")
     }
 
     private func couponTitle(_ coupon: Coupon) -> String {

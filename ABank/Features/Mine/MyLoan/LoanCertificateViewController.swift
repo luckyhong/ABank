@@ -76,14 +76,14 @@ final class LoanCertificateViewController: BaseViewController {
         fields.numberOfLines = 0
 
         let watermark = UILabel()
-        watermark.text = "模拟证明，仅供演示"
+        watermark.text = "贷款结清信息"
         watermark.font = .systemFont(ofSize: 28, weight: .bold)
         watermark.textColor = UIColor.abankTextTertiary.withAlphaComponent(0.18)
         watermark.transform = CGAffineTransform(rotationAngle: -.pi / 8)
         watermark.isAccessibilityElement = false
 
         let seal = UILabel()
-        seal.text = "ABank\n模拟"
+        seal.text = "ABank\n业务专用"
         seal.numberOfLines = 2
         seal.textAlignment = .center
         seal.font = .systemFont(ofSize: 14, weight: .bold)
@@ -128,7 +128,7 @@ final class LoanCertificateViewController: BaseViewController {
     }
 
     @objc private func shareTapped() {
-        let text = "贷款结清证明（模拟证明，仅供演示）\n\(bodyText)\n证明编号：\(record.certificateNo ?? "--")"
+        let text = "贷款结清证明（贷款结清信息）\n\(bodyText)\n证明编号：\(record.certificateNo ?? "--")"
         let controller = UIActivityViewController(activityItems: [text], applicationActivities: nil)
         controller.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
         present(controller, animated: true)

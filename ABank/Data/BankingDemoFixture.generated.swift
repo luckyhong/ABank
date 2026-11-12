@@ -345,7 +345,7 @@ enum BankingDemoFixture {
             id: FinanceLedgerRecord.defaultLoanId, name: "个人住房贷款",
             unpaidPrincipal: TransferMoney.amount(1412674), contractLimit: 0,
             expiryDate: "2037-10-08", monthlyDue: 0, availableLimit: 0, isDetailExpanded: true,
-            loanAmount: 0, annualRatePercent: 3.2, pricingMethod: "模拟固定利率",
+            loanAmount: 0, annualRatePercent: 3.2, pricingMethod: "固定利率",
             maturityDateText: "2037年10月8日",
             installmentAmount: TransferMoney.amount(12791), remainingTerms: 131,
             nextDueDate: "2026-12-09", nextPeriod: 4

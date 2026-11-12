@@ -51,7 +51,7 @@ final class AccountAliasViewController: TransferFlowViewController, RouteHosting
         contentStack.addArrangedSubview(errorLabel)
 
         saveButton = addButton("保存", id: "alias.save") { [weak self] in self?.save() }
-        addNotice("本机模拟数据，仅保存在本机")
+        addNotice("别名将同步用于账户与交易页面")
         validateInput()
     }
 

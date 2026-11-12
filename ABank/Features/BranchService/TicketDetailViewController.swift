@@ -87,7 +87,7 @@ final class TicketDetailViewController: BranchFlowViewController, RouteHosting {
                 self?.confirm("确定取消该号票？") { self?.cancel(ticket) }
             }
         }
-        addNotice("号票状态按取号时间模拟推进，每人约 3 分钟（本机模拟）")
+        addNotice("号票状态按取号时间更新，每人约3分钟")
     }
 
     private func cancel(_ ticket: QueueTicket) {

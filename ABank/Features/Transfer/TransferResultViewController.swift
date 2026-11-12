@@ -37,14 +37,14 @@ final class TransferResultViewController: TransferFlowViewController {
         icon.snp.makeConstraints { $0.height.equalTo(68) }
         contentStack.addArrangedSubview(icon)
         let status = UILabel()
-        status.text = record?.status.title ?? "模拟转账未完成"
+        status.text = record?.status.title ?? "转账未完成"
         status.font = .systemFont(ofSize: 21, weight: .medium)
         status.textColor = .abankTextPrimary
         status.textAlignment = .center
         status.accessibilityIdentifier = "transfer.result.status"
         contentStack.addArrangedSubview(status)
         let reason = UILabel()
-        reason.text = succeeded ? "本机账本已更新，无真实资金交易" : (record?.failureReason ?? errorMessage)
+        reason.text = succeeded ? "可在账户明细中查看交易记录" : (record?.failureReason ?? errorMessage)
         reason.font = .systemFont(ofSize: 14)
         reason.textColor = .abankTextSecondary
         reason.numberOfLines = 0
@@ -59,11 +59,11 @@ final class TransferResultViewController: TransferFlowViewController {
                 TransferInfoRow("收款银行", value: record.bankName),
                 TransferInfoRow("付款账户", value: record.payerLabel),
                 TransferInfoRow("交易时间", value: record.createdAt),
-                TransferInfoRow("模拟单号", value: String(record.id.suffix(12))),
+                TransferInfoRow("交易单号", value: String(record.id.suffix(12))),
                 TransferInfoRow("附言", value: record.note.isEmpty ? "无" : record.note)
             ])
             if succeeded {
-                _ = addButton("查看模拟回单", id: "transfer.receipt", primary: false) { [weak self] in
+                _ = addButton("查看回单", id: "transfer.receipt", primary: false) { [weak self] in
                     guard let self else { return }
                     self.navigationController?.pushViewController(TransferReceiptDetailViewController(recordID: record.id, store: self.store), animated: true)
                 }

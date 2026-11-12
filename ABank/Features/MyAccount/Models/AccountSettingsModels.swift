@@ -18,13 +18,14 @@ struct AccountPermissions: Codable, Equatable {
 }
 
 nonisolated enum AccountSettingsError: LocalizedError, Equatable {
-    case aliasTooLong, aliasInvalidCharacter, accountNotFound, persistence
+    case aliasTooLong, aliasInvalidCharacter, accountNotFound, persistence, cardReportedLost
 
     var errorDescription: String? {
         switch self {
         case .aliasTooLong: return "别名最多 \(AccountAliasRules.maxLength) 个字"
         case .aliasInvalidCharacter: return "别名不能包含换行"
         case .accountNotFound: return "账户不存在或暂不可用"
+        case .cardReportedLost: return "该卡已挂失，请解除挂失后办理支出业务"
         case .persistence: return "本地保存失败，请重试"
         }
     }

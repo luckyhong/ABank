@@ -32,9 +32,9 @@ extension FinanceLedgerStore {
         var categories: [LedgerCategoryTotal] = []
         for direction in [LedgerTransactionDirection.income, .expense] {
             let items = transactions.filter { $0.direction == direction }
-            let total = items.reduce(0) { $0 + $1.amount }
+            let total = Self.sumAmounts(items, direction: direction)
             for (id, group) in Dictionary(grouping: items, by: \.categoryId) {
-                let amount = group.reduce(0) { $0 + $1.amount }
+                let amount = Self.sumAmounts(group, direction: direction)
                 categories.append(.init(categoryID: id, direction: direction, amount: amount,
                                         share: total > 0 ? amount / total : 0))
             }
@@ -63,10 +63,10 @@ extension FinanceLedgerStore {
 extension TransferRecord {
     var receiptText: String {
         """
-        模拟交易 · 电子回单
-        仅供学习演示，无真实资金交易，不作为银行凭证
+        转账电子回单
+        请核对交易时间、金额及收款信息
 
-        模拟单号：\(id)
+        交易单号：\(id)
         关联流水：\(transactionID ?? "无")
         交易时间：\(createdAt)
         状态：\(status.title)
@@ -77,7 +77,7 @@ extension TransferRecord {
         收款银行：\(bankName)
         附言：\(note.isEmpty ? "无" : note)
 
-        模拟交易 · 非银行凭证
+        请妥善保管交易回单
         """
     }
 }

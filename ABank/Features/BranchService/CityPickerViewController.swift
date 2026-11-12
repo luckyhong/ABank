@@ -44,7 +44,7 @@ final class CityPickerViewController: BranchFlowViewController, RouteHosting {
             grid.addArrangedSubview(row)
         }
         contentStack.addArrangedSubview(grid)
-        addNotice("城市用于网点查询、取号预约及生活频道展示（本机模拟数据）")
+        addNotice("城市用于网点查询、取号预约及生活频道展示（账户信息）")
     }
 
     private func locationIcon() -> UIView {

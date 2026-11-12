@@ -1,0 +1,82 @@
+[
+  {
+    "asset": "abc_ledger_mobile_recharge",
+    "source": "LHPhoneRecharge.png",
+    "source_sha256": "ae1a46bfdff14efb487cc064eddbff6f5202d97ca4dc1f2d9175a24ccbe9bc51",
+    "preview": "images/LHPhoneRecharge.png",
+    "preview_sha256": "dbffe4228231991a1623620a426028c62ef37bc84249d9f6dcc37edc73f2e424",
+    "width": 120,
+    "height": 120,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_ledger_life_payment",
+    "source": "LHLifeRechrge.png",
+    "source_sha256": "3b89c40f2aad87627e3af665885d271b8d9ee35b72bc50cb449b8b8cf2907f58",
+    "preview": "images/LHLifeRechrge.png",
+    "preview_sha256": "672c01cffceb4c9f348a223f3926e30e6fe6581b84724c68aa29ce5d57b6669f",
+    "width": 120,
+    "height": 120,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_ledger_interest",
+    "source": "ck_interestrate_native500.png",
+    "source_sha256": "be22adf9e669a6ff7e8220fa9cffd46ede5c6858083328ae59adfa6e5c5b4d53",
+    "preview": "images/ck_interestrate_native500.png",
+    "preview_sha256": "b14ed7c04a49f96416ce65f282d2727b052e33c67fa67b4c3933045ffbff593a",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_ledger_cash_withdrawal",
+    "source": "huinong_hp_menu_nocardwithdraw.png",
+    "source_sha256": "b5286f4d9b45107177e028d1eee8f5928407fa996195d77a3e8f2ed28272b7ec",
+    "preview": "images/huinong_hp_menu_nocardwithdraw.png",
+    "preview_sha256": "44be33696d2e66a7f04be290ac177194954688d53c6824162643204df4ed1f1d",
+    "width": 100,
+    "height": 100,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_ledger_cash_deposit",
+    "source": "income_detail_native500.png",
+    "source_sha256": "e54eb24c8643482fdc1fe508c875ae5760f7e71f9a5d80b9eb603a804672f427",
+    "preview": "images/income_detail_native500.png",
+    "preview_sha256": "aa5fd06b66f1a65352897f56de8b24ec8b455cf45e38b3fff95ea7e4681d24ac",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_ledger_loan_repayment",
+    "source": "my_loan_overview_native500.png",
+    "source_sha256": "937f6e3653cea387f1cba7ada018afcf5b2ad8aedff3e242a718eba862bf9924",
+    "preview": "images/my_loan_overview_native500.png",
+    "preview_sha256": "a86f0695bd7f7ba74c744568875884d430a6c92b9a39eb45d19de4f55381c2d7",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_ledger_wealth",
+    "source": "monetary_fund_native500.png",
+    "source_sha256": "c4d9fa6737e7888b27789a97555c214ba1d623ff344e711389d8fa8e92e4dce0",
+    "preview": "images/monetary_fund_native500.png",
+    "preview_sha256": "9bc619594dae67f0a3ecda070455c75014b2f4d0a3926c1601abd5c57a8267d3",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  },
+  {
+    "asset": "abc_ledger_other",
+    "source": "income_detail_native500.png",
+    "source_sha256": "e54eb24c8643482fdc1fe508c875ae5760f7e71f9a5d80b9eb603a804672f427",
+    "preview": "images/income_detail_native500.png",
+    "preview_sha256": "aa5fd06b66f1a65352897f56de8b24ec8b455cf45e38b3fff95ea7e4681d24ac",
+    "width": 96,
+    "height": 96,
+    "scale": "3x"
+  }
+]

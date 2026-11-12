@@ -86,7 +86,7 @@ extension FinanceLedgerStore {
         root.wealthOrders.append(order)
         root.transactions.append(wealthTransaction(
             id: transactionID, title: "理财购买-" + product.name, direction: .expense, cents: amountInCents,
-            type: "理财购买", summary: "模拟理财购买", account: account, now: now
+            type: "理财购买", summary: "理财购买", account: account, now: now
         ))
         recalculate(&root)
         root.dataTimestamp = timestamp
@@ -116,7 +116,7 @@ extension FinanceLedgerStore {
         root.wealthOrders[index] = order
         root.transactions.append(wealthTransaction(
             id: transactionID, title: "理财赎回-" + order.productName, direction: .income, cents: amount,
-            type: "理财赎回", summary: "模拟理财赎回", account: account, now: now
+            type: "理财赎回", summary: "理财赎回", account: account, now: now
         ))
         recalculate(&root)
         root.dataTimestamp = timestamp
@@ -144,6 +144,7 @@ extension FinanceLedgerStore {
         guard amountInCents <= WealthRules.maxPurchaseInCents else { throw WealthError.aboveMaximum }
         guard let account = record.accounts.first(where: { $0.id == FinanceLedgerRecord.defaultAccountId }),
               account.currency == "人民币" else { throw WealthError.invalidRequest }
+        guard !account.isReportedLost else { throw AccountSettingsError.cardReportedLost }
         guard let balance = TransferMoney.cents(from: account.balance), amountInCents <= balance else {
             throw WealthError.insufficientBalance
         }
@@ -156,8 +157,8 @@ extension FinanceLedgerStore {
             id: id, accountId: account.id, date: dates.string(from: now), time: dates.string(from: now, format: "HH:mm:ss"),
             title: title, direction: direction, amount: TransferMoney.amount(cents), balanceAfter: 0,
             iconKey: "wealth", categoryId: "wealth_product", includeInFlow: false,
-            counterpartyName: "农银理财（模拟）", summary: summary, cardNumber: "****" + account.tailNumber,
-            transactionType: type, channel: "本机模拟"
+            counterpartyName: "农银理财", summary: summary, cardNumber: "****" + account.tailNumber,
+            transactionType: type, channel: "手机银行"
         )
     }
 }

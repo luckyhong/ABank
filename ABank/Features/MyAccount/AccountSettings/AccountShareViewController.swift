@@ -40,19 +40,18 @@ final class AccountShareViewController: TransferFlowViewController, RouteHosting
             addNotice(AccountSettingsError.accountNotFound.localizedDescription)
             return
         }
-        addNotice("本机模拟数据")
         eyeButton.accessibilityIdentifier = "share.eye"
         eyeButton.tintColor = .abankTextSecondary
         eyeButton.addAction(UIAction { [weak self] _ in self?.toggleNumber() }, for: .touchUpInside)
         addGroup([
             TransferInfoRow("户名", value: holderName),
             makeNumberRow(),
-            TransferInfoRow("开户行", value: Self.openingBranch),
+            TransferInfoRow("开户行", value: ledger.account(id: accountID)?.openingBranch ?? "—"),
             TransferInfoRow("账户类型", value: card.accountClass)
         ])
         _ = addButton("复制卡号", id: "share.copy", primary: false) { [weak self] in self?.copyNumber() }
         _ = addButton("分享", id: "share.share") { [weak self] in self?.share() }
-        addNotice("分享内容将注明“模拟数据，非真实账户”")
+        addNotice("请妥善保管账户信息，仅向可信任的人分享")
         renderNumber()
     }
 
@@ -100,13 +99,14 @@ final class AccountShareViewController: TransferFlowViewController, RouteHosting
     }
 
     private func copyNumber() {
+        guard plainNumber.allSatisfy(\.isNumber) else { showToast("该账户暂未提供完整卡号"); return }
         UIPasteboard.general.string = plainNumber
         showToast("已复制")
     }
 
     private func share() {
         guard let card else { return }
-        let text = "户名：\(holderName)\n卡号：\(card.fullNumber)\n开户行：\(Self.openingBranch)\n（模拟数据，非真实账户）"
+        let text = "户名：\(holderName)\n卡号：\(card.fullNumber)\n开户行：\(ledger.account(id: accountID)?.openingBranch ?? "—")"
         let controller = UIActivityViewController(activityItems: [text], applicationActivities: nil)
         controller.popoverPresentationController?.sourceView = view
         controller.popoverPresentationController?.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.maxY - 80, width: 1, height: 1)

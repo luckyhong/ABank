@@ -86,7 +86,7 @@ final class AppRouter: AppRouting {
         case .accountDetail(let accountID, let maskedNumber):
             return AccountDetailQueryViewController(
                 accountId: accountID ?? FinanceLedgerRecord.defaultAccountId,
-                maskedNumber: maskedNumber ?? "6230 **** 8472"
+                maskedNumber: maskedNumber ?? ledger.account(id: accountID ?? FinanceLedgerRecord.defaultAccountId)?.maskedCardNumber ?? "—"
             )
         case .incomeExpense(let accountID):
             return IncomeExpenseViewController(accountId: accountID)

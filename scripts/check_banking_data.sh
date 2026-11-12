@@ -11,6 +11,7 @@ sources=(
   ABank/Features/Mine/Models/AssetLiabilityModels.swift
   ABank/Features/MyAccount/Models/MyAccountModels.swift
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore.swift
+  ABank/Features/Mine/FinanceLedger/LedgerBookkeeping.swift
   ABank/Features/Mine/FinanceLedger/LedgerInsights.swift
   ABank/Core/Routing/AppRoute.swift
   ABank/Features/AllFeatures/Models/FeatureCatalog.swift
@@ -61,8 +62,12 @@ if grep -rn '借记卡 尾号\\(' ABank; then
 fi
 echo "Card label checks passed"
 python3 scripts/generate_ledger_fixture.py --check
-for check in fixture banking transfer insights feature security branch benefits wealth payment account loan entry; do
-  if [[ $check == fixture ]]; then
+checks=(accounts fixture banking transfer insights feature security branch benefits wealth payment account loan entry)
+if (( $# > 0 )); then checks=("$@"); fi
+for check in "${checks[@]}"; do
+  if [[ $check == accounts ]]; then
+    check_file=scripts/check_ledger_accounts.swift
+  elif [[ $check == fixture ]]; then
     check_file=scripts/check_ledger_fixture.swift
   elif [[ $check == feature ]]; then
     check_file=scripts/check_feature_catalog.swift

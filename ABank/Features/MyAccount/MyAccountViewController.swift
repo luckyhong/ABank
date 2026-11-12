@@ -18,7 +18,7 @@ final class MyAccountViewController: BankingDataViewController {
     }()
     private let contentView = UIView()
 
-    private let debitCardView = MyAccountDebitCardView()
+    private let debitCardStack = UIStackView()
     private let creditAdView = MyAccountCreditAdView()
     private let openAccountButton = MyAccountOpenAccountButton()
 
@@ -53,15 +53,8 @@ final class MyAccountViewController: BankingDataViewController {
     }
 
     override func refreshBankingData() {
-        let accounts = FinanceLedgerStore.shared.load().accounts
-        pageData.debitCards = pageData.debitCards.map { card in
-            var updated = card
-            let account = accounts.first(where: { $0.id == card.accountId })
-            updated.availableBalance = account?.balance ?? 0
-            updated.alias = account?.alias
-            return updated
-        }
-        if let card = pageData.debitCards.first { debitCardView.configure(with: card) }
+        pageData = MockDataProvider.shared.getMyAccountPageData()
+        renderCards()
     }
 
     override func setupUI() {
@@ -69,7 +62,7 @@ final class MyAccountViewController: BankingDataViewController {
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
-        [debitCardView, creditAdView, openAccountButton].forEach { contentView.addSubview($0) }
+        [debitCardStack, creditAdView, openAccountButton].forEach { contentView.addSubview($0) }
 
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -78,12 +71,14 @@ final class MyAccountViewController: BankingDataViewController {
             make.edges.equalTo(scrollView.contentLayoutGuide)
             make.width.equalTo(scrollView.frameLayoutGuide)
         }
-        debitCardView.snp.makeConstraints { make in
+        debitCardStack.axis = .vertical
+        debitCardStack.spacing = 20
+        debitCardStack.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(28)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
         }
         creditAdView.snp.makeConstraints { make in
-            make.top.equalTo(debitCardView.snp.bottom).offset(20)
+            make.top.equalTo(debitCardStack.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
         }
         openAccountButton.snp.makeConstraints { make in
@@ -92,41 +87,70 @@ final class MyAccountViewController: BankingDataViewController {
             make.bottom.equalToSuperview().offset(-Spacing.xl)
         }
 
-        if let card = pageData.debitCards.first {
-            debitCardView.configure(with: card)
-        }
+        renderCards()
         creditAdView.configure(imageName: pageData.creditAdImageName)
 
-        debitCardView.onAction = { [weak self] action in
-            self?.handle(action)
-        }
         creditAdView.onAdTapped = { [weak self] in
             self?.handle(.creditAd)
         }
         openAccountButton.addTarget(self, action: #selector(openAccountTapped), for: .touchUpInside)
     }
 
-    private func handle(_ action: MyAccountAction) {
+    private func renderCards() {
+        debitCardStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        for card in pageData.debitCards {
+            let cardView = MyAccountDebitCardView()
+            cardView.configure(with: card)
+            cardView.onAction = { [weak self] action in self?.handle(action, card: card) }
+            debitCardStack.addArrangedSubview(cardView)
+        }
+        if pageData.debitCards.isEmpty {
+            let empty = UILabel()
+            empty.text = "暂无可用账户"
+            empty.textAlignment = .center
+            debitCardStack.addArrangedSubview(empty)
+        }
+    }
+
+    private func handle(_ action: MyAccountAction, card: MyAccountDebitCard? = nil) {
         switch action {
         case .setAlias:
-            router.open(.accountAlias(accountID: pageData.debitCards.first?.accountId), from: self)
+            router.open(.accountAlias(accountID: card?.accountId), from: self)
         case .viewShare:
-            router.open(.accountShare(accountID: pageData.debitCards.first?.accountId), from: self)
+            router.open(.accountShare(accountID: card?.accountId), from: self)
         case .transfer:
-            router.open(.transfer(payerAccountID: pageData.debitCards.first?.accountId), from: self)
+            router.open(.transfer(payerAccountID: card?.accountId), from: self)
         case .queryDetail:
-            let card = pageData.debitCards.first
             router.open(.accountDetail(accountID: card?.accountId, maskedNumber: card?.maskedNumber), from: self)
         case .details:
             let detailData = MockDataProvider.shared.getDebitCardDetailPageData(
-                card: pageData.debitCards.first
+                card: card
             )
             navigationController?.pushViewController(
-                DebitCardDetailViewController(pageData: detailData, accountId: pageData.debitCards.first?.accountId ?? FinanceLedgerRecord.defaultAccountId),
+                DebitCardDetailViewController(pageData: detailData, accountId: card?.accountId ?? FinanceLedgerRecord.defaultAccountId),
                 animated: true
             )
-        default:
-            showToast(action.rawValue)
+        case .flexibleWealth:
+            router.open(.wealthProducts, from: self)
+        case .more:
+            router.open(.transferLimits, from: self)
+        case .openElectronic:
+            if FinanceLedgerStore.shared.load().accounts.contains(where: { $0.id.hasPrefix("electronic_") }) {
+                showToast("电子账户已开通，可在账户列表查看")
+                return
+            }
+            let alert = UIAlertController(title: "开通电子账户", message: "开通后可通过本人账户转账转入资金，账户余额与明细同步更新。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+            alert.addAction(UIAlertAction(title: "确认开通", style: .default) { [weak self] _ in
+                do {
+                    _ = try FinanceLedgerStore.shared.openElectronicAccount()
+                    self?.refreshBankingData()
+                    self?.showToast("电子账户开通成功")
+                } catch { self?.showToast(error.localizedDescription) }
+            })
+            present(alert, animated: true)
+        case .creditAd:
+            router.open(.comingSoon(.creditCard), from: self)
         }
     }
 

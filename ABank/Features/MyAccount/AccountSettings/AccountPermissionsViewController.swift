@@ -35,7 +35,7 @@ final class AccountPermissionsViewController: TransferFlowViewController, RouteH
         transferRow.onChange = { [weak self] isOn in self?.update { $0.mobileTransfer = isOn } }
         paymentRow.onChange = { [weak self] isOn in self?.update { $0.onlinePayment = isOn } }
         addGroup([transferRow, paymentRow])
-        addNotice("本机模拟权限，不涉及真实账户")
+        addNotice("关闭交易权限后，对应业务将无法办理")
     }
 
     override func refreshBankingData() {

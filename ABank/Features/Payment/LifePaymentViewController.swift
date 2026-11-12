@@ -54,6 +54,6 @@ final class LifePaymentViewController: PaymentFlowViewController, RouteHosting {
             }
             contentStack.addArrangedSubview(row)
         }
-        addNotice("本机模拟 · 账单为演示数据")
+        addNotice("选择缴费项目，查看本期账单")
     }
 }

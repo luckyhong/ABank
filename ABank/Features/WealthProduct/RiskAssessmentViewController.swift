@@ -27,7 +27,7 @@ final class RiskAssessmentViewController: WealthFlowViewController, RouteHosting
         } else {
             addQuestions()
         }
-        addNotice("本机模拟 · 测评结果仅用于演示")
+        addNotice("请根据实际情况填写风险测评")
     }
 
     private func addStatusCard() {

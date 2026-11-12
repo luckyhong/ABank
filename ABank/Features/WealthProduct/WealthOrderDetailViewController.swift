@@ -41,7 +41,7 @@ final class WealthOrderDetailViewController: WealthFlowViewController, RouteHost
 
         if justPurchased, case .holding = status {
             let banner = UILabel()
-            banner.text = "✓ 购买成功（本机模拟）"
+            banner.text = "✓ 购买成功"
             banner.font = .abankBodyMedium()
             banner.textColor = .abankSuccess
             banner.accessibilityIdentifier = "wealth.success"
@@ -80,7 +80,7 @@ final class WealthOrderDetailViewController: WealthFlowViewController, RouteHost
             ]
         }
         rows += [
-            TransferInfoRow("模拟年化", value: wealthRateText(order.rateBasisPoints)),
+            TransferInfoRow("年化", value: wealthRateText(order.rateBasisPoints)),
             TransferInfoRow("购买时间", value: order.createdAt),
             TransferInfoRow("可赎回日", value: WealthRules.redeemableDay(of: order, dates: dates))
         ]
@@ -102,7 +102,7 @@ final class WealthOrderDetailViewController: WealthFlowViewController, RouteHost
         } else {
             contentStack.addArrangedSubview(branchCaption("订单已赎回，本息已回到付款账户。"))
         }
-        addNotice("本机模拟 · 不发生真实资金交易")
+        addNotice("请核对账户与交易信息后办理")
     }
 
     private func redeem(_ order: WealthOrder, expected: Int64) {

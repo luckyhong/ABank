@@ -53,7 +53,7 @@ final class BranchDetailViewController: BranchFlowViewController, RouteHosting {
         phone.contentHorizontalAlignment = .leading
         phone.setTitleColor(.abankTeal, for: .normal)
         phone.accessibilityIdentifier = "branchDetail.phone"
-        phone.addAction(UIAction { [weak self] _ in self?.showToast("演示环境不拨打电话") }, for: .touchUpInside)
+        phone.addAction(UIAction { [weak self] _ in self?.showToast("网点电话已显示，请使用电话应用联系") }, for: .touchUpInside)
         info.append(phone)
         addCard(info)
 

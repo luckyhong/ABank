@@ -90,7 +90,7 @@ final class TransferViewController: BankingDataViewController {
     private func openRecipient(id: String) {
         guard let recipient = try? store.recipient(for: TransferDraft(
             payerAccountID: preferredPayerAccountID ?? "", savedRecipientID: id)) else {
-            showToast("演示伙伴暂不可用，请手动填写")
+            showToast("转账伙伴暂不可用，请手动填写")
             return
         }
         openForm(recipient: recipient)

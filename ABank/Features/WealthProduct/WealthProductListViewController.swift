@@ -56,7 +56,7 @@ final class WealthProductListViewController: WealthFlowViewController, RouteHost
                 self.router.open(.wealthProductDetail(productID: product.id), from: self)
             })
         }
-        addNotice("本机模拟 · 产品与收益均为演示数据")
+        addNotice("查看产品详情与购买条件")
     }
 
     private func addBar(_ titles: [String], selected: Int, prefix: String, onChange: @escaping (Int) -> Void) {

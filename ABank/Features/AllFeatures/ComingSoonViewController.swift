@@ -36,7 +36,7 @@ final class ComingSoonViewController: BaseViewController, RouteHosting {
         let messageLabel = makeLabel("该功能正在建设中", font: .abankSubheadline(), color: .abankTextSecondary)
         let stageLabel = makeLabel(descriptor.plannedStageText, font: .abankCaptionMedium(), color: .abankPrimary)
         stageLabel.accessibilityIdentifier = "comingSoon.stage"
-        let noteLabel = makeLabel("学习项目演示", font: .abankCaption(), color: .abankTextTertiary)
+        let noteLabel = makeLabel("功能介绍", font: .abankCaption(), color: .abankTextTertiary)
 
         let stack = UIStackView(arrangedSubviews: [iconView, titleLabel, messageLabel, stageLabel, noteLabel])
         stack.axis = .vertical

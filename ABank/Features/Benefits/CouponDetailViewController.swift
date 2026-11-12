@@ -43,7 +43,7 @@ final class CouponDetailViewController: BenefitsFlowViewController, RouteHosting
         addCard([line, branchCaption(template.brand + " · " + template.faceText)])
 
         let until = dateText(benefits.expiresAt(coupon).addingTimeInterval(-1), format: "yyyy-MM-dd")
-        let codeRow = TransferInfoRow("券码（模拟）", value: benefits.couponCode(for: coupon))
+        let codeRow = TransferInfoRow("券码", value: benefits.couponCode(for: coupon))
         codeRow.accessibilityIdentifier = "coupon.code"
         var rows: [UIView] = [
             codeRow,
@@ -67,17 +67,17 @@ final class CouponDetailViewController: BenefitsFlowViewController, RouteHosting
         addCard([branchCaption("使用说明"), branchCaption(template.note, color: .abankTextPrimary)])
 
         if status == .unused {
-            _ = addButton("模拟使用", id: "coupon.use") { [weak self] in
-                self?.confirm("模拟使用该卡券？使用后不可撤销。", confirmTitle: "使用") { self?.use() }
+            _ = addButton("使用", id: "coupon.use") { [weak self] in
+                self?.confirm("使用该卡券？使用后不可撤销。", confirmTitle: "使用") { self?.use() }
             }
         }
-        addNotice("本机模拟 · 券码仅用于演示")
+        addNotice("使用后可在卡券详情中查看状态")
     }
 
     private func use() {
         do {
             try benefits.useCoupon(id: couponID)
-            showToast("已模拟使用")
+            showToast("已使用")
         } catch {
             showError(error)
         }

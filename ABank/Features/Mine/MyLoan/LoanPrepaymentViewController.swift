@@ -78,7 +78,7 @@ final class LoanPrepaymentViewController: BankingDataViewController {
         actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
 
         let notice = UILabel()
-        notice.text = "本机模拟 · 只还本金，不发生真实资金交易"
+        notice.text = "提前还款仅偿还本金"
         notice.font = .systemFont(ofSize: 12)
         notice.textColor = .abankTextTertiary
         notice.textAlignment = .center

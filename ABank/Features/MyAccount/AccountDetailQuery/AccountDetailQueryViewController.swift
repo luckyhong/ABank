@@ -190,7 +190,39 @@ final class AccountDetailQueryViewController: BankingDataViewController {
     }
 
     @objc private func statementTapped() {
-        navigationController?.pushViewController(TransferReceiptsViewController(accountID: accountId), animated: true)
+        let alert = UIAlertController(title: "账户明细", message: "导出范围与当前日期、币种和筛选条件一致", preferredStyle: .actionSheet)
+        if filter.currency == .cnyLocal {
+            alert.addAction(UIAlertAction(title: "导出当前明细", style: .default) { [weak self] _ in
+                guard let self else { return }
+                let query = IncomeExpenseQuery(dateMode: .custom(start: self.filter.startDate, end: self.filter.endDate),
+                    accountFilter: .debitCard(id: self.accountId), advancedFilter: self.filter.advancedFilter)
+                LedgerStatementSharing.present(query: query, from: self)
+            })
+        }
+        alert.addAction(UIAlertAction(title: "选择日期范围", style: .default) { [weak self] _ in
+            guard let self else { return }
+            let sheet = IncomeExpenseDatePickerSheet()
+            sheet.onConfirm = { [weak self] mode in
+                guard let self else { return }
+                switch mode {
+                case .custom(let start, let end): self.filter.applyCustom(start: start, end: end)
+                case .month(let month):
+                    let dates = BankingDateContext.system
+                    guard let start = dates.date(from: month + "-01"), let interval = dates.calendar.dateInterval(of: .month, for: start),
+                          let end = dates.calendar.date(byAdding: .day, value: -1, to: interval.end) else { return }
+                    self.filter.applyCustom(start: dates.string(from: start), end: dates.string(from: end))
+                }
+                self.reloadData()
+            }
+            sheet.present(in: self.navigationController?.view ?? self.view, mode: .custom(start: self.filter.startDate, end: self.filter.endDate))
+        })
+        alert.addAction(UIAlertAction(title: "转账电子回单", style: .default) { [weak self] _ in
+            guard let self else { return }
+            self.navigationController?.pushViewController(TransferReceiptsViewController(accountID: self.accountId), animated: true)
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        alert.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItems?.first
+        present(alert, animated: true)
     }
 }
 

@@ -64,7 +64,7 @@ final class UtilityBillViewController: PaymentFlowViewController, RouteHosting {
         }
         button.isEnabled = !bill.isPaid
         button.backgroundColor = bill.isPaid ? .abankTextTertiary : .abankTeal
-        addNotice("本机模拟 · 不发生真实资金交易")
+        addNotice("请核对账户与交易信息后办理")
     }
 
     private func payTapped(_ bill: UtilityBill) {

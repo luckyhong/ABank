@@ -27,7 +27,7 @@ final class TransferSettingsViewController: SecurityFlowViewController, RouteHos
     override func setupUI() {
         super.setupUI()
         title = "转账设置"
-        addNotice("本机模拟规则 · 点击限额可修改")
+        addNotice("点击限额可修改")
         perTransferRow.onTap = { [weak self] in self?.openEditor() }
         dailyRow.onTap = { [weak self] in self?.openEditor() }
         todayRow.valueLabel.accessibilityIdentifier = "transferSettings.today"

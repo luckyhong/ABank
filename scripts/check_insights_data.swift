@@ -35,7 +35,7 @@ import Foundation
         for _ in 0..<5 {
             let receipt = store.receiptRecords().first!
             precondition(receipt.id == transfer.id && receipt.transactionID == transfer.transactionID)
-            precondition(receipt.receiptText.contains("模拟交易") && receipt.receiptText.contains("非银行凭证"))
+            precondition(receipt.receiptText.contains("转账电子回单") && !receipt.receiptText.contains("模拟交易"))
             precondition(!receipt.receiptText.contains(draft.destination))
             _ = store.analysis(query: query)
             _ = store.searchTransactions(query: query, keyword: "")

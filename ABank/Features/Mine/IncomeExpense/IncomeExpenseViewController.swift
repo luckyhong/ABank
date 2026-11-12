@@ -128,6 +128,7 @@ final class IncomeExpenseViewController: BankingDataViewController {
     }
 
     private func applyPageData() {
+        title = LedgerBookCatalog.title(for: query.ledgerID).map { "收支 · " + $0 } ?? "收支"
         sections = pageData.dayGroups
         filterBar.configure(
             month: pageData.month,
@@ -168,7 +169,8 @@ final class IncomeExpenseViewController: BankingDataViewController {
             self?.activeSheet = nil
         }
         sheet.onLegacyDetailTapped = { [weak self] in
-            self?.showToast("跳转至明细")
+            guard let self else { return }
+            self.router.open(.accountDetail(accountID: nil, maskedNumber: nil), from: self)
         }
         sheet.present(in: hostViewForSheet(), mode: query.dateMode)
         activeSheet = sheet
@@ -213,7 +215,43 @@ final class IncomeExpenseViewController: BankingDataViewController {
     }
 
     @objc private func searchTapped() { navigationController?.pushViewController(LedgerSearchViewController(query: query), animated: true) }
-    @objc private func moreTapped() { showToast("更多") }
+    @objc private func moreTapped() {
+        let alert = UIAlertController(title: "账单管理", message: nil, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "记一笔", style: .default) { [weak self] _ in
+            let editor = ManualEntryViewController()
+            editor.onSave = { [weak self] transaction in
+                self?.followsCurrentMonth = false
+                self?.query = IncomeExpenseQuery(dateMode: .month(String(transaction.date.prefix(7))), accountFilter: .manual)
+                self?.reloadData()
+            }
+            self?.navigationController?.pushViewController(editor, animated: true)
+        })
+        alert.addAction(UIAlertAction(title: "导出当前明细", style: .default) { [weak self] _ in
+            guard let self else { return }
+            LedgerStatementSharing.present(query: self.query, from: self)
+        })
+        alert.addAction(UIAlertAction(title: "选择账本", style: .default) { [weak self] _ in self?.showBookPicker() })
+        alert.addAction(UIAlertAction(title: "重置筛选", style: .default) { [weak self] _ in
+            self?.query = IncomeExpenseQuery()
+            self?.followsCurrentMonth = true
+            self?.reloadData()
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        alert.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItems?.first
+        present(alert, animated: true)
+    }
+
+    private func showBookPicker() {
+        dismissActiveSheet()
+        let sheet = IncomeExpenseOptionPickerSheet()
+        sheet.onSelect = { [weak self] id in
+            self?.query.ledgerID = id.isEmpty ? nil : id
+            self?.activeSheet = nil
+            self?.reloadData()
+        }
+        sheet.present(in: hostViewForSheet(), title: "选择账本", options: [("", "全部账本")] + LedgerBookCatalog.options.map { ($0.id, $0.title) }, selectedId: query.ledgerID ?? "")
+        activeSheet = sheet
+    }
 }
 
 extension IncomeExpenseViewController: UITableViewDataSource, UITableViewDelegate {

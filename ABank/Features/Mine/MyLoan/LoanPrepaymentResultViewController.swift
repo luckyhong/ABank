@@ -43,7 +43,7 @@ final class LoanPrepaymentResultViewController: BaseViewController {
         icon.snp.makeConstraints { $0.height.equalTo(60) }
 
         let banner = UILabel()
-        banner.text = "提前还款成功（模拟交易）"
+        banner.text = "提前还款成功"
         banner.font = .systemFont(ofSize: 20, weight: .medium)
         banner.textColor = .abankTextPrimary
         banner.textAlignment = .center

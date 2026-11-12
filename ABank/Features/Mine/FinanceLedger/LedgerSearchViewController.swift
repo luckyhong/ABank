@@ -20,7 +20,7 @@ final class LedgerSearchViewController: BankingDataViewController, UISearchBarDe
         search.placeholder = "名称、对方、备注、日期或金额"
         search.delegate = self
         let scope = UILabel()
-        scope.text = "\(query.filterBarMonthText) · \(query.accountFilter.displayTitle) · 沿用收支筛选"
+        scope.text = "\(query.filterBarMonthText) · \(FinanceLedgerStore.shared.incomeExpensePageData(query: query).accountFilter) · \(LedgerBookCatalog.title(for: query.ledgerID) ?? "全部账本")"
         scope.font = .systemFont(ofSize: 12)
         scope.numberOfLines = 0
         scope.textColor = .abankTextSecondary
@@ -54,6 +54,7 @@ final class LedgerSearchViewController: BankingDataViewController, UISearchBarDe
         cell.textLabel?.numberOfLines = 0
         cell.detailTextLabel?.text = "\(transaction.datetimeText) · \(transaction.categoryTitle)" + (transaction.includeInFlow ? "" : " · 不计入收支")
         cell.detailTextLabel?.numberOfLines = 0
+        cell.imageView?.image = LedgerTransactionArtwork.image(for: transaction)
         cell.accessoryType = .disclosureIndicator
         return cell
     }

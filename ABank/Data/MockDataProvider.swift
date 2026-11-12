@@ -477,7 +477,7 @@ final class MockDataProvider {
                 vipLevel: BenefitsStore.shared.level.title,
                 benefitsTitle: "权益中心"
             ),
-            assetStats: MineAssetStats.make(benefits: .shared),
+            assetStats: MineAssetStats.make(benefits: .shared, accountCount: FinanceLedgerStore.shared.load().accounts.count),
             assetLiability: FinanceLedgerStore.shared.mineAssetLiability(),
             monthlyFlow: FinanceLedgerStore.shared.mineMonthlyFlow(),
             branch: mineBranchInfo(),
@@ -505,21 +505,7 @@ final class MockDataProvider {
 
     func getMyAccountPageData() -> MyAccountPageData {
         MyAccountPageData(
-            debitCards: [
-                MyAccountDebitCard(
-                    accountClass: "I类",
-                    maskedNumber: "6230 **** 8472",
-                    fullNumber: "6230 4800 1234 8472",
-                    availableBalance: FinanceLedgerStore.shared.load().accounts.first(where: {
-                        $0.id == FinanceLedgerRecord.defaultAccountId
-                    })?.balance ?? 0,
-                    actions: [
-                        MyAccountDebitAction(title: "查询明细", badge: nil),
-                        MyAccountDebitAction(title: "我要转账", badge: nil),
-                        MyAccountDebitAction(title: "活钱理财", badge: "时时付")
-                    ]
-                )
-            ],
+            debitCards: FinanceLedgerStore.shared.load().accounts.map(\.debitCard),
             creditAdImageName: "abc_account_credit_banner",
             creditAdTitle: "神骏贺岁 福运相随"
         )
@@ -528,25 +514,26 @@ final class MockDataProvider {
     func getDebitCardDetailPageData(
         card: MyAccountDebitCard? = nil
     ) -> DebitCardDetailPageData {
-        let source = card ?? getMyAccountPageData().debitCards.first!
+        let source = card ?? getMyAccountPageData().debitCards.first ?? MyAccountDebitCard(accountClass: "—", maskedNumber: "—", fullNumber: "—", availableBalance: 0, actions: [])
+        let account = FinanceLedgerStore.shared.account(id: source.accountId)
         return DebitCardDetailPageData(
             accountClass: source.accountClass,
             maskedNumber: source.maskedNumber,
             fullNumber: source.fullNumber,
             infoItems: [
-                .init(title: "注册渠道", value: "网点注册"),
-                .init(title: "开户网点", value: "农行西安东关正街支行"),
-                .init(title: "卡状态", value: "正常户"),
+                .init(title: "注册渠道", value: source.accountId.hasPrefix("electronic_") ? "手机银行" : (source.accountId == FinanceLedgerRecord.defaultAccountId ? "网点注册" : "—")),
+                .init(title: "开户网点", value: account?.openingBranch ?? "—"),
+                .init(title: "卡状态", value: account?.isReportedLost == true ? "已挂失" : "正常户"),
                 .init(title: "账户状态", value: "正常户"),
-                .init(title: "默认账户", value: "否")
+                .init(title: "默认账户", value: source.accountId == FinanceLedgerRecord.defaultAccountId ? "是" : "否")
             ],
-            actions: ["挂失", "改密", "密码解锁", "更多"],
-            currencyTitle: "人民币活期",
+            actions: [account?.isReportedLost == true ? "解除挂失" : "挂失", "账户别名", "交易权限", "更多"],
+            currencyTitle: (account?.currency ?? "人民币") + "活期",
             availableBalance: source.availableBalance,
             accountBalance: source.availableBalance,
             cashRemittanceMark: "本币",
             interestRateText: "0.05000%",
-            openDateText: "2017/08/09"
+            openDateText: account?.openedOn?.replacingOccurrences(of: "-", with: "/") ?? (source.accountId == FinanceLedgerRecord.defaultAccountId ? "2017/08/09" : "—")
         )
     }
 
@@ -559,10 +546,11 @@ final class MockDataProvider {
     }
 
     func getAccountInfo() -> AccountInfo {
-        AccountInfo(
-            cardNumber: "6228480012345678901",
-            balance: 128456.78,
-            accountName: "张三"
+        let account = FinanceLedgerStore.shared.account(id: FinanceLedgerRecord.defaultAccountId)
+        return AccountInfo(
+            cardNumber: account?.fullCardNumber ?? "—",
+            balance: account?.balance ?? 0,
+            accountName: CustomerInfoStore.shared.load().name
         )
     }
 

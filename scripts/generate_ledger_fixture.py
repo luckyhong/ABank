@@ -68,7 +68,7 @@ def render():
         '            id: FinanceLedgerRecord.defaultLoanId, name: "个人住房贷款",',
         f'            unpaidPrincipal: TransferMoney.amount({loan["current_outstanding_principal_cents"]}), contractLimit: 0,',
         f'            expiryDate: {literal(loan["maturity_date"])}, monthlyDue: 0, availableLimit: 0, isDetailExpanded: true,',
-        '            loanAmount: 0, annualRatePercent: 3.2, pricingMethod: "模拟固定利率",',
+        '            loanAmount: 0, annualRatePercent: 3.2, pricingMethod: "固定利率",',
         '            maturityDateText: "2037年10月8日",',
         f'            installmentAmount: TransferMoney.amount({loan["monthly_payment_cents"]}), remainingTerms: {loan["remaining_periods"]},',
         f'            nextDueDate: {literal(loan["next_due_date"])}, nextPeriod: 4',

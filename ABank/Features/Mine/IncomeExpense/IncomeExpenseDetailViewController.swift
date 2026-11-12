@@ -51,6 +51,9 @@ final class IncomeExpenseDetailViewController: BaseViewController {
 
     override func setupNavigationBar() {
         title = "收支详情"
+        if transaction.isManual {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "管理", style: .plain, target: self, action: #selector(manageManualEntry))
+        }
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             image: UIImage.abankBackIndicator,
             style: .plain,
@@ -325,15 +328,16 @@ final class IncomeExpenseDetailViewController: BaseViewController {
     private func applyTransaction() {
         headerTitleLabel.text = transaction.title
         amountLabel.text = transaction.signedAmountText
-        balanceLabel.text = "余额 ¥ \(transaction.balanceAfter.abankPlainAmountString())"
+        amountLabel.textColor = transaction.direction == .income ? .abankIncomeAmount : .abankExpenseAmount
+        balanceLabel.text = transaction.isManual ? "手工记账 · 不影响银行卡余额" : "余额 ¥ \(transaction.balanceAfter.abankPlainAmountString())"
 
         headerIconBackground.backgroundColor = .clear
         headerIconView.image = LedgerTransactionArtwork.image(for: transaction)
 
         primaryInfoRows[0].configure(value: transaction.datetimeText)
-        primaryInfoRows[1].configure(value: transaction.counterpartyName)
+        primaryInfoRows[1].configure(value: transaction.displayCounterparty)
         primaryInfoRows[2].configure(value: transaction.counterpartyAccount)
-        primaryInfoRows[3].configure(value: transaction.summary)
+        primaryInfoRows[3].configure(value: transaction.displaySummary)
         primaryInfoRows[4].configure(value: transaction.postscript)
         extraInfoRows[0].configure(value: transaction.cardNumber)
         extraInfoRows[1].configure(value: transaction.transactionType)
@@ -395,14 +399,14 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         let sheet = IncomeExpenseOptionPickerSheet()
         sheet.onSelect = { [weak self] id in
             guard let self else { return }
-            self.finishLedgerEdit(FinanceLedgerStore.shared.updateTransactionLedger(id: self.transactionId, ledgerId: id))
+            self.finishLedgerEdit(FinanceLedgerStore.shared.updateTransactionLedger(id: self.transactionId, ledgerId: id.isEmpty ? nil : id))
             self.activeSheet = nil
         }
         sheet.onCancel = { [weak self] in self?.activeSheet = nil }
         sheet.present(
             in: navigationController?.view ?? view,
             title: "归属账本",
-            options: LedgerBookCatalog.options.map { ($0.id, $0.title) },
+            options: [("", "未归属")] + LedgerBookCatalog.options.map { ($0.id, $0.title) },
             selectedId: transaction.ledgerId
         )
         activeSheet = sheet
@@ -414,6 +418,31 @@ final class IncomeExpenseDetailViewController: BaseViewController {
     }
 
     // MARK: - Actions
+
+    @objc private func manageManualEntry() {
+        view.endEditing(true)
+        let alert = UIAlertController(title: "管理账单", message: nil, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "编辑", style: .default) { [weak self] _ in
+            guard let self else { return }
+            self.navigationController?.pushViewController(ManualEntryViewController(transaction: self.transaction), animated: true)
+        })
+        alert.addAction(UIAlertAction(title: "删除账单", style: .destructive) { [weak self] _ in
+            guard let self else { return }
+            let confirm = UIAlertController(title: "删除这笔手工账单？", message: "删除后将重新计算收支统计。", preferredStyle: .alert)
+            confirm.addAction(UIAlertAction(title: "取消", style: .cancel))
+            confirm.addAction(UIAlertAction(title: "删除", style: .destructive) { [weak self] _ in
+                guard let self else { return }
+                do {
+                    try FinanceLedgerStore.shared.deleteManualEntry(id: self.transactionId)
+                    self.navigationController?.popViewController(animated: true)
+                } catch { self.showToast(error.localizedDescription) }
+            })
+            self.present(confirm, animated: true)
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        alert.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
+        present(alert, animated: true)
+    }
 
     @objc private func backTapped() {
         view.endEditing(true)

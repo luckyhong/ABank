@@ -46,10 +46,10 @@ final class DebitCardDetailViewController: BankingDataViewController {
 
     override func refreshBankingData() {
         let account = FinanceLedgerStore.shared.load().accounts.first(where: { $0.id == accountId })
-        let balance = account?.balance ?? 0
-        infoCardView.setAlias(account?.alias)
-        pageData.availableBalance = balance
-        pageData.accountBalance = balance
+        guard let account else { return }
+        pageData = MockDataProvider.shared.getDebitCardDetailPageData(card: account.debitCard)
+        infoCardView.configure(with: pageData)
+        infoCardView.setAlias(account.alias)
         balanceSectionView.configure(with: pageData)
     }
 
@@ -88,6 +88,22 @@ final class DebitCardDetailViewController: BankingDataViewController {
 
     private func handleAction(_ title: String) {
         switch title {
+        case "挂失", "解除挂失":
+            guard let account = FinanceLedgerStore.shared.account(id: accountId) else { return }
+            let lost = !account.isReportedLost
+            let alert = UIAlertController(title: lost ? "确认挂失？" : "确认解除挂失？",
+                message: lost ? "挂失后该卡无法办理转账、充值、缴费、理财购买和提前还款。账户余额及历史明细仍可查看。" : "解除后恢复原有交易权限。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+            alert.addAction(UIAlertAction(title: "确认", style: lost ? .destructive : .default) { [weak self] _ in
+                guard let self else { return }
+                do {
+                    try FinanceLedgerStore.shared.setReportedLost(lost, accountID: self.accountId)
+                    self.refreshBankingData()
+                } catch { self.showToast(error.localizedDescription) }
+            })
+            present(alert, animated: true)
+        case "账户别名": router.open(.accountAlias(accountID: accountId), from: self)
+        case "交易权限": router.open(.accountPermissions(accountID: accountId), from: self)
         case "更多":
             let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
             let routes: [(String, AppRoute)] = [

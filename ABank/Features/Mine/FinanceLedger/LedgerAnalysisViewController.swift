@@ -18,7 +18,7 @@ final class LedgerAnalysisViewController: TransferFlowViewController {
         guard isViewLoaded else { return }
         contentStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         let result = store.analysis(query: query)
-        addNotice("本机模拟账本 · \(query.filterBarMonthText) · \(query.accountFilter.displayTitle)")
+        addNotice("\(query.filterBarMonthText) · \(store.incomeExpensePageData(query: query).accountFilter) · \(LedgerBookCatalog.title(for: query.ledgerID) ?? "全部账本")")
         _ = addButton("选择月份", id: "analysis.month", primary: false) { [weak self] in self?.chooseMonth() }
         addGroup([
             TransferInfoRow("收入", value: result.summary.income.abankPlainAmountString()),
@@ -54,6 +54,10 @@ final class LedgerAnalysisViewController: TransferFlowViewController {
                 let summary = store.analysis(query: filter).summary
                 addGroup([TransferInfoRow(label, value: "收 \(summary.income.abankPlainAmountString())\n支 \(summary.expense.abankPlainAmountString())")])
             }
+        }
+        _ = addButton("导出当前明细", id: "analysis.export", primary: false) { [weak self] in
+            guard let self else { return }
+            LedgerStatementSharing.present(query: self.query, from: self)
         }
         _ = addButton("搜索该范围交易", id: "analysis.search", primary: false) { [weak self] in
             guard let self else { return }

@@ -370,7 +370,7 @@ final class CustomerInfoViewController: BaseViewController {
 
     private func scanIdCard() {
         view.endEditing(true)
-        let alert = UIAlertController(title: "证件识别", message: "将模拟识别身份证，并回填证件有效期。", preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "证件识别", message: "是否使用已保存的证件信息回填有效期？", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "开始识别", style: .default, handler: { [weak self] _ in
             guard let self else { return }
             self.showLoading()

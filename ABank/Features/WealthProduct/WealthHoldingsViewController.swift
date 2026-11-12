@@ -74,6 +74,6 @@ final class WealthHoldingsViewController: WealthFlowViewController, RouteHosting
             }
             contentStack.addArrangedSubview(row)
         }
-        addNotice("本机模拟 · 收益按年化与持有天数推算")
+        addNotice("收益按年化与持有天数推算")
     }
 }

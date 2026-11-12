@@ -36,7 +36,7 @@ final class PaymentOrderDetailViewController: PaymentFlowViewController, RouteHo
         }
         if justPaid {
             let banner = UILabel()
-            banner.text = order.kind.isUtility ? "✓ 缴费成功（本机模拟）" : "✓ 充值成功（本机模拟）"
+            banner.text = order.kind.isUtility ? "✓ 缴费成功" : "✓ 充值成功"
             banner.font = .abankBodyMedium()
             banner.textColor = .abankSuccess
             banner.accessibilityIdentifier = "payment.success"
@@ -68,7 +68,7 @@ final class PaymentOrderDetailViewController: PaymentFlowViewController, RouteHo
         rows.append(TransferInfoRow("创建时间", value: order.createdAt))
         rows.append(TransferInfoRow("流水号", value: order.transactionID))
         addGroup(rows)
-        addNotice("模拟交易 · 不可撤销、无退款")
+        addNotice("交易完成后不可撤销")
     }
 
     private func accountLabel(_ accountID: String) -> String {

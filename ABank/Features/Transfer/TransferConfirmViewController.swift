@@ -19,7 +19,7 @@ final class TransferConfirmViewController: TransferFlowViewController {
     override func setupUI() {
         super.setupUI()
         title = "转账确认"
-        addNotice("请确认以下模拟转账信息")
+        addNotice("请确认以下转账信息")
         let recipient = try? store.recipient(for: draft)
         addGroup([
             TransferInfoRow("转账金额", value: "¥ " + TransferMoney.text(draft.amountInCents), emphasized: true),
@@ -31,7 +31,7 @@ final class TransferConfirmViewController: TransferFlowViewController {
             TransferInfoRow("附言", value: draft.note.isEmpty ? "无" : draft.note)
         ])
         addNotice()
-        submitButton = addButton("确认模拟转账", id: "transfer.confirm") { [weak self] in self?.submit() }
+        submitButton = addButton("确认转账", id: "transfer.confirm") { [weak self] in self?.submit() }
         _ = addButton("返回修改", id: "transfer.edit", primary: false) { [weak self] in
             guard self?.isSubmitting == false else { return }
             self?.navigationController?.popViewController(animated: true)
@@ -42,7 +42,7 @@ final class TransferConfirmViewController: TransferFlowViewController {
         guard !isSubmitting else { return }
         isSubmitting = true
         submitButton.isEnabled = false
-        submitButton.setTitle("正在处理模拟转账…", for: .normal)
+        submitButton.setTitle("正在处理转账…", for: .normal)
         navigationItem.hidesBackButton = true
         previousGestureEnabled = navigationController?.interactivePopGestureRecognizer?.isEnabled ?? true
         navigationController?.interactivePopGestureRecognizer?.isEnabled = false
@@ -74,7 +74,7 @@ final class TransferConfirmViewController: TransferFlowViewController {
     private func restoreAfterBlockedSubmit() {
         isSubmitting = false
         submitButton.isEnabled = true
-        submitButton.setTitle("确认模拟转账", for: .normal)
+        submitButton.setTitle("确认转账", for: .normal)
         navigationItem.hidesBackButton = false
         navigationController?.interactivePopGestureRecognizer?.isEnabled = previousGestureEnabled
     }

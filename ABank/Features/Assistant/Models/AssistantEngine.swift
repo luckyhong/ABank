@@ -52,7 +52,7 @@ enum AssistantEngine {
                triggers: ["交易权限", "开通转账", "网上支付", "关闭转账"], features: [.accountPermissions]),
         Intent(answer: "登录与设备安全可在安全中心设置。",
                triggers: ["登录", "密码", "设备", "安全"], features: [.securityCenter, .loginSettings, .loginDevices]),
-        Intent(answer: "扫一扫支持演示二维码，识别后可前往对应页面。",
+        Intent(answer: "扫一扫支持已保存的二维码，识别后可前往对应页面。",
                triggers: ["扫码", "扫一扫", "二维码", "收款码"], features: [.scan]),
         Intent(answer: "订单可在我的订单里查看。",
                triggers: ["订单", "兑换记录"], features: [.orders])

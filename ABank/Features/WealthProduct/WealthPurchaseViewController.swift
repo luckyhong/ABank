@@ -76,7 +76,7 @@ final class WealthPurchaseViewController: WealthFlowViewController, RouteHosting
         contentStack.addArrangedSubview(agree)
 
         submitButton = addButton("确认购买", id: "wealth.submit") { [weak self] in self?.submitTapped(product) }
-        addNotice("本机模拟 · 不发生真实资金交易")
+        addNotice("请核对账户与交易信息后办理")
         inputDidChange()
     }
 

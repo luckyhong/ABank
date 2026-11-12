@@ -53,7 +53,7 @@ final class MineViewController: BankingDataViewController {
     }
 
     private func refreshAssetStats() {
-        assetStats = MineAssetStats.make(benefits: benefits)
+        assetStats = MineAssetStats.make(benefits: benefits, accountCount: FinanceLedgerStore.shared.load().accounts.count)
         assetStatsCard.configure(with: assetStats)
     }
 

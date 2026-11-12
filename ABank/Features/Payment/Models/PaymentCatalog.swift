@@ -12,17 +12,17 @@ nonisolated enum PaymentCatalog {
 
     static let billAccounts: [BillAccount] = [
         BillAccount(id: "bill.water.home", kind: .water, name: "家庭住宅", accountNo: "0301 2288 6401",
-                    address: "模拟市示范区幸福路 8 号 1 栋 1201", provider: "模拟自来水公司"),
+                    address: "西安市碑林区幸福路 8 号 1 栋 1201", provider: "自来水公司"),
         BillAccount(id: "bill.water.parents", kind: .water, name: "父母住宅", accountNo: "0301 5567 1023",
-                    address: "模拟市示范区安居路 26 号 3 栋 402", provider: "模拟自来水公司"),
+                    address: "西安市碑林区安居路 26 号 3 栋 402", provider: "自来水公司"),
         BillAccount(id: "bill.electric.home", kind: .electric, name: "家庭住宅", accountNo: "8802 1094 7735",
-                    address: "模拟市示范区幸福路 8 号 1 栋 1201", provider: "模拟供电公司"),
+                    address: "西安市碑林区幸福路 8 号 1 栋 1201", provider: "供电公司"),
         BillAccount(id: "bill.electric.office", kind: .electric, name: "工作室", accountNo: "8802 3351 0286",
-                    address: "模拟市创新区科技路 18 号 5 层", provider: "模拟供电公司"),
+                    address: "西安市高新区科技路 18 号 5 层", provider: "供电公司"),
         BillAccount(id: "bill.gas.home", kind: .gas, name: "家庭住宅", accountNo: "6609 4417 2058",
-                    address: "模拟市示范区幸福路 8 号 1 栋 1201", provider: "模拟燃气公司"),
+                    address: "西安市碑林区幸福路 8 号 1 栋 1201", provider: "燃气公司"),
         BillAccount(id: "bill.gas.parents", kind: .gas, name: "父母住宅", accountNo: "6609 7782 1304",
-                    address: "模拟市示范区安居路 26 号 3 栋 402", provider: "模拟燃气公司")
+                    address: "西安市碑林区安居路 26 号 3 栋 402", provider: "燃气公司")
     ]
 
     static func billAccount(id: String) -> BillAccount? {

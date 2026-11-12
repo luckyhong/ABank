@@ -8,7 +8,7 @@ nonisolated enum TransferMethod: String, Codable, CaseIterable, Sendable {
 
 nonisolated enum TransferStatus: String, Codable, Sendable {
     case succeeded, failed
-    var title: String { self == .succeeded ? "模拟转账成功" : "模拟转账失败" }
+    var title: String { self == .succeeded ? "转账成功" : "转账失败" }
 }
 
 nonisolated struct TransferRecipient: Equatable, Identifiable {
@@ -54,10 +54,11 @@ nonisolated struct TransferRecord: Codable, Equatable, Identifiable, Sendable {
     let status: TransferStatus
     let transactionID: String?
     let failureReason: String?
+    var linkedAccountID: String? = nil
 
     var reusableRecipient: TransferRecipient {
         TransferRecipient(id: "history:\(id)", name: recipientName, bankName: bankName,
-                          maskedDestination: maskedDestination, method: method)
+                          maskedDestination: maskedDestination, method: method, linkedAccountID: linkedAccountID)
     }
 }
 
@@ -74,12 +75,12 @@ nonisolated enum TransferError: LocalizedError, Equatable {
         switch self {
         case .invalidAmount: return "请输入大于0的金额，最多保留两位小数"
         case .invalidRecipient: return "请检查收款人、收款银行和附言（最多60字）"
-        case .invalidDestination: return "请输入16至19位演示账号或有效的11位演示手机号"
+        case .invalidDestination: return "请输入16至19位银行卡号或有效的11位手机号"
         case .missingAccount: return "付款账户不存在或暂不可用，请重新选择"
         case .sameAccount: return "付款账户与收款账户相同，请更换收款账户"
         case .insufficientBalance: return "可用余额不足，请调整金额或更换付款账户"
-        case .singleLimit: return "超过本机模拟单笔转账限额"
-        case .dailyLimit: return "超过本机模拟当日累计转账限额"
+        case .singleLimit: return "超过手机银行单笔转账限额"
+        case .dailyLimit: return "超过手机银行当日累计转账限额"
         case .persistence: return "本地保存失败，本次未扣款，请重试"
         case .invalidRequest: return "转账请求无效，请返回重新确认"
         case .corruptLedger: return "本地账本无法读取，请先检查账本数据"

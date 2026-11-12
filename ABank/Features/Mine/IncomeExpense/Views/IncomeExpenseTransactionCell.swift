@@ -30,13 +30,13 @@ final class IncomeExpenseTransactionCell: UITableViewCell {
     func configure(transaction: LedgerTransaction, accountLabel: String, isLast: Bool) {
         titleLabel.text = transaction.title
         let displayTime = String(transaction.time.prefix(5))
-        subtitleLabel.text = "\(accountLabel) \(displayTime)"
+        subtitleLabel.text = "\(accountLabel) \(displayTime)" + (transaction.includeInFlow ? "" : "\n不计入收支")
 
         let prefix = transaction.direction == .income ? "+ ¥ " : "- ¥ "
         amountLabel.text = prefix + transaction.amount.abankPlainAmountString()
         amountLabel.textColor = .abankTextPrimary
 
-        balanceLabel.text = "余额: ¥ \(transaction.balanceAfter.abankPlainAmountString())"
+        balanceLabel.text = transaction.isManual ? (transaction.includeInFlow ? "计入收支" : "不计入收支") : "余额: ¥ \(transaction.balanceAfter.abankPlainAmountString())"
 
         iconBackground.backgroundColor = .clear
         iconView.image = LedgerTransactionArtwork.image(for: transaction)
@@ -58,6 +58,7 @@ final class IncomeExpenseTransactionCell: UITableViewCell {
         titleLabel.lineBreakMode = .byTruncatingTail
 
         subtitleLabel.font = .systemFont(ofSize: 12)
+        subtitleLabel.numberOfLines = 2
         subtitleLabel.textColor = .abankTextTertiary
 
         amountLabel.font = .systemFont(ofSize: 17, weight: .semibold)

@@ -132,11 +132,11 @@ final class AccountDetailQueryDetailViewController: BankingDataViewController {
 
         let values = [
             transaction.datetimeText,
-            transaction.summary,
-            transaction.counterpartyName,
+            transaction.displaySummary,
+            transaction.displayCounterparty,
             transaction.counterpartyAccount,
             transaction.transactionType,
-            transaction.channel,
+            transaction.displayChannel,
             transaction.balanceAfter.abankPlainAmountString(),
             transaction.postscript
         ]

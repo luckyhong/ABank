@@ -4,7 +4,7 @@ import SnapKit
 final class TransferFormViewController: TransferFlowViewController {
     private let store: FinanceLedgerStore
     private var draft: TransferDraft
-    private let recipientRow = TransferInputRow("收款人", placeholder: "请输入演示姓名", id: "transfer.recipientName")
+    private let recipientRow = TransferInputRow("收款人", placeholder: "请输入收款人姓名", id: "transfer.recipientName")
     private let destinationRow: TransferInputRow
     private let amountRow = TransferInputRow("转账金额", placeholder: "0.00", id: "transfer.amount", keyboard: .decimalPad)
     private let noteRow = TransferInputRow("附言", placeholder: "选填，最多60字", id: "transfer.note")
@@ -19,7 +19,7 @@ final class TransferFormViewController: TransferFlowViewController {
         self.store = store
         self.draft = initialDraft ?? TransferDraft(payerAccountID: payerAccountID ?? store.load().accounts.first?.id ?? "", method: recipient?.method ?? method)
         destinationRow = TransferInputRow(self.draft.method == .account ? "收款账号" : "手机号",
-            placeholder: self.draft.method == .account ? "16至19位演示账号" : "11位演示手机号", id: "transfer.destination", keyboard: .numberPad)
+            placeholder: self.draft.method == .account ? "16至19位银行卡号" : "11位手机号", id: "transfer.destination", keyboard: .numberPad)
         if let recipient { draft.savedRecipientID = recipient.id }
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
@@ -59,7 +59,7 @@ final class TransferFormViewController: TransferFlowViewController {
             self?.draft.recipientName = ""
             self?.applyDraft()
         }
-        addNotice("确认前请核对收款人。手续费：0.00元（模拟）。")
+        addNotice("确认前请核对收款人。手续费：0.00元。")
         applyDraft()
     }
 

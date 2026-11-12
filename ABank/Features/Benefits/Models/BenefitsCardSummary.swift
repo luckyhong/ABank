@@ -9,9 +9,9 @@
 import Foundation
 
 enum MineAssetStats {
-    static func make(benefits: BenefitsStore) -> [MineAssetStat] {
+    static func make(benefits: BenefitsStore, accountCount: Int = 1) -> [MineAssetStat] {
         [
-            MineAssetStat(value: 1, label: "银行卡", route: .myAccount),
+            MineAssetStat(value: accountCount, label: "银行卡", route: .myAccount),
             MineAssetStat(value: benefits.balance(.beans), label: "小豆", route: .rewardLedger(currency: .beans)),
             MineAssetStat(value: benefits.balance(.points), label: "积分", route: .rewardLedger(currency: .points)),
             MineAssetStat(value: benefits.unusedCouponCount, label: "礼券", route: .coupons)

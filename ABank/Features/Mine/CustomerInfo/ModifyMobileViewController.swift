@@ -116,7 +116,7 @@ final class ModifyMobileViewController: BaseViewController {
             make.leading.trailing.bottom.equalToSuperview()
         }
 
-        tipLabel.text = "验证码将发送至新手机号，本地演示验证码为 \(presetCode)"
+        tipLabel.text = "请输入验证码： \(presetCode)"
         tipLabel.font = .systemFont(ofSize: 13)
         tipLabel.textColor = .abankTextTertiary
         tipLabel.numberOfLines = 0

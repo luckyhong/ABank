@@ -66,8 +66,8 @@ extension FinanceLedgerStore {
         )
         root.paymentOrders.append(order)
         root.transactions.append(paymentTransaction(
-            order: order, title: "手机充值-" + PaymentRules.maskedPhone(checked.phone), counterparty: "模拟通信服务商",
-            summary: "模拟手机充值", account: checked.account, now: now
+            order: order, title: "手机充值-" + PaymentRules.maskedPhone(checked.phone), counterparty: "通信服务商",
+            summary: "手机充值", account: checked.account, now: now
         ))
         recalculate(&root)
         root.dataTimestamp = timestamp
@@ -106,7 +106,7 @@ extension FinanceLedgerStore {
         root.paymentOrders.append(order)
         root.transactions.append(paymentTransaction(
             order: order, title: billAccount.kind.title + "缴费-" + billAccount.name, counterparty: billAccount.provider,
-            summary: "模拟生活缴费", account: account, now: now
+            summary: "生活缴费", account: account, now: now
         ))
         recalculate(&root)
         root.dataTimestamp = timestamp
@@ -131,6 +131,7 @@ extension FinanceLedgerStore {
         guard let account = record.accounts.first(where: { $0.id == FinanceLedgerRecord.defaultAccountId }) else {
             throw PaymentError.invalidRequest
         }
+        guard !account.isReportedLost else { throw AccountSettingsError.cardReportedLost }
         guard account.permissions.onlinePayment else { throw PaymentError.onlinePaymentDisabled }
     }
 
@@ -176,7 +177,7 @@ extension FinanceLedgerStore {
             amount: TransferMoney.amount(order.paidInCents), balanceAfter: 0,
             iconKey: order.kind.iconKey, categoryId: order.kind.categoryId, includeInFlow: true,
             counterpartyName: counterparty, summary: summary, cardNumber: "****" + account.tailNumber,
-            transactionType: order.kind.transactionType, channel: "本机模拟"
+            transactionType: order.kind.transactionType, channel: "手机银行"
         )
     }
 }

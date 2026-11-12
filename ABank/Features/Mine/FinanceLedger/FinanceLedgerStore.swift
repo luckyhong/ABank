@@ -111,6 +111,10 @@ extension Notification.Name {
         }) {
             recipients.append(preset)
         }
+        for account in load().accounts where account.fullCardNumber != nil && !recipients.contains(where: { $0.linkedAccountID == account.id }) {
+            recipients.append(TransferRecipient(id: "own:" + account.id, name: account.alias ?? "本人账户", bankName: "中国农业银行",
+                maskedDestination: account.maskedCardNumber, linkedAccountID: account.id))
+        }
         return recipients
     }
 
@@ -120,6 +124,10 @@ extension Notification.Name {
 
     private func resolveRecipient(_ draft: TransferDraft, record: FinanceLedgerRecord) throws -> TransferRecipient {
         if let savedID = draft.savedRecipientID {
+            if savedID.hasPrefix("own:"), let account = record.accounts.first(where: { "own:" + $0.id == savedID }) {
+                return TransferRecipient(id: savedID, name: account.alias ?? "本人账户", bankName: "中国农业银行",
+                    maskedDestination: account.maskedCardNumber, linkedAccountID: account.id)
+            }
             if let preset = TransferRecipient.presets.first(where: { $0.id == savedID }) { return preset }
             if savedID.hasPrefix("history:"), let previous = record.transferRecords.first(where: { "history:" + $0.id == savedID }) {
                 return previous.reusableRecipient
@@ -135,8 +143,8 @@ extension Notification.Name {
         let masked = draft.method == .account
             ? String(destination.prefix(4)) + "****" + String(destination.suffix(4))
             : String(destination.prefix(3)) + "****" + String(destination.suffix(4))
-        // The current demo debit card is the only complete account number provided by the fixture.
-        let linkedID = draft.method == .account && destination == "6230480012348472" ? FinanceLedgerRecord.defaultAccountId : nil
+        // Only match a known complete number; never infer an internal account from its tail alone.
+        let linkedID = draft.method == .account ? record.accounts.first(where: { $0.fullCardNumber?.filter { !$0.isWhitespace } == destination })?.id : nil
         return TransferRecipient(id: "manual", name: name,
                                  bankName: draft.method == .phone ? "手机号转账" : bank,
                                  maskedDestination: masked, method: draft.method, linkedAccountID: linkedID)
@@ -153,9 +161,11 @@ extension Notification.Name {
         let recipient = try resolveRecipient(draft, record: record)
         guard recipient.method == draft.method else { throw TransferError.invalidRecipient }
         guard let payer = record.accounts.first(where: { $0.id == draft.payerAccountID }), payer.currency == "人民币" else { throw TransferError.missingAccount }
+        guard !payer.isReportedLost else { throw AccountSettingsError.cardReportedLost }
         // 权限最先检查：关闭时不再提示余额或限额问题。
         guard payer.permissions.mobileTransfer else { throw TransferError.transferPermissionDisabled }
         guard recipient.linkedAccountID != payer.id else { throw TransferError.sameAccount }
+        if let linkedID = recipient.linkedAccountID, !record.accounts.contains(where: { $0.id == linkedID && $0.currency == payer.currency }) { throw TransferError.missingAccount }
         let limits = transferLimits
         guard draft.amountInCents <= limits.perTransferInCents else { throw TransferError.singleLimit }
         let spent = Self.transferredInCents(on: dates.string(from: now), in: record)
@@ -197,15 +207,25 @@ extension Notification.Name {
             note: draft.note.trimmingCharacters(in: .whitespacesAndNewlines),
             createdAt: dates.string(from: now, format: "yyyy-MM-dd HH:mm:ss"),
             status: succeeds ? .succeeded : .failed, transactionID: transactionID,
-            failureReason: succeeds ? nil : "本次模拟处理失败，未扣款，请重新发起")
+            failureReason: succeeds ? nil : "本次处理失败，未扣款，请重新发起", linkedAccountID: recipient.linkedAccountID)
         if let transactionID {
             root.transactions.append(LedgerTransaction(id: transactionID, accountId: account.id,
                 date: dates.string(from: now), time: dates.string(from: now, format: "HH:mm:ss"),
                 title: "转账-" + recipient.name, direction: .expense, amount: TransferMoney.amount(draft.amountInCents),
-                balanceAfter: 0, iconKey: "transfer", categoryId: "transfer_out",
+                balanceAfter: 0, iconKey: "transfer", categoryId: recipient.linkedAccountID == nil ? "transfer_out" : "self_transfer",
+                includeInFlow: recipient.linkedAccountID == nil,
                 counterpartyName: recipient.name, counterpartyAccount: recipient.maskedDestination,
-                summary: "模拟转账", postscript: transfer.note, cardNumber: "****" + account.tailNumber,
-                transactionType: draft.method.title, channel: "本机模拟"))
+                summary: "转账", postscript: transfer.note, cardNumber: "****" + account.tailNumber,
+                transactionType: draft.method.title, channel: "手机银行"))
+            if let linkedID = recipient.linkedAccountID, let receiving = root.accounts.first(where: { $0.id == linkedID }) {
+                root.transactions.append(LedgerTransaction(id: transactionID + "_credit", accountId: receiving.id,
+                    date: dates.string(from: now), time: dates.string(from: now, format: "HH:mm:ss"),
+                    title: "本人账户转入", direction: .income, amount: TransferMoney.amount(draft.amountInCents),
+                    balanceAfter: 0, iconKey: "transfer", categoryId: "self_transfer", includeInFlow: false,
+                    counterpartyName: account.cardLabel, counterpartyAccount: account.maskedCardNumber,
+                    summary: "本人账户转账", postscript: transfer.note, cardNumber: receiving.maskedCardNumber,
+                    transactionType: "转账", channel: "手机银行"))
+            }
             recalculate(&root)
         }
         root.transferRecords.append(transfer)
@@ -239,8 +259,8 @@ extension Notification.Name {
     func monthlyFlow(for month: String) -> MonthlyFlowSummary {
         let record = load()
         let txs = record.transactions.filter { $0.date.hasPrefix(month) && $0.includeInFlow }
-        let expense = txs.filter { $0.direction == .expense }.reduce(0) { $0 + $1.amount }
-        let income = txs.filter { $0.direction == .income }.reduce(0) { $0 + $1.amount }
+        let expense = Self.sumAmounts(txs, direction: .expense)
+        let income = Self.sumAmounts(txs, direction: .income)
         return MonthlyFlowSummary(expense: expense, income: income)
     }
 
@@ -254,6 +274,8 @@ extension Notification.Name {
         categoryId: String? = nil,
         note: String? = nil
     ) -> Bool {
+        guard let transaction = transaction(id: id), note.map({ $0.count <= 200 }) ?? true else { return false }
+        if let categoryId, !IncomeExpenseFilterCatalog.selectableOptions(for: transaction.direction).contains(where: { $0.id == categoryId }) { return false }
         return update { record in
             guard let index = record.transactions.firstIndex(where: { $0.id == id }) else { return }
             if let includeInFlow { record.transactions[index].includeInFlow = includeInFlow }
@@ -263,6 +285,7 @@ extension Notification.Name {
     }
 
     @discardableResult func updateTransactionLedger(id: String, ledgerId: String?) -> Bool {
+        guard transaction(id: id) != nil, ledgerId == nil || LedgerBookCatalog.title(for: ledgerId) != nil else { return false }
         return update { record in
             guard let index = record.transactions.firstIndex(where: { $0.id == id }) else { return }
             record.transactions[index].ledgerId = ledgerId
@@ -278,7 +301,7 @@ extension Notification.Name {
     }
 
     var monthlyBillNotice: String {
-        let hasTransactions = load().transactions.contains { $0.date.hasPrefix(dates.previousMonth) }
+        let hasTransactions = load().transactions.contains { $0.date.hasPrefix(dates.previousMonth) && $0.includeInFlow }
         return hasTransactions ? "您的\(dates.previousMonthTitle)账单已出" : "\(dates.previousMonthTitle)暂无收支记录"
     }
 
@@ -359,6 +382,7 @@ extension Notification.Name {
         let record = load()
         var txs = record.transactions.filter { matchesDate($0, query: query) }
         txs = txs.filter { matchesAccount($0, filter: query.accountFilter) }
+        if let ledgerID = query.ledgerID { txs = txs.filter { $0.ledgerId == ledgerID } }
         txs = txs.filter { matchesAdvanced($0, filter: query.advancedFilter) }
         txs = txs.enumerated().sorted { lhs, rhs in
             let l = lhs.element, r = rhs.element
@@ -368,8 +392,8 @@ extension Notification.Name {
         }.map(\.element)
 
         let flowTxs = txs.filter(\.includeInFlow)
-        let expense = flowTxs.filter { $0.direction == .expense }.reduce(0) { $0 + $1.amount }
-        let income = flowTxs.filter { $0.direction == .income }.reduce(0) { $0 + $1.amount }
+        let expense = Self.sumAmounts(flowTxs, direction: .expense)
+        let income = Self.sumAmounts(flowTxs, direction: .income)
 
         let grouped = Dictionary(grouping: txs, by: \.date)
         let dayGroups = grouped.keys.sorted(by: >).map { date in
@@ -468,7 +492,7 @@ extension Notification.Name {
     }
 
     func accountCardLabel(for accountId: String) -> String {
-        load().accounts.first(where: { $0.id == accountId })?.cardLabel ?? "借记卡"
+        accountId == "manual" ? "手工记账" : (load().accounts.first(where: { $0.id == accountId })?.cardLabel ?? "借记卡")
     }
 
     func accountDetailQueryPageData(

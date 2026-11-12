@@ -115,6 +115,7 @@ extension FinanceLedgerStore {
               let account = root.accounts.first(where: { $0.id == FinanceLedgerRecord.defaultAccountId }) else {
             throw LoanError.contractUnavailable
         }
+        guard !account.isReportedLost else { throw AccountSettingsError.cardReportedLost }
         let contract = root.loanContracts[index]
         let now = dates.now
         let numbers = serviceNumbers(now: now)
@@ -141,8 +142,8 @@ extension FinanceLedgerStore {
             id: "loan_" + numbers.id, accountId: account.id, date: dates.string(from: now),
             time: dates.string(from: now, format: "HH:mm:ss"), title: "提前还款-" + contract.name, direction: .expense,
             amount: TransferMoney.amount(amountInCents), balanceAfter: 0, iconKey: "house.fill", categoryId: "loan_repay",
-            includeInFlow: true, counterpartyName: "ABank 个人贷款", summary: "模拟提前还款",
-            cardNumber: "****" + account.tailNumber, transactionType: "贷款还款", channel: "本机模拟"
+            includeInFlow: true, counterpartyName: "ABank 个人贷款", summary: "提前还款",
+            cardNumber: "****" + account.tailNumber, transactionType: "贷款还款", channel: "手机银行"
         ))
         root.loanServiceRecords.append(record)
         recalculate(&root)
@@ -183,6 +184,7 @@ extension FinanceLedgerStore {
                                 method: LoanRepaymentMethod) throws -> LoanPrepaymentPreview {
         guard let contract = record.loanContracts.first(where: { $0.id == contractID }),
               contract.unpaidPrincipal > 0 else { throw LoanError.contractUnavailable }
+        if record.accounts.first(where: { $0.id == FinanceLedgerRecord.defaultAccountId })?.isReportedLost == true { throw AccountSettingsError.cardReportedLost }
         let balance = record.accounts.first { $0.id == FinanceLedgerRecord.defaultAccountId }
             .flatMap { TransferMoney.cents(from: $0.balance) } ?? 0
         return try LoanAmortization.preview(contract: contract, balanceInCents: balance, amountInCents: amountInCents,

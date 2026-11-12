@@ -44,7 +44,7 @@ final class MobileRechargeViewController: PaymentFlowViewController, RouteHostin
         addSectionTitle("选择面额")
         contentStack.addArrangedSubview(faceGrid())
         nextButton = addButton("下一步", id: "recharge.next") { [weak self] in self?.nextTapped() }
-        addNotice("本机模拟 · 不发生真实资金交易")
+        addNotice("请核对账户与交易信息后办理")
         phoneDidChange()
     }
 

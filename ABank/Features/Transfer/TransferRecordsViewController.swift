@@ -17,7 +17,7 @@ final class TransferRecordsViewController: BankingDataViewController, UITableVie
 
     override func setupUI() {
         title = "转账记录"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "模拟回单", style: .plain, target: self, action: #selector(openReceipts))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "回单", style: .plain, target: self, action: #selector(openReceipts))
         view.backgroundColor = .white
         filter.selectedSegmentIndex = 0
         filter.selectedSegmentTintColor = .abankTeal
@@ -25,7 +25,7 @@ final class TransferRecordsViewController: BankingDataViewController, UITableVie
         filter.accessibilityIdentifier = "transfer.records.filter"
         filter.addTarget(self, action: #selector(filterChanged), for: .valueChanged)
         let notice = UILabel()
-        notice.text = "仅显示本机发起的模拟转账"
+        notice.text = "仅显示本机发起的转账"
         notice.font = .systemFont(ofSize: 13)
         notice.textColor = .abankTextSecondary
         tableView.dataSource = self
@@ -33,7 +33,7 @@ final class TransferRecordsViewController: BankingDataViewController, UITableVie
         tableView.rowHeight = 88
         tableView.register(TransferHistoryCell.self, forCellReuseIdentifier: "transfer")
         tableView.accessibilityIdentifier = "transfer.records.table"
-        emptyLabel.text = "暂无符合条件的模拟转账"
+        emptyLabel.text = "暂无符合条件的转账"
         emptyLabel.textAlignment = .center
         emptyLabel.font = .systemFont(ofSize: 14)
         emptyLabel.textColor = .abankTextTertiary
@@ -81,7 +81,7 @@ final class TransferRecipientsViewController: TransferFlowViewController {
     override func setupUI() {
         super.setupUI()
         title = "转账伙伴"
-        addNotice("选择本机演示伙伴，或返回手动填写")
+        addNotice("选择本机转账伙伴，或返回手动填写")
         let recipients = store.transferRecipients().filter { method == nil || $0.method == method }
         for recipient in recipients {
             let row = TransferInfoRow(recipient.name, value: recipient.bankName + "\n" + recipient.maskedDestination,

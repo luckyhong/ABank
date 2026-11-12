@@ -38,7 +38,7 @@ final class PaymentSettingsViewController: SecurityFlowViewController, RouteHost
         }
         addGroup(quotaRows.map(\.1))
         quotaGroup = contentStack.arrangedSubviews.last
-        addNotice("演示设置，不做真实验证")
+        addNotice("设置将保存并在下次打开时生效")
     }
 
     override func refreshBankingData() {

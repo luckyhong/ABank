@@ -40,7 +40,7 @@ nonisolated enum BranchCatalog {
         // 西安
         full("xa-fengdong", "xian", "西安沣东新城支行", "陕西省西安市沣东新城大明宫·沣东一路88号", "029-8001-2201",
              2552, .weekdayAndWeekend, allBusinesses, 0.32, 0.46),
-        full("xa-xingqing", "xian", "西安兴庆路支行营业室", "陕西省西安市碑林区兴庆路模拟大厦1层", "029-8001-2202",
+        full("xa-xingqing", "xian", "西安兴庆路支行营业室", "陕西省西安市碑林区兴庆路商务大厦1层", "029-8001-2202",
              3870, .weekdayWithLunchWeekendClosed, noCoin, 0.70, 0.38),
         full("xa-gaoxin", "xian", "西安高新科技路支行", "陕西省西安市雁塔区科技路示例广场A座", "029-8001-2203",
              5120, .everyDayLong, allBusinesses, 0.55, 0.72),
@@ -49,7 +49,7 @@ nonisolated enum BranchCatalog {
         // 北京
         full("bj-chaoyang", "beijing", "北京朝阳门支行", "北京市朝阳区朝阳门外大街示例中心1层", "010-6001-3301",
              1280, .everyDayLong, allBusinesses, 0.62, 0.40),
-        full("bj-haidian", "beijing", "北京海淀黄庄支行", "北京市海淀区中关村大街模拟大厦2层", "010-6001-3302",
+        full("bj-haidian", "beijing", "北京海淀黄庄支行", "北京市海淀区中关村大街商务大厦2层", "010-6001-3302",
              2960, .weekdayWithLunchWeekendClosed, personalOnly, 0.22, 0.30),
         full("bj-xicheng", "beijing", "北京金融街支行", "北京市西城区金融大街示例楼1层", "010-6001-3303",
              4410, .weekdayAndWeekend, noCoin, 0.38, 0.58),
@@ -58,7 +58,7 @@ nonisolated enum BranchCatalog {
         // 上海
         full("sh-lujiazui", "shanghai", "上海陆家嘴支行", "上海市浦东新区陆家嘴环路示例大厦1层", "021-5001-4401",
              1850, .weekdayAndWeekend, allBusinesses, 0.68, 0.45),
-        full("sh-xujiahui", "shanghai", "上海徐家汇支行", "上海市徐汇区漕溪北路模拟广场1层", "021-5001-4402",
+        full("sh-xujiahui", "shanghai", "上海徐家汇支行", "上海市徐汇区漕溪北路中心广场1层", "021-5001-4402",
              3340, .weekdayWithLunchWeekendClosed, noCoin, 0.30, 0.70),
         full("sh-jingan", "shanghai", "上海静安寺支行", "上海市静安区南京西路示例中心2层", "021-5001-4403",
              4780, .everyDayLong, personalOnly, 0.40, 0.32),
@@ -67,7 +67,7 @@ nonisolated enum BranchCatalog {
         // 广州
         full("gz-tianhe", "guangzhou", "广州天河路支行", "广东省广州市天河区天河路示例大厦1层", "020-3001-5501",
              2100, .everyDayLong, allBusinesses, 0.58, 0.42),
-        full("gz-yuexiu", "guangzhou", "广州越秀北京路支行", "广东省广州市越秀区北京路模拟街区8号", "020-3001-5502",
+        full("gz-yuexiu", "guangzhou", "广州越秀北京路支行", "广东省广州市越秀区北京路商业街区8号", "020-3001-5502",
              3650, .weekdayWithLunchWeekendClosed, noCoin, 0.30, 0.62),
         full("gz-pazhou", "guangzhou", "广州琶洲支行", "广东省广州市海珠区阅江路示例中心1层", "020-3001-5503",
              5880, .weekdayAndWeekend, personalOnly, 0.78, 0.74),
@@ -76,14 +76,14 @@ nonisolated enum BranchCatalog {
              1640, .weekdayAndWeekend, allBusinesses, 0.50, 0.44),
         full("cd-tianfu", "chengdu", "成都天府新区支行", "四川省成都市天府新区天府大道示例大厦1层", "028-8601-6602",
              4320, .weekdayWithLunchWeekendClosed, noCoin, 0.46, 0.80),
-        full("cd-wuhou", "chengdu", "成都武侯祠支行", "四川省成都市武侯区武侯祠大街模拟街区3号", "028-8601-6603",
+        full("cd-wuhou", "chengdu", "成都武侯祠支行", "四川省成都市武侯区武侯祠大街商业街区3号", "028-8601-6603",
              2870, .everyDayLong, personalOnly, 0.24, 0.52),
         // 武汉
         full("wh-jianghan", "wuhan", "武汉江汉路支行", "湖北省武汉市江汉区江汉路示例大厦1层", "027-8501-7701",
              1930, .everyDayLong, allBusinesses, 0.40, 0.36),
         full("wh-guanggu", "wuhan", "武汉光谷支行", "湖北省武汉市洪山区珞喻路示例广场1层", "027-8501-7702",
              5260, .weekdayWithLunchWeekendClosed, noCoin, 0.78, 0.66),
-        full("wh-wuchang", "wuhan", "武汉武昌中南路支行", "湖北省武汉市武昌区中南路模拟中心2层", "027-8501-7703",
+        full("wh-wuchang", "wuhan", "武汉武昌中南路支行", "湖北省武汉市武昌区中南路商务中心2层", "027-8501-7703",
              3480, .weekdayAndWeekend, personalOnly, 0.56, 0.58)
     ]
 

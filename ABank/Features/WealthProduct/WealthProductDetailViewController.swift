@@ -41,7 +41,7 @@ final class WealthProductDetailViewController: WealthFlowViewController, RouteHo
         rate.text = product.rateText
         rate.font = .systemFont(ofSize: 32, weight: .semibold)
         rate.textColor = .abankHighlight
-        addCard([name, rate, branchCaption("模拟年化收益率（演示）")])
+        addCard([name, rate, branchCaption("年化收益率")])
 
         addGroup([
             TransferInfoRow("风险等级", value: "\(product.risk.shortTitle) \(product.risk.title)"),
@@ -52,9 +52,9 @@ final class WealthProductDetailViewController: WealthFlowViewController, RouteHo
         addCard([branchCaption("产品简介"), branchCaption(product.summary, color: .abankTextPrimary),
                  branchCaption("持有满 \(product.minHoldDays) 天后可赎回，本息即时回到账户。", color: .abankTextPrimary)])
         addCard([branchCaption("风险提示"),
-                 branchCaption("理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎。本页面为本机模拟演示。")])
+                 branchCaption("理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎。")])
         _ = addButton("立即购买", id: "wealth.buy") { [weak self] in self?.buyTapped(product) }
-        addNotice("本机模拟 · 不发生真实资金交易")
+        addNotice("请核对账户与交易信息后办理")
     }
 
     private func buyTapped(_ product: WealthProduct) {

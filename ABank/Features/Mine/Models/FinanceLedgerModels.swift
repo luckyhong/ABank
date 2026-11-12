@@ -68,6 +68,10 @@ struct LedgerAccount: Codable, Equatable, Identifiable {
     var alias: String? = nil
     /// 模拟交易权限；旧数据缺失时视为全部开启。
     var permissions: AccountPermissions = .allEnabled
+    var isReportedLost: Bool = false
+    var accountNumber: String? = nil
+    var openedOn: String? = nil
+    var branchName: String? = nil
 
     var displayName: String { "尾号\(tailNumber) (\(currency))" }
     /// 所有页面统一使用的卡名：有别名时为“别名（尾号）”。
@@ -79,7 +83,7 @@ struct LedgerAccount: Codable, Equatable, Identifiable {
 
 extension LedgerAccount {
     private enum CodingKeys: String, CodingKey {
-        case id, tailNumber, currency, balance, openingBalance, alias, permissions
+        case id, tailNumber, currency, balance, openingBalance, alias, permissions, isReportedLost, accountNumber, openedOn, branchName
     }
 
     init(from decoder: Decoder) throws {
@@ -91,6 +95,10 @@ extension LedgerAccount {
         openingBalance = try container.decode(Double.self, forKey: .openingBalance)
         alias = try container.decodeIfPresent(String.self, forKey: .alias)
         permissions = try container.decodeIfPresent(AccountPermissions.self, forKey: .permissions) ?? .allEnabled
+        isReportedLost = try container.decodeIfPresent(Bool.self, forKey: .isReportedLost) ?? false
+        accountNumber = try container.decodeIfPresent(String.self, forKey: .accountNumber)
+        openedOn = try container.decodeIfPresent(String.self, forKey: .openedOn)
+        branchName = try container.decodeIfPresent(String.self, forKey: .branchName)
     }
 }
 
@@ -561,6 +569,7 @@ struct IncomeExpenseQuery: Equatable {
     var dateMode: IncomeExpenseDateMode = .month(BankingDateContext.system.currentMonth)
     var accountFilter: IncomeExpenseAccountFilter = .all
     var advancedFilter: IncomeExpenseAdvancedFilter = .empty
+    var ledgerID: String? = nil
 
     var filterBarMonthText: String {
         switch dateMode {

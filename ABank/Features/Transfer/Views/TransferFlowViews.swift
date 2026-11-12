@@ -29,7 +29,7 @@ class TransferFlowViewController: BankingDataViewController {
         }
     }
 
-    func addNotice(_ text: String = "本机模拟 · 不发生真实资金交易") {
+    func addNotice(_ text: String = "请核对账户与交易信息后办理") {
         let label = UILabel()
         label.text = text
         label.font = .systemFont(ofSize: 13)

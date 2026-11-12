@@ -50,7 +50,7 @@ final class ScanViewController: BaseViewController {
         view.backgroundColor = .black
 
         let hint = UILabel()
-        hint.text = "演示扫码 · 不调用相机"
+        hint.text = "选择二维码，查看识别结果"
         hint.font = .systemFont(ofSize: 14)
         hint.textColor = UIColor.white.withAlphaComponent(0.7)
         hint.textAlignment = .center
@@ -218,7 +218,7 @@ final class ScanViewController: BaseViewController {
             resultDetail.text = title
         case .unrecognized:
             resultTitle.text = "无法识别"
-            resultDetail.text = "无法识别该二维码，请扫描 ABank 演示码"
+            resultDetail.text = "无法识别该二维码，请扫描 ABank 二维码"
         }
         goButton.isHidden = result.route == nil
         goButton.isEnabled = true

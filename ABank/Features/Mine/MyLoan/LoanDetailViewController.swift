@@ -181,7 +181,7 @@ final class LoanDetailViewController: BaseViewController {
             ("贷款金额", contract.hasOriginalContractDetails ? "\(contract.loanAmount.abankPlainAmountString())元" : "—", false),
             ("未还本金", "\(contract.unpaidPrincipal.abankPlainAmountString())元", false),
             ("贷款年化利率", String(format: "%.1f%%", contract.annualRatePercent), true),
-            ("利率定价方式", contract.pricingMethod, false),
+            ("利率定价方式", contract.pricingMethod.replacingOccurrences(of: "模拟", with: ""), false),
             ("利率定价基准", contract.pricingBenchmark, false),
             ("利率浮动幅度", contract.floatingRange, false),
             ("重定价周期", contract.repricingCycle, false),

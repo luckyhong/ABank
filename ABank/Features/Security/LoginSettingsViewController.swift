@@ -25,7 +25,7 @@ final class LoginSettingsViewController: SecurityFlowViewController, RouteHostin
             self.handleSaveResult(self.security.setGestureLogin(enabled)) { self.gestureRow.setOn(!enabled, animated: true) }
         }
         addGroup([faceIDRow, gestureRow])
-        addNotice("演示设置，不做真实验证")
+        addNotice("设置将保存并在下次打开时生效")
     }
 
     override func refreshBankingData() {

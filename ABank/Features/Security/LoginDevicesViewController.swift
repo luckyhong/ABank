@@ -16,7 +16,7 @@ final class LoginDevicesViewController: SecurityFlowViewController, RouteHosting
     override func setupUI() {
         super.setupUI()
         title = "登录设备"
-        addNotice("以下为最近登录过本账户的设备（本机模拟数据）")
+        addNotice("以下为最近登录过本账户的设备（账户信息）")
         listContainer.axis = .vertical
         listContainer.spacing = 12
         contentStack.addArrangedSubview(listContainer)

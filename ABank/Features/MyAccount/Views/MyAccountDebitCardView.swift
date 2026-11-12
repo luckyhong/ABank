@@ -31,6 +31,7 @@ final class MyAccountDebitCardView: UIView {
 
     func configure(with card: MyAccountDebitCard) {
         classBadge.text = card.accountClass
+        balanceCaptionLabel.text = card.statusText == "已挂失" ? "已挂失 · 人民币可用余额" : "人民币可用余额"
         cardNumberLabel.text = card.maskedNumber
         aliasLabel.text = card.alias
         aliasLabel.isHidden = card.alias == nil

@@ -43,7 +43,7 @@ final class SecurityCenterViewController: SecurityFlowViewController, RouteHosti
             }
         }
         addGroup([hideAmountsRow])
-        addNotice("本机模拟数据，不涉及真实账户安全设置")
+        addNotice("管理账户安全与交易设置")
     }
 
     override func refreshBankingData() {
@@ -69,7 +69,7 @@ final class SecurityCenterViewController: SecurityFlowViewController, RouteHosti
         statusTitle.textColor = .abankTextPrimary
         statusTitle.accessibilityIdentifier = "security.statusTitle"
         let subtitle = UILabel()
-        subtitle.text = "本机模拟数据"
+        subtitle.text = "账户信息"
         subtitle.font = .abankCaption()
         subtitle.textColor = .abankTextSecondary
         let labels = UIStackView(arrangedSubviews: [statusTitle, subtitle])
