@@ -3,6 +3,7 @@ import Foundation
 @MainActor
 enum BankingDemoMigration {
     static func upgrade(_ stored: FinanceLedgerRecord) -> FinanceLedgerRecord? {
+        if [BankingDemoFixture.previousVersion, BankingDemoFixture.previousSupplementVersion].contains(stored.demoDataVersion ?? "") { return upgradeConfirmedTransfers(in: stored) }
         guard stored.demoDataVersion == nil else { return nil }
         let legacy = FinanceLedgerStore.makeLegacySeedRecord()
         let ownedIDs = Set(legacy.transactions.map(\.id))
@@ -58,5 +59,39 @@ enum BankingDemoMigration {
         updated.demoDataVersion = BankingDemoFixture.version
         updated.dataTimestamp = max(stored.dataTimestamp, baseline.dataTimestamp)
         return updated
+    }
+
+    /// Append once from the 37-row release; correct metadata only from the prior 38-row version.
+    private static func upgradeConfirmedTransfers(in stored: FinanceLedgerRecord) -> FinanceLedgerRecord? {
+        let baseline = BankingDemoFixture.makeRecord()
+        let additionIDs = BankingDemoFixture.addedTransactionIDs
+        let isSupplement = stored.demoDataVersion == BankingDemoFixture.previousSupplementVersion
+        let required = baseline.transactions.filter { isSupplement || !additionIDs.contains($0.id) }
+        guard Set(stored.transactions.map(\.id)).count == stored.transactions.count,
+              Set(stored.accounts.map(\.id)).count == stored.accounts.count,
+              stored.accounts.contains(where: { $0.id == FinanceLedgerRecord.defaultAccountId && $0.currency == "人民币" }),
+              required.allSatisfy({ original in
+                  stored.transactions.contains { $0.id == original.id && $0.date == original.date && $0.accountId == original.accountId }
+              }),
+              isSupplement || Set(stored.transactions.map(\.id)).isDisjoint(with: additionIDs) else { return nil }
+        var updated = stored
+        if !isSupplement { updated.transactions += baseline.transactions.filter { additionIDs.contains($0.id) } }
+        applyCorrectedTransferDetails(to: &updated)
+        updated.demoDataVersion = BankingDemoFixture.version
+        updated.dataTimestamp = max(stored.dataTimestamp, baseline.dataTimestamp)
+        return updated
+    }
+
+    static func applyCorrectedTransferDetails(to record: inout FinanceLedgerRecord) {
+        let reference = BankingDemoFixture.makeRecord().transactions
+        for index in record.transactions.indices where BankingDemoFixture.correctedTransactionIDs.contains(record.transactions[index].id) {
+            guard let correct = reference.first(where: { $0.id == record.transactions[index].id }) else { continue }
+            if ["转给欧", "转出（欧）"].contains(record.transactions[index].title) { record.transactions[index].title = correct.title }
+            if ["转给欧", "转出（欧）"].contains(record.transactions[index].summary) { record.transactions[index].summary = correct.summary }
+            if ["", "欧"].contains(record.transactions[index].counterpartyName) { record.transactions[index].counterpartyName = correct.counterpartyName }
+            if record.transactions[index].counterpartyAccount.isEmpty { record.transactions[index].counterpartyAccount = correct.counterpartyAccount }
+            if record.transactions[index].counterpartyBank.isEmpty { record.transactions[index].counterpartyBank = correct.counterpartyBank }
+            if ["", "—", "---"].contains(record.transactions[index].channel) { record.transactions[index].channel = correct.channel }
+        }
     }
 }

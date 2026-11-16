@@ -37,11 +37,11 @@ import CoreImage
         do {
             await capture("05-account", window: window)
             let initial = ledger.load()
-            check("37 confirmed transactions", initial.transactions.count == 37)
+            check("38 confirmed transactions", initial.transactions.count == 38)
             let electronic = try ledger.openElectronicAccount()
             let own = ledger.transferRecipients().first { $0.linkedAccountID == electronic.id }!
             let transfer = try ledger.submitTransfer(draft: TransferDraft(payerAccountID: FinanceLedgerRecord.defaultAccountId, savedRecipientID: own.id, amountInCents: 100_000, note: "本人账户资金转入"), requestID: "qa-fund")
-            check("internal transfer assets", ledger.totalAssets() == 8269.23)
+            check("internal transfer assets", ledger.totalAssets() == 5269.23)
             await capture("06-two-accounts", window: window)
             await screen(IncomeExpenseViewController(), nav: nav, name: "07-income", window: window)
             await screen(LedgerAnalysisViewController(query: .init()), nav: nav, name: "08-analysis", window: window)
@@ -119,7 +119,7 @@ import CoreImage
             nav.setOverrideTraitCollection(UITraitCollection(preferredContentSizeCategory: .accessibilityLarge), forChild: enlarged)
             await capture("45-analysis-large-text", window: window)
             let ids = Set(initial.transactions.map(\.id))
-            check("37 reference transactions preserved", ledger.load().transactions.filter { ids.contains($0.id) } == initial.transactions)
+            check("38 reference transactions preserved", ledger.load().transactions.filter { ids.contains($0.id) } == initial.transactions)
             await screen(TransferFormViewController(payerAccountID: electronic.id), nav: nav, name: "47-transfer-form", window: window)
             let confirmDraft = TransferDraft(payerAccountID: FinanceLedgerRecord.defaultAccountId, savedRecipientID: own.id, amountInCents: 100, note: "转入电子账户")
             await screen(TransferConfirmViewController(draft: confirmDraft), nav: nav, name: "48-transfer-confirm", window: window)

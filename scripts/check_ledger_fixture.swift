@@ -2,7 +2,7 @@ import Foundation
 
 @main @MainActor struct LedgerFixtureChecks {
     static let key = "abank.financeLedger.record.v8"
-    static let dates = BankingDateContext(now: { ISO8601DateFormatter().date(from: "2026-11-10T12:00:00Z")! })
+    static let dates = BankingDateContext(now: { ISO8601DateFormatter().date(from: "2026-11-16T12:00:00Z")! })
     static func cents(_ amount: Double) -> Int64 { TransferMoney.cents(from: amount)! }
 
     static func withDefaults(_ body: (UserDefaults) throws -> Void) rethrows {
@@ -14,6 +14,8 @@ import Foundation
 
     static func main() throws {
         try exactFixtureAndProjections()
+        try incrementalMigration()
+        try metadataCorrectionMigration()
         try migrationAndPreservation()
         try failedMigrationAndCorruption()
         try customLoanAndUnrecognizedRecord()
@@ -21,11 +23,26 @@ import Foundation
     }
 
     static func exactFixtureAndProjections() throws {
-        let data = try Data(contentsOf: URL(fileURLWithPath: "docs/analysis/ledger-data-20261110.json"))
+        let data = try Data(contentsOf: URL(fileURLWithPath: "docs/analysis/ledger-data-20261116.json"))
         let expected = try JSONSerialization.jsonObject(with: data) as! [String: Any]
         let rows = expected["transactions"] as! [[String: Any]]
         let seed = FinanceLedgerStore.makeSeedRecord()
-        precondition(seed.demoDataVersion == BankingDemoFixture.version && seed.transactions.count == 37)
+        precondition(seed.demoDataVersion == BankingDemoFixture.version && seed.transactions.count == 38)
+        let originalData = try Data(contentsOf: URL(fileURLWithPath: "docs/analysis/ledger-data-20261110.json"))
+        let originalRows = (try JSONSerialization.jsonObject(with: originalData) as! [String: Any])["transactions"] as! [[String: Any]]
+        let financialKeys = ["id", "sequence", "account_id", "date", "time", "time_precision", "direction", "amount_cents", "balance_before_cents", "balance_after_cents", "category_id", "include_in_account_flow", "is_manual"]
+        for (old, current) in zip(originalRows, rows.prefix(37)) {
+            for key in financialKeys { precondition((old[key] as? NSObject) == (current[key] as? NSObject), "Financial field changed: \(key)") }
+        }
+        let added = seed.transactions.last!
+        precondition(added.id == "fixture-2026-11-16-transfer-to-ou" && added.date == "2026-11-16" && added.time == "10:45")
+        precondition(added.datetimeText == "2026-11-16 10:45" && added.counterpartyName == "欧梦瑶" && added.title == "转支")
+        precondition(added.direction == .expense && cents(added.amount) == 300_000 && added.categoryId == "transfer_out" && added.includeInFlow && !added.isManual)
+        precondition(added.counterpartyAccount == "6217****0593" && added.counterpartyBank == "建设银行" && added.channel == "掌上银行")
+        precondition(seed.transferRecords.isEmpty, "No bank instruction generated from a historical bill")
+        for row in seed.transactions where BankingDemoFixture.correctedTransactionIDs.contains(row.id) {
+            precondition(row.title == "转支" && row.summary == "转支" && row.counterpartyName == "欧梦瑶" && row.counterpartyBank == "建设银行")
+        }
         for (tx, row) in zip(seed.transactions, rows) {
             precondition(tx.id == row["id"] as! String && tx.date == row["date"] as! String)
             precondition(tx.time == (row["time"] as? String ?? ""))
@@ -37,7 +54,7 @@ import Foundation
         try withDefaults { defaults in
             let store = FinanceLedgerStore(defaults: defaults, dates: dates)
             let first = store.load()
-            precondition(first == seed && cents(store.totalAssets()) == 826_923 && cents(store.totalLiabilities()) == 1_412_674)
+            precondition(first == seed && cents(store.totalAssets()) == 526_923 && cents(store.totalLiabilities()) == 1_412_674)
             var recalculated = first
             store.recalculate(&recalculated)
             precondition(recalculated == first, "Integer-cent recomputation must preserve every reference balance")
@@ -45,20 +62,20 @@ import Foundation
             precondition(FinanceLedgerStore(defaults: defaults, dates: dates).load() == first)
             precondition(defaults.data(forKey: key) == saved && defaults.data(forKey: FinanceLedgerStore.demoBackupKey) == nil)
 
-            let monthly: [(String, Int64, Int64)] = [("2026-09",1_575_206,1_606_466), ("2026-10",1_450_670,1_470_817), ("2026-11",2_117_706,1_301_342)]
+            let monthly: [(String, Int64, Int64)] = [("2026-09",1_575_206,1_606_466), ("2026-10",1_450_670,1_470_817), ("2026-11",2_117_706,1_601_342)]
             for (month, income, expense) in monthly {
                 let summary = store.incomeExpensePageData(month: month).summary
                 precondition(cents(summary.income) == income && cents(summary.expense) == expense)
             }
             let snap = store.widgetSnapshot()!
-            precondition(snap.balanceInCents == 826_923 && snap.monthIncomeInCents == 2_117_706 && snap.monthExpenseInCents == 1_301_342)
+            precondition(snap.balanceInCents == 526_923 && snap.monthIncomeInCents == 2_117_706 && snap.monthExpenseInCents == 1_601_342)
 
             var filter = AccountDetailQueryFilter.default(referenceDate: dates.now)
-            precondition(store.accountDetailQueryPageData(filter: filter).transactions.count == 8)
+            precondition(store.accountDetailQueryPageData(filter: filter).transactions.count == 6)
             filter.applyQuickRange(.month, referenceDate: dates.now)
-            precondition(store.accountDetailQueryPageData(filter: filter).transactions.count == 21)
+            precondition(store.accountDetailQueryPageData(filter: filter).transactions.count == 15)
             filter.applyQuickRange(.threeMonths, referenceDate: dates.now)
-            precondition(store.accountDetailQueryPageData(filter: filter).transactions.count == 37)
+            precondition(store.accountDetailQueryPageData(filter: filter).transactions.count == 36)
             filter.applyCustom(start: "2026-09-01", end: "2026-11-10")
             let visible = store.accountDetailQueryPageData(filter: filter).transactions
             precondition(visible.count == 31 && visible.first?.id == "fixture-2026-11-10-transfer-out")
@@ -91,7 +108,146 @@ import Foundation
             _ = try store.submitPrepayment(contractID: loan.id, amountInCents: 10_000, method: .shortenTerm, requestID: "new-loan-test", expected: preview)
             let changed = store.loanContract(id: loan.id)!
             precondition(changed.finalDueDate == preview.maturityAfter && cents(changed.unpaidPrincipal) == 1_402_674)
-            precondition(cents(store.load().accounts[0].balance) == 816_923)
+            precondition(cents(store.load().accounts[0].balance) == 516_923)
+        }
+    }
+
+    static func previousFixture() -> FinanceLedgerRecord {
+        var record = FinanceLedgerStore.makeSeedRecord()
+        record.transactions.removeAll { BankingDemoFixture.addedTransactionIDs.contains($0.id) }
+        let raw = try! Data(contentsOf: URL(fileURLWithPath: "docs/analysis/ledger-data-20261110.json"))
+        let oldRows = (try! JSONSerialization.jsonObject(with: raw) as! [String: Any])["transactions"] as! [[String: Any]]
+        for index in record.transactions.indices {
+            let old = oldRows[index]
+            record.transactions[index].title = old["title"] as! String
+            record.transactions[index].summary = old["title"] as! String
+            record.transactions[index].counterpartyName = old["counterparty_name"] as? String ?? ""
+            record.transactions[index].counterpartyAccount = old["counterparty_account_masked"] as? String ?? ""
+            record.transactions[index].counterpartyBank = ""
+            record.transactions[index].channel = old["channel"] as? String ?? "—"
+        }
+        record.accounts[0].balance = 8269.23
+        record.demoDataVersion = BankingDemoFixture.previousVersion
+        record.dataTimestamp = "2026-11-10 19:22:30"
+        return record
+    }
+
+    static func incrementalMigration() throws {
+        try withDefaults { defaults in
+            let old = previousFixture()
+            let bytes = try JSONEncoder().encode(old)
+            defaults.set(bytes, forKey: key)
+            let oldBackup = Data("previous-backup".utf8)
+            defaults.set(oldBackup, forKey: FinanceLedgerStore.demoBackupKey)
+            let store = FinanceLedgerStore(defaults: defaults, dates: dates)
+            let migrated = try store.loadForTransfer()
+            precondition(migrated == FinanceLedgerStore.makeSeedRecord())
+            precondition(defaults.data(forKey: FinanceLedgerStore.demoSupplementBackupKey) == bytes)
+            precondition(defaults.data(forKey: FinanceLedgerStore.demoBackupKey) == oldBackup)
+            let committed = defaults.data(forKey: key)
+            _ = store.load(); _ = try store.loadForTransfer()
+            precondition(defaults.data(forKey: key) == committed && store.load().transactions.count == 38)
+        }
+        try withDefaults { defaults in
+            var old = previousFixture()
+            old.accounts[0].alias = "生活卡"; old.accounts[0].openingBalance += 100
+            old.accounts[0].permissions.onlinePayment = false; old.accounts[0].isReportedLost = true
+            old.accounts.append(LedgerAccount(id: "extra-account", tailNumber: "7890", currency: "人民币", balance: 50, openingBalance: 50))
+            old.transactions[0].note = "保留用户备注"; old.transactions[0].purposeCategoryID = "food"
+            old.transactions[0].includeInFlow = false
+            old.loanContracts[0].unpaidPrincipal -= 90
+            old.transactions.append(LedgerTransaction(id: "user_extra", accountId: old.accounts[0].id, date: "2026-11-12", time: "12:01:03", title: "附加入账", direction: .income, amount: 12.34, balanceAfter: 0, iconKey: "", categoryId: "transfer_in"))
+            let store = FinanceLedgerStore(defaults: defaults, dates: dates)
+            store.recalculate(&old)
+            let bytes = try JSONEncoder().encode(old); defaults.set(bytes, forKey: key)
+            var expected = old
+            expected.transactions += FinanceLedgerStore.makeSeedRecord().transactions.filter { BankingDemoFixture.addedTransactionIDs.contains($0.id) }
+            let baseline = FinanceLedgerStore.makeSeedRecord()
+            for index in expected.transactions.indices where BankingDemoFixture.correctedTransactionIDs.contains(expected.transactions[index].id) {
+                let correct = baseline.transactions.first { $0.id == expected.transactions[index].id }!
+                expected.transactions[index].title = correct.title; expected.transactions[index].summary = correct.summary
+                expected.transactions[index].counterpartyName = correct.counterpartyName
+                expected.transactions[index].counterpartyAccount = correct.counterpartyAccount
+                expected.transactions[index].counterpartyBank = correct.counterpartyBank
+                expected.transactions[index].channel = correct.channel
+            }
+            expected.demoDataVersion = BankingDemoFixture.version; expected.dataTimestamp = "2026-11-16 10:45"
+            store.recalculate(&expected)
+            let migrated = try store.loadForTransfer()
+            precondition(migrated == expected, "Every custom field and earlier balance remains intact")
+            precondition(cents(store.load().accounts[0].balance) == 538_157 && store.load().accounts[1].balance == 50)
+            precondition(defaults.data(forKey: FinanceLedgerStore.demoSupplementBackupKey) == bytes)
+        }
+        try withDefaults { defaults in
+            let old = previousFixture(), bytes = try JSONEncoder().encode(old)
+            defaults.set(bytes, forKey: key)
+            let broken = FinanceLedgerStore(defaults: defaults, dates: dates, dataWriter: { _ in throw TransferError.persistence })
+            do { _ = try broken.loadForTransfer(); preconditionFailure() } catch { precondition(error as? TransferError == .persistence) }
+            precondition(defaults.data(forKey: key) == bytes && broken.load() == old)
+            precondition(defaults.data(forKey: FinanceLedgerStore.demoSupplementBackupKey) == bytes)
+            precondition(FinanceLedgerStore(defaults: defaults, dates: dates).load().transactions.count == 38)
+        }
+        for scenario in 0..<3 {
+            try withDefaults { defaults in
+                var old = previousFixture()
+                if scenario == 0 { old.transactions.append(FinanceLedgerStore.makeSeedRecord().transactions.last!) }
+                if scenario == 1 { old.transactions.removeFirst() }
+                if scenario == 2 { old.demoDataVersion = "unrecognized-version" }
+                let bytes = try JSONEncoder().encode(old); defaults.set(bytes, forKey: key)
+                precondition(FinanceLedgerStore(defaults: defaults, dates: dates).load() == old)
+                precondition(defaults.data(forKey: key) == bytes && defaults.data(forKey: FinanceLedgerStore.demoSupplementBackupKey) == nil)
+            }
+        }
+    }
+
+    static func previousSupplementFixture() -> FinanceLedgerRecord {
+        var record = previousFixture()
+        var added = FinanceLedgerStore.makeSeedRecord().transactions.last!
+        added.title = "转出（欧）"; added.summary = added.title; added.counterpartyName = "欧"
+        added.counterpartyAccount = ""; added.counterpartyBank = ""; added.channel = "—"
+        record.transactions.append(added); record.accounts[0].balance = 5269.23
+        record.demoDataVersion = BankingDemoFixture.previousSupplementVersion; record.dataTimestamp = "2026-11-16 10:45"
+        return record
+    }
+
+    static func metadataCorrectionMigration() throws {
+        try withDefaults { defaults in
+            let old = previousSupplementFixture()
+            let encoded = try JSONEncoder().encode(old)
+            var object = try JSONSerialization.jsonObject(with: encoded) as! [String: Any]
+            var rows = object["transactions"] as! [[String: Any]]
+            for index in rows.indices { rows[index].removeValue(forKey: "counterpartyBank") }
+            object["transactions"] = rows
+            let bytes = try JSONSerialization.data(withJSONObject: object)
+            precondition(try! JSONDecoder().decode(FinanceLedgerRecord.self, from: bytes).transactions.allSatisfy { $0.counterpartyBank.isEmpty })
+            defaults.set(bytes, forKey: key)
+            let earlierBackup = Data("append-backup-preserved".utf8)
+            defaults.set(earlierBackup, forKey: FinanceLedgerStore.demoSupplementBackupKey)
+            let store = FinanceLedgerStore(defaults: defaults, dates: dates)
+            precondition(store.load() == FinanceLedgerStore.makeSeedRecord())
+            precondition(store.load().transactions.count == 38 && cents(store.load().accounts[0].balance) == 526_923)
+            precondition(defaults.data(forKey: FinanceLedgerStore.demoDetailCorrectionBackupKey) == bytes)
+            precondition(defaults.data(forKey: FinanceLedgerStore.demoSupplementBackupKey) == earlierBackup)
+            let committed = defaults.data(forKey: key); _ = store.load()
+            precondition(defaults.data(forKey: key) == committed, "Metadata correction must not repeat or debit again")
+        }
+        try withDefaults { defaults in
+            var old = previousSupplementFixture()
+            let index = old.transactions.count - 1
+            old.transactions[index].note = "用户备注"; old.transactions[index].purposeCategoryID = "housing"
+            old.transactions[index].counterpartyName = "自定义姓名"; old.transactions[index].counterpartyBank = "用户填写银行"
+            let bytes = try JSONEncoder().encode(old); defaults.set(bytes, forKey: key)
+            let updated = FinanceLedgerStore(defaults: defaults, dates: dates).load().transactions[index]
+            precondition(updated.title == "转支" && updated.summary == "转支" && updated.counterpartyName == "自定义姓名" && updated.counterpartyBank == "用户填写银行")
+            precondition(updated.note == "用户备注" && updated.purposeCategoryID == "housing" && cents(updated.balanceAfter) == 526_923)
+        }
+        try withDefaults { defaults in
+            let old = previousSupplementFixture(), bytes = try JSONEncoder().encode(old)
+            defaults.set(bytes, forKey: key)
+            let store = FinanceLedgerStore(defaults: defaults, dates: dates, dataWriter: { _ in throw TransferError.persistence })
+            do { _ = try store.loadForTransfer(); preconditionFailure() } catch { precondition(error as? TransferError == .persistence) }
+            precondition(defaults.data(forKey: key) == bytes && store.load() == old)
+            precondition(defaults.data(forKey: FinanceLedgerStore.demoDetailCorrectionBackupKey) == bytes)
         }
     }
 
@@ -119,8 +275,8 @@ import Foundation
             defaults.set(try JSONEncoder().encode(old), forKey: key)
             let store = FinanceLedgerStore(defaults: defaults, dates: dates)
             let changed = store.load()
-            precondition(changed.transactions.count == 38 && changed.accounts[0].alias == "生活卡")
-            precondition(cents(changed.accounts[0].balance) == 838_157, "Preserve additional opening adjustment and new transaction")
+            precondition(changed.transactions.count == 39 && changed.accounts[0].alias == "生活卡")
+            precondition(cents(changed.accounts[0].balance) == 538_157, "Preserve additional opening adjustment and new transaction")
             let edited = store.transaction(id: "fixture-2026-08-22-alipay")!
             precondition(edited.note == "保留备注" && edited.ledgerId == "family" && !edited.includeInFlow)
             precondition(store.transaction(id: "user_extra") != nil)
@@ -138,7 +294,7 @@ import Foundation
             precondition(defaults.data(forKey: key) == original && broken.load() == old)
             precondition(defaults.data(forKey: FinanceLedgerStore.demoBackupKey) == original)
             let recovered = FinanceLedgerStore(defaults: defaults, dates: dates).load()
-            precondition(cents(recovered.accounts[0].balance) == 826_923)
+            precondition(cents(recovered.accounts[0].balance) == 526_923)
             let beforeEdit = defaults.data(forKey: key)
             precondition(!broken.updateTransactionDetail(id: "fixture-2026-08-15-alipay", note: "保存失败的备注"))
             precondition(defaults.data(forKey: key) == beforeEdit)

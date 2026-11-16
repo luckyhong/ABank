@@ -14,6 +14,8 @@ extension Notification.Name {
 
     private let defaultsKey = "abank.financeLedger.record.v8"
     static let demoBackupKey = "abank.financeLedger.backup.before20261110"
+    static let demoSupplementBackupKey = "abank.financeLedger.backup.before20261116"
+    static let demoDetailCorrectionBackupKey = "abank.financeLedger.backup.before20261116DetailCorrection"
     private let defaults: UserDefaults
     let dates: BankingDateContext
     private let encoder = JSONEncoder()
@@ -83,9 +85,13 @@ extension Notification.Name {
     /// 只更新可识别的旧演示基线，备份原始字节；版本随根记录同次保存，失败可安全重试。
     private func upgradeDemoRecord(_ stored: FinanceLedgerRecord, originalData: Data) throws -> FinanceLedgerRecord {
         guard var updated = BankingDemoMigration.upgrade(stored) else { return stored }
-        if defaults.data(forKey: Self.demoBackupKey) == nil {
-            defaults.set(originalData, forKey: Self.demoBackupKey)
+        let backupKey: String
+        switch stored.demoDataVersion {
+        case BankingDemoFixture.previousVersion: backupKey = Self.demoSupplementBackupKey
+        case BankingDemoFixture.previousSupplementVersion: backupKey = Self.demoDetailCorrectionBackupKey
+        default: backupKey = Self.demoBackupKey
         }
+        if defaults.data(forKey: backupKey) == nil { defaults.set(originalData, forKey: backupKey) }
         recalculate(&updated)
         try persist(updated)
         return updated
@@ -214,7 +220,7 @@ extension Notification.Name {
                 title: "转账-" + recipient.name, direction: .expense, amount: TransferMoney.amount(draft.amountInCents),
                 balanceAfter: 0, iconKey: "transfer", categoryId: recipient.linkedAccountID == nil ? "transfer_out" : "self_transfer",
                 includeInFlow: recipient.linkedAccountID == nil,
-                counterpartyName: recipient.name, counterpartyAccount: recipient.maskedDestination,
+                counterpartyName: recipient.name, counterpartyAccount: recipient.maskedDestination, counterpartyBank: recipient.bankName,
                 summary: "转账", postscript: transfer.note, cardNumber: "****" + account.tailNumber,
                 transactionType: draft.method.title, channel: "手机银行"))
             if let linkedID = recipient.linkedAccountID, let receiving = root.accounts.first(where: { $0.id == linkedID }) {

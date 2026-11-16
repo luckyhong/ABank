@@ -145,6 +145,8 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
     var counterpartyName: String
     /// 对方账户（可脱敏）
     var counterpartyAccount: String
+    /// 收款银行；旧存储缺失时保持未知
+    var counterpartyBank: String
     /// 交易摘要
     var summary: String
     /// 交易附言
@@ -175,6 +177,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         includeInFlow: Bool = true,
         counterpartyName: String = "",
         counterpartyAccount: String = "",
+        counterpartyBank: String = "",
         summary: String? = nil,
         postscript: String = "",
         cardNumber: String = "",
@@ -199,6 +202,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         self.includeInFlow = includeInFlow
         self.counterpartyName = counterpartyName
         self.counterpartyAccount = counterpartyAccount
+        self.counterpartyBank = counterpartyBank
         self.summary = summary ?? title
         self.postscript = postscript
         self.cardNumber = cardNumber
@@ -228,6 +232,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
         includeInFlow = try container.decodeIfPresent(Bool.self, forKey: .includeInFlow) ?? true
         counterpartyName = try container.decodeIfPresent(String.self, forKey: .counterpartyName) ?? ""
         counterpartyAccount = try container.decodeIfPresent(String.self, forKey: .counterpartyAccount) ?? ""
+        counterpartyBank = try container.decodeIfPresent(String.self, forKey: .counterpartyBank) ?? ""
         summary = try container.decodeIfPresent(String.self, forKey: .summary) ?? title
         postscript = try container.decodeIfPresent(String.self, forKey: .postscript) ?? ""
         cardNumber = try container.decodeIfPresent(String.self, forKey: .cardNumber) ?? ""
@@ -250,10 +255,7 @@ struct LedgerTransaction: Codable, Equatable, Identifiable {
 
     var datetimeText: String {
         guard !time.isEmpty else { return date }
-        if time.count >= 8 {
-            return "\(date) \(time)"
-        }
-        return "\(date) \(time):00"
+        return "\(date) \(time)"
     }
 
     var chronologicalTime: String { orderingTime ?? time }

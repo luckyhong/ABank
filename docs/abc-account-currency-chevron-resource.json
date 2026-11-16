@@ -1,0 +1,13 @@
+{
+  "asset" : "abc_account_currency_chevron",
+  "crop" : [
+    14,
+    26,
+    44,
+    25
+  ],
+  "rendering" : "template",
+  "scale" : "3x",
+  "source" : "ABank\/Assets.xcassets\/ABCImported\/Loose\/Main\/abc_resource_ABCFortune_YeJiJiZhun_Arrowdown_Img_393d4b8dcafc.imageset\/image.png",
+  "source_sha256" : "a3420a0c44c7a0474bb891b7c31b3b12a5d0c2f5aa29d1d605de09a944203c57"
+}

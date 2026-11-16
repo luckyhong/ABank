@@ -2,6 +2,7 @@
 
 先核对实际 Git 状态，再读取对应任务。历史叙述不是当前代码证明。
 
+- [ledger-add-ou-20261116](tasks/ledger-add-ou-20261116.md)
 - [high-frequency-pages](tasks/high-frequency-pages.md)
 - [realism-audit-20261112](tasks/realism-audit-20261112.md)
 - [ledger-account-completion](tasks/ledger-account-completion.md)

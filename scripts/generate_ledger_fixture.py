@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / 'docs/analysis/ledger-data-20261110.json'
+SOURCE = ROOT / 'docs/analysis/ledger-data-20261116.json'
 TARGET = ROOT / 'ABank/Data/BankingDemoFixture.generated.swift'
 
 
@@ -20,13 +20,18 @@ def render():
     loan = data['loan']
     rows = data['transactions']
     balance = data['account']['opening_balance_cents']
-    assert len(rows) == 37
+    previous = json.loads((ROOT / data['incremental_update']['source_dataset']).read_text())
+    assert len(rows) == 38
+    for old, current in zip(previous['transactions'], rows[:37]):
+        changed = {key for key in old.keys() | current.keys() if old.get(key) != current.get(key)}
+        assert changed <= set(data['metadata_corrections'].get(old['id'], [])), (old['id'], changed)
+    assert data['incremental_update']['from_dataset_id'] == previous['dataset_id']
     for row in rows:
         assert type(row['amount_cents']) is int and row['amount_cents'] > 0
         assert row['balance_before_cents'] == balance
         balance += row['amount_cents'] * (1 if row['direction'] == 'income' else -1)
         assert balance == row['balance_after_cents'] and balance >= 0
-    assert balance == data['account']['current_balance_cents'] == 826923
+    assert balance == data['account']['current_balance_cents'] == 526923
     # Internal ordering slots are explicitly synthetic, never displayed as source timestamps.
     ordering = {
         'fixture-2026-08-25-carryover-adjustment': '12:00:00',
@@ -45,6 +50,10 @@ def render():
         f'// Source SHA-256: {hashlib.sha256(raw).hexdigest()}',
         'import Foundation', '', 'enum BankingDemoFixture {',
         f'    static let version = {literal(data["dataset_id"])}',
+        f'    static let previousVersion = {literal(data["incremental_update"]["from_dataset_id"])}',
+        f'    static let previousSupplementVersion = {literal(data["metadata_update_from_dataset_id"])}',
+        '    static let correctedTransactionIDs: Set<String> = [' + ', '.join(literal(v) for v in data['metadata_corrections']) + ']',
+        '    static let addedTransactionIDs: Set<String> = [' + ', '.join(literal(v) for v in data['incremental_update']['added_transaction_ids']) + ']',
         '    static func makeRecord() -> FinanceLedgerRecord {',
         '        let accountID = FinanceLedgerRecord.defaultAccountId',
         '        let transactions: [LedgerTransaction] = [',
@@ -57,7 +66,7 @@ def render():
             f'                id: {literal(row["id"])}, accountId: accountID, date: {literal(row["date"])}, time: {literal(row["time"])},',
             f'                title: {literal(row["title"])}, direction: .{row["direction"]}, amount: TransferMoney.amount({row["amount_cents"]}), balanceAfter: TransferMoney.amount({row["balance_after_cents"]}),',
             f'                iconKey: {literal(icon)}, categoryId: {literal(row["category_id"])},',
-            f'                counterpartyName: {literal(row["counterparty_name"])}, counterpartyAccount: {literal(row["counterparty_account_masked"])},',
+            f'                counterpartyName: {literal(row["counterparty_name"])}, counterpartyAccount: {literal(row["counterparty_account_masked"])}, counterpartyBank: {literal(row["counterparty_bank"])},',
             f'                summary: {literal(row["title"])}, postscript: {literal(row["postscript"])}, cardNumber: "6230****8472", transactionType: {literal("贷款还款" if row["category_id"] == "loan_repay" else "转账")},',
             f'                channel: {literal(row["channel"] or "—")}, orderingTime: {literal(ordering[row["id"]]) if not row["time"] else "nil"}',
             '            ),',
@@ -86,7 +95,7 @@ def render():
         f'                balance: TransferMoney.amount({balance}), openingBalance: TransferMoney.amount({data["account"]["opening_balance_cents"]}))],',
         '            transactions: transactions, loanContracts: [loan],',
         '            assetLiabilityAnnouncement: "美好生活，从一点一滴存钱开始~",',
-        '            dataTimestamp: "2026-11-10 19:22:30"',
+        f'            dataTimestamp: {literal(rows[-1]["date"] + " " + rows[-1]["time"])}',
         '        )',
         '        record.demoDataVersion = version',
         '        return record',
