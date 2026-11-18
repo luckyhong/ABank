@@ -106,7 +106,6 @@
 				EB31FD44B917207176F969A1 /* WidgetViews.swift */,
 				DCB5BA9DBA583E7AD9FDE139 /* Info.plist */,
 			);
-			name = ABankWidget;
 			path = ABankWidget;
 			sourceTree = "<group>";
 		};
@@ -134,7 +133,6 @@
 				36BD6E51C8F134B2E099FE46 /* ABank.entitlements */,
 				A2AB4B312F371F58361DC59C /* ABankWidget.entitlements */,
 			);
-			name = Config;
 			path = Config;
 			sourceTree = "<group>";
 		};

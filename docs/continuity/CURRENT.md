@@ -3,7 +3,12 @@
 先核对实际 Git 状态，再读取对应任务。历史叙述不是当前代码证明。
 
 - [ledger-wechat-20261118](tasks/ledger-wechat-20261118.md)
+- [launch-screen-20261118](tasks/launch-screen-20261118.md)
+- [life-ui-refresh-20261117](tasks/life-ui-refresh-20261117.md)
+- [wealth-grid-polish-20261117](tasks/wealth-grid-polish-20261117.md)
+- [home-ui-refresh-20261117](tasks/home-ui-refresh-20261117.md)
 - [ledger-add-ou-20261116](tasks/ledger-add-ou-20261116.md)
+- [root-dashboard-data-analysis](tasks/root-dashboard-data-analysis.md)
 - [high-frequency-pages](tasks/high-frequency-pages.md)
 - [realism-audit-20261112](tasks/realism-audit-20261112.md)
 - [ledger-account-completion](tasks/ledger-account-completion.md)

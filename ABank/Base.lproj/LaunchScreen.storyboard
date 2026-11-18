@@ -13,7 +13,18 @@
                     <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" xcode11CocoaTouchSystemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <subviews>
+                            <imageView opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="abc_resource_default_launch_gb1020_fa47c9b819ca" translatesAutoresizingMaskIntoConstraints="NO" id="BNK-YT-001">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="BNK-YT-001" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="BNK-YT-004"/>
+                            <constraint firstItem="BNK-YT-001" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="BNK-YT-005"/>
+                            <constraint firstItem="BNK-YT-001" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" id="BNK-YT-009"/>
+                            <constraint firstItem="BNK-YT-001" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="BNK-YT-010"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                 </viewController>
@@ -22,4 +33,7 @@
             <point key="canvasLocation" x="53" y="375"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="abc_resource_default_launch_gb1020_fa47c9b819ca" width="1125" height="2436"/>
+    </resources>
 </document>
