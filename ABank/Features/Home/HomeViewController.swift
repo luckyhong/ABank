@@ -317,7 +317,7 @@ final class HomeViewController: BankingDataViewController {
             guard let self else { return }
             self.router.open(.wealthProducts, from: self)
         }
-        wealthSelection.onFeatured = { [weak self] in guard let self else { return }; self.router.open(.comingSoon(.fund), from: self) }
+        wealthSelection.onFeatured = { [weak self] in guard let self else { return }; self.router.open(feature: .fund, from: self) }
         wealthSelection.onSide = { [weak self] index in guard let self else { return }; self.router.open(index == 0 ? .deposits : .comingSoon(.preciousMetals), from: self) }
         heroBanner.onItemTapped = { [weak self] index in
             guard let self, let feature = self.pageData.heroBanners[safe: index]?.featureID else { return }

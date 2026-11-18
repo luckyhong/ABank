@@ -87,7 +87,7 @@ extension FinanceLedgerStore {
         var root = try strictPaymentRecord()
         if let existing = root.paymentOrders.first(where: { $0.requestID == requestID }) { return existing }
         try requireOnlinePayment(in: root, accountID: accountID)
-        guard let billAccount = PaymentCatalog.billAccount(id: billAccountID) else { throw PaymentError.billNotFound }
+        guard let billAccount = utilityAccount(id: billAccountID, in: root) else { throw PaymentError.billNotFound }
         let now = dates.now
         let bill = try utilityBill(account: billAccount, orders: root.paymentOrders, period: period)
         // 确认弹窗期间账期跨月或金额变化时拒绝，避免扣款与用户确认的不一致。
@@ -118,7 +118,7 @@ extension FinanceLedgerStore {
     func validateUtilityPayment(billAccountID: String, accountID: String? = nil, period: String? = nil) throws {
         let root = try strictPaymentRecord()
         try requireOnlinePayment(in: root, accountID: accountID)
-        guard let billAccount = PaymentCatalog.billAccount(id: billAccountID) else { throw PaymentError.billNotFound }
+        guard let billAccount = utilityAccount(id: billAccountID, in: root) else { throw PaymentError.billNotFound }
         let bill = try utilityBill(account: billAccount, orders: root.paymentOrders, period: period)
         guard !bill.isPaid else { throw PaymentError.alreadyPaid }
         _ = try payerAccount(in: root, payingInCents: bill.amountInCents, accountID: accountID)
@@ -128,6 +128,51 @@ extension FinanceLedgerStore {
         let value = period ?? dates.currentMonth
         guard dates.date(from: value + "-01") != nil, value <= dates.currentMonth else { throw PaymentError.billNotFound }
         return PaymentRules.bill(for: account, orders: orders ?? load().paymentOrders, period: value, dates: dates)
+    }
+
+    func utilityAccount(id: String) -> BillAccount? { utilityAccount(id: id, in: load()) }
+
+    func utilityAccounts(kind: PaymentKind) -> (active: [BillAccount], available: [BillAccount], defaultID: String?) {
+        let root = load()
+        let catalog = PaymentCatalog.billAccounts(of: kind) + PaymentCatalog.extraBillAccounts.filter { $0.kind == kind }
+        let active = catalog.compactMap { utilityAccount(id: $0.id, in: root) }
+        let defaultID = root.defaultUtilityAccounts[kind.rawValue] ?? active.first?.id
+        let ordered = active.filter { $0.id == defaultID } + active.filter { $0.id != defaultID }
+        let available = catalog.filter { utilityAccount(id: $0.id, in: root) == nil }
+        return (ordered, available, defaultID)
+    }
+
+    func editUtilityAccount(id: String, edit: UtilityAccountEdit) throws {
+        var root = try strictPaymentRecord()
+        guard let preset = PaymentCatalog.billAccount(id: id) else { throw PaymentError.billNotFound }
+        let active = utilityAccount(id: id, in: root) != nil
+        let kind = preset.kind.rawValue
+        switch edit {
+        case .add:
+            guard !active else { return }
+            root.utilityAccounts[id] = UtilityAccountPreference(name: root.utilityAccounts[id]?.name, isAdded: true)
+        case .remove:
+            guard active else { return }
+            root.utilityAccounts[id] = UtilityAccountPreference(name: root.utilityAccounts[id]?.name, isAdded: false)
+            if root.defaultUtilityAccounts[kind] == id { root.defaultUtilityAccounts.removeValue(forKey: kind) }
+        case .makeDefault:
+            guard active else { throw PaymentError.billNotFound }
+            root.defaultUtilityAccounts[kind] = id
+        case .rename(let name):
+            let value = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard active, !value.isEmpty, value.count <= 24 else { throw PaymentError.invalidRequest }
+            root.utilityAccounts[id] = UtilityAccountPreference(name: value, isAdded: true)
+        }
+        do { try persist(root) } catch { throw PaymentError.persistence }
+    }
+
+    private func utilityAccount(id: String, in root: FinanceLedgerRecord) -> BillAccount? {
+        guard var preset = PaymentCatalog.billAccount(id: id) else { return nil }
+        let preference = root.utilityAccounts[id]
+        let isAdded = preference?.isAdded ?? PaymentCatalog.billAccounts.contains { $0.id == id }
+        guard isAdded else { return nil }
+        preset.name = preference?.name ?? preset.name
+        return preset
     }
 
     // MARK: - 内部

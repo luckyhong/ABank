@@ -38,21 +38,14 @@ final class LoanDueViewController: BankingDataViewController {
         )
 
         if period == .thisMonth {
-            let item = UIBarButtonItem(
-                title: "下月应还",
-                style: .plain,
-                target: self,
-                action: #selector(nextMonthTapped)
-            )
-            item.setTitleTextAttributes(
-                [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.abankTextSecondary],
-                for: .normal
-            )
-            item.setTitleTextAttributes(
-                [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.abankTextSecondary],
-                for: .highlighted
-            )
-            navigationItem.rightBarButtonItem = item
+            let next = UIBarButtonItem(title: "下月应还", style: .plain, target: self, action: #selector(openNextMonth))
+            let history = UIBarButtonItem(title: "历史", style: .plain, target: self, action: #selector(openHistory))
+            history.accessibilityLabel = "历史待处理"
+            for item in [next, history] {
+                item.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.abankTextSecondary],
+                                            for: .normal)
+            }
+            navigationItem.rightBarButtonItems = [next, history]
         }
     }
 
@@ -136,7 +129,7 @@ final class LoanDueViewController: BankingDataViewController {
         expandedIds.formIntersection(Set(pageData.installments.map(\.id)))
         rebuildFooter()
         let empty = UILabel()
-        empty.text = "该月份暂无待还分期"
+        empty.text = period == .overdue ? "暂无历史待处理期次" : "该月份暂无待还分期"
         empty.textAlignment = .center
         empty.textColor = .abankTextSecondary
         tableView.backgroundView = pageData.installments.isEmpty ? empty : nil
@@ -147,8 +140,11 @@ final class LoanDueViewController: BankingDataViewController {
         navigationController?.popViewController(animated: true)
     }
 
-    @objc private func nextMonthTapped() {
-        let controller = LoanDueViewController(period: .nextMonth)
+    @objc private func openNextMonth() { openPeriod(.nextMonth) }
+    @objc private func openHistory() { openPeriod(.overdue) }
+
+    private func openPeriod(_ period: LoanDuePeriod) {
+        let controller = LoanDueViewController(period: period)
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -169,6 +165,9 @@ extension LoanDueViewController: UITableViewDataSource, UITableViewDelegate {
             expanded: expandedIds.contains(item.id),
             isLast: indexPath.row == pageData.installments.count - 1
         )
+        cell.onRepay = { [weak self] in
+            self?.navigationController?.pushViewController(InstallmentRepaymentViewController(item: item), animated: true)
+        }
         cell.onToggle = { [weak self] in
             guard let self else { return }
             if self.expandedIds.contains(item.id) {

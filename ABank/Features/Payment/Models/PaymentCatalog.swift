@@ -25,8 +25,17 @@ nonisolated enum PaymentCatalog {
                     address: "西安市碑林区安居路 26 号 3 栋 402", provider: "燃气公司")
     ]
 
+    static let extraBillAccounts = [
+        BillAccount(id: "bill.water.demo", kind: .water, name: "示例住宅", accountNo: "0301 0000 9001",
+                    address: "ABank 模拟小区 1 号", provider: "模拟供水"),
+        BillAccount(id: "bill.electric.demo", kind: .electric, name: "示例住宅", accountNo: "8802 0000 9001",
+                    address: "ABank 模拟小区 1 号", provider: "模拟供电"),
+        BillAccount(id: "bill.gas.demo", kind: .gas, name: "示例住宅", accountNo: "6609 0000 9001",
+                    address: "ABank 模拟小区 1 号", provider: "模拟燃气")
+    ]
+
     static func billAccount(id: String) -> BillAccount? {
-        billAccounts.first { $0.id == id }
+        (billAccounts + extraBillAccounts).first { $0.id == id }
     }
 
     static func billAccounts(of kind: PaymentKind) -> [BillAccount] {

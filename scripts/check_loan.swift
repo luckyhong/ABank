@@ -22,6 +22,7 @@ import Foundation
         try permissionsIgnored()
         try certificate()
         try tasks()
+        try installmentRepayment()
         try progress()
         totalsExcludeHistory()
         print("Loan checks passed")
@@ -309,6 +310,58 @@ import Foundation
             precondition(first.kind == .settlementCertificate && first.certificateNo?.hasPrefix("JQ20261108") == true)
             precondition(store.settlementCertificate(loanID: "loan_consumer_2019") == first)
             expect(LoanError.contractUnavailable, { _ = try store.requestSettlementCertificate(loanID: "nope", requestID: "c3") }, "unknown")
+        }
+    }
+
+    @MainActor static func installmentRepayment() throws {
+        try withStore { store, defaults in
+            let first = store.pendingLoanPlans().first!.plan
+            expect(LoanError.installmentUnavailable, {
+                _ = try store.previewInstallment(contractID: loanID, period: first.period + 1)
+            }, "later period")
+            let plan = try store.previewInstallment(contractID: loanID, period: first.period)
+            let accountID = FinanceLedgerRecord.defaultAccountId
+            expect(LoanError.insufficientBalance, {
+                _ = try store.repayInstallment(contractID: loanID, expected: plan, accountID: accountID)
+            }, "insufficient balance")
+            topUp(store, by: 5000)
+            let before = store.load()
+            let failed = FinanceLedgerStore(defaults: defaults, dates: dates, dataWriter: { _ in throw WriteFailure() })
+            expect(LoanError.persistence, {
+                _ = try failed.repayInstallment(contractID: loanID, expected: plan, accountID: accountID)
+            }, "atomic save")
+            precondition(store.load() == before)
+            let result = try store.repayInstallment(contractID: loanID, expected: plan, accountID: accountID)
+            let reopened = FinanceLedgerStore(defaults: defaults, dates: dates)
+            let duplicate = try reopened.repayInstallment(contractID: loanID, expected: plan, accountID: accountID)
+            precondition(result == duplicate)
+            precondition(reopened.load().installmentRepayments == [result])
+            precondition(cents(before.accounts[0].balance) - cents(reopened.load().accounts[0].balance) == result.amount)
+            precondition(cents(before.loanContracts[0].unpaidPrincipal) - cents(reopened.totalLiabilities()) == result.principal)
+            precondition(reopened.pendingLoanPlans().first?.plan.period == first.period + 1)
+            precondition(reopened.transaction(id: result.transactionID) != nil)
+        }
+        try withStore { store, _ in
+            topUp(store, by: 5000)
+            let period = store.load().loanContracts[0].nextPeriod
+            let plan = try store.previewInstallment(contractID: loanID, period: period)
+            _ = try store.submitPrepayment(contractID: loanID, amountInCents: 50_000,
+                                           method: .reduceInstallment, requestID: "stale-installment", expected: nil)
+            let before = store.load()
+            expect(LoanError.changed, {
+                _ = try store.repayInstallment(contractID: loanID, expected: plan, accountID: FinanceLedgerRecord.defaultAccountId)
+            }, "prepayment changed the plan")
+            precondition(store.load() == before)
+        }
+        try withStore { store, _ in
+            var record = store.load()
+            record.loanContracts[0].remainingTerms = 1
+            record.loanContracts[0].unpaidPrincipal = 100
+            precondition(store.save(record))
+            let period = record.loanContracts[0].nextPeriod
+            let plan = try store.previewInstallment(contractID: loanID, period: period)
+            _ = try store.repayInstallment(contractID: loanID, expected: plan, accountID: FinanceLedgerRecord.defaultAccountId)
+            precondition(store.pendingLoanPlans().isEmpty && store.totalLiabilities() == 0)
         }
     }
 

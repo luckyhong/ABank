@@ -49,11 +49,11 @@ final class MockDataProvider {
                 HomePromoBannerItem(title: "贵金属热卖", subtitle: "投资收藏优选", tone: .gold)
             ],
             wealthFeatured: HomeWealthFeaturedItem(
-                title: "农银快e宝2号",
+                title: SimulatedFund.name,
                 tag: "基金",
-                subtitle: "最快实时到账",
-                highlightValue: "20万元",
-                highlightLabel: "每日最高累计快赎额度",
+                subtitle: "申购与赎回",
+                highlightValue: "次日确认",
+                highlightLabel: "按模拟净值计算",
                 actionTitle: "查看详情"
             ),
             wealthSides: [
@@ -213,22 +213,8 @@ final class MockDataProvider {
                 actionTitle: "查看详情"
             ),
             spareMoneySides: [
-                WealthSpareMoneySide(
-                    title: "农银快e宝2号",
-                    tag: "基金",
-                    subtitle: "最高20万元快赎额度",
-                    yieldPrefix: "最高近7日年化",
-                    yieldRate: "1.37%",
-                    yieldLabel: ""
-                ),
-                WealthSpareMoneySide(
-                    title: "农银快e宝",
-                    tag: "基金",
-                    subtitle: "支持自动还款",
-                    yieldPrefix: "近7日年化",
-                    yieldRate: "0.71%",
-                    yieldLabel: ""
-                )
+                WealthSpareMoneySide(title: SimulatedFund.name, tag: "基金", subtitle: "按次日模拟净值确认",
+                                    yieldPrefix: "", yieldRate: "1.00", yieldLabel: "元起购")
             ],
             steadyProducts: [
                 WealthSteadyProduct(
@@ -255,20 +241,8 @@ final class MockDataProvider {
                 )
             ],
             fundItems: [
-                WealthFundItem(
-                    name: "申万菱信乐享混合",
-                    yieldRate: "113.61%",
-                    yieldLabel: "近一年涨幅",
-                    category: "混合型",
-                    isSelected: true
-                ),
-                WealthFundItem(
-                    name: "易方达科讯",
-                    yieldRate: "82.25%",
-                    yieldLabel: "近一年涨幅",
-                    category: "混合型",
-                    isSelected: false
-                )
+                WealthFundItem(name: SimulatedFund.name, yieldRate: "1.00", yieldLabel: "元起购",
+                               category: "混合型 · 模拟", isSelected: true)
             ],
             depositItems: [
                 WealthDepositItem(

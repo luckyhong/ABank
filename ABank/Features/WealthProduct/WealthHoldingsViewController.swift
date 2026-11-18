@@ -20,6 +20,12 @@ final class WealthHoldingsViewController: WealthFlowViewController, RouteHosting
 
     override func refreshBankingData() {
         clearContent()
+        let fundCount = ledger.fundOrders().filter { $0.redeemedAt == nil }.count
+        _ = addButton(fundCount == 0 ? "查看基金订单" : "查看基金持仓（\(fundCount) 笔）",
+                  id: "holdings.funds", primary: false) { [weak self] in
+            guard let self else { return }
+            self.router.open(.fund, from: self)
+        }
         let orders = ledger.wealthOrders()
         let holding = orders.filter { $0.redeemedAt == nil }
         let redeemed = orders.filter { $0.redeemedAt != nil }

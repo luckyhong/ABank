@@ -13,9 +13,15 @@ struct FinanceLedgerRecord: Codable, Equatable {
     var loanContracts: [LoanContract]
     var assetLiabilityAnnouncement: String
     var dataTimestamp: String
+    var scheduledTransfers: [ScheduledTransfer] = []
     var transferRecords: [TransferRecord] = []
+    var fundOrders: [FundOrder] = []
     var wealthOrders: [WealthOrder] = []
+    var utilityAccounts: [String: UtilityAccountPreference] = [:]
+    var defaultUtilityAccounts: [String: String] = [:]
+    var monthlyBudgets: [MonthlyBudget] = []
     var paymentOrders: [PaymentOrder] = []
+    var installmentRepayments: [InstallmentRepayment] = []
     var loanServiceRecords: [LoanServiceRecord] = []
     var termDeposits: [TermDeposit] = []
     var creditCards: [CreditCardAccount] = []
@@ -25,7 +31,7 @@ struct FinanceLedgerRecord: Codable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case accounts, transactions, loanContracts, assetLiabilityAnnouncement, dataTimestamp, transferRecords, wealthOrders, paymentOrders
-        case loanServiceRecords
+        case scheduledTransfers, loanServiceRecords, installmentRepayments, fundOrders, utilityAccounts, defaultUtilityAccounts, monthlyBudgets
         case demoDataVersion, termDeposits, creditCards, creditRepayments
     }
 
@@ -51,10 +57,16 @@ struct FinanceLedgerRecord: Codable, Equatable {
         loanContracts = try values.decode([LoanContract].self, forKey: .loanContracts)
         assetLiabilityAnnouncement = try values.decode(String.self, forKey: .assetLiabilityAnnouncement)
         dataTimestamp = try values.decode(String.self, forKey: .dataTimestamp)
+        scheduledTransfers = try values.decodeIfPresent([ScheduledTransfer].self, forKey: .scheduledTransfers) ?? []
         transferRecords = try values.decodeIfPresent([TransferRecord].self, forKey: .transferRecords) ?? []
+        fundOrders = try values.decodeIfPresent([FundOrder].self, forKey: .fundOrders) ?? []
         wealthOrders = try values.decodeIfPresent([WealthOrder].self, forKey: .wealthOrders) ?? []
+        utilityAccounts = try values.decodeIfPresent([String: UtilityAccountPreference].self, forKey: .utilityAccounts) ?? [:]
+        defaultUtilityAccounts = try values.decodeIfPresent([String: String].self, forKey: .defaultUtilityAccounts) ?? [:]
+        monthlyBudgets = try values.decodeIfPresent([MonthlyBudget].self, forKey: .monthlyBudgets) ?? []
         paymentOrders = try values.decodeIfPresent([PaymentOrder].self, forKey: .paymentOrders) ?? []
         loanServiceRecords = try values.decodeIfPresent([LoanServiceRecord].self, forKey: .loanServiceRecords) ?? []
+        installmentRepayments = try values.decodeIfPresent([InstallmentRepayment].self, forKey: .installmentRepayments) ?? []
         demoDataVersion = try values.decodeIfPresent(String.self, forKey: .demoDataVersion)
         termDeposits = try values.decodeIfPresent([TermDeposit].self, forKey: .termDeposits) ?? []
         creditCards = try values.decodeIfPresent([CreditCardAccount].self, forKey: .creditCards) ?? []
@@ -756,24 +768,29 @@ struct LoanPrepaymentInfo: Equatable {
 enum LoanDuePeriod: Equatable {
     case thisMonth
     case nextMonth
+    case overdue
 
     var title: String {
         switch self {
         case .thisMonth: return "本月应还"
         case .nextMonth: return "下月应还"
+        case .overdue: return "历史待处理"
         }
     }
 
     var amountCaption: String {
         switch self {
         case .thisMonth: return "应还合计(元)"
-        case .nextMonth: return "待还合计(元)"
+        case .nextMonth, .overdue: return "待还合计(元)"
         }
     }
 }
 
 struct LoanDueInstallment: Equatable, Identifiable {
     let id: String
+    let contractID: String
+    let period: Int
+    let canRepay: Bool
     let date: String
     let amount: Double
     let loanName: String

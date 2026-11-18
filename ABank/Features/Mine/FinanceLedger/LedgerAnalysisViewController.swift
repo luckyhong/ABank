@@ -35,6 +35,14 @@ final class LedgerAnalysisViewController: TransferFlowViewController {
         if traitCollection.preferredContentSizeCategory.isAccessibilityCategory { metrics.axis = .vertical }
         let balance = BankingPageStyle.text("本期结余  " + (result.summary.income - result.summary.expense).abankPlainAmountString(), style: .subheadline, color: .abankTextSecondary)
         contentStack.addArrangedSubview(BankingPageStyle.surface([metrics, balance]))
+        let budgetMonth: String
+        switch query.dateMode {
+        case .month(let selected): budgetMonth = selected
+        case .custom: budgetMonth = store.dates.currentMonth
+        }
+        _ = addButton("查看\(budgetMonth)预算", id: "analysis.budget", primary: false) { [weak self] in
+            self?.navigationController?.pushViewController(LedgerBudgetsViewController(month: budgetMonth), animated: true)
+        }
         if result.categories.isEmpty {
             contentStack.addArrangedSubview(BankingPageStyle.empty("本期暂无计入收支的记录", detail: "可切换月份，或查看最近一笔交易所在月份。", actionTitle: "查看最近账单") { [weak self] in self?.showLatestMonth() })
         }

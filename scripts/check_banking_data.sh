@@ -15,6 +15,7 @@ sources=(
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Retail.swift
   ABank/Features/Mine/FinanceLedger/LedgerBookkeeping.swift
   ABank/Features/Mine/FinanceLedger/LedgerInsights.swift
+  ABank/Features/Mine/FinanceLedger/LedgerBudgets.swift
   ABank/Core/CustomerSession/CustomerSessionStore.swift
   ABank/Features/Messages/BankMessageStore.swift
   ABank/Core/Routing/AppRoute.swift
@@ -37,6 +38,7 @@ sources=(
   ABank/Features/WealthProduct/Models/WealthProductModels.swift
   ABank/Features/WealthProduct/Models/WealthProductCatalog.swift
   ABank/Features/WealthProduct/Models/WealthRules.swift
+  ABank/Features/WealthProduct/Models/SimulatedFund.swift
   ABank/Features/WealthProduct/Models/RiskAssessmentModels.swift
   ABank/Features/WealthProduct/RiskAssessmentStore.swift
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Wealth.swift
@@ -66,7 +68,7 @@ if grep -rn '借记卡 尾号\\(' ABank; then
 fi
 echo "Card label checks passed"
 python3 scripts/generate_ledger_fixture.py --check
-checks=(retail frequent accounts fixture banking transfer insights feature security branch benefits wealth payment account loan entry)
+checks=(retail frequent accounts fixture banking transfer insights feature security branch benefits wealth payment account loan entry roadmap)
 if (( $# > 0 )); then checks=("$@"); fi
 for check in "${checks[@]}"; do
   if [[ $check == retail ]]; then

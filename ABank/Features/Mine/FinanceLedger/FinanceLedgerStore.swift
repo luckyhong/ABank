@@ -160,10 +160,10 @@ extension Notification.Name {
 
     func validateTransfer(_ draft: TransferDraft) throws {
         let record = try loadForTransfer()
-        try validateTransfer(draft, record: record, now: dates.now)
+        _ = try validateTransfer(draft, record: record, now: dates.now)
     }
 
-    private func validateTransfer(_ draft: TransferDraft, record: FinanceLedgerRecord, now: Date) throws {
+    private func validateTransfer(_ draft: TransferDraft, record: FinanceLedgerRecord, now: Date) throws -> (TransferRecipient, LedgerAccount) {
         guard draft.amountInCents > 0 else { throw TransferError.invalidAmount }
         guard draft.note.count <= 60 else { throw TransferError.invalidRecipient }
         let recipient = try resolveRecipient(draft, record: record)
@@ -179,6 +179,7 @@ extension Notification.Name {
         let spent = Self.transferredInCents(on: dates.string(from: now), in: record)
         guard spent <= limits.dailyInCents, draft.amountInCents <= limits.dailyInCents - spent else { throw TransferError.dailyLimit }
         guard let balance = TransferMoney.cents(from: payer.balance), draft.amountInCents <= balance else { throw TransferError.insufficientBalance }
+        return (recipient, payer)
     }
 
     /// 今日（北京时间）成功转账合计；溢出时返回 Int64.max，使日累计校验必然拦截。
@@ -202,11 +203,16 @@ extension Notification.Name {
         var root = try loadForTransfer()
         if let existing = root.transferRecords.first(where: { $0.requestID == requestID }) { return existing }
         let now = dates.now
-        try validateTransfer(draft, record: root, now: now)
-        let recipient = try resolveRecipient(draft, record: root)
-        let account = root.accounts.first(where: { $0.id == draft.payerAccountID })!
+        let (recipient, account) = try validateTransfer(draft, record: root, now: now)
+        let transfer = addTransfer(to: &root, draft: draft, requestID: requestID, now: now,
+                                   recipient: recipient, account: account, succeeds: simulationSucceeds(draft))
+        try persistTransfer(root)
+        return transfer
+    }
+
+    private func addTransfer(to root: inout FinanceLedgerRecord, draft: TransferDraft, requestID: String, now: Date,
+                             recipient: TransferRecipient, account: LedgerAccount, succeeds: Bool) -> TransferRecord {
         let id = UUID().uuidString
-        let succeeds = simulationSucceeds(draft)
         let transactionID = succeeds ? "transfer_" + id : nil
         let transfer = TransferRecord(id: id, requestID: requestID, payerAccountID: account.id,
             payerLabel: account.cardLabel, method: draft.method, recipientName: recipient.name,
@@ -238,9 +244,67 @@ extension Notification.Name {
         }
         root.transferRecords.append(transfer)
         root.dataTimestamp = transfer.createdAt
+        return transfer
+    }
+
+    private func persistTransfer(_ root: FinanceLedgerRecord) throws {
         do { try persist(root) }
         catch { throw TransferError.persistence }
-        return transfer
+    }
+
+    func createScheduledTransfer(payerID: String, recipientID: String, method: TransferMethod,
+                                 amount: Int64, dueDate: String, requestID: String) throws -> ScheduledTransfer {
+        guard !requestID.isEmpty, requestID.count <= 100 else { throw TransferError.invalidRequest }
+        var root = try loadForTransfer()
+        if let existing = root.scheduledTransfers.first(where: { $0.id == requestID }) { return existing }
+        let now = dates.now
+        guard dates.date(from: dueDate) != nil, dueDate > dates.string(from: now) else {
+            throw ScheduledTransferError.invalidDate
+        }
+        guard amount > 0 else { throw TransferError.invalidAmount }
+        guard let account = root.accounts.first(where: { $0.id == payerID && $0.currency == "人民币" }) else {
+            throw TransferError.missingAccount
+        }
+        let draft = TransferDraft(payerAccountID: payerID, method: method, savedRecipientID: recipientID, amountInCents: amount)
+        let recipient = try resolveRecipient(draft, record: root)
+        guard recipient.method == method else { throw TransferError.invalidRecipient }
+        guard recipient.linkedAccountID != account.id else { throw TransferError.sameAccount }
+        let order = ScheduledTransfer(id: requestID, payerAccountID: payerID, recipientID: recipientID, method: method,
+            recipientName: recipient.name, bankName: recipient.bankName, maskedDestination: recipient.maskedDestination,
+            amount: amount, dueDate: dueDate, createdAt: dates.string(from: now, format: "yyyy-MM-dd HH:mm:ss"))
+        root.scheduledTransfers.append(order)
+        try persistTransfer(root)
+        return order
+    }
+
+    func cancelScheduledTransfer(id: String) throws {
+        var root = try loadForTransfer()
+        guard let index = root.scheduledTransfers.firstIndex(where: { $0.id == id }) else { throw ScheduledTransferError.notFound }
+        let order = root.scheduledTransfers[index]
+        if order.cancelledAt != nil { return }
+        guard order.isPending else { throw ScheduledTransferError.unavailable }
+        root.scheduledTransfers[index].cancelledAt = dates.string(from: dates.now, format: "yyyy-MM-dd HH:mm:ss")
+        try persistTransfer(root)
+    }
+
+    func executeScheduledTransfer(id: String) throws -> TransferRecord {
+        var root = try loadForTransfer()
+        guard let index = root.scheduledTransfers.firstIndex(where: { $0.id == id }) else { throw ScheduledTransferError.notFound }
+        let order = root.scheduledTransfers[index]
+        if let transferID = order.transferID, let result = root.transferRecords.first(where: { $0.id == transferID }) {
+            return result
+        }
+        guard order.isPending else { throw ScheduledTransferError.unavailable }
+        let now = dates.now
+        guard order.dueDate <= dates.string(from: now) else { throw ScheduledTransferError.notDue }
+        let draft = order.draft
+        let (recipient, account) = try validateTransfer(draft, record: root, now: now)
+        guard simulationSucceeds(draft) else { throw ScheduledTransferError.processingFailed }
+        let result = addTransfer(to: &root, draft: draft, requestID: "scheduled:" + id, now: now,
+                                 recipient: recipient, account: account, succeeds: true)
+        root.scheduledTransfers[index].transferID = result.id
+        try persistTransfer(root)
+        return result
     }
 
     @discardableResult func update(_ transform: (inout FinanceLedgerRecord) -> Void) -> Bool {
@@ -257,7 +321,7 @@ extension Notification.Name {
     func totalAssets() -> Double {
         let record = load()
         return record.accounts.reduce(0) { $0 + $1.balance }
-            + TransferMoney.amount(holdingValueInCents(in: record) + record.termDeposits.filter { $0.closedAt == nil }.reduce(0) { $0 + $1.principalInCents })
+            + TransferMoney.amount(holdingValueInCents(in: record) + record.fundOrders.reduce(0) { $0 + fundValue(of: $1) } + record.termDeposits.filter { $0.closedAt == nil }.reduce(0) { $0 + $1.principalInCents })
     }
 
     func totalLiabilities() -> Double {
@@ -345,6 +409,15 @@ extension Notification.Name {
             )
         ]
         if let wealth = wealthAssetCategory(in: record) { assetCategories.append(wealth) }
+        let funds = record.fundOrders.filter { $0.redeemedAt == nil }
+        if !funds.isEmpty {
+            assetCategories.append(AssetLiabilityCategory(id: "fund", title: "基金",
+                totalAmount: TransferMoney.amount(funds.reduce(0) { $0 + fundValue(of: $1) }),
+                items: funds.map { order in
+                    AssetLiabilityItem(id: order.id, title: SimulatedFund.name, amount: TransferMoney.amount(fundValue(of: order)),
+                                       showsCurrencySymbol: true, subtitle: order.status, showsMenu: false)
+                }))
+        }
         let deposits = record.termDeposits.filter { $0.closedAt == nil }
         if !deposits.isEmpty { assetCategories.append(AssetLiabilityCategory(id: "term_deposit", title: "定期存款", totalAmount: TransferMoney.amount(deposits.reduce(0) { $0 + $1.principalInCents }),
             items: deposits.map { AssetLiabilityItem(id: $0.id, title: $0.title, amount: TransferMoney.amount($0.principalInCents), showsCurrencySymbol: true, subtitle: "到期日 " + $0.maturityDate, showsMenu: false) })) }
@@ -630,7 +703,15 @@ extension Notification.Name {
                 interest: TransferMoney.amount(repayment.interestInCents), balance: TransferMoney.amount(repayment.balanceInCents))
         } ?? Self.seedRepaymentPlans(contractNumber: contractNumber)
         if let contract {
-            allPlans = allPlans.filter { $0.period < contract.nextPeriod }
+            let repaid = load().installmentRepayments.filter { $0.contractID == contractId }
+            let repaidPeriods = Set(repaid.map(\.period))
+            allPlans = allPlans.filter { $0.period < contract.nextPeriod && !repaidPeriods.contains($0.period) }
+            allPlans += repaid.map { repayment in
+                LoanRepaymentPlanItem(id: "plan_\(repayment.period)", contractNumber: contractNumber,
+                    period: repayment.period, date: repayment.dueDate, repaymentAmount: TransferMoney.amount(repayment.amount),
+                    principal: TransferMoney.amount(repayment.principal), interest: TransferMoney.amount(repayment.interest),
+                    balance: TransferMoney.amount(repayment.remainingPrincipal))
+            }
             if let principal = TransferMoney.cents(from: contract.unpaidPrincipal),
                let installment = TransferMoney.cents(from: contract.installmentAmount) {
                 allPlans += LoanAmortization.schedule(
@@ -660,7 +741,12 @@ extension Notification.Name {
                 date: repayment.date, principal: TransferMoney.amount(repayment.principalInCents),
                 interest: TransferMoney.amount(repayment.interestInCents), penalty: 0, compoundInterest: 0)
         } ?? Self.seedRepaymentDetails(contractNumber: contractNumber)
-        let details = (prepaid + historicalDetails)
+        let installments = load().installmentRepayments.filter { $0.contractID == contractId }.map { repayment in
+            LoanRepaymentDetailItem(id: repayment.transactionID, contractNumber: contractNumber,
+                date: String(repayment.paidAt.prefix(10)), principal: TransferMoney.amount(repayment.principal),
+                interest: TransferMoney.amount(repayment.interest), penalty: 0, compoundInterest: 0)
+        }
+        let details = (prepaid + historicalDetails + installments)
             .filter { Self.isDate($0.date, in: filter) }
             .sorted { lhs, rhs in
                 filter.sortOrder == .nearToFar ? lhs.date > rhs.date : lhs.date < rhs.date
@@ -687,7 +773,12 @@ extension Notification.Name {
                 principal: TransferMoney.amount(repayment.principalInCents),
                 interest: TransferMoney.amount(repayment.interestInCents), penalty: 0, compoundPenalty: 0)
         } ?? Self.seedUsageRecords()
-        let all = (prepaid + history).sorted { $0.dateTime > $1.dateTime }
+        let installments = load().installmentRepayments.filter { $0.contractID == contractId }.map { repayment in
+            LoanUsageRecord(id: repayment.transactionID, title: "按期还款", dateTime: String(repayment.paidAt.prefix(16)),
+                totalAmount: TransferMoney.amount(repayment.amount), principal: TransferMoney.amount(repayment.principal),
+                interest: TransferMoney.amount(repayment.interest), penalty: 0, compoundPenalty: 0)
+        }
+        let all = (prepaid + history + installments).sorted { $0.dateTime > $1.dateTime }
         let start = max(0, page * pageSize)
         guard start < all.count else {
             return LoanUsageRecordsPageData(records: [], hasMore: false)
@@ -713,7 +804,11 @@ extension Notification.Name {
     }
 
     func pendingLoanPlans() -> [(contract: LoanContract, plan: LoanRepaymentPlanItem)] {
-        load().loanContracts.flatMap { contract -> [(contract: LoanContract, plan: LoanRepaymentPlanItem)] in
+        pendingLoanPlans(in: load())
+    }
+
+    func pendingLoanPlans(in record: FinanceLedgerRecord) -> [(contract: LoanContract, plan: LoanRepaymentPlanItem)] {
+        record.loanContracts.flatMap { contract -> [(contract: LoanContract, plan: LoanRepaymentPlanItem)] in
             guard let principal = TransferMoney.cents(from: contract.unpaidPrincipal), principal > 0,
                   let installment = TransferMoney.cents(from: contract.installmentAmount) else { return [] }
             return LoanAmortization.schedule(principalInCents: principal, installmentInCents: installment,
@@ -721,26 +816,41 @@ extension Notification.Name {
                 firstPeriod: contract.nextPeriod, firstDueDate: contract.nextDueDate,
                 contractNumber: contract.contractNumber, dates: dates, finalDueDate: contract.finalDueDate)
                 .map { (contract: contract, plan: $0) }
-        }.sorted { $0.plan.date < $1.plan.date }
+        }.sorted { lhs, rhs in
+            if lhs.plan.date != rhs.plan.date { return lhs.plan.date < rhs.plan.date }
+            if lhs.contract.id != rhs.contract.id { return lhs.contract.id < rhs.contract.id }
+            return lhs.plan.period < rhs.plan.period
+        }
+    }
+
+    func loanDuePeriod(for dueDate: String) -> LoanDuePeriod {
+        let month = String(dueDate.prefix(7))
+        if month < dates.currentMonth { return .overdue }
+        return month == dates.currentMonth ? .thisMonth : .nextMonth
     }
 
     func loanDuePageData(period: LoanDuePeriod) -> LoanDuePageData {
         let month: String
-        if period == .thisMonth { month = dates.currentMonth }
+        if period != .nextMonth { month = dates.currentMonth }
         else {
             let start = dates.calendar.dateInterval(of: .month, for: dates.now)!.start
             month = dates.string(from: dates.calendar.date(byAdding: .month, value: 1, to: start)!, format: "yyyy-MM")
         }
         let pending = pendingLoanPlans()
-        let items = pending.filter { $0.plan.date.hasPrefix(month) }.map { item in
+        let today = dates.string(from: dates.now)
+        let items = pending.filter {
+            period == .overdue ? String($0.plan.date.prefix(7)) < month : $0.plan.date.hasPrefix(month)
+        }.map { item in
             LoanDueInstallment(id: "due_" + item.contract.id + "_" + String(item.plan.period),
+                contractID: item.contract.id, period: item.plan.period,
+                canRepay: item.plan.period == item.contract.nextPeriod && item.plan.date <= today,
                 date: item.plan.date, amount: item.plan.repaymentAmount, loanName: item.contract.name,
                 contractNumber: item.contract.contractNumber.isEmpty ? "—" : item.contract.contractNumber)
         }
         let earlier = pending.filter { String($0.plan.date.prefix(7)) < dates.currentMonth }
         let tip = earlier.isEmpty
             ? "应还金额依据还款计划列示，已完成的还款请以交易明细为准。"
-            : "另有\(earlier.count)期历史计划待处理，请在还款详情中查看。计划到期不会自动生成已还流水。"
+            : "另有\(earlier.count)期历史计划待处理，请在「历史待处理」中查看。到期后可手动办理。"
         let cents = items.reduce(Int64(0)) { $0 + (TransferMoney.cents(from: $1.amount) ?? 0) }
         return LoanDuePageData(period: period, totalAmount: TransferMoney.amount(cents), installments: items, tip: tip)
     }

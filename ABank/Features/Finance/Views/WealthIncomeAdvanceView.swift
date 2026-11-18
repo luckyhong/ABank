@@ -11,7 +11,7 @@ final class WealthIncomeAdvanceView: UIView {
     var onHeaderTapped: (() -> Void)?
     var onItemTapped: ((Int) -> Void)?
 
-    private let header = WealthSectionHeaderView(title: "收益进阶", subtitle: "专业投研 优选基金")
+    private let header = WealthSectionHeaderView(title: "基金", subtitle: "模拟申购与赎回")
     private let card = UIView()
     private let stack = UIStackView()
 

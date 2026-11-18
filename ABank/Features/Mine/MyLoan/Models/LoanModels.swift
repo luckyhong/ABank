@@ -85,6 +85,7 @@ enum LoanError: LocalizedError, Equatable {
     case corruptLedger
     case persistence
     case invalidRequest
+    case installmentUnavailable
 
     var errorDescription: String? {
         switch self {
@@ -96,6 +97,7 @@ enum LoanError: LocalizedError, Equatable {
         case .corruptLedger: return "账本数据异常，暂不能办理"
         case .persistence: return "本地保存失败，请重试"
         case .invalidRequest: return "请求无效，请重试"
+        case .installmentUnavailable: return "请先办理该合同最早到期的未还期次"
         }
     }
 }
@@ -135,4 +137,18 @@ enum LoanHistoryCatalog {
     static func loan(id: String) -> SettledLoan? {
         settledLoans.first { $0.id == id }
     }
+}
+
+struct InstallmentRepayment: Codable, Equatable {
+    let contractID: String
+    let period: Int
+    let dueDate: String
+    let principal: Int64
+    let interest: Int64
+    let remainingPrincipal: Int64
+    let accountID: String
+    let transactionID: String
+    let paidAt: String
+
+    var amount: Int64 { principal + interest }
 }

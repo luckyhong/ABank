@@ -9,6 +9,7 @@ import SnapKit
 final class LoanDueInstallmentCell: UITableViewCell {
     static let reuseId = "LoanDueInstallmentCell"
 
+    var onRepay: (() -> Void)?
     var onToggle: (() -> Void)?
 
     private let headerControl = UIControl()
@@ -52,6 +53,19 @@ final class LoanDueInstallmentCell: UITableViewCell {
             )
         }
 
+        if expanded && item.canRepay {
+            let button = UIButton(type: .system)
+            button.setTitle("办理本期还款", for: .normal)
+            button.tintColor = .abankTeal
+            button.accessibilityIdentifier = "loan.installment.repay"
+            button.addAction(UIAction { [weak self] _ in self?.onRepay?() }, for: .touchUpInside)
+            button.snp.makeConstraints { $0.height.greaterThanOrEqualTo(44) }
+            detailStack.addArrangedSubview(button)
+        }
+
+        headerControl.accessibilityIdentifier = "loan.installment.toggle"
+        headerControl.accessibilityLabel = "\(item.date)，待还 \(item.amount.abankPlainAmountString()) 元"
+        headerControl.accessibilityValue = expanded ? "已展开" : "已折叠"
         headerControl.snp.remakeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             make.height.equalTo(52)
@@ -86,6 +100,8 @@ final class LoanDueInstallmentCell: UITableViewCell {
         detailStack.isHidden = true
 
         separator.backgroundColor = .abankSeparator
+        headerControl.isAccessibilityElement = true
+        headerControl.accessibilityTraits = .button
         headerControl.addTarget(self, action: #selector(headerTapped), for: .touchUpInside)
 
         contentView.addSubview(headerControl)

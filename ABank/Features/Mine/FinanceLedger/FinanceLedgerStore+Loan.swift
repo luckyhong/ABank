@@ -72,9 +72,9 @@ extension FinanceLedgerStore {
     func loanTasks() -> [LoanTask] {
         let record = load()
         var tasks: [LoanTask] = []
-        let active = record.loanContracts.filter { $0.unpaidPrincipal > 0 }
-        if let nextDue = pendingLoanPlans().first?.plan.date {
-            let due = active.reduce(Int64(0)) { $0 + (TransferMoney.cents(from: $1.installmentAmount) ?? 0) }
+        if let next = pendingLoanPlans(in: record).first {
+            let nextDue = next.plan.date
+            let due = TransferMoney.cents(from: next.plan.repaymentAmount) ?? 0
             tasks.append(LoanTask(id: "task_repayment", title: nextDue < dates.string(from: dates.now) ? "待处理还款计划" : "还款提醒",
                                   detail: "\(nextDue.dropFirst(5)) 应还 \(TransferMoney.text(due)) 元",
                                   kind: .repaymentReminder))
@@ -93,6 +93,57 @@ extension FinanceLedgerStore {
                                   kind: .certificatePending(loanID: loan.id)))
         }
         return tasks
+    }
+
+    func previewInstallment(contractID: String, period: Int) throws -> LoanRepaymentPlanItem {
+        try checkedInstallment(in: strictLoanRecord(), contractID: contractID, period: period)
+    }
+
+    func repayInstallment(contractID: String, expected: LoanRepaymentPlanItem, accountID: String) throws -> InstallmentRepayment {
+        var root = try strictLoanRecord()
+        if let existing = root.installmentRepayments.first(where: { $0.contractID == contractID && $0.period == expected.period }) {
+            return existing
+        }
+        let plan = try checkedInstallment(in: root, contractID: contractID, period: expected.period)
+        guard plan == expected else { throw LoanError.changed }
+        guard let index = root.loanContracts.firstIndex(where: { $0.id == contractID }),
+              let account = root.accounts.first(where: { $0.id == accountID && $0.currency == "人民币" }),
+              let principal = TransferMoney.cents(from: plan.principal), principal > 0,
+              let interest = TransferMoney.cents(from: plan.interest),
+              let remaining = TransferMoney.cents(from: plan.balance) else { throw LoanError.invalidRequest }
+        guard !account.isReportedLost else { throw AccountSettingsError.cardReportedLost }
+        guard let balance = TransferMoney.cents(from: account.balance), balance >= principal + interest else {
+            throw LoanError.insufficientBalance
+        }
+        let now = dates.now
+        let timestamp = dates.string(from: now, format: "yyyy-MM-dd HH:mm:ss")
+        let repayment = InstallmentRepayment(contractID: contractID, period: plan.period, dueDate: plan.date,
+            principal: principal, interest: interest, remainingPrincipal: remaining, accountID: accountID,
+            transactionID: "installment_" + UUID().uuidString, paidAt: timestamp)
+        let next = pendingLoanPlans(in: root).first { $0.contract.id == contractID && $0.plan.period == plan.period + 1 }
+        root.loanContracts[index].unpaidPrincipal = TransferMoney.amount(remaining)
+        root.loanContracts[index].nextPeriod = plan.period + 1
+        root.loanContracts[index].remainingTerms -= 1
+        if let next { root.loanContracts[index].nextDueDate = next.plan.date }
+        root.installmentRepayments.append(repayment)
+        root.transactions.append(LedgerTransaction(id: repayment.transactionID, accountId: accountID,
+            date: dates.string(from: now), time: dates.string(from: now, format: "HH:mm:ss"),
+            title: "按期还款-" + root.loanContracts[index].name, direction: .expense,
+            amount: TransferMoney.amount(repayment.amount), balanceAfter: 0, iconKey: "house.fill", categoryId: "loan_repay",
+            includeInFlow: true, counterpartyName: "ABank 个人贷款", summary: "按期还款",
+            cardNumber: account.maskedCardNumber, transactionType: "贷款还款", channel: "手机银行"))
+        recalculate(&root)
+        root.dataTimestamp = timestamp
+        do { try persist(root) } catch { throw LoanError.persistence }
+        return repayment
+    }
+
+    private func checkedInstallment(in root: FinanceLedgerRecord, contractID: String, period: Int) throws -> LoanRepaymentPlanItem {
+        guard let next = pendingLoanPlans(in: root).first(where: { $0.contract.id == contractID })?.plan,
+              next.period == period, next.date <= dates.string(from: dates.now) else {
+            throw LoanError.installmentUnavailable
+        }
+        return next
     }
 
     // MARK: - 提前还款

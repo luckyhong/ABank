@@ -39,11 +39,14 @@ final class LifePaymentViewController: PaymentFlowViewController, RouteHosting {
         }
         contentStack.addArrangedSubview(bar)
 
-        for account in PaymentCatalog.billAccounts(of: Self.kinds[kindIndex]) {
+        let kind = Self.kinds[kindIndex]
+        let accounts = ledger.utilityAccounts(kind: kind)
+        if accounts.active.isEmpty { addEmptyState("暂无\(kind.title)户号", id: "payment.accounts.empty") }
+        for account in accounts.active {
             let bill = ledger.currentBill(for: account)
             let amount = "\(wealthMoneyText(bill.amountInCents)) 元"
             let row = BenefitsRow(
-                title: account.name,
+                title: account.name + (accounts.defaultID == account.id ? " · 默认" : ""),
                 subtitle: "户号 \(account.accountNo) · " + (bill.isPaid ? "本期 \(amount)" : "待缴 \(amount)"),
                 trailing: BranchStatusTagView(text: bill.isPaid ? "已缴清" : "待缴", active: !bill.isPaid),
                 id: "payment.row.\(account.id)", showsChevron: true
@@ -54,6 +57,10 @@ final class LifePaymentViewController: PaymentFlowViewController, RouteHosting {
             }
             contentStack.addArrangedSubview(row)
         }
-        addNotice("选择缴费项目，查看本期账单")
+        _ = addButton("管理户号", id: "payment.manage", primary: false) { [weak self] in
+            guard let self else { return }
+            self.navigationController?.pushViewController(UtilityAccountManagementViewController(kind: kind, ledger: self.ledger),
+                                                          animated: true)
+        }
     }
 }

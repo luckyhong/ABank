@@ -51,7 +51,7 @@ nonisolated enum PhoneOperator: String {
 nonisolated struct BillAccount: Equatable {
     let id: String
     let kind: PaymentKind
-    let name: String
+    var name: String
     let accountNo: String
     let address: String
     let provider: String
@@ -120,4 +120,14 @@ extension UtilityBill {
     var usageText: String { String(format: "%.3f", Double(usageThousandths) / 1000) + (account.kind == .electric ? " 千瓦时" : " 立方米") }
     var unitPriceText: String { TransferMoney.text(unitPrice) + (account.kind == .electric ? " 元/千瓦时" : " 元/立方米") }
     var calculatedChargeInCents: Int64 { (usageThousandths * unitPrice + 500) / 1000 }
+}
+
+struct UtilityAccountPreference: Codable, Equatable {
+    var name: String?
+    var isAdded: Bool
+}
+
+enum UtilityAccountEdit {
+    case add, remove, makeDefault
+    case rename(String)
 }

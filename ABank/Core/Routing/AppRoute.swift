@@ -13,6 +13,8 @@ enum AppRoute: Equatable {
     case debitCardDetail
     case transfer(payerAccountID: String?)
     case transferForm(method: TransferMethod)
+    case scheduledTransfers(cancellationOnly: Bool)
+    case scheduledTransferDetail(id: String, cancellationOnly: Bool)
     case transferRecords
     case transferLimits
     case transferReceipts
@@ -21,6 +23,7 @@ enum AppRoute: Equatable {
     case ledgerAnalysis
     case ledgerSearch
     case assetLiability
+    case loanDue(LoanDuePeriod)
     case myLoan
     case customerInfo
     case allFeatures(searchKeyword: String?)
@@ -50,6 +53,8 @@ enum AppRoute: Equatable {
     case orders
     case orderDetail(orderID: String, justRedeemed: Bool)
     case customerLevel
+    case fund
+    case fundOrder(id: String)
     case wealthProducts
     case wealthAccount(accountID: String, productID: String?)
     case wealthAccountPurchase(productID: String, accountID: String)

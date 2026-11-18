@@ -93,8 +93,6 @@ enum FeatureCatalog {
     private static let byID: [FeatureID: FeatureDescriptor] =
         Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
 
-    private static let wealthStage = "M7 扩展（存款/基金）"
-
     private static func item(
         _ id: FeatureID, _ title: String, _ category: FeatureCategory,
         image: String? = nil, icon: String, keywords: [String] = [],
@@ -145,7 +143,7 @@ enum FeatureCatalog {
         item(.creditCardRepay, "信用卡还款", .transfer, image: "abc_transfer_repay", icon: "creditcard",
              keywords: ["还款"], .available(.creditCards)),
         item(.scheduledTransfer, "预约转账", .transfer, image: "abc_transfer_schedule", icon: "clock",
-             keywords: ["定时"], .planned(stage: nil)),
+             keywords: ["定时"], .available(.scheduledTransfers(cancellationOnly: false))),
         item(.multiTransfer, "向多人转账", .transfer, image: "abc_transfer_multiple", icon: "person.3",
              keywords: ["批量"], .planned(stage: nil)),
         item(.otherBankIn, "他行卡转入", .transfer, image: "abc_transfer_other_bank", icon: "arrow.uturn.left",
@@ -157,7 +155,7 @@ enum FeatureCatalog {
         item(.mobileCollection, "手机号收款", .transfer, image: "abc_transfer_mobile_collection", icon: "iphone.gen1",
              keywords: ["收款"], .planned(stage: nil)),
         item(.transferCancel, "转账撤销", .transfer, image: "abc_transfer_cancel", icon: "arrow.uturn.backward",
-             keywords: ["撤回"], .planned(stage: nil)),
+             keywords: ["撤回"], .available(.scheduledTransfers(cancellationOnly: true))),
 
         // MARK: 财富
         item(.deposit, "存款", .wealth, image: "abc_home_deposit", icon: "banknote",
@@ -165,7 +163,7 @@ enum FeatureCatalog {
         item(.wealthProduct, "理财产品", .wealth, image: "abc_home_wealth", icon: "chart.line.uptrend.xyaxis",
              keywords: ["理财", "收益", "农银快e宝"], .available(.wealthProducts)),
         item(.fund, "基金", .wealth, image: "abc_wealth_menu_fund", icon: "chart.line.uptrend.xyaxis",
-             keywords: ["定投"], .planned(stage: wealthStage)),
+             keywords: ["申购", "赎回", "净值"], .available(.fund)),
         item(.preciousMetals, "贵金属", .wealth, image: "abc_wealth_menu_metals", icon: "square.stack.3d.up.fill",
              keywords: ["黄金", "白银", "存金通"], .planned(stage: nil)),
         item(.bonds, "债券", .wealth, image: "abc_wealth_menu_bonds", icon: "chart.bar.fill",

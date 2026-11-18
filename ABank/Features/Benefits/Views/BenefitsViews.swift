@@ -112,7 +112,7 @@ final class BenefitsShortcutBar: UIView {
 final class BenefitsRow: UIControl {
     var onTap: (() -> Void)?
 
-    init(title: String, subtitle: String?, trailing: UIView? = nil, id: String, showsChevron: Bool = false) {
+    init(title: String, subtitle: String?, trailing: UIView? = nil, id: String, showsChevron: Bool = false, scalesType: Bool = false) {
         super.init(frame: .zero)
         accessibilityIdentifier = id
         backgroundColor = .abankCardBackground
@@ -120,11 +120,25 @@ final class BenefitsRow: UIControl {
 
         let titleLabel = UILabel()
         titleLabel.text = title
-        titleLabel.font = .abankBodyMedium()
+        titleLabel.font = scalesType ? UIFontMetrics(forTextStyle: .body).scaledFont(for: .abankBodyMedium()) : .abankBodyMedium()
+        titleLabel.adjustsFontForContentSizeCategory = scalesType
         titleLabel.textColor = .abankTextPrimary
         titleLabel.numberOfLines = 0
         var labels: [UIView] = [titleLabel]
-        if let subtitle { labels.append(branchCaption(subtitle)) }
+        if let subtitle {
+            let caption = branchCaption(subtitle)
+            if scalesType {
+                caption.font = UIFontMetrics(forTextStyle: .subheadline).scaledFont(for: .abankCaption())
+                caption.adjustsFontForContentSizeCategory = true
+            }
+            labels.append(caption)
+        }
+        if scalesType {
+            isAccessibilityElement = true
+            accessibilityTraits = .button
+            accessibilityLabel = title
+            accessibilityValue = subtitle
+        }
         let text = UIStackView(arrangedSubviews: labels)
         text.axis = .vertical
         text.spacing = Spacing.xs

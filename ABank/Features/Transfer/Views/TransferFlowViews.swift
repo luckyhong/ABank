@@ -5,6 +5,7 @@ import SnapKit
 class TransferFlowViewController: BankingDataViewController {
     let scrollView = UIScrollView()
     let contentStack = UIStackView()
+    var maximumContentWidth: CGFloat? { nil }
 
     override func setupNavigationBar() {
         navigationItem.backButtonTitle = ""
@@ -17,15 +18,31 @@ class TransferFlowViewController: BankingDataViewController {
         contentStack.axis = .vertical
         contentStack.spacing = 12
         view.addSubview(scrollView)
-        scrollView.addSubview(contentStack)
         scrollView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
         }
-        contentStack.snp.makeConstraints {
-            $0.edges.equalTo(scrollView.contentLayoutGuide).inset(16)
-            $0.width.equalTo(scrollView.frameLayoutGuide).offset(-32)
+        if let maximumContentWidth {
+            let contentView = UIView()
+            scrollView.addSubview(contentView)
+            contentView.addSubview(contentStack)
+            contentView.snp.makeConstraints {
+                $0.edges.equalTo(scrollView.contentLayoutGuide)
+                $0.width.equalTo(scrollView.frameLayoutGuide)
+            }
+            contentStack.snp.makeConstraints {
+                $0.top.bottom.equalToSuperview().inset(Spacing.md)
+                $0.centerX.equalToSuperview()
+                $0.width.lessThanOrEqualToSuperview().offset(-2 * Spacing.md)
+                $0.width.equalTo(maximumContentWidth).priority(999)
+            }
+        } else {
+            scrollView.addSubview(contentStack)
+            contentStack.snp.makeConstraints {
+                $0.edges.equalTo(scrollView.contentLayoutGuide).inset(Spacing.md)
+                $0.width.equalTo(scrollView.frameLayoutGuide).offset(-2 * Spacing.md)
+            }
         }
     }
 
@@ -135,6 +152,7 @@ final class TransferInputRow: UIView {
         field.font = .preferredFont(forTextStyle: .body); field.adjustsFontForContentSizeCategory = true
         field.textColor = .abankTextPrimary; field.placeholder = placeholder; field.keyboardType = keyboard
         field.autocorrectionType = .no; field.accessibilityIdentifier = id; field.clearButtonMode = .whileEditing
+        field.accessibilityLabel = title
         field.adjustsFontSizeToFitWidth = true; field.minimumFontSize = 14
         stack.addArrangedSubview(label); stack.addArrangedSubview(field); stack.spacing = 16; stack.alignment = .center
         addSubview(stack)

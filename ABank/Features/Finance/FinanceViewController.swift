@@ -229,9 +229,8 @@ final class WealthViewController: BankingDataViewController {
         spareMoneyZone.onFeaturedTapped = { [weak self] in
             guard let self else { return }; self.router.open(.wealthProductDetail(productID: "w.shishifu"), from: self)
         }
-        spareMoneyZone.onSideTapped = { [weak self] index in
-            let title = self?.pageData.spareMoneySides[safe: index]?.title ?? "产品"
-            guard let self else { return }; self.router.open(.wealthProducts, from: self)
+        spareMoneyZone.onSideTapped = { [weak self] _ in
+            guard let self else { return }; self.router.open(feature: .fund, from: self)
         }
 
         steadyGrowth.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.wealthProducts, from: self) }
@@ -244,9 +243,9 @@ final class WealthViewController: BankingDataViewController {
             }
         }
 
-        incomeAdvance.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.comingSoon(.fund), from: self) }
+        incomeAdvance.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(feature: .fund, from: self) }
         incomeAdvance.onItemTapped = { [weak self] _ in
-            guard let self else { return }; self.router.open(.comingSoon(.fund), from: self)
+            guard let self else { return }; self.router.open(feature: .fund, from: self)
         }
         popularDeposit.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.deposits, from: self) }
         popularDeposit.onItemTapped = { [weak self] _ in

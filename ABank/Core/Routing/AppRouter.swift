@@ -77,6 +77,10 @@ final class AppRouter: AppRouting {
             let draft = TransferDraft(payerAccountID: ledger.load().accounts.first?.id ?? "", method: .account,
                                       recipientName: name, bankName: bankName, destination: account)
             return TransferFormViewController(method: .account, initialDraft: draft, store: ledger)
+        case .scheduledTransfers(let cancellationOnly):
+            return ScheduledTransfersViewController(ledger: ledger, cancellationOnly: cancellationOnly)
+        case .scheduledTransferDetail(let id, let cancellationOnly):
+            return ScheduledTransferDetailViewController(id: id, ledger: ledger, cancellationOnly: cancellationOnly)
         case .transferRecords:
             return TransferRecordsViewController(store: ledger)
         case .transferLimits:
@@ -98,6 +102,7 @@ final class AppRouter: AppRouting {
             )
         case .assetLiability:
             return AssetLiabilityViewController()
+        case .loanDue(let period): return LoanDueViewController(period: period)
         case .myLoan:
             return MyLoanViewController()
         case .accountAlias(let accountID):
@@ -174,6 +179,10 @@ final class AppRouter: AppRouting {
             return WealthProductListViewController(accountID: accountID)
         case .wealthAccountPurchase(let productID, let accountID):
             return WealthPurchaseViewController(productID: productID, accountID: accountID)
+        case .fund:
+            return FundViewController(ledger: ledger, dates: ledger.dates)
+        case .fundOrder(let id):
+            return FundOrderViewController(id: id, ledger: ledger)
         case .wealthProducts:
             return WealthProductListViewController()
         case .wealthProductDetail(let productID):

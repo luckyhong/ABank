@@ -111,3 +111,43 @@ nonisolated enum TransferMoney {
     static func amount(_ cents: Int64) -> Double { Double(cents) / 100 }
     static func text(_ cents: Int64) -> String { String(format: "%.2f", amount(cents)) }
 }
+
+struct ScheduledTransfer: Codable, Equatable, Identifiable {
+    let id: String
+    let payerAccountID: String
+    let recipientID: String
+    let method: TransferMethod
+    let recipientName: String
+    let bankName: String
+    let maskedDestination: String
+    let amount: Int64
+    let dueDate: String
+    let createdAt: String
+    var cancelledAt: String?
+    var transferID: String?
+
+    var isPending: Bool { cancelledAt == nil && transferID == nil }
+
+    var status: String {
+        if transferID != nil { return "已执行" }
+        return cancelledAt == nil ? "待执行" : "已撤销"
+    }
+
+    var draft: TransferDraft {
+        TransferDraft(payerAccountID: payerAccountID, method: method, savedRecipientID: recipientID, amountInCents: amount)
+    }
+}
+
+enum ScheduledTransferError: LocalizedError, Equatable {
+    case invalidDate, notFound, notDue, unavailable, processingFailed
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidDate: return "请选择北京时间今天之后的日期"
+        case .notFound: return "预约单不存在"
+        case .notDue: return "预约尚未到期"
+        case .unavailable: return "该预约已执行或已撤销"
+        case .processingFailed: return "模拟转账未完成，请重试"
+        }
+    }
+}

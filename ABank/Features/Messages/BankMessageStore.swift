@@ -32,6 +32,12 @@ struct BankMessage: Identifiable {
                 body: "您的\(ledger.dates.previousMonthTitle)账单已生成，可查看分类收支和月度趋势。",
                 date: ledger.dates.currentMonth + "-01", route: .ledgerAnalysis, category: "账户通知"))
         }
+        let today = ledger.dates.string(from: ledger.dates.now)
+        for order in root.scheduledTransfers where order.isPending && order.dueDate <= today {
+            rows.append(BankMessage(id: "scheduled_" + order.id, title: "预约转账可执行",
+                body: "向\(order.recipientName)转账 \(TransferMoney.text(order.amount)) 元，等待确认。",
+                date: order.dueDate, route: .scheduledTransferDetail(id: order.id, cancellationOnly: false), category: "交易通知"))
+        }
         for transfer in root.transferRecords {
             rows.append(BankMessage(id: "transfer_" + transfer.id, title: transfer.status.title,
                 body: "向\(transfer.recipientName)转账\(TransferMoney.text(transfer.amountInCents))元。\(transfer.failureReason ?? "可查看交易详情。")",
@@ -48,6 +54,19 @@ struct BankMessage: Identifiable {
             if let date = order.redeemedAt { rows.append(BankMessage(id: "wealth_redeem_" + order.id, title: "理财赎回到账", body: "\(order.productName)，到账\(TransferMoney.text(order.redeemedAmountInCents ?? order.principalInCents))元。",
                 date: date, route: .wealthOrderDetail(orderID: order.id, justPurchased: false), category: "财富通知")) }
         }
+        for order in root.fundOrders {
+            let route = AppRoute.fundOrder(id: order.id)
+            rows.append(BankMessage(id: "fund_subscribe_" + order.id, title: "基金申购已提交",
+                body: "预计 \(order.confirmationDay) 确认份额。", date: order.submittedAt, route: route, category: "财富通知"))
+            if let units = order.units {
+                rows.append(BankMessage(id: "fund_confirm_" + order.id, title: "基金份额已确认",
+                    body: "确认 \(SimulatedFund.decimalText(units)) 份。", date: order.confirmationDay, route: route, category: "财富通知"))
+            }
+            if let date = order.redeemedAt, let amount = order.redemptionAmount {
+                rows.append(BankMessage(id: "fund_redeem_" + order.id, title: "基金赎回到账",
+                    body: "到账 \(TransferMoney.text(amount)) 元。", date: date, route: route, category: "财富通知"))
+            }
+        }
         for deposit in root.termDeposits {
             rows.append(BankMessage(id: "deposit_open_" + deposit.id, title: "定期存入成功", body: "\(deposit.title)，本金\(TransferMoney.text(deposit.principalInCents))元。", date: deposit.openedAt,
                 route: .depositDetail(id: deposit.id), category: "财富通知"))
@@ -60,11 +79,17 @@ struct BankMessage: Identifiable {
         for row in root.creditRepayments {
             rows.append(BankMessage(id: "credit_repaid_" + row.id, title: "信用卡还款成功", body: "本次还款\(TransferMoney.text(row.amountInCents))元。", date: row.createdAt, route: .creditCards, category: "交易通知"))
         }
-        if let pending = ledger.pendingLoanPlans().first {
+        if let pending = ledger.pendingLoanPlans(in: root).first {
             let past = pending.plan.date < ledger.dates.string(from: ledger.dates.now)
             rows.append(BankMessage(id: "loan_plan_" + pending.contract.id + "_" + pending.plan.date,
                 title: past ? "还款计划待处理" : "还款计划提醒", body: "\(pending.contract.name)，计划日期\(pending.plan.date)，金额\(TransferMoney.text(TransferMoney.cents(from: pending.plan.repaymentAmount) ?? 0))元。",
-                date: ledger.dates.string(from: ledger.dates.now), route: .myLoan, category: "账户通知"))
+                date: ledger.dates.string(from: ledger.dates.now),
+                route: .loanDue(ledger.loanDuePeriod(for: pending.plan.date)), category: "账户通知"))
+        }
+        for payment in root.installmentRepayments {
+            rows.append(BankMessage(id: payment.transactionID, title: "贷款按期还款成功",
+                body: "第\(payment.period)期已还 \(TransferMoney.text(payment.amount)) 元。",
+                date: payment.paidAt, route: .accountDetail(accountID: payment.accountID, maskedNumber: nil), category: "交易通知"))
         }
         return rows.sorted { $0.date == $1.date ? $0.id < $1.id : $0.date > $1.date }
     }

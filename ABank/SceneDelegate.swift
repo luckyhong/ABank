@@ -11,6 +11,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     private var pendingRoute: AppRoute?
+    private var fundSettlementTimer: Timer?
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -67,13 +68,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-        // Called when the scene has moved from an inactive state to an active state.
-        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
+        NotificationCenter.default.removeObserver(self, name: UIApplication.significantTimeChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(settleFundOrders),
+            name: UIApplication.significantTimeChangeNotification, object: nil)
+        settleFundOrders()
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
-        // Called when the scene will move from an active state to an inactive state.
-        // This may occur due to temporary interruptions (ex. an incoming phone call).
+        fundSettlementTimer?.invalidate()
+        fundSettlementTimer = nil
+        NotificationCenter.default.removeObserver(self, name: UIApplication.significantTimeChangeNotification, object: nil)
+    }
+
+    @objc private func settleFundOrders() {
+        fundSettlementTimer?.invalidate()
+        let ledger = FinanceLedgerStore.shared
+        let dates = ledger.dates
+        let now = dates.now
+        let nextRefresh: Date
+        do {
+            try ledger.settleDueFundOrders()
+            guard let midnight = dates.calendar.dateInterval(of: .day, for: now)?.end else { return }
+            nextRefresh = midnight
+        } catch {
+            // Keep the last persisted state and retry while the app is active.
+            nextRefresh = now.addingTimeInterval(60)
+        }
+        let timer = Timer(timeInterval: max(1, nextRefresh.timeIntervalSince(now)), repeats: false) { [weak self] _ in
+            self?.settleFundOrders()
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        fundSettlementTimer = timer
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {

@@ -17,6 +17,20 @@ enum BankingPageStyle {
         stack.snp.makeConstraints { $0.edges.equalToSuperview().inset(inset) }
         return container
     }
+    static func amountSummary(_ amount: String, label: String, status: String? = nil, detail: String? = nil, statusColor: UIColor = .abankMintInk) -> UIView {
+        let caption = text(label, style: .subheadline, color: .abankTextSecondary)
+        let value = text(amount, style: .title1, color: .abankTextPrimary)
+        value.font = UIFontMetrics(forTextStyle: .title1).scaledFont(for: .monospacedDigitSystemFont(ofSize: 32, weight: .medium))
+        var rows: [UIView] = []
+        if let status {
+            let badge = text(status, style: .subheadline, color: statusColor)
+            rows.append(badge)
+        }
+        rows += [caption, value]
+        if let detail { rows.append(text(detail, style: .footnote, color: .abankTextSecondary)) }
+        return surface(rows, spacing: Spacing.xs)
+    }
+
     static func empty(_ title: String, detail: String, actionTitle: String? = nil, action: (() -> Void)? = nil) -> UIView {
         let icon = UIImageView(image: UIImage(systemName: "doc.text.magnifyingglass")); icon.tintColor = .abankTextTertiary; icon.contentMode = .scaleAspectFit
         icon.snp.makeConstraints { $0.height.equalTo(44) }

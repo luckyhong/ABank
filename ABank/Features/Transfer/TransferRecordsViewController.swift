@@ -17,7 +17,10 @@ final class TransferRecordsViewController: BankingDataViewController, UITableVie
 
     override func setupUI() {
         title = "转账记录"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "回单", style: .plain, target: self, action: #selector(openReceipts))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(title: "回单", style: .plain, target: self, action: #selector(openReceipts)),
+            UIBarButtonItem(title: "预约", style: .plain, target: self, action: #selector(openScheduledTransfers))
+        ]
         view.backgroundColor = .white
         filter.selectedSegmentIndex = 0
         filter.selectedSegmentTintColor = .abankTeal
@@ -51,6 +54,10 @@ final class TransferRecordsViewController: BankingDataViewController, UITableVie
         emptyLabel.isHidden = !records.isEmpty
         tableView.reloadData()
     }
+    @objc private func openScheduledTransfers() {
+        router.open(.scheduledTransfers(cancellationOnly: false), from: self)
+    }
+
     @objc private func openReceipts() {
         navigationController?.pushViewController(TransferReceiptsViewController(store: store), animated: true)
     }
@@ -69,10 +76,12 @@ final class TransferRecordsViewController: BankingDataViewController, UITableVie
 
 final class TransferRecipientsViewController: TransferFlowViewController {
     private let method: TransferMethod?
+    private let savedOnly: Bool
     private let store: FinanceLedgerStore
     var onSelect: ((TransferRecipient) -> Void)?
-    init(method: TransferMethod? = nil, store: FinanceLedgerStore? = nil) {
+    init(method: TransferMethod? = nil, store: FinanceLedgerStore? = nil, savedOnly: Bool = false) {
         self.method = method
+        self.savedOnly = savedOnly
         self.store = store ?? .shared
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
@@ -81,7 +90,7 @@ final class TransferRecipientsViewController: TransferFlowViewController {
     override func setupUI() {
         super.setupUI()
         title = "转账伙伴"
-        addNotice("选择本机转账伙伴，或返回手动填写")
+        addNotice(savedOnly ? "请选择现有模拟转账伙伴" : "选择本机转账伙伴，或返回手动填写")
         let recipients = store.transferRecipients().filter { method == nil || $0.method == method }
         for recipient in recipients {
             let row = TransferInfoRow(recipient.name, value: recipient.bankName + "\n" + recipient.maskedDestination,
@@ -94,6 +103,6 @@ final class TransferRecipientsViewController: TransferFlowViewController {
             button.addAction(UIAction { [weak self] _ in self?.onSelect?(recipient) }, for: .touchUpInside)
             addGroup([row])
         }
-        if recipients.isEmpty { addNotice("暂无该类型的转账伙伴，请返回手动填写") }
+        if recipients.isEmpty { addNotice(savedOnly ? "暂无可用转账伙伴" : "暂无该类型的转账伙伴，请返回手动填写") }
     }
 }

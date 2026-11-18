@@ -2,6 +2,7 @@
 
 先核对实际 Git 状态，再读取对应任务。历史叙述不是当前代码证明。
 
+- [next-business-20261118](tasks/next-business-20261118.md)
 - [ledger-wechat-20261118](tasks/ledger-wechat-20261118.md)
 - [launch-screen-20261118](tasks/launch-screen-20261118.md)
 - [life-ui-refresh-20261117](tasks/life-ui-refresh-20261117.md)

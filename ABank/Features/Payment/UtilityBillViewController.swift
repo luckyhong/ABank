@@ -32,7 +32,7 @@ final class UtilityBillViewController: PaymentFlowViewController, RouteHosting {
 
     override func refreshBankingData() {
         clearContent()
-        guard let account = PaymentCatalog.billAccount(id: billAccountID) else {
+        guard let account = ledger.utilityAccount(id: billAccountID) else {
             addEmptyState("账单不存在", id: "bill.missing")
             return
         }

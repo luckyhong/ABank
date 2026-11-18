@@ -32,7 +32,8 @@ final class LoanTasksViewController: LoanStackPageViewController {
         let controller: UIViewController
         switch kind {
         case .repaymentReminder:
-            controller = LoanDueViewController(period: .nextMonth)
+            let nextDate = store.pendingLoanPlans().first?.plan.date ?? store.dates.currentMonth
+            controller = LoanDueViewController(period: store.loanDuePeriod(for: nextDate))
         case .insufficientBalance:
             controller = MyAccountViewController()
         case .certificatePending:
