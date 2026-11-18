@@ -36,13 +36,17 @@ final class LifeServiceGridView: UIView {
 
     private func setupUI() {
         collectionView.backgroundColor = .clear
+        collectionView.contentInsetAdjustmentBehavior = .never
         collectionView.isPagingEnabled = true
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(LifeGridPageCell.self, forCellWithReuseIdentifier: LifeGridPageCell.reuseId)
 
-        pageControl.currentPageIndicatorTintColor = .abankPrimary
+        pageControl.accessibilityLabel = "生活服务分页"
+        pageControl.allowsContinuousInteraction = false
+        pageControl.addTarget(self, action: #selector(changePage), for: .valueChanged)
+        pageControl.currentPageIndicatorTintColor = .abankMintInk
         pageControl.pageIndicatorTintColor = UIColor.abankPrimary.withAlphaComponent(0.25)
         pageControl.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
 
@@ -58,6 +62,15 @@ final class LifeServiceGridView: UIView {
             make.bottom.equalToSuperview()
         }
     }
+    @objc private func changePage() {
+        collectionView.scrollToItem(at: IndexPath(item: pageControl.currentPage, section: 0), at: .centeredHorizontally,
+                                    animated: !UIAccessibility.isReduceMotionEnabled)
+    }
+
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate { scrollViewDidEndDecelerating(scrollView) }
+    }
+
 }
 
 extension LifeServiceGridView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -106,7 +119,7 @@ private final class LifeGridPageCell: UICollectionViewCell {
             let rowStack = UIStackView()
             rowStack.axis = .horizontal
             rowStack.distribution = .fillEqually
-            rowStack.alignment = .top
+            rowStack.alignment = .fill
             stack.addArrangedSubview(rowStack)
             let start = row * columns
             let end = min(start + columns, items.count)
@@ -123,25 +136,31 @@ private final class LifeGridPageCell: UICollectionViewCell {
 
     private func makeCell(item: LifeGridItem, index: Int, onTap: @escaping (Int) -> Void) -> UIView {
         let wrap = UIControl()
+        wrap.isAccessibilityElement = true
+        wrap.accessibilityTraits = .button
+        wrap.accessibilityLabel = item.title
+        wrap.accessibilityIdentifier = "life.grid.\(index).\(item.title)"
         wrap.addAction(UIAction { _ in onTap(index) }, for: .touchUpInside)
         let icon = UIImageView(image: item.imageName.flatMap { UIImage.abankAsset($0, fallback: item.systemIcon) } ?? UIImage(systemName: item.systemIcon))
         icon.tintColor = item.tintColor
         icon.contentMode = .scaleAspectFit
         let title = UILabel()
         title.text = item.title
-        title.font = .systemFont(ofSize: 12)
+        title.font = .abankCaptionMedium()
         title.textColor = .abankTextPrimary
         title.textAlignment = .center
         title.numberOfLines = 2
         wrap.addSubview(icon)
         wrap.addSubview(title)
         icon.snp.makeConstraints { make in
-            make.top.centerX.equalToSuperview()
-            make.size.equalTo(28)
+            make.top.equalToSuperview().inset(4)
+            make.centerX.equalToSuperview()
+            make.size.equalTo(30)
         }
         title.snp.makeConstraints { make in
             make.top.equalTo(icon.snp.bottom).offset(6)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(1)
+            make.bottom.lessThanOrEqualToSuperview()
         }
         return wrap
     }

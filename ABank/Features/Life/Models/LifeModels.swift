@@ -1,20 +1,13 @@
-//
-//  LifeModels.swift
-//  ABank
-//
-
 import UIKit
 
-struct LifeBannerItem {
+struct LifeBannerItem: Equatable {
     let title: String
     let subtitle: String
     let actionTitle: String
     let backgroundColor: UIColor
     let accentColor: UIColor
-    let systemIcon: String
-    let isAd: Bool
-    var artworkName: String? = nil
-    var featureID: FeatureID? = nil
+    let artworkName: String
+    let route: AppRoute
 }
 
 struct LifeGridItem {
@@ -23,34 +16,23 @@ struct LifeGridItem {
     let systemIcon: String
     let tintColor: UIColor
     var featureID: FeatureID? = nil
+    var route: AppRoute? = nil
 }
 
-struct LifeActivityCard {
+struct LifeActivityCard: Equatable {
     let title: String
     let subtitle: String
     let backgroundColor: UIColor
-    let systemIcon: String
-    let isAd: Bool
-    var artworkName: String? = nil
+    let artworkName: String
 }
 
-struct LifePromoBanner {
-    let title: String
-    let subtitle: String
-    let backgroundColor: UIColor
-    let systemIcon: String
-    let isAd: Bool
-    var artworkName: String? = nil
-}
-
-struct LifeFeedItem {
+struct LifeFeedItem: Equatable {
     let title: String
     let subtitle: String
     let imageBackground: UIColor
-    let imageHeight: CGFloat
-    let systemIcon: String
-    let iconTint: UIColor
-    let isAd: Bool
+    let imageAspectRatio: CGFloat
+    let artworkName: String
+    var route: AppRoute? = nil
 }
 
 struct LifePageData {
@@ -60,7 +42,6 @@ struct LifePageData {
     let gridPages: [[LifeGridItem]]
     let colorfulFeatured: LifeActivityCard
     let colorfulSides: [LifeActivityCard]
-    let promoBanner: LifePromoBanner
+    let promoBanner: LifeActivityCard
     let feedItems: [LifeFeedItem]
-    let loadFinishedText: String
 }

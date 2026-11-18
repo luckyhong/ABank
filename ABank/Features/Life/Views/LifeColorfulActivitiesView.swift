@@ -1,221 +1,131 @@
-//
-//  LifeColorfulActivitiesView.swift
-//  ABank
-//
-
 import UIKit
 import SnapKit
 
 final class LifeColorfulActivitiesView: UIView {
-
     var onHeaderTapped: (() -> Void)?
     var onFeaturedTapped: (() -> Void)?
     var onSideTapped: ((Int) -> Void)?
     var onPromoTapped: (() -> Void)?
 
-    private let header = SectionHeaderView(title: "缤纷活动")
-    private let featuredCard = UIView()
+    private let header = SectionHeaderView(title: "缤纷活动", titleFont: .abankTitle2())
+    private let featuredCard = LifeActivityTile(featured: true)
     private let sideStack = UIStackView()
-    private let promoBanner = UIView()
+    private let promo = LifeActivityTile(featured: false, wide: true)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupUI()
-    }
-
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-
-    func configure(
-        featured: LifeActivityCard,
-        sides: [LifeActivityCard],
-        promo: LifePromoBanner
-    ) {
-        buildFeaturedCard(featured)
-        sideStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        sides.enumerated().forEach { index, card in
-            sideStack.addArrangedSubview(makeSideCard(card, index: index))
-        }
-        buildPromoBanner(promo)
-    }
-
-    private func setupUI() {
-        header.onTap = { [weak self] in self?.onHeaderTapped?() }
         sideStack.axis = .vertical
-        sideStack.spacing = 8
+        sideStack.spacing = 12
         sideStack.distribution = .fillEqually
+        [header, featuredCard, sideStack, promo].forEach { addSubview($0) }
 
-        addSubview(header)
-        addSubview(featuredCard)
-        addSubview(sideStack)
-        addSubview(promoBanner)
+        header.onTap = { [weak self] in self?.onHeaderTapped?() }
+        featuredCard.addAction(UIAction { [weak self] _ in self?.onFeaturedTapped?() }, for: .touchUpInside)
+        promo.addAction(UIAction { [weak self] _ in self?.onPromoTapped?() }, for: .touchUpInside)
+        featuredCard.accessibilityIdentifier = "life.activity.featured"
+        promo.accessibilityIdentifier = "life.activity.promo"
 
         header.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.height.equalTo(24)
+            make.height.equalTo(36)
         }
         featuredCard.snp.makeConstraints { make in
             make.top.equalTo(header.snp.bottom).offset(12)
             make.leading.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.48)
-            make.height.equalTo(featuredCard.snp.width).multipliedBy(519.0 / 485.0)
+            make.width.equalTo(sideStack)
+            make.height.equalTo(featuredCard.snp.width).multipliedBy(1.1).priority(999)
+            make.height.greaterThanOrEqualTo(174)
         }
         sideStack.snp.makeConstraints { make in
-            make.top.equalTo(featuredCard)
+            make.top.bottom.equalTo(featuredCard)
+            make.leading.equalTo(featuredCard.snp.trailing).offset(12)
             make.trailing.equalToSuperview()
-            make.leading.equalTo(featuredCard.snp.trailing).offset(8)
-            make.height.equalTo(featuredCard)
         }
-        promoBanner.snp.makeConstraints { make in
-            make.top.equalTo(featuredCard.snp.bottom).offset(10)
+        promo.snp.makeConstraints { make in
+            make.top.equalTo(featuredCard.snp.bottom).offset(12)
             make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(promoBanner.snp.width).multipliedBy(300.0 / 1005.0)
+            make.height.greaterThanOrEqualTo(96)
+            make.height.equalTo(96).priority(999)
         }
     }
 
-    private func buildFeaturedCard(_ item: LifeActivityCard) {
-        featuredCard.subviews.forEach { $0.removeFromSuperview() }
-        styleCard(featuredCard, bg: item.backgroundColor)
-        featuredCard.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(featuredTapped)))
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-        let title = UILabel()
-        title.text = item.title
-        title.font = .systemFont(ofSize: 15, weight: .semibold)
+    func configure(featured: LifeActivityCard, sides: [LifeActivityCard], promo: LifeActivityCard) {
+        featuredCard.configure(featured)
+        sideStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        for (index, item) in sides.enumerated() {
+            let tile = LifeActivityTile(featured: false)
+            tile.configure(item)
+            tile.accessibilityIdentifier = "life.activity.side.\(index)"
+            tile.addAction(UIAction { [weak self] _ in self?.onSideTapped?(index) }, for: .touchUpInside)
+            sideStack.addArrangedSubview(tile)
+        }
+        self.promo.configure(promo)
+    }
+}
+
+private final class LifeActivityTile: UIControl {
+    private let title = UILabel()
+    private let subtitle = UILabel()
+    private let art = UIImageView()
+
+    init(featured: Bool, wide: Bool = false) {
+        super.init(frame: .zero)
+        layer.cornerRadius = 14
+        clipsToBounds = true
+        isAccessibilityElement = true
+        accessibilityTraits = .button
+
+        title.font = .systemFont(ofSize: wide ? 19 : 16, weight: .semibold)
         title.textColor = .abankTextPrimary
-        let subtitle = UILabel()
-        subtitle.text = item.subtitle
-        subtitle.font = .systemFont(ofSize: 12)
+        title.numberOfLines = 2
+        subtitle.font = .systemFont(ofSize: 13)
         subtitle.textColor = .abankTextSecondary
-        let icon = UIImageView(image: UIImage(systemName: item.systemIcon))
-        icon.tintColor = .abankOrange
-        icon.contentMode = .scaleAspectFit
-        let ad = adTag(isAd: item.isAd)
-        [title, subtitle, icon, ad].forEach { featuredCard.addSubview($0) }
-        title.snp.makeConstraints { make in
-            make.top.leading.equalToSuperview().offset(12)
-            make.trailing.equalToSuperview().offset(-12)
+        subtitle.numberOfLines = 2
+        art.contentMode = .scaleAspectFit
+
+        let copy = UIStackView(arrangedSubviews: [title, subtitle])
+        copy.axis = .vertical
+        copy.spacing = 5
+        copy.isUserInteractionEnabled = false
+        addSubview(copy)
+        addSubview(art)
+        copy.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(14)
+            if featured {
+                make.top.trailing.equalToSuperview().inset(14)
+            } else {
+                make.top.greaterThanOrEqualToSuperview().inset(10)
+                make.bottom.lessThanOrEqualToSuperview().inset(10)
+                make.centerY.equalToSuperview()
+                make.trailing.equalTo(art.snp.leading).offset(-4)
+            }
         }
-        subtitle.snp.makeConstraints { make in
-            make.top.equalTo(title.snp.bottom).offset(6)
-            make.leading.trailing.equalTo(title)
-        }
-        icon.snp.makeConstraints { make in
-            make.trailing.bottom.equalToSuperview().inset(12)
-            make.size.equalTo(44)
-        }
-        showArtwork(item.artworkName, in: featuredCard, hiding: [title, subtitle, icon, ad], label: item.title)
-        ad.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(12)
-            make.bottom.equalToSuperview().offset(-10)
+        art.snp.makeConstraints { make in
+            if featured {
+                make.top.equalTo(copy.snp.bottom).offset(4)
+                make.leading.trailing.bottom.equalToSuperview().inset(6)
+            } else {
+                make.trailing.equalToSuperview().inset(6)
+                make.centerY.equalToSuperview()
+                make.width.equalToSuperview().multipliedBy(wide ? 0.29 : 0.30)
+                make.height.equalToSuperview().multipliedBy(0.84)
+            }
         }
     }
 
-    private func makeSideCard(_ item: LifeActivityCard, index: Int) -> UIView {
-        let card = UIControl()
-        card.addAction(UIAction { [weak self] _ in self?.onSideTapped?(index) }, for: .touchUpInside)
-        styleCard(card, bg: item.backgroundColor)
-        card.layer.borderWidth = 0.5
-        card.layer.borderColor = UIColor.abankSeparator.cgColor
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-        let title = UILabel()
+    func configure(_ item: LifeActivityCard) {
+        backgroundColor = item.backgroundColor
         title.text = item.title
-        title.font = .systemFont(ofSize: 14, weight: .semibold)
-        title.textColor = .abankTextPrimary
-        let subtitle = UILabel()
         subtitle.text = item.subtitle
-        subtitle.font = .systemFont(ofSize: 11)
-        subtitle.textColor = .abankTextTertiary
-        let icon = UIImageView(image: UIImage(systemName: item.systemIcon))
-        icon.tintColor = item.title == "茶影优惠享"
-            ? UIColor(red: 0.55, green: 0.32, blue: 0.18, alpha: 1)
-            : .abankPrimary
-        icon.contentMode = .scaleAspectFit
-        let ad = adTag(isAd: item.isAd)
-        [title, subtitle, icon, ad].forEach { card.addSubview($0) }
-        title.snp.makeConstraints { make in
-            make.top.leading.equalToSuperview().offset(10)
-            make.trailing.equalToSuperview().offset(-10)
-        }
-        subtitle.snp.makeConstraints { make in
-            make.top.equalTo(title.snp.bottom).offset(4)
-            make.leading.trailing.equalTo(title)
-        }
-        icon.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-10)
-            make.centerY.equalToSuperview().offset(4)
-            make.size.equalTo(28)
-        }
-        ad.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-8)
-            make.bottom.equalToSuperview().offset(-8)
-        }
-        showArtwork(item.artworkName, in: card, hiding: [title, subtitle, icon, ad], label: item.title)
-        return card
+        art.image = UIImage(named: item.artworkName)
+        accessibilityLabel = "\(item.title)，\(item.subtitle)"
     }
 
-    private func buildPromoBanner(_ item: LifePromoBanner) {
-        promoBanner.subviews.forEach { $0.removeFromSuperview() }
-        styleCard(promoBanner, bg: item.backgroundColor)
-        promoBanner.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(promoTapped)))
-
-        let title = UILabel()
-        title.text = item.title
-        title.font = .systemFont(ofSize: 16, weight: .semibold)
-        title.textColor = .abankTextPrimary
-        let subtitle = UILabel()
-        subtitle.text = item.subtitle
-        subtitle.font = .systemFont(ofSize: 12)
-        subtitle.textColor = .abankTextSecondary
-        let icon = UIImageView(image: UIImage(systemName: item.systemIcon))
-        icon.tintColor = .abankHighlight
-        icon.contentMode = .scaleAspectFit
-        let ad = adTag(isAd: item.isAd)
-        [title, subtitle, icon, ad].forEach { promoBanner.addSubview($0) }
-        title.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(14)
-            make.top.equalToSuperview().offset(14)
-        }
-        subtitle.snp.makeConstraints { make in
-            make.leading.equalTo(title)
-            make.top.equalTo(title.snp.bottom).offset(4)
-        }
-        icon.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-16)
-            make.centerY.equalToSuperview()
-            make.size.equalTo(40)
-        }
-        showArtwork(item.artworkName, in: promoBanner, hiding: [title, subtitle, icon, ad], label: item.title)
-        ad.snp.makeConstraints { make in
-            make.trailing.bottom.equalToSuperview().inset(8)
-        }
+    override var isHighlighted: Bool {
+        didSet { alpha = isHighlighted ? 0.76 : 1 }
     }
-
-    private func showArtwork(_ name: String?, in container: UIView, hiding views: [UIView], label: String) {
-        guard let name, let image = UIImage(named: name) else { return }
-        views.forEach { $0.isHidden = true }
-        let artwork = UIImageView(image: image)
-        artwork.contentMode = .scaleAspectFit
-        artwork.isUserInteractionEnabled = false
-        artwork.isAccessibilityElement = true
-        artwork.accessibilityLabel = label
-        container.insertSubview(artwork, at: 0)
-        artwork.snp.makeConstraints { $0.edges.equalToSuperview() }
-    }
-
-    private func styleCard(_ view: UIView, bg: UIColor) {
-        view.backgroundColor = bg
-        view.layer.cornerRadius = CornerRadius.md
-        view.clipsToBounds = true
-    }
-
-    private func adTag(isAd: Bool) -> UILabel {
-        let label = UILabel()
-        label.text = "【广告】"
-        label.font = .systemFont(ofSize: 9)
-        label.textColor = .abankTextTertiary
-        label.isHidden = !isAd
-        return label
-    }
-
-    @objc private func featuredTapped() { onFeaturedTapped?() }
-    @objc private func promoTapped() { onPromoTapped?() }
 }
