@@ -39,7 +39,9 @@ final class WealthLoginCardView: UIView {
 
         messageLabel.font = .systemFont(ofSize: 16, weight: .medium)
         messageLabel.textColor = .abankTextPrimary
+        messageLabel.numberOfLines = 2
 
+        loginButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         loginButton.setTitleColor(.abankTextPrimary, for: .normal)
         loginButton.titleLabel?.font = .systemFont(ofSize: 14)
         loginButton.layer.cornerRadius = 16
@@ -54,10 +56,14 @@ final class WealthLoginCardView: UIView {
 
         card.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.height.equalTo(56)
+            make.height.greaterThanOrEqualTo(56)
+            make.height.equalTo(56).priority(999)
         }
         messageLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(Spacing.md)
+            make.trailing.lessThanOrEqualTo(loginButton.snp.leading).offset(-10)
+            make.top.greaterThanOrEqualToSuperview().inset(8)
+            make.bottom.lessThanOrEqualToSuperview().inset(8)
             make.centerY.equalToSuperview()
         }
         loginButton.snp.makeConstraints { make in

@@ -86,7 +86,7 @@ final class WealthViewController: BankingDataViewController {
         }
         functionGrid.snp.makeConstraints { make in
             make.top.equalTo(loginCard.snp.bottom).offset(spacing)
-            make.leading.trailing.equalToSuperview().inset(inset)
+            make.leading.trailing.equalToSuperview().inset(Spacing.sm)
         }
         hotspotView.snp.makeConstraints { make in
             make.top.equalTo(functionGrid.snp.bottom).offset(spacing)

@@ -1,66 +1,65 @@
-//
-//  WealthFunctionGridView.swift
-//  ABank
-//
-
 import UIKit
 import SnapKit
 
 final class WealthFunctionGridView: UIView {
-
     var onItemTapped: ((Int) -> Void)?
 
     private let stack = UIStackView()
-    private let columns = 5
     private var items: [WealthGridItem] = []
+    private var columns: Int { traitCollection.preferredContentSizeCategory.isAccessibilityCategory ? 3 : 5 }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupUI()
+        stack.axis = .vertical
+        stack.spacing = 10
+        addSubview(stack)
+        stack.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if let previousTraitCollection,
+           previousTraitCollection.preferredContentSizeCategory.isAccessibilityCategory
+            != traitCollection.preferredContentSizeCategory.isAccessibilityCategory {
+            rebuildRows()
+        }
+    }
+
     func configure(with items: [WealthGridItem]) {
         self.items = items
+        rebuildRows()
+    }
+
+    private func rebuildRows() {
         stack.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
-        let rows = Int(ceil(Double(items.count) / Double(columns)))
-        for row in 0..<rows {
-            let rowStack = UIStackView()
-            rowStack.axis = .horizontal
-            rowStack.distribution = .fillEqually
-            rowStack.alignment = .top
-            stack.addArrangedSubview(rowStack)
-
-            let start = row * columns
-            let end = min(start + columns, items.count)
+        let count = columns
+        for start in stride(from: 0, to: items.count, by: count) {
+            let row = UIStackView()
+            row.distribution = .fillEqually
+            let end = min(start + count, items.count)
             for index in start..<end {
-                rowStack.addArrangedSubview(makeCell(item: items[index], index: index))
+                row.addArrangedSubview(makeCell(item: items[index], index: index))
             }
-            if end - start < columns {
-                for _ in 0..<(columns - (end - start)) {
-                    rowStack.addArrangedSubview(UIView())
-                }
+            for _ in (end - start)..<count {
+                row.addArrangedSubview(UIView())
             }
+            stack.addArrangedSubview(row)
         }
     }
 
-    private func setupUI() {
-        stack.axis = .vertical
-        stack.spacing = 18
-        addSubview(stack)
-        stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+    private func makeCell(item: WealthGridItem, index: Int) -> UIControl {
+        let cell = WealthGridControl()
+        cell.accessibilityLabel = item.title
+        cell.accessibilityIdentifier = "wealthGrid.\(item.featureID?.rawValue ?? "all")"
+        if let id = item.featureID, !FeatureCatalog.descriptor(id).isAvailable {
+            cell.accessibilityHint = "查看功能说明"
         }
-    }
-
-    private func makeCell(item: WealthGridItem, index: Int) -> UIView {
-        let wrap = UIControl()
-        wrap.tag = index
-        wrap.addTarget(self, action: #selector(itemTapped(_:)), for: .touchUpInside)
+        cell.addAction(UIAction { [weak self] _ in self?.onItemTapped?(index) }, for: .touchUpInside)
 
         let icon = UIImageView(image: UIImage.abankAsset(item.imageName, fallback: item.systemIcon))
         icon.tintColor = .abankTextPrimary
@@ -68,27 +67,44 @@ final class WealthFunctionGridView: UIView {
 
         let title = UILabel()
         title.text = item.title
-        title.font = .systemFont(ofSize: 12)
+        title.font = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: .abankCaptionMedium())
+        title.adjustsFontForContentSizeCategory = true
         title.textColor = .abankTextPrimary
         title.textAlignment = .center
-        title.numberOfLines = 2
+        title.numberOfLines = 0
 
-        wrap.addSubview(icon)
-        wrap.addSubview(title)
+        cell.addSubview(icon)
+        cell.addSubview(title)
         icon.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(2)
+            make.top.equalToSuperview().offset(6)
             make.centerX.equalToSuperview()
-            make.size.equalTo(28)
+            make.size.equalTo(30)
         }
         title.snp.makeConstraints { make in
-            make.top.equalTo(icon.snp.bottom).offset(8)
-            make.leading.trailing.equalToSuperview().inset(2)
-            make.bottom.equalToSuperview()
+            make.top.equalTo(icon.snp.bottom).offset(7)
+            make.leading.trailing.equalToSuperview().inset(3)
+            make.bottom.lessThanOrEqualToSuperview().inset(6)
         }
-        return wrap
+        cell.snp.makeConstraints { $0.height.greaterThanOrEqualTo(44) }
+        return cell
+    }
+}
+
+private final class WealthGridControl: UIControl {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        layer.cornerRadius = 12
+        isAccessibilityElement = true
+        accessibilityTraits = .button
     }
 
-    @objc private func itemTapped(_ sender: UIControl) {
-        onItemTapped?(sender.tag)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override var isHighlighted: Bool {
+        didSet {
+            backgroundColor = isHighlighted ? UIColor.abankSeparator.withAlphaComponent(0.60) : .clear
+        }
     }
 }
