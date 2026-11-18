@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 
 final class PromoBannerView: UIView {
+    var onItemTapped: ((HomePromoBannerItem) -> Void)?
 
     private let collectionView: UICollectionView
     private let pageControl = UIPageControl()
@@ -36,6 +37,7 @@ final class PromoBannerView: UIView {
     }
 
     func configure(with items: [HomePromoBannerItem]) {
+        guard items != self.items else { return }
         self.items = items
         pageControl.numberOfPages = items.count
         pageControl.isHidden = items.count <= 1
@@ -106,6 +108,10 @@ extension PromoBannerView: UICollectionViewDataSource, UICollectionViewDelegateF
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         collectionView.bounds.size
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        onItemTapped?(items[indexPath.item])
     }
 
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {

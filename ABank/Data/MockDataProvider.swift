@@ -19,11 +19,22 @@ final class MockDataProvider {
     func getHomePageData() -> HomePageData {
         HomePageData(
             searchPlaceholders: ["分期借钱", "存金通", "个人养老金", "农银快e宝", "生活缴费"],
-            messageBadge: BankMessageStore.shared.unreadCount(),
             heroBanners: [
-                HomeHeroBannerItem(title: "掌银收支", subtitle: "花多少 花在哪", actionTitle: "查看账单", isAd: false, imageName: "abc_home_bill_banner", featureID: .incomeExpense),
-                HomeHeroBannerItem(title: "签到领小豆", subtitle: "查看小豆权益", actionTitle: "去签到", isAd: false, imageName: "abc_home_beans_banner", featureID: .beans),
-                HomeHeroBannerItem(title: "掌银连接美好生活", subtitle: "便捷生活服务", actionTitle: "查看服务", isAd: false, imageName: "abc_home_life_banner", featureID: .lifePayment)
+                HomeHeroBannerItem(
+                    title: "掌银收支", subtitle: "花多少 花在哪", actionTitle: "查看账单", isAd: false,
+                    imageName: "abc_home_bill_banner", featureID: .incomeExpense,
+                    backdropColor: UIColor(red: 1.0, green: 0.78, blue: 0.58, alpha: 1)
+                ),
+                HomeHeroBannerItem(
+                    title: "签到领小豆", subtitle: "查看小豆权益", actionTitle: "去签到", isAd: false,
+                    imageName: "abc_home_beans_banner", featureID: .beans,
+                    backdropColor: UIColor(red: 1.0, green: 0.91, blue: 0.72, alpha: 1)
+                ),
+                HomeHeroBannerItem(
+                    title: "掌银连接美好生活", subtitle: "便捷生活服务", actionTitle: "查看服务", isAd: false,
+                    imageName: "abc_home_life_banner", featureID: .lifePayment,
+                    backdropColor: UIColor(red: 0.92, green: 0.88, blue: 0.81, alpha: 1)
+                )
             ],
             shortcuts: [
                 HomeShortcutItem(title: "我的账户", imageName: "abc_home_account", systemIcon: "person.fill", backgroundColor: UIColor(red: 0.0, green: 0.68, blue: 0.58, alpha: 1), featureID: .myAccount),
@@ -31,13 +42,9 @@ final class MockDataProvider {
                 HomeShortcutItem(title: "收支", imageName: "abc_home_income", systemIcon: "list.bullet.rectangle", backgroundColor: UIColor(red: 0.12, green: 0.62, blue: 0.52, alpha: 1), featureID: .incomeExpense),
                 HomeShortcutItem(title: "扫一扫", imageName: "abc_home_scan", systemIcon: "qrcode.viewfinder", backgroundColor: UIColor(red: 1.0, green: 0.62, blue: 0.28, alpha: 1), featureID: .scan)
             ],
-            notices: [
-                HomeNoticeItem(tag: "待办", text: "您的月度账单已出，请查看"),
-                HomeNoticeItem(tag: "焦点", text: "新品速递 | 农银理财新发产品火热销售中")
-            ],
             promoBanners: [
-                HomePromoBannerItem(title: "江泽民诞辰100周年", subtitle: "金银纪念币", tone: .gold),
-                HomePromoBannerItem(title: "掌银生活节", subtitle: "精彩活动进行中", tone: .peach),
+                HomePromoBannerItem(title: "积分专区", subtitle: "查看可用积分", tone: .gold, route: .pointsMall),
+                HomePromoBannerItem(title: "每日签到", subtitle: "查看小豆权益", tone: .peach, route: .beans),
                 HomePromoBannerItem(title: "绿色金融专区", subtitle: "低碳生活有礼", tone: .mint),
                 HomePromoBannerItem(title: "贵金属热卖", subtitle: "投资收藏优选", tone: .gold)
             ],
@@ -50,12 +57,8 @@ final class MockDataProvider {
                 actionTitle: "查看详情"
             ),
             wealthSides: [
-                HomeWealthSideItem(title: "银利多", tag: "存款", subtitle: "起存金额低、存期选择多", actionTitle: "去看看 >"),
-                HomeWealthSideItem(title: "存金通", tag: "贵金属", subtitle: "买黄金，到农行", actionTitle: "去看看 >")
-            ],
-            marketQuotes: [
-                HomeMarketQuote(name: "美元(USD)", value: "673.66"),
-                HomeMarketQuote(name: "黄金(AU)", value: "971.29")
+                HomeWealthSideItem(title: "银利多", tag: "存款", subtitle: "起存金额低、存期选择多", actionTitle: "去看看"),
+                HomeWealthSideItem(title: "存金通", tag: "贵金属", subtitle: "买黄金，到农行", actionTitle: "去查看")
             ],
             activityFeatured: HomeActivityFeaturedItem(
                 title: "小豆乐园兑好礼",

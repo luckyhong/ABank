@@ -14,9 +14,10 @@ final class SectionHeaderView: UIView {
     private let accessoryStack = UIStackView()
     private let chevronView = UIImageView(image: UIImage(systemName: "chevron.right"))
 
-    init(title: String, showsChevron: Bool = true, imageName: String? = nil) {
+    init(title: String, showsChevron: Bool = true, imageName: String? = nil, titleFont: UIFont = .systemFont(ofSize: 18, weight: .semibold)) {
         super.init(frame: .zero)
         titleLabel.text = title
+        titleLabel.font = titleFont
         setupUI(showsChevron: showsChevron)
         if let imageName, let image = UIImage(named: imageName) {
             titleLabel.textColor = .clear
@@ -37,7 +38,6 @@ final class SectionHeaderView: UIView {
     }
 
     private func setupUI(showsChevron: Bool) {
-        titleLabel.font = .systemFont(ofSize: 18, weight: .semibold)
         titleLabel.textColor = .abankTextPrimary
 
         chevronView.tintColor = .abankTextTertiary

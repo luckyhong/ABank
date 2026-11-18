@@ -40,14 +40,18 @@ final class InfoSectionView: UIView {
     }
 
     func configure(market: HomeInfoMarketItem, videos: [HomeInfoVideoItem]) {
-        marketTitle.text = market.title
-        marketSource.text = market.source
-        marketSummary.text = market.summary
+        configureMarket(market)
         self.videos = videos
         videoPageControl.numberOfPages = videos.count
         videoPageControl.isHidden = videos.count <= 1
         applyVideo(at: 0)
         restartTimer()
+    }
+
+    func configureMarket(_ market: HomeInfoMarketItem) {
+        marketTitle.text = market.title
+        marketSource.text = market.source
+        marketSummary.text = market.summary
     }
 
     private func setupUI() {

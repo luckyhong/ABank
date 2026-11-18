@@ -14,8 +14,12 @@ final class HomeViewController: BankingDataViewController {
     private let preferences: FeaturePreferencesStore = .shared
     private var favoriteGridItems: [HomeGridItem] = []
     private var preferencesObserver: NSObjectProtocol?
+    private var marketQuoteTask: Task<Void, Never>?
+    private var marketQuoteTimer: Timer?
 
     deinit {
+        marketQuoteTask?.cancel()
+        marketQuoteTimer?.invalidate()
         if let preferencesObserver { NotificationCenter.default.removeObserver(preferencesObserver) }
     }
 
@@ -30,12 +34,7 @@ final class HomeViewController: BankingDataViewController {
     private let topBackgroundView = UIView()
     private let topBackgroundGradient: CAGradientLayer = {
         let layer = CAGradientLayer()
-        layer.colors = [
-            UIColor(red: 1.0, green: 0.70, blue: 0.42, alpha: 1).cgColor,
-            UIColor(red: 1.0, green: 0.84, blue: 0.68, alpha: 1).cgColor,
-            UIColor.abankBackground.cgColor
-        ]
-        layer.locations = [0, 0.45, 1]
+        layer.locations = [0, 0.52, 1]
         layer.startPoint = CGPoint(x: 0.5, y: 0)
         layer.endPoint = CGPoint(x: 0.5, y: 1)
         return layer
@@ -81,14 +80,6 @@ final class HomeViewController: BankingDataViewController {
     override func setupUI() {
         view.backgroundColor = .abankBackground
 
-        topBackgroundView.layer.addSublayer(topBackgroundGradient)
-        topBackgroundView.clipsToBounds = true
-        view.addSubview(topBackgroundView)
-        topBackgroundView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
-            topBackgroundHeightConstraint = make.height.equalTo(300).constraint
-        }
-
         view.addSubview(scrollView)
         scrollView.delegate = self
         scrollView.snp.makeConstraints { make in
@@ -98,6 +89,14 @@ final class HomeViewController: BankingDataViewController {
         contentView.snp.makeConstraints { make in
             make.edges.equalTo(scrollView.contentLayoutGuide)
             make.width.equalTo(scrollView.frameLayoutGuide)
+        }
+
+        topBackgroundView.layer.addSublayer(topBackgroundGradient)
+        topBackgroundView.isUserInteractionEnabled = false
+        contentView.addSubview(topBackgroundView)
+        topBackgroundView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            topBackgroundHeightConstraint = make.height.equalTo(260).constraint
         }
 
         let sections: [UIView] = [
@@ -112,7 +111,7 @@ final class HomeViewController: BankingDataViewController {
             make.leading.trailing.equalToSuperview()
         }
         shortcutRow.snp.makeConstraints { make in
-            make.top.equalTo(heroBanner.snp.bottom).offset(-32)
+            make.top.equalTo(heroBanner.snp.bottom).offset(-14)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
         }
         gridMenu.snp.makeConstraints { make in
@@ -181,23 +180,84 @@ final class HomeViewController: BankingDataViewController {
         }
         backToTopButton.addTarget(self, action: #selector(backToTopTapped), for: .touchUpInside)
 
-        view.sendSubviewToBack(topBackgroundView)
         bindData()
         bindActions()
         preferencesObserver = NotificationCenter.default.addObserver(
             forName: FeaturePreferencesStore.didChangeNotification, object: nil, queue: .main
         ) { [weak self] _ in self?.reloadFavoriteGrid() }
+        for name in [BankMessageStore.didChange, BenefitsStore.didChangeNotification] {
+            NotificationCenter.default.addObserver(self, selector: #selector(homeStoreDidChange), name: name, object: nil)
+        }
         NotificationCenter.default.addObserver(self, selector: #selector(reloadBranchCard),
                                                name: CitySelectionStore.didChangeNotification, object: nil)
     }
 
     override func refreshBankingData() {
-        topSearchBar.configure(placeholders: pageData.searchPlaceholders, badgeCount: BankMessageStore.shared.unreadCount())
+        let dates = BankingDateContext.system
+        let now = dates.now
+        let messageStore = BankMessageStore.shared
+        let unread = messageStore.messages().filter { !messageStore.isRead($0) }
+        topSearchBar.configure(placeholders: pageData.searchPlaceholders, badgeCount: unread.count)
+
+        let title = unread.first.map { "\($0.title) · \(unread.count)条未读" } ?? "暂无未读消息"
+        let stories = NewsDemoContent.snapshot(now: now).stories
+        var notices = [HomeNoticeItem(tag: "待办", text: title, route: .messages)]
+        if let story = stories.first {
+            notices.append(HomeNoticeItem(tag: "焦点", text: story.title, route: .newsFeed))
+            let featured = stories[safe: 1] ?? story
+            infoSection.configureMarket(HomeInfoMarketItem(
+                title: "金融小课堂", source: featured.publisher, summary: featured.title + "。 " + featured.summary
+            ))
+        }
+        noticeTicker.configure(with: notices)
+
+        let benefits = BenefitsStore.shared
+        let promoItems = pageData.promoBanners.map { item -> HomePromoBannerItem in
+            var subtitle = item.subtitle
+            switch item.route {
+            case .pointsMall: subtitle = "可用积分 \(benefits.balance(.points))"
+            case .beans:
+                subtitle = benefits.hasCheckedInToday ? "今日已签到" : "签到可领取\(benefits.nextCheckInReward)小豆"
+            default: break
+            }
+            return HomePromoBannerItem(title: item.title, subtitle: subtitle, tone: item.tone, route: item.route)
+        }
+        promoBanner.configure(with: promoItems)
+        refreshMarketQuotes()
+        reloadBranchCard()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        reloadBranchCard()
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        marketQuoteTimer?.invalidate()
+        marketQuoteTimer = nil
+        marketQuoteTask?.cancel()
+        marketQuoteTask = nil
+    }
+
+    private func refreshMarketQuotes(force: Bool = false) {
+        guard marketQuoteTask == nil else { return }
+        marketQuoteTimer?.invalidate()
+        marketQuoteTask = Task { [weak self] in
+            let repository = HomeMarketQuotesRepository.shared
+            let cached = await repository.currentQuotes()
+            guard !Task.isCancelled else { return }
+            self?.wealthSelection.configureQuotes(cached, updating: true)
+            let quotes = await repository.refresh(force: force)
+            guard !Task.isCancelled, let self else { return }
+            self.wealthSelection.configureQuotes(quotes)
+            self.marketQuoteTask = nil
+            let interval = quotes.needsRetry ? HomeMarketQuotesRepository.retryInterval : HomeMarketQuotesRepository.refreshInterval
+            self.marketQuoteTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
+                guard UIApplication.shared.applicationState == .active else { return }
+                self?.refreshMarketQuotes()
+            }
+        }
+    }
+
+    @objc private func homeStoreDidChange() {
+        guard isViewLoaded, view.window != nil else { return }
+        refreshBankingData()
     }
 
     /// 网点卡显示当前城市默认网点与实时营业状态。
@@ -211,8 +271,8 @@ final class HomeViewController: BankingDataViewController {
         let safeTop = view.safeAreaInsets.top
         headerHeightConstraint?.update(offset: headerContentHeight + safeTop)
         searchBarTopConstraint?.update(offset: safeTop + 2)
-        heroTopConstraint?.update(offset: headerContentHeight + safeTop + 4)
-        topBackgroundHeightConstraint?.update(offset: headerContentHeight + safeTop + 210)
+        heroTopConstraint?.update(offset: headerContentHeight + safeTop)
+        topBackgroundHeightConstraint?.update(offset: headerContentHeight + safeTop + 150)
         topBackgroundGradient.frame = topBackgroundView.bounds
 
         if !hasSetInitialOffset {
@@ -222,17 +282,24 @@ final class HomeViewController: BankingDataViewController {
     }
 
     private func bindData() {
-        topSearchBar.configure(placeholders: pageData.searchPlaceholders, badgeCount: pageData.messageBadge)
-        topSearchBar.apply(style: .light)
+        topSearchBar.apply(style: .banner)
+        heroBanner.onPageChanged = { [weak self] item in
+            guard let self else { return }
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            self.topBackgroundGradient.colors = [
+                item.backdropColor.withAlphaComponent(0.72).cgColor,
+                item.backdropColor.cgColor,
+                UIColor.abankBackground.cgColor
+            ]
+            CATransaction.commit()
+        }
         heroBanner.configure(with: pageData.heroBanners)
         shortcutRow.configure(with: pageData.shortcuts)
         reloadFavoriteGrid()
-        noticeTicker.configure(with: pageData.notices)
-        promoBanner.configure(with: pageData.promoBanners)
         wealthSelection.configure(
             featured: pageData.wealthFeatured,
-            sides: pageData.wealthSides,
-            quotes: pageData.marketQuotes
+            sides: pageData.wealthSides
         )
         hotActivities.configure(featured: pageData.activityFeatured, sides: pageData.activitySides)
         pensionZone.configure(
@@ -240,12 +307,16 @@ final class HomeViewController: BankingDataViewController {
             subtitle: pageData.pensionSubtitle,
             services: pageData.pensionServices
         )
-        branchService.configure(with: pageData.branch)
         infoSection.configure(market: pageData.infoMarket, videos: pageData.infoVideos)
         consumerProtection.configure(with: pageData.consumerProtection)
     }
 
     private func bindActions() {
+        wealthSelection.onRetry = { [weak self] in self?.refreshMarketQuotes(force: true) }
+        wealthSelection.onMore = { [weak self] in
+            guard let self else { return }
+            self.router.open(.wealthProducts, from: self)
+        }
         wealthSelection.onFeatured = { [weak self] in guard let self else { return }; self.router.open(.comingSoon(.fund), from: self) }
         wealthSelection.onSide = { [weak self] index in guard let self else { return }; self.router.open(index == 0 ? .deposits : .comingSoon(.preciousMetals), from: self) }
         heroBanner.onItemTapped = { [weak self] index in
@@ -285,7 +356,12 @@ final class HomeViewController: BankingDataViewController {
         }
 
         noticeTicker.onItemTapped = { [weak self] item in
-            guard let self else { return }; self.router.open(.messages, from: self)
+            guard let self else { return }
+            self.router.open(item.route, from: self)
+        }
+        promoBanner.onItemTapped = { [weak self] item in
+            guard let self, let route = item.route else { return }
+            self.router.open(route, from: self)
         }
 
         branchService.onQueueTapped = { [weak self] in
@@ -331,9 +407,9 @@ final class HomeViewController: BankingDataViewController {
 extension HomeViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let y = max(0, scrollView.contentOffset.y)
-        let progress = min(1, y / 100)
+        let progress = min(1, y / 80)
         headerBackground.alpha = progress
-        topSearchBar.apply(style: progress > 0.5 ? .dark : .light)
+        topSearchBar.apply(style: progress > 0.5 ? .dark : .banner)
         headerContainer.layer.shadowColor = UIColor.black.cgColor
         headerContainer.layer.shadowOpacity = Float(0.1 * progress)
         headerContainer.layer.shadowOffset = CGSize(width: 0, height: 2)

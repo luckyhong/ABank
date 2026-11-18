@@ -12,6 +12,10 @@ extension UIColor {
     static let abankPrimary = UIColor(red: 0 / 255, green: 166 / 255, blue: 125 / 255, alpha: 1)
     static let abankPrimaryDark = UIColor(red: 0 / 255, green: 136 / 255, blue: 102 / 255, alpha: 1)
 
+    /// 浅色选中态与可读的品牌色文字，用于白色和薄荷色表面。
+    static let abankMintSurface = UIColor(red: 234 / 255, green: 247 / 255, blue: 242 / 255, alpha: 1)
+    static let abankMintInk = UIColor(red: 8 / 255, green: 114 / 255, blue: 92 / 255, alpha: 1)
+
     // MARK: - 辅助色
     static let abankOrange = UIColor(red: 255 / 255, green: 149 / 255, blue: 0 / 255, alpha: 1)
     static let abankOrangeDeep = UIColor(red: 230 / 255, green: 80 / 255, blue: 40 / 255, alpha: 1)

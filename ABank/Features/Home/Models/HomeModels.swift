@@ -34,9 +34,10 @@ extension HomeGridItem {
     static let allEntry = HomeGridItem(title: "全部", imageName: "abc_home_all", systemIcon: "ellipsis.circle", badge: nil)
 }
 
-struct HomeNoticeItem {
+struct HomeNoticeItem: Equatable {
     let tag: String
     let text: String
+    let route: AppRoute
 }
 
 struct HomeHeroBannerItem {
@@ -46,12 +47,14 @@ struct HomeHeroBannerItem {
     let isAd: Bool
     var imageName: String? = nil
     var featureID: FeatureID? = nil
+    var backdropColor: UIColor = .abankBackground
 }
 
-struct HomePromoBannerItem {
+struct HomePromoBannerItem: Equatable {
     let title: String
     let subtitle: String
     let tone: PromoTone
+    var route: AppRoute? = nil
 
     enum PromoTone {
         case gold
@@ -74,11 +77,6 @@ struct HomeWealthSideItem {
     let tag: String
     let subtitle: String
     let actionTitle: String
-}
-
-struct HomeMarketQuote {
-    let name: String
-    let value: String
 }
 
 struct HomeActivityFeaturedItem {
@@ -134,14 +132,11 @@ struct HomeConsumerProtectionItem {
 
 struct HomePageData {
     let searchPlaceholders: [String]
-    let messageBadge: Int
     let heroBanners: [HomeHeroBannerItem]
     let shortcuts: [HomeShortcutItem]
-    let notices: [HomeNoticeItem]
     let promoBanners: [HomePromoBannerItem]
     let wealthFeatured: HomeWealthFeaturedItem
     let wealthSides: [HomeWealthSideItem]
-    let marketQuotes: [HomeMarketQuote]
     let activityFeatured: HomeActivityFeaturedItem
     let activitySides: [HomeActivitySideItem]
     let pensionSlogan: String

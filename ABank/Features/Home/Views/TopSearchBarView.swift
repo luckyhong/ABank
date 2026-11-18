@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 enum TopSearchBarStyle {
-    case light
+    case banner
     case dark
 }
 
@@ -49,12 +49,15 @@ final class TopSearchBarView: UIView {
     }
 
     func configure(placeholders: [String], badgeCount: Int) {
-        self.placeholders = placeholders.isEmpty ? ["搜索"] : placeholders
-        placeholderIndex = 0
-        searchLabel.text = self.placeholders[0]
+        let suggestions = placeholders.isEmpty ? ["搜索"] : placeholders
+        if self.placeholders != suggestions {
+            self.placeholders = suggestions
+            placeholderIndex = 0
+            searchLabel.text = suggestions[0]
+            restartPlaceholderRotation()
+        }
         badgeLabel.isHidden = badgeCount <= 0
         badgeLabel.text = badgeCount > 99 ? "99+" : "\(badgeCount)"
-        restartPlaceholderRotation()
     }
 
     func currentPlaceholder() -> String {
@@ -65,12 +68,13 @@ final class TopSearchBarView: UIView {
         if currentStyle == style { return }
         currentStyle = style
         switch style {
-        case .light:
-            [giftItem, versionItem, serviceItem, messageItem].forEach { $0.apply(tint: .white, labelColor: .white) }
-            searchIcon.tintColor = .white
-            micIcon.tintColor = .white
-            searchLabel.textColor = UIColor.white.withAlphaComponent(0.92)
-            searchContainer.backgroundColor = UIColor.white.withAlphaComponent(0.28)
+        case .banner:
+            let foreground = UIColor(red: 0.24, green: 0.16, blue: 0.11, alpha: 1)
+            [giftItem, versionItem, serviceItem, messageItem].forEach { $0.apply(tint: foreground, labelColor: foreground) }
+            searchIcon.tintColor = foreground
+            micIcon.tintColor = foreground
+            searchLabel.textColor = foreground
+            searchContainer.backgroundColor = UIColor.white.withAlphaComponent(0.44)
         case .dark:
             let iconColor = UIColor.abankTextPrimary
             [giftItem, versionItem, serviceItem, messageItem].forEach {
@@ -165,7 +169,7 @@ final class TopSearchBarView: UIView {
         messageItem.addTarget(self, action: #selector(messageTapped), for: .touchUpInside)
         searchContainer.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(searchTapped)))
 
-        apply(style: .light)
+        apply(style: .banner)
     }
 
     private func restartPlaceholderRotation() {
