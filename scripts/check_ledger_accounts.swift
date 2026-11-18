@@ -10,7 +10,7 @@ import Foundation
         let store = FinanceLedgerStore(defaults: defaults, dates: dates, riskStateProvider: { .valid(.c5, expiresOn: "2027-11-12") })
         let key = "abank.financeLedger.record.v8"
         let seed = store.load()
-        precondition(seed.transactions.count == 38 && TransferMoney.cents(from: seed.accounts[0].balance) == 526_923)
+        precondition(seed.transactions.count == 39 && TransferMoney.cents(from: seed.accounts[0].balance) == 406_923)
         let balance = seed.accounts[0].balance
         let flow = store.monthlyFlow(for: "2026-11")
         var draft = ManualEntryDraft(title: " 午餐,咖啡 ", amountInCents: 2_035, direction: .expense,
@@ -24,7 +24,7 @@ import Foundation
         precondition(store.incomeExpensePageData(query: manualQuery).dayGroups.flatMap(\.transactions).map(\.id) == [saved.id])
         let csv = store.statementCSV(query: manualQuery)
         precondition(csv.hasPrefix("\u{FEFF}") && csv.contains("\"午餐,咖啡\"") && csv.contains("\"'=1+1\"") && csv.contains("\"20.35\""))
-        precondition(!csv.contains("5269.23"), "Manual entries must not imply a bank balance")
+        precondition(!csv.contains("4069.23"), "Manual entries must not imply a bank balance")
         draft.direction = .income; draft.categoryID = "transfer_in"; draft.amountInCents = 101
         _ = try store.saveManualEntry(draft, id: saved.id)
         precondition(store.load().transactions.count == seed.transactions.count + 1 && store.monthlyFlow(for: "2026-11").expense == flow.expense)

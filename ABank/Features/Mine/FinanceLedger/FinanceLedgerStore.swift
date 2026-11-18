@@ -16,6 +16,7 @@ extension Notification.Name {
     static let demoBackupKey = "abank.financeLedger.backup.before20261110"
     static let demoSupplementBackupKey = "abank.financeLedger.backup.before20261116"
     static let demoDetailCorrectionBackupKey = "abank.financeLedger.backup.before20261116DetailCorrection"
+    static let demoWeChatBackupKey = "abank.financeLedger.backup.before20261118WeChat"
     private let defaults: UserDefaults
     let dates: BankingDateContext
     private let encoder = JSONEncoder()
@@ -89,6 +90,7 @@ extension Notification.Name {
         switch stored.demoDataVersion {
         case BankingDemoFixture.previousVersion: backupKey = Self.demoSupplementBackupKey
         case BankingDemoFixture.previousSupplementVersion: backupKey = Self.demoDetailCorrectionBackupKey
+        case BankingDemoFixture.previousCorrectedVersion: backupKey = Self.demoWeChatBackupKey
         default: backupKey = Self.demoBackupKey
         }
         if defaults.data(forKey: backupKey) == nil { defaults.set(originalData, forKey: backupKey) }

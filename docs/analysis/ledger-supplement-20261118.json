@@ -1,0 +1,24 @@
+{
+  "dataset_id": "abank-simulated-ledger-20261118-r1",
+  "from_dataset_id": "abank-simulated-ledger-20261116-r2",
+  "transaction": {
+    "id": "fixture-2026-11-18-wechat",
+    "account_id": "acct_8472",
+    "date": "2026-11-18",
+    "time": "17:20:58",
+    "time_precision": "second",
+    "title": "微信支付",
+    "direction": "expense",
+    "amount_cents": 120000,
+    "balance_before_cents": 526923,
+    "balance_after_cents": 406923,
+    "category_id": "third_party_out",
+    "counterparty_name": null,
+    "counterparty_account_masked": null,
+    "counterparty_bank": null,
+    "channel": null,
+    "postscript": null,
+    "origin": "user_specification",
+    "source_note": "用户指定在当前时间转账到微信1200元，按项目北京时间记录"
+  }
+}

@@ -3,8 +3,19 @@ import Foundation
 @MainActor
 enum BankingDemoMigration {
     static func upgrade(_ stored: FinanceLedgerRecord) -> FinanceLedgerRecord? {
-        if [BankingDemoFixture.previousVersion, BankingDemoFixture.previousSupplementVersion].contains(stored.demoDataVersion ?? "") { return upgradeConfirmedTransfers(in: stored) }
-        guard stored.demoDataVersion == nil else { return nil }
+        switch stored.demoDataVersion {
+        case BankingDemoFixture.previousVersion:
+            return appendFixtureTransactions(in: stored, additions: BankingDemoFixture.addedTransactionIDs.union([BankingDemoFixture.latestTransactionID]))
+        case BankingDemoFixture.previousSupplementVersion, BankingDemoFixture.previousCorrectedVersion:
+            return appendFixtureTransactions(in: stored, additions: [BankingDemoFixture.latestTransactionID])
+        case nil:
+            return upgradeLegacyRecord(stored)
+        default:
+            return nil
+        }
+    }
+
+    private static func upgradeLegacyRecord(_ stored: FinanceLedgerRecord) -> FinanceLedgerRecord? {
         let legacy = FinanceLedgerStore.makeLegacySeedRecord()
         let ownedIDs = Set(legacy.transactions.map(\.id))
         guard Set(stored.transactions.map(\.id)).count == stored.transactions.count,
@@ -61,22 +72,23 @@ enum BankingDemoMigration {
         return updated
     }
 
-    /// Append once from the 37-row release; correct metadata only from the prior 38-row version.
-    private static func upgradeConfirmedTransfers(in stored: FinanceLedgerRecord) -> FinanceLedgerRecord? {
+    /// Append only the transactions missing from this release's baseline.
+    private static func appendFixtureTransactions(in stored: FinanceLedgerRecord, additions: Set<String>) -> FinanceLedgerRecord? {
         let baseline = BankingDemoFixture.makeRecord()
-        let additionIDs = BankingDemoFixture.addedTransactionIDs
-        let isSupplement = stored.demoDataVersion == BankingDemoFixture.previousSupplementVersion
-        let required = baseline.transactions.filter { isSupplement || !additionIDs.contains($0.id) }
-        guard Set(stored.transactions.map(\.id)).count == stored.transactions.count,
+        let storedIDs = Set(stored.transactions.map(\.id))
+        let required = baseline.transactions.filter { !additions.contains($0.id) }
+        guard storedIDs.count == stored.transactions.count,
               Set(stored.accounts.map(\.id)).count == stored.accounts.count,
               stored.accounts.contains(where: { $0.id == FinanceLedgerRecord.defaultAccountId && $0.currency == "人民币" }),
               required.allSatisfy({ original in
                   stored.transactions.contains { $0.id == original.id && $0.date == original.date && $0.accountId == original.accountId }
               }),
-              isSupplement || Set(stored.transactions.map(\.id)).isDisjoint(with: additionIDs) else { return nil }
+              storedIDs.isDisjoint(with: additions) else { return nil }
         var updated = stored
-        if !isSupplement { updated.transactions += baseline.transactions.filter { additionIDs.contains($0.id) } }
-        applyCorrectedTransferDetails(to: &updated)
+        updated.transactions += baseline.transactions.filter { additions.contains($0.id) }
+        if stored.demoDataVersion != BankingDemoFixture.previousCorrectedVersion {
+            applyCorrectedTransferDetails(to: &updated)
+        }
         updated.demoDataVersion = BankingDemoFixture.version
         updated.dataTimestamp = max(stored.dataTimestamp, baseline.dataTimestamp)
         return updated

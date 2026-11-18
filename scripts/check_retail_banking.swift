@@ -5,7 +5,7 @@ import Foundation
         let suite = "ABank.Retail." + UUID().uuidString
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
-        var now = BankingDateContext.system.date(from: "2026-11-17")!
+        var now = BankingDateContext.system.date(from: "2026-11-19")!
         let dates = BankingDateContext(now: { now })
         let store = FinanceLedgerStore(defaults: defaults, dates: dates)
         let initial = store.load()
