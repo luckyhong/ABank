@@ -103,6 +103,7 @@ def render():
         lines.append(f'            RecordedLoanRepayment(period: {period}, date: {literal(row["date"])}, principalInCents: {row["principal_repaid_cents"]}, interestInCents: {row["interest_cents"]}, balanceInCents: {row["closing_principal_cents"]}),')
     lines += [
         '        ]',
+        '        BankingDemoMigration.fillLoanContractDetails(&loan)',
         '        var record = FinanceLedgerRecord(',
         '            accounts: [LedgerAccount(id: accountID, tailNumber: "8472", currency: "人民币",',
         f'                balance: TransferMoney.amount({balance}), openingBalance: TransferMoney.amount({data["account"]["opening_balance_cents"]}))],',

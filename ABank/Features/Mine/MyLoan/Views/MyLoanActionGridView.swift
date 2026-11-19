@@ -51,10 +51,10 @@ final class MyLoanActionGridView: UIView {
             make.height.equalTo(0.5)
         }
         stack.snp.makeConstraints { make in
-            make.top.equalTo(topLine.snp.bottom).offset(14)
+            make.top.equalTo(topLine.snp.bottom).offset(18)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(62)
-            make.bottom.equalTo(bottomLine.snp.top).offset(-14)
+            make.height.equalTo(68)
+            make.bottom.equalTo(bottomLine.snp.top).offset(-18)
         }
         bottomLine.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
@@ -74,10 +74,13 @@ private final class MyLoanActionItemView: UIControl {
 
         let label = UILabel()
         label.text = title
-        label.font = .systemFont(ofSize: 12)
+        label.font = .systemFont(ofSize: 14, weight: .medium)
         label.textColor = .abankTextPrimary
         label.textAlignment = .center
 
+        isAccessibilityElement = true
+        accessibilityTraits = .button
+        accessibilityLabel = title
         addSubview(iconView)
         addSubview(label)
         iconView.snp.makeConstraints { make in

@@ -29,7 +29,7 @@ final class InstallmentRepaymentViewController: TransferFlowViewController {
             _ = addButton("查看还款记录", id: "loan.installment.records") { [weak self] in
                 guard let self else { return }
                 self.navigationController?.pushViewController(
-                    LoanRepaymentDetailViewController(contractId: self.item.contractID), animated: true)
+                    LoanRepaymentDetailViewController(contractId: self.item.contractID, initialTab: .detail), animated: true)
             }
             _ = addButton("查看账户明细", id: "loan.installment.transaction", primary: false) { [weak self] in
                 guard let self, let transaction = self.ledger.load().transactions.first(where: { $0.id == result.transactionID }) else { return }

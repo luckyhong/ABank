@@ -22,9 +22,7 @@ final class LoanDetailViewController: BaseViewController {
     private let infoStack = UIStackView()
     private let repaymentLinkButton = UIButton(type: .system)
 
-    private let ringColor = UIColor(red: 255 / 255, green: 225 / 255, blue: 175 / 255, alpha: 1)
-    private let amountFont = UIFont(name: "TimesNewRomanPSMT", size: 20)
-        ?? .systemFont(ofSize: 20, weight: .regular)
+    private let amountFont = UIFont.monospacedDigitSystemFont(ofSize: 20, weight: .regular)
 
     init(contract: LoanContract) {
         self.contractId = contract.id
@@ -88,20 +86,33 @@ final class LoanDetailViewController: BaseViewController {
 
         repaymentLinkButton.setTitle("还款详情", for: .normal)
         repaymentLinkButton.setTitleColor(.abankTextPrimary, for: .normal)
-        repaymentLinkButton.titleLabel?.font = .systemFont(ofSize: 15)
+        repaymentLinkButton.accessibilityIdentifier = "loan.detail.repayment"
+        repaymentLinkButton.titleLabel?.font = UIFontMetrics(forTextStyle: .callout)
+            .scaledFont(for: .systemFont(ofSize: 15))
+        repaymentLinkButton.titleLabel?.adjustsFontForContentSizeCategory = true
         repaymentLinkButton.addTarget(self, action: #selector(repaymentDetailTapped), for: .touchUpInside)
 
+        let repaymentSeparator = UIView()
+        repaymentSeparator.backgroundColor = .abankSeparator
+
         view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
+        let columnContainer = UIView()
+        scrollView.addSubview(columnContainer)
+        columnContainer.addSubview(contentView)
         [gaugeView, totalAmountLabel, totalTitleLabel, usedAmountLabel, usedTitleLabel,
-         actionBar, infoStack, repaymentLinkButton].forEach { contentView.addSubview($0) }
+         actionBar, infoStack, repaymentSeparator, repaymentLinkButton].forEach { contentView.addSubview($0) }
 
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+        columnContainer.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide)
+        }
         contentView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.width.equalTo(scrollView)
+            make.top.bottom.centerX.equalToSuperview()
+            make.width.lessThanOrEqualToSuperview()
+            make.width.equalTo(640).priority(999)
         }
         gaugeView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(28)
@@ -135,11 +146,16 @@ final class LoanDetailViewController: BaseViewController {
             make.top.equalTo(actionBar.snp.bottom).offset(4)
             make.leading.trailing.equalToSuperview().inset(16)
         }
+        repaymentSeparator.snp.makeConstraints { make in
+            make.top.equalTo(infoStack.snp.bottom).offset(Spacing.sm)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(0.5)
+        }
         repaymentLinkButton.snp.makeConstraints { make in
-            make.top.equalTo(infoStack.snp.bottom).offset(28)
-            make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-40)
-            make.height.equalTo(44)
+            make.top.equalTo(repaymentSeparator.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-Spacing.md)
+            make.height.greaterThanOrEqualTo(44)
         }
 
         actionBar.onPrepayTapped = { [weak self] in
@@ -165,11 +181,10 @@ final class LoanDetailViewController: BaseViewController {
         }
         gaugeView.configure(
             availableText: contract.availableLimit.abankPlainAmountString(),
-            progress: progress,
-            ringColor: ringColor
+            progress: progress
         )
-        totalAmountLabel.text = contract.hasOriginalContractDetails ? contract.contractLimit.abankPlainAmountString() : "—"
-        usedAmountLabel.text = contract.hasOriginalContractDetails ? contract.usedLimit.abankPlainAmountString() : "—"
+        totalAmountLabel.text = (contract.hasOriginalContractDetails || contract.contractLimit > 0) ? contract.contractLimit.abankPlainAmountString() : "—"
+        usedAmountLabel.text = (contract.hasOriginalContractDetails || contract.contractLimit > 0) ? contract.usedLimit.abankPlainAmountString() : "—"
 
         infoStack.arrangedSubviews.forEach {
             infoStack.removeArrangedSubview($0)
@@ -178,12 +193,12 @@ final class LoanDetailViewController: BaseViewController {
 
         let rows: [(String, String, Bool)] = [
             ("贷款发放日", contract.disbursementDateText, false),
-            ("贷款金额", contract.hasOriginalContractDetails ? "\(contract.loanAmount.abankPlainAmountString())元" : "—", false),
+            ("贷款金额", (contract.hasOriginalContractDetails || contract.loanAmount > 0) ? "\(contract.loanAmount.abankPlainAmountString())元" : "—", false),
             ("未还本金", "\(contract.unpaidPrincipal.abankPlainAmountString())元", false),
             ("贷款年化利率", String(format: "%.1f%%", contract.annualRatePercent), true),
             ("利率定价方式", contract.pricingMethod.replacingOccurrences(of: "模拟", with: ""), false),
             ("利率定价基准", contract.pricingBenchmark, false),
-            ("利率浮动幅度", contract.floatingRange, false),
+            ("利率浮动幅度", contract.floatingRange.replacingOccurrences(of: "-", with: "−"), false),
             ("重定价周期", contract.repricingCycle, false),
             ("重定价日", contract.repricingDatesText, false),
             ("贷款到期日", contract.maturityDateText, false),
@@ -193,7 +208,7 @@ final class LoanDetailViewController: BaseViewController {
         for (index, item) in rows.enumerated() {
             let row = LoanDetailInfoRowView(
                 title: item.0,
-                value: item.1.isEmpty ? "-" : item.1,
+                value: item.1.isEmpty ? "—" : item.1,
                 showsInfo: item.2,
                 showsSeparator: index == 0
             )
@@ -228,12 +243,12 @@ private final class LoanAvailableGaugeView: UIView {
         super.init(frame: frame)
 
         trackLayer.fillColor = UIColor.clear.cgColor
-        trackLayer.strokeColor = UIColor(red: 245 / 255, green: 235 / 255, blue: 225 / 255, alpha: 1).cgColor
+        trackLayer.strokeColor = UIColor.abankOrange.withAlphaComponent(0.10).cgColor
         trackLayer.lineWidth = 21
         trackLayer.lineCap = .round
 
         progressLayer.fillColor = UIColor.clear.cgColor
-        progressLayer.strokeColor = UIColor(red: 255 / 255, green: 225 / 255, blue: 175 / 255, alpha: 1).cgColor
+        progressLayer.strokeColor = UIColor.abankOrange.withAlphaComponent(0.34).cgColor
         progressLayer.lineWidth = 21
         progressLayer.lineCap = .round
         progressLayer.strokeEnd = 1
@@ -275,11 +290,10 @@ private final class LoanAvailableGaugeView: UIView {
         progressLayer.frame = bounds
     }
 
-    func configure(availableText: String, progress: CGFloat, ringColor: UIColor) {
+    func configure(availableText: String, progress: CGFloat) {
         valueLabel.text = availableText
-        progressLayer.strokeColor = ringColor.cgColor
-        // 已用越多，环越完整；可用为 0 时显示满环
-        progressLayer.strokeEnd = max(0.08, min(1, progress <= 0 ? 1 : progress))
+        progressLayer.strokeEnd = max(0, min(1, progress))
+        progressLayer.isHidden = progress <= 0
     }
 }
 
@@ -365,14 +379,16 @@ private final class LoanDetailInfoRowView: UIView {
     init(title: String, value: String, showsInfo: Bool, showsSeparator: Bool) {
         super.init(frame: .zero)
         titleLabel.text = title
-        titleLabel.font = .systemFont(ofSize: 14)
+        titleLabel.font = .preferredFont(forTextStyle: .callout)
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.textColor = .abankTextPrimary
 
         valueLabel.text = value
-        valueLabel.font = .systemFont(ofSize: 14)
+        valueLabel.font = .preferredFont(forTextStyle: .callout)
+        valueLabel.adjustsFontForContentSizeCategory = true
         valueLabel.textColor = .abankTextSecondary
         valueLabel.textAlignment = .right
-        valueLabel.numberOfLines = 2
+        valueLabel.numberOfLines = 0
 
         infoButton.setImage(UIImage.abankAsset("abc_mine_detail_info_reference", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13), for: .normal)
         infoButton.tintColor = UIColor(red: 190 / 255, green: 190 / 255, blue: 190 / 255, alpha: 1)
@@ -390,7 +406,7 @@ private final class LoanDetailInfoRowView: UIView {
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview()
             make.top.equalToSuperview().offset(8)
-            make.bottom.equalToSuperview().offset(-8)
+            make.bottom.lessThanOrEqualToSuperview().offset(-8)
         }
         infoButton.snp.makeConstraints { make in
             make.leading.equalTo(titleLabel.snp.trailing).offset(4)
@@ -399,8 +415,13 @@ private final class LoanDetailInfoRowView: UIView {
         }
         valueLabel.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
-            make.centerY.equalTo(titleLabel)
-            make.leading.greaterThanOrEqualTo(infoButton.snp.trailing).offset(12)
+            make.firstBaseline.equalTo(titleLabel)
+            make.bottom.lessThanOrEqualToSuperview().offset(-8)
+            if showsInfo {
+                make.leading.greaterThanOrEqualTo(infoButton.snp.trailing).offset(12)
+            } else {
+                make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(12)
+            }
         }
         separator.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()

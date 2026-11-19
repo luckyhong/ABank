@@ -24,7 +24,9 @@ final class LoanRepaymentFilterBarView: UIView {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    func configure(range: LoanRepaymentQuickRange) {
+    func configure(range: LoanRepaymentQuickRange, tab: LoanRepaymentTab) {
+        threeMonthsButton.setTitle(tab == .plan ? "未来三月" : "近三月", showsChevron: false)
+        oneYearButton.setTitle(tab == .plan ? "未来一年" : "近一年", showsChevron: false)
         threeMonthsButton.setSelected(range == .threeMonths)
         oneYearButton.setSelected(range == .oneYear)
         filterButton.setSelected(range == .custom)
@@ -32,12 +34,12 @@ final class LoanRepaymentFilterBarView: UIView {
     }
 
     private func setupUI() {
-        backgroundColor = UIColor(red: 245 / 255, green: 245 / 255, blue: 245 / 255, alpha: 1)
+        backgroundColor = UIColor(red: 241.0 / 255, green: 242.0 / 255, blue: 243.0 / 255, alpha: 1)
 
         stackView.axis = .horizontal
         stackView.alignment = .center
         stackView.spacing = 12
-        stackView.distribution = .fill
+        stackView.distribution = .fillEqually
 
         threeMonthsButton.setTitle("近三月", showsChevron: false)
         oneYearButton.setTitle("近一年", showsChevron: false)
@@ -48,18 +50,21 @@ final class LoanRepaymentFilterBarView: UIView {
         filterButton.addTarget(self, action: #selector(filterTapped), for: .touchUpInside)
 
         addSubview(stackView)
-        [threeMonthsButton, oneYearButton, filterButton].forEach { stackView.addArrangedSubview($0) }
-
-        stackView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(16)
-            make.trailing.lessThanOrEqualToSuperview().offset(-16)
-            make.centerY.equalToSuperview()
-            make.height.equalTo(32)
+        for button in [threeMonthsButton, oneYearButton, filterButton] {
+            let slot = UIView()
+            stackView.addArrangedSubview(slot)
+            slot.addSubview(button)
+            button.snp.makeConstraints { make in
+                make.top.bottom.centerX.equalToSuperview()
+                make.width.lessThanOrEqualToSuperview()
+                make.width.equalTo(82).priority(999)
+            }
         }
-    }
 
-    override var intrinsicContentSize: CGSize {
-        CGSize(width: UIView.noIntrinsicMetric, height: 52)
+        threeMonthsButton.accessibilityIdentifier = "loan.repayment.range.three"
+        oneYearButton.accessibilityIdentifier = "loan.repayment.range.year"
+        filterButton.accessibilityIdentifier = "loan.repayment.range.custom"
+        stackView.snp.makeConstraints { $0.edges.equalToSuperview().inset(Spacing.md) }
     }
 
     @objc private func threeMonthsTapped() { onThreeMonthsTapped?() }
@@ -69,18 +74,21 @@ final class LoanRepaymentFilterBarView: UIView {
 
 private final class LoanRepaymentPillButton: UIControl {
 
+    private let capsule = UIView()
     private let titleLabel = UILabel()
     private let chevronView = UIImageView()
     private let contentStack = UIStackView()
-    private var showsChevron = false
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        layer.cornerRadius = 16
-        layer.borderWidth = 0.5
-        clipsToBounds = true
+        capsule.layer.cornerRadius = 16
+        capsule.isUserInteractionEnabled = false
+        addSubview(capsule)
 
-        titleLabel.font = .systemFont(ofSize: 13)
+        titleLabel.font = .preferredFont(forTextStyle: .subheadline)
+        titleLabel.adjustsFontForContentSizeCategory = true
+        titleLabel.numberOfLines = 0
+        isAccessibilityElement = true
         titleLabel.textAlignment = .center
 
         let config = UIImage.SymbolConfiguration(pointSize: 7, weight: .bold)
@@ -97,44 +105,42 @@ private final class LoanRepaymentPillButton: UIControl {
 
         addSubview(contentStack)
         contentStack.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(8)
+            make.centerY.equalToSuperview()
+            make.top.greaterThanOrEqualToSuperview().offset(6)
+            make.bottom.lessThanOrEqualToSuperview().offset(-6)
+        }
+        capsule.snp.makeConstraints { make in
+            make.leading.trailing.centerY.equalToSuperview()
+            make.height.greaterThanOrEqualTo(contentStack).offset(8)
+            make.height.equalTo(32).priority(999)
         }
         chevronView.snp.makeConstraints { make in
             make.size.equalTo(7)
         }
         snp.makeConstraints { make in
-            make.height.equalTo(32)
+            make.height.greaterThanOrEqualTo(44)
         }
-        setContentHuggingPriority(.required, for: .horizontal)
-        setContentCompressionResistancePriority(.required, for: .horizontal)
         setSelected(false)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override var intrinsicContentSize: CGSize {
-        let titleWidth = titleLabel.intrinsicContentSize.width
-        let chevronWidth: CGFloat = showsChevron ? 11 : 0
-        return CGSize(width: 24 + titleWidth + chevronWidth, height: 32)
-    }
-
     func setTitle(_ title: String, showsChevron: Bool) {
         titleLabel.text = title
-        self.showsChevron = showsChevron
+        accessibilityLabel = title
         chevronView.isHidden = !showsChevron
-        invalidateIntrinsicContentSize()
     }
 
     func setSelected(_ selected: Bool) {
+        accessibilityTraits = selected ? [.button, .selected] : .button
         if selected {
-            backgroundColor = .abankTeal
-            layer.borderColor = UIColor.abankTeal.cgColor
+            capsule.backgroundColor = .abankTeal
             titleLabel.textColor = .white
             chevronView.tintColor = .white
         } else {
-            backgroundColor = .white
-            layer.borderColor = UIColor(red: 220 / 255, green: 220 / 255, blue: 220 / 255, alpha: 1).cgColor
-            titleLabel.textColor = .abankTextSecondary
+            capsule.backgroundColor = .white
+            titleLabel.textColor = .abankTextPrimary
             chevronView.tintColor = UIColor(red: 170 / 255, green: 170 / 255, blue: 170 / 255, alpha: 1)
         }
     }

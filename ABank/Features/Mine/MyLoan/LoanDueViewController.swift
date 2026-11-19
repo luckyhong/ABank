@@ -12,6 +12,7 @@ final class LoanDueViewController: BankingDataViewController {
     private let period: LoanDuePeriod
     private var pageData: LoanDuePageData
     private var expandedIds: Set<String> = []
+    private var didExpandNextInstallment = false
 
     private let amountLabel = UILabel()
     private let captionLabel = UILabel()
@@ -50,25 +51,34 @@ final class LoanDueViewController: BankingDataViewController {
     }
 
     override func setupUI() {
-        let pageGray = UIColor(red: 245 / 255, green: 245 / 255, blue: 245 / 255, alpha: 1)
-        view.backgroundColor = period == .thisMonth ? pageGray : .white
+        let pageGray = UIColor.abankBackground
+        view.backgroundColor = pageGray
 
         headerContainer.backgroundColor = .white
 
-        amountLabel.font = .systemFont(ofSize: 36, weight: .regular)
+        amountLabel.font = UIFontMetrics(forTextStyle: .title1)
+            .scaledFont(for: .monospacedDigitSystemFont(ofSize: 30, weight: .regular))
+        amountLabel.adjustsFontForContentSizeCategory = true
+        amountLabel.adjustsFontSizeToFitWidth = true
+        amountLabel.minimumScaleFactor = 0.65
+        amountLabel.accessibilityIdentifier = "loan.due.total"
         amountLabel.textColor = .abankAmount
         amountLabel.textAlignment = .center
 
-        captionLabel.font = .systemFont(ofSize: 13)
-        captionLabel.textColor = .abankTextTertiary
+        captionLabel.font = .preferredFont(forTextStyle: .subheadline)
+        captionLabel.adjustsFontForContentSizeCategory = true
+        captionLabel.numberOfLines = 0
+        captionLabel.textColor = .abankTextSecondary
         captionLabel.textAlignment = .center
 
-        tipLabel.font = .systemFont(ofSize: 12)
-        tipLabel.textColor = .abankTextTertiary
+        tipLabel.font = .preferredFont(forTextStyle: .footnote)
+        tipLabel.adjustsFontForContentSizeCategory = true
+        tipLabel.textColor = .abankTextSecondary
         tipLabel.numberOfLines = 0
 
-        tableView.backgroundColor = period == .thisMonth ? pageGray : .white
+        tableView.backgroundColor = pageGray
         tableView.separatorStyle = .none
+        tableView.accessibilityIdentifier = "loan.due.table"
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(LoanDueInstallmentCell.self, forCellReuseIdentifier: LoanDueInstallmentCell.reuseId)
@@ -91,8 +101,8 @@ final class LoanDueViewController: BankingDataViewController {
         }
         captionLabel.snp.makeConstraints { make in
             make.top.equalTo(amountLabel.snp.bottom).offset(8)
-            make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-28)
+            make.leading.trailing.equalToSuperview().inset(Spacing.md)
+            make.bottom.equalToSuperview().offset(period == .nextMonth ? -36 : -28)
         }
 
         let divider = UIView()
@@ -106,18 +116,24 @@ final class LoanDueViewController: BankingDataViewController {
 
     override func refreshBankingData() { applyPageData() }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        rebuildFooter()
+    }
+
     private func rebuildFooter() {
-        let width = UIScreen.main.bounds.width
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 12)
-        label.textColor = .abankTextTertiary
-        label.numberOfLines = 0
-        label.text = pageData.tip
-        label.frame = CGRect(x: 16, y: 16, width: width - 32, height: 0)
-        label.sizeToFit()
-        let footer = UIView(frame: CGRect(x: 0, y: 0, width: width, height: label.frame.height + 32))
-        label.frame.origin = CGPoint(x: 16, y: 16)
-        footer.addSubview(label)
+        let width = tableView.bounds.width
+        let inset = Spacing.md
+        guard width > inset * 2 else { return }
+        let textWidth = width - inset * 2
+        let height = tipLabel.sizeThatFits(CGSize(width: textWidth, height: .greatestFiniteMagnitude)).height
+        let footerHeight = ceil(height) + inset * 2
+        if let footer = tableView.tableFooterView, footer.bounds.size == CGSize(width: width, height: footerHeight) {
+            return
+        }
+        let footer = UIView(frame: CGRect(x: 0, y: 0, width: width, height: footerHeight))
+        tipLabel.frame = CGRect(x: inset, y: inset, width: textWidth, height: height)
+        footer.addSubview(tipLabel)
         tableView.tableFooterView = footer
     }
 
@@ -127,6 +143,10 @@ final class LoanDueViewController: BankingDataViewController {
         captionLabel.text = period.amountCaption
         tipLabel.text = pageData.tip
         expandedIds.formIntersection(Set(pageData.installments.map(\.id)))
+        if period == .nextMonth, !didExpandNextInstallment, let first = pageData.installments.first {
+            expandedIds.insert(first.id)
+            didExpandNextInstallment = true
+        }
         rebuildFooter()
         let empty = UILabel()
         empty.text = period == .overdue ? "暂无历史待处理期次" : "该月份暂无待还分期"
@@ -168,8 +188,8 @@ extension LoanDueViewController: UITableViewDataSource, UITableViewDelegate {
         cell.onRepay = { [weak self] in
             self?.navigationController?.pushViewController(InstallmentRepaymentViewController(item: item), animated: true)
         }
-        cell.onToggle = { [weak self] in
-            guard let self else { return }
+        cell.onToggle = { [weak self, weak cell] in
+            guard let self, let cell, let indexPath = self.tableView.indexPath(for: cell) else { return }
             if self.expandedIds.contains(item.id) {
                 self.expandedIds.remove(item.id)
             } else {

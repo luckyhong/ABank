@@ -18,6 +18,7 @@ import Foundation
         try metadataCorrectionMigration()
         try weChatSupplementMigration()
         try migrationAndPreservation()
+        contractDetailsMigration()
         try failedMigrationAndCorruption()
         try customLoanAndUnrecognizedRecord()
         print("Ledger fixture checks passed: canonical cents, ordering, projections, loan schedule, migration and failure preservation")
@@ -103,7 +104,7 @@ import Foundation
             let page = store.loanRepaymentPageData(contractId: loan.id, filter: loanFilter)
             let planned = page.planItems.filter { $0.date >= "2026-12-01" }
             let reference = (expected["loan"] as! [String: Any])["remaining_schedule"] as! [[String: Any]]
-            precondition(page.planItems.count == 134 && page.detailItems.count == 3 && planned.count == 131)
+            precondition(page.planItems.count == 131 && page.detailItems.count == 3 && planned.count == 131)
             for (plan, reference) in zip(planned, reference) {
                 precondition(plan.date == reference["due_date"] as! String)
                 precondition(cents(plan.repaymentAmount) == 12_791)
@@ -112,10 +113,18 @@ import Foundation
                 precondition(cents(plan.balance) == (reference["closing_principal_cents"] as! NSNumber).int64Value)
             }
             precondition(planned.last?.date == "2037-10-08" && planned.last?.balance == 0)
+            let upcoming = store.loanRepaymentPageData(contractId: loan.id, filter: .default(tab: .plan, dates: dates))
+            let paid = store.loanRepaymentPageData(contractId: loan.id, filter: .default(tab: .detail, dates: dates))
+            precondition(upcoming.planItems.prefix(3).map(\.date) == ["2026-12-09", "2027-01-09", "2027-02-09"])
+            precondition(upcoming.planItems.first?.repaymentAmount == store.loanDuePageData(period: .nextMonth).totalAmount)
+            precondition(paid.detailItems.map(\.date) == ["2026-09-09", "2026-10-09", "2026-11-09"])
+            precondition(paid.detailItems.allSatisfy { cents($0.principal) + cents($0.interest) == 12_791 })
+            let missing = store.loanRepaymentPageData(contractId: "missing", filter: loanFilter)
+            precondition(missing.planItems.isEmpty && missing.detailItems.isEmpty)
             let history = store.loanUsageRecordsPageData(contractId: loan.id, page: 0).records
             precondition(history.count == 3 && history.allSatisfy { cents($0.totalAmount) == 12_791 })
             precondition(cents(store.loanDuePageData(period: .nextMonth).totalAmount) == 12_791)
-            precondition(store.loanPrepaymentInfo(contractId: loan.id)?.contractNumber == "—")
+            precondition(store.loanPrepaymentInfo(contractId: loan.id)?.contractNumber == FinanceLedgerStore.legacyHousingContract.contractNumber)
             let preview = try store.previewPrepayment(contractID: loan.id, amountInCents: 10_000, method: .shortenTerm)
             precondition(preview.maturityBefore == "2037-10-08")
             _ = try store.submitPrepayment(contractID: loan.id, amountInCents: 10_000, method: .shortenTerm, requestID: "new-loan-test", expected: preview)
@@ -293,6 +302,63 @@ import Foundation
             let saved = defaults.data(forKey: key)
             precondition(FinanceLedgerStore(defaults: defaults, dates: dates).load() == migrated)
             precondition(defaults.data(forKey: key) == saved && defaults.data(forKey: FinanceLedgerStore.demoWeChatBackupKey) == bytes)
+        }
+    }
+
+    static func contractDetailsMigration() {
+        withDefaults { defaults in
+            let store = FinanceLedgerStore(defaults: defaults, dates: dates)
+            var baseline = FinanceLedgerStore.makeSeedRecord()
+            baseline.loanContracts[0].contractNumber = ""
+            baseline.loanContracts[0].contractLimit = 0
+            baseline.loanContracts[0].loanAmount = 0
+            baseline.loanContracts[0].disbursementDateText = ""
+            baseline.loanContracts[0].expiryDate = baseline.loanContracts[0].finalDueDate!
+            baseline.loanContracts[0].pricingMethod = "固定利率"
+            baseline.loanContracts[0].pricingBenchmark = ""
+            baseline.loanContracts[0].floatingRange = ""
+            baseline.loanContracts[0].repricingCycle = ""
+            baseline.loanContracts[0].repricingDatesText = ""
+            baseline.loanContracts[0].isDetailExpanded = false
+            baseline.loanContracts[0].unpaidPrincipal = 13_000
+            baseline.loanContracts[0].installmentAmount = 120
+            precondition(store.save(baseline))
+            let migrated = store.load()
+            let loan = migrated.loanContracts[0]
+            precondition(loan.contractLimit == 670_000 && loan.loanAmount == 670_000)
+            precondition(loan.expiryDate == "2047-09-14" && loan.finalDueDate == baseline.loanContracts[0].finalDueDate)
+            precondition(loan.pricingMethod == "浮动利率" && loan.pricingBenchmark == "LPR" && loan.floatingRange == "-30bp")
+            precondition(loan.disbursementDateText == "2017年10月9日" && loan.repricingCycle == "3个月")
+            precondition(loan.unpaidPrincipal == 13_000 && loan.installmentAmount == 120 && !loan.isDetailExpanded)
+            precondition(loan.recordedRepayments == baseline.loanContracts[0].recordedRepayments && loan.contractNumber == FinanceLedgerStore.legacyHousingContract.contractNumber)
+            precondition(migrated.transactions == baseline.transactions && migrated.accounts == baseline.accounts)
+            precondition(defaults.data(forKey: FinanceLedgerStore.demoContractDetailsBackupKey) != nil)
+            precondition(store.load() == migrated)
+        }
+        withDefaults { defaults in
+            let store = FinanceLedgerStore(defaults: defaults, dates: dates)
+            var baseline = FinanceLedgerStore.makeSeedRecord()
+            baseline.demoDataVersion = nil
+            baseline.loanContracts[0].contractNumber = ""
+            baseline.loanContracts[0].pricingMethod = "浮动利率"
+            baseline.loanContracts[0].pricingBenchmark = ""
+            baseline.loanContracts[0].floatingRange = ""
+            baseline.loanContracts[0].repricingCycle = ""
+            baseline.loanContracts[0].repricingDatesText = ""
+            baseline.loanContracts[0].finalDueDate = "2035-05-09"
+            baseline.loanContracts[0].maturityDateText = ""
+            baseline.loanContracts[0].statusText = ""
+            precondition(store.save(baseline))
+            let migrated = store.load()
+            let loan = migrated.loanContracts[0]
+            precondition(loan.pricingBenchmark == "LPR" && loan.floatingRange == "-30bp")
+            precondition(migrated.demoDataVersion == nil && loan.contractNumber == FinanceLedgerStore.legacyHousingContract.contractNumber)
+            let page = store.loanRepaymentPageData(contractId: loan.id, filter: .init(quickRange: .custom, startDate: "2026-09-01", endDate: "2027-01-01", sortOrder: .farToNear))
+            precondition(page.planItems.first?.contractNumber == loan.contractNumber && page.detailItems.first?.contractNumber == loan.contractNumber)
+            precondition(loan.repricingCycle == "3个月" && loan.repricingDatesText == "1月9日,4月9日,7月9日,10月9日")
+            precondition(loan.maturityDateText == "2035年5月9日" && loan.statusText == "正常")
+            precondition(migrated.accounts == baseline.accounts && migrated.transactions == baseline.transactions)
+            precondition(store.load() == migrated)
         }
     }
 

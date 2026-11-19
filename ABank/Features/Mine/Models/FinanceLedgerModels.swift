@@ -665,29 +665,22 @@ struct LoanRepaymentFilter: Equatable {
     var endDate: String     // yyyy-MM-dd
     var sortOrder: LoanRepaymentSortOrder
 
-    static func `default`(referenceDate: Date = Date()) -> LoanRepaymentFilter {
-        let calendar = Calendar.current
-        let end = referenceDate
-        let start = calendar.date(byAdding: .month, value: -3, to: end) ?? end
-        return LoanRepaymentFilter(
-            quickRange: .threeMonths,
-            startDate: Self.string(from: start),
-            endDate: Self.string(from: end),
-            sortOrder: .nearToFar
-        )
+    static func `default`(tab: LoanRepaymentTab = .detail, dates: BankingDateContext = .system) -> LoanRepaymentFilter {
+        var filter = LoanRepaymentFilter(quickRange: .threeMonths, startDate: "", endDate: "", sortOrder: .farToNear)
+        filter.applyQuickRange(.threeMonths, tab: tab, dates: dates)
+        return filter
     }
 
-    mutating func applyQuickRange(_ range: LoanRepaymentQuickRange, referenceDate: Date = Date()) {
+    mutating func applyQuickRange(_ range: LoanRepaymentQuickRange, tab: LoanRepaymentTab, dates: BankingDateContext) {
+        guard range != .custom else { return }
         quickRange = range
-        let calendar = Calendar.current
-        let end = referenceDate
-        let months = range == .oneYear ? -12 : -3
-        let start = calendar.date(byAdding: .month, value: months, to: end) ?? end
-        // 计划含近未来期次：结束日向后延伸同等跨度
-        let futureEnd = calendar.date(byAdding: .month, value: abs(months), to: end) ?? end
-        startDate = Self.string(from: start)
-        endDate = Self.string(from: futureEnd)
-        sortOrder = .nearToFar
+        let today = dates.now
+        let months = range == .oneYear ? 12 : 3
+        let start = tab == .plan ? today : (dates.calendar.date(byAdding: .month, value: -months, to: today) ?? today)
+        let end = tab == .detail ? today : (dates.calendar.date(byAdding: .month, value: months, to: today) ?? today)
+        startDate = dates.string(from: start)
+        endDate = dates.string(from: end)
+        sortOrder = .farToNear
     }
 
     mutating func applyCustom(start: String, end: String, sortOrder: LoanRepaymentSortOrder) {
@@ -697,19 +690,9 @@ struct LoanRepaymentFilter: Equatable {
         self.sortOrder = sortOrder
     }
 
-    static func string(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
-    }
+    static func string(from date: Date) -> String { BankingDateContext.system.string(from: date) }
 
-    static func date(from string: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: string)
-    }
+    static func date(from string: String) -> Date? { BankingDateContext.system.date(from: string) }
 }
 
 struct LoanRepaymentPlanItem: Equatable, Identifiable {

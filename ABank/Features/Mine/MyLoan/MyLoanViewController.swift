@@ -70,20 +70,28 @@ final class MyLoanViewController: BaseViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.alwaysBounceVertical = true
 
-        tipLabel.font = .systemFont(ofSize: 12)
-        tipLabel.textColor = .abankTextTertiary
+        tipLabel.font = .preferredFont(forTextStyle: .subheadline)
+        tipLabel.adjustsFontForContentSizeCategory = true
+        tipLabel.textColor = .abankTextSecondary
         tipLabel.numberOfLines = 0
 
         view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
+        let columnContainer = UIView()
+        scrollView.addSubview(columnContainer)
+        columnContainer.addSubview(contentView)
         [summaryView, actionGrid, contractSection, tipLabel].forEach { contentView.addSubview($0) }
 
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        contentView.snp.makeConstraints { make in
+        columnContainer.snp.makeConstraints { make in
             make.edges.equalTo(scrollView.contentLayoutGuide)
             make.width.equalTo(scrollView.frameLayoutGuide)
+        }
+        contentView.snp.makeConstraints { make in
+            make.top.bottom.centerX.equalToSuperview()
+            make.width.lessThanOrEqualToSuperview()
+            make.width.equalTo(640).priority(999)
         }
         summaryView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
@@ -97,7 +105,7 @@ final class MyLoanViewController: BaseViewController {
             make.leading.trailing.equalToSuperview()
         }
         tipLabel.snp.makeConstraints { make in
-            make.top.equalTo(contractSection.snp.bottom).offset(24)
+            make.top.equalTo(contractSection.snp.bottom).offset(14)
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
             make.bottom.equalToSuperview().offset(-Spacing.pageBottom - 24)
         }

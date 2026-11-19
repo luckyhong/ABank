@@ -66,6 +66,8 @@ final class LoanRepaymentDatePickerSheet: UIView {
         titleLabel.textAlignment = .center
 
         picker.datePickerMode = .date
+        picker.calendar = BankingDateContext.system.calendar
+        picker.timeZone = BankingDateContext.system.calendar.timeZone
         picker.preferredDatePickerStyle = .wheels
         picker.locale = Locale(identifier: "zh_CN")
 

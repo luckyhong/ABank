@@ -382,6 +382,7 @@ enum BankingDemoFixture {
             RecordedLoanRepayment(period: 2, date: "2026-10-09", principalInCents: 8976, interestInCents: 3815, balanceInCents: 1421674),
             RecordedLoanRepayment(period: 3, date: "2026-11-09", principalInCents: 9000, interestInCents: 3791, balanceInCents: 1412674),
         ]
+        BankingDemoMigration.fillLoanContractDetails(&loan)
         var record = FinanceLedgerRecord(
             accounts: [LedgerAccount(id: accountID, tailNumber: "8472", currency: "人民币",
                 balance: TransferMoney.amount(406923), openingBalance: TransferMoney.amount(270966))],

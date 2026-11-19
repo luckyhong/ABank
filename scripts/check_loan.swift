@@ -340,6 +340,12 @@ import Foundation
             precondition(cents(before.loanContracts[0].unpaidPrincipal) - cents(reopened.totalLiabilities()) == result.principal)
             precondition(reopened.pendingLoanPlans().first?.plan.period == first.period + 1)
             precondition(reopened.transaction(id: result.transactionID) != nil)
+            let filter = LoanRepaymentFilter(quickRange: .custom, startDate: "2026-09-01", endDate: "2026-12-31", sortOrder: .farToNear)
+            let page = reopened.loanRepaymentPageData(contractId: loanID, filter: filter)
+            precondition(!page.planItems.contains { $0.period == first.period })
+            let detail = page.detailItems.first { $0.id == result.transactionID }
+            precondition(detail?.date == String(result.paidAt.prefix(10)))
+            precondition(cents(detail!.principal) == result.principal && cents(detail!.interest) == result.interest)
         }
         try withStore { store, _ in
             topUp(store, by: 5000)

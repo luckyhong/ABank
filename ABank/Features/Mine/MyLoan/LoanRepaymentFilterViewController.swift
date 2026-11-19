@@ -11,6 +11,7 @@ final class LoanRepaymentFilterViewController: BaseViewController {
     var onConfirm: ((LoanRepaymentFilter) -> Void)?
 
     private var filter: LoanRepaymentFilter
+    private let resetFilter: LoanRepaymentFilter
     private var activeSheet: LoanRepaymentDatePickerSheet?
 
     private let timeTitleLabel = UILabel()
@@ -28,8 +29,9 @@ final class LoanRepaymentFilterViewController: BaseViewController {
 
     private let accent = UIColor.abankOrange
 
-    init(filter: LoanRepaymentFilter) {
+    init(filter: LoanRepaymentFilter, resetFilter: LoanRepaymentFilter) {
         self.filter = filter
+        self.resetFilter = resetFilter
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }
@@ -224,11 +226,7 @@ final class LoanRepaymentFilterViewController: BaseViewController {
     }
 
     @objc private func resetTapped() {
-        filter.applyCustom(
-            start: "2025-08-20",
-            end: "2026-08-20",
-            sortOrder: .nearToFar
-        )
+        filter = resetFilter
         refreshUI()
     }
 

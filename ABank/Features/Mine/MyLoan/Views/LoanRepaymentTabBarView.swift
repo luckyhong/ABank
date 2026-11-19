@@ -67,7 +67,12 @@ final class LoanRepaymentTabBarView: UIView {
 
     private func configure(button: UIButton, title: String) {
         button.setTitle(title, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.titleLabel?.font = .preferredFont(forTextStyle: .headline)
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
+        button.titleLabel?.numberOfLines = 0
+        button.titleLabel?.textAlignment = .center
+        button.contentEdgeInsets = UIEdgeInsets(top: 12, left: 4, bottom: 12, right: 4)
+        button.accessibilityIdentifier = button === planButton ? "loan.repayment.plan" : "loan.repayment.detail"
         button.setTitleColor(.abankTextPrimary, for: .normal)
     }
 
@@ -75,6 +80,8 @@ final class LoanRepaymentTabBarView: UIView {
         let planSelected = selectedTab == .plan
         planButton.setTitleColor(planSelected ? .abankTeal : .abankTextPrimary, for: .normal)
         detailButton.setTitleColor(planSelected ? .abankTextPrimary : .abankTeal, for: .normal)
+        planButton.accessibilityTraits = planSelected ? [.button, .selected] : .button
+        detailButton.accessibilityTraits = planSelected ? .button : [.button, .selected]
 
         let updates = {
             self.underline.snp.remakeConstraints { make in

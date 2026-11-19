@@ -3,16 +3,65 @@ import Foundation
 @MainActor
 enum BankingDemoMigration {
     static func upgrade(_ stored: FinanceLedgerRecord) -> FinanceLedgerRecord? {
+        let updated: FinanceLedgerRecord?
         switch stored.demoDataVersion {
         case BankingDemoFixture.previousVersion:
-            return appendFixtureTransactions(in: stored, additions: BankingDemoFixture.addedTransactionIDs.union([BankingDemoFixture.latestTransactionID]))
+            updated = appendFixtureTransactions(in: stored, additions: BankingDemoFixture.addedTransactionIDs.union([BankingDemoFixture.latestTransactionID]))
         case BankingDemoFixture.previousSupplementVersion, BankingDemoFixture.previousCorrectedVersion:
-            return appendFixtureTransactions(in: stored, additions: [BankingDemoFixture.latestTransactionID])
+            updated = appendFixtureTransactions(in: stored, additions: [BankingDemoFixture.latestTransactionID])
+        case BankingDemoFixture.version:
+            updated = stored
         case nil:
-            return upgradeLegacyRecord(stored)
+            updated = upgradeLegacyRecord(stored)
         default:
-            return nil
+            updated = nil
         }
+        // Loan metadata can be recovered independently if the old demo repayment rows still identify the ledger.
+        guard var result = updated ?? (hasReviewedLoanHistory(in: stored) ? stored : nil) else { return nil }
+        if let index = result.loanContracts.firstIndex(where: { $0.id == FinanceLedgerRecord.defaultLoanId }) {
+            fillLoanContractDetails(&result.loanContracts[index])
+        }
+        return result == stored ? nil : result
+    }
+
+    private static func hasReviewedLoanHistory(in record: FinanceLedgerRecord) -> Bool {
+        let required: Set<String> = ["fixture-2026-09-09-loan-repayment", "fixture-2026-10-09-loan-repayment", "fixture-2026-11-09-loan-repayment"]
+        let repaymentIDs = Set(record.transactions.lazy.filter {
+            $0.accountId == FinanceLedgerRecord.defaultAccountId
+        }.map(\.id))
+        return required.isSubset(of: repaymentIDs)
+    }
+
+    /// Recover the previously reviewed demo contract fields, keeping the current repayment data.
+    static func fillLoanContractDetails(_ contract: inout LoanContract) {
+        let original = FinanceLedgerStore.legacyHousingContract
+        guard contract.id == original.id, contract.name == original.name,
+              contract.contractNumber.isEmpty || contract.contractNumber == original.contractNumber else { return }
+        if contract.contractNumber.isEmpty { contract.contractNumber = original.contractNumber }
+        let lacksOverviewDetails = contract.disbursementDateText.isEmpty || contract.contractLimit == 0 ||
+            contract.loanAmount == 0 || contract.pricingBenchmark.isEmpty
+        if contract.contractLimit == 0 { contract.contractLimit = original.contractLimit }
+        if contract.loanAmount == 0 { contract.loanAmount = original.loanAmount }
+        if contract.disbursementDateText.isEmpty { contract.disbursementDateText = original.disbursementDateText }
+        if contract.expiryDate.isEmpty || (lacksOverviewDetails && contract.expiryDate == contract.finalDueDate) {
+            contract.expiryDate = original.expiryDate
+        }
+        // The prior demo fixture used fixed rate as a placeholder without pricing terms.
+        let method = contract.pricingMethod.replacingOccurrences(of: "模拟", with: "").trimmingCharacters(in: .whitespaces)
+        let benchmark = contract.pricingBenchmark.trimmingCharacters(in: .whitespacesAndNewlines)
+        let isDemoPlaceholder = !contract.hasOriginalContractDetails && method == "固定利率" && benchmark.isEmpty
+        if (benchmark.isEmpty || benchmark == original.pricingBenchmark) &&
+            (method.isEmpty || method == original.pricingMethod || isDemoPlaceholder) {
+            contract.pricingMethod = original.pricingMethod
+            contract.pricingBenchmark = original.pricingBenchmark
+            if contract.floatingRange.isEmpty { contract.floatingRange = original.floatingRange }
+            if contract.repricingCycle.isEmpty { contract.repricingCycle = original.repricingCycle }
+            if contract.repricingDatesText.isEmpty { contract.repricingDatesText = original.repricingDatesText }
+        }
+        if contract.maturityDateText.isEmpty, let finalDueDate = contract.finalDueDate {
+            contract.maturityDateText = LoanAmortization.maturityText(finalDueDate)
+        }
+        if contract.statusText.isEmpty { contract.statusText = original.statusText }
     }
 
     private static func upgradeLegacyRecord(_ stored: FinanceLedgerRecord) -> FinanceLedgerRecord? {

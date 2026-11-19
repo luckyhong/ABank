@@ -42,7 +42,8 @@ final class MyLoanContractSectionView: UIView {
         headerContainer.backgroundColor = UIColor(red: 245 / 255, green: 245 / 255, blue: 245 / 255, alpha: 1)
 
         sectionHeader.text = "我的贷款合同"
-        sectionHeader.font = .systemFont(ofSize: 15, weight: .semibold)
+        sectionHeader.font = .preferredFont(forTextStyle: .title3)
+        sectionHeader.adjustsFontForContentSizeCategory = true
         sectionHeader.textColor = .abankTextPrimary
 
         stackView.axis = .vertical
@@ -58,7 +59,7 @@ final class MyLoanContractSectionView: UIView {
         }
         headerContainer.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.height.equalTo(40)
+            make.height.greaterThanOrEqualTo(56)
         }
         stackView.snp.makeConstraints { make in
             make.top.equalTo(headerContainer.snp.bottom)
@@ -94,7 +95,7 @@ private final class MyLoanContractCardView: UIView {
 
         let titleLabel = UILabel()
         titleLabel.text = contract.name
-        titleLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        titleLabel.font = .systemFont(ofSize: 17, weight: .medium)
         titleLabel.textColor = .abankTextPrimary
 
         let titleArrow = UIImageView()
@@ -113,21 +114,29 @@ private final class MyLoanContractCardView: UIView {
             make.centerY.equalToSuperview()
             make.size.equalTo(14)
         }
+        titleRow.isAccessibilityElement = true
+        titleRow.accessibilityTraits = .button
+        titleRow.accessibilityLabel = contract.name
+        titleRow.accessibilityIdentifier = "loan.overview.contract." + contractId
         titleRow.addTarget(self, action: #selector(contractTapped), for: .touchUpInside)
 
         let separator = makeSeparator()
-        let limitRow = makeInfoRow(title: "合同额度", value: contract.hasOriginalContractDetails ? "¥\(contract.contractLimit.abankPlainAmountString())" : "—")
+        let limitRow = makeInfoRow(title: "合同额度", value: (contract.hasOriginalContractDetails || contract.contractLimit > 0) ? "¥\(contract.contractLimit.abankPlainAmountString())" : "—")
         let expiryRow = makeInfoRow(title: "合同到期日", value: contract.expiryDate)
         let taxRow = makeTaxRow()
 
         let detailTitle = UILabel()
         detailTitle.text = "合同详情"
-        detailTitle.font = .systemFont(ofSize: 14)
+        detailTitle.font = .systemFont(ofSize: 16)
         detailTitle.textColor = .abankTextPrimary
 
+        let fields = [("合同合约号", contract.contractNumber), ("合同签订日期", contract.signingDate)]
+            .filter { !$0.1.isEmpty }
+        let showsFields = !fields.isEmpty && contract.isDetailExpanded
+        let chevron = fields.isEmpty ? "chevron.right" : (showsFields ? "chevron.up" : "chevron.down")
         let chevronConfig = UIImage.SymbolConfiguration(pointSize: 12, weight: .medium)
         detailChevron.image = UIImage(
-            systemName: contract.isDetailExpanded ? "chevron.up" : "chevron.down",
+            systemName: chevron,
             withConfiguration: chevronConfig
         )
         detailChevron.tintColor = UIColor(red: 200 / 255, green: 200 / 255, blue: 200 / 255, alpha: 1)
@@ -143,18 +152,20 @@ private final class MyLoanContractCardView: UIView {
             make.centerY.equalToSuperview()
             make.size.equalTo(14)
         }
-        detailToggleRow.addTarget(self, action: #selector(toggleDetailTapped), for: .touchUpInside)
+        detailToggleRow.isAccessibilityElement = true
+        detailToggleRow.accessibilityTraits = .button
+        detailToggleRow.accessibilityLabel = "合同详情"
+        if !fields.isEmpty {
+            detailToggleRow.accessibilityValue = showsFields ? "已展开" : "已折叠"
+        }
+        detailToggleRow.addTarget(self, action: fields.isEmpty ? #selector(contractTapped) : #selector(toggleDetailTapped), for: .touchUpInside)
 
         expandedStack.axis = .vertical
         expandedStack.alignment = .fill
         expandedStack.spacing = 0
-        expandedStack.isHidden = !contract.isDetailExpanded
-        expandedStack.addArrangedSubview(
-            makeInfoRow(title: "合同合约号", value: contract.contractNumber.isEmpty ? "-" : contract.contractNumber)
-        )
-        expandedStack.addArrangedSubview(
-            makeInfoRow(title: "合同签订日期", value: contract.signingDate.isEmpty ? "-" : contract.signingDate)
-        )
+        for (title, value) in fields {
+            expandedStack.addArrangedSubview(makeInfoRow(title: title, value: value))
+        }
 
         [titleRow, separator, limitRow, expiryRow, taxRow, detailToggleRow, expandedStack].forEach {
             addSubview($0)
@@ -166,8 +177,7 @@ private final class MyLoanContractCardView: UIView {
         }
         separator.snp.makeConstraints { make in
             make.top.equalTo(titleRow.snp.bottom)
-            make.leading.equalToSuperview().offset(Spacing.md)
-            make.trailing.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(Spacing.md)
             make.height.equalTo(0.5)
         }
         limitRow.snp.makeConstraints { make in
@@ -186,10 +196,10 @@ private final class MyLoanContractCardView: UIView {
         detailToggleRow.snp.makeConstraints { make in
             make.top.equalTo(taxRow.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(36)
+            make.height.equalTo(44)
         }
 
-        if contract.isDetailExpanded {
+        if showsFields {
             expandedStack.isHidden = false
             expandedStack.snp.makeConstraints { make in
                 make.top.equalTo(detailToggleRow.snp.bottom)
@@ -218,12 +228,12 @@ private final class MyLoanContractCardView: UIView {
         let row = UIView()
         let titleLabel = UILabel()
         titleLabel.text = title
-        titleLabel.font = .systemFont(ofSize: 14)
+        titleLabel.font = .systemFont(ofSize: 16)
         titleLabel.textColor = .abankTextPrimary
 
         let valueLabel = UILabel()
         valueLabel.text = value
-        valueLabel.font = .systemFont(ofSize: 14)
+        valueLabel.font = .monospacedDigitSystemFont(ofSize: 16, weight: .regular)
         valueLabel.textColor = .abankTextPrimary
         valueLabel.textAlignment = .right
 
@@ -245,7 +255,7 @@ private final class MyLoanContractCardView: UIView {
         let row = UIControl()
         let titleLabel = UILabel()
         titleLabel.text = "报税信息"
-        titleLabel.font = .systemFont(ofSize: 14)
+        titleLabel.font = .systemFont(ofSize: 16)
         titleLabel.textColor = .abankTextPrimary
 
         let info = UIImageView(image: UIImage.abankAsset("abc_mine_detail_info_reference", fallback: "info.circle", renderingMode: .alwaysTemplate, pointSize: 13))

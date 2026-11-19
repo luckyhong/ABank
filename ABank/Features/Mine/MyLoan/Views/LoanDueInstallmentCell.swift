@@ -16,6 +16,7 @@ final class LoanDueInstallmentCell: UITableViewCell {
     private let dateLabel = UILabel()
     private let amountLabel = UILabel()
     private let chevronView = UIImageView()
+    private let amountStack = UIStackView()
     private let detailStack = UIStackView()
     private let separator = UIView()
 
@@ -31,7 +32,7 @@ final class LoanDueInstallmentCell: UITableViewCell {
 
     func configure(item: LoanDueInstallment, expanded: Bool, isLast: Bool) {
         dateLabel.text = item.date
-        amountLabel.text = "-¥\(item.amount.abankPlainAmountString())"
+        amountLabel.text = "−¥\(item.amount.abankPlainAmountString())"
 
         let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .semibold)
         chevronView.image = UIImage(
@@ -46,10 +47,10 @@ final class LoanDueInstallmentCell: UITableViewCell {
         detailStack.isHidden = !expanded
         if expanded {
             detailStack.addArrangedSubview(
-                LoanDueDetailRowView(title: item.loanName, value: item.contractNumber)
+                LoanRepaymentKVRowView(title: item.loanName, value: item.contractNumber)
             )
             detailStack.addArrangedSubview(
-                LoanDueDetailRowView(title: "扣款金额", value: "¥\(item.amount.abankPlainAmountString())")
+                LoanRepaymentKVRowView(title: "扣款金额", value: "¥\(item.amount.abankPlainAmountString())")
             )
         }
 
@@ -68,7 +69,7 @@ final class LoanDueInstallmentCell: UITableViewCell {
         headerControl.accessibilityValue = expanded ? "已展开" : "已折叠"
         headerControl.snp.remakeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.height.equalTo(52)
+            make.height.greaterThanOrEqualTo(48)
             if !expanded {
                 make.bottom.equalToSuperview()
             }
@@ -81,14 +82,19 @@ final class LoanDueInstallmentCell: UITableViewCell {
             }
         }
         separator.isHidden = isLast && !expanded
+        updateLayout()
     }
 
     private func setupUI() {
-        dateLabel.font = .systemFont(ofSize: 15)
+        dateLabel.font = .preferredFont(forTextStyle: .callout)
+        dateLabel.adjustsFontForContentSizeCategory = true
         dateLabel.textColor = .abankTextPrimary
 
-        amountLabel.font = .systemFont(ofSize: 15)
+        amountLabel.font = UIFontMetrics(forTextStyle: .callout)
+            .scaledFont(for: .monospacedDigitSystemFont(ofSize: 17, weight: .medium))
+        amountLabel.adjustsFontForContentSizeCategory = true
         amountLabel.textColor = .abankTextPrimary
+        amountLabel.numberOfLines = 0
         amountLabel.textAlignment = .right
 
         chevronView.tintColor = UIColor(red: 190 / 255, green: 190 / 255, blue: 190 / 255, alpha: 1)
@@ -105,29 +111,26 @@ final class LoanDueInstallmentCell: UITableViewCell {
         headerControl.addTarget(self, action: #selector(headerTapped), for: .touchUpInside)
 
         contentView.addSubview(headerControl)
-        headerControl.addSubview(dateLabel)
-        headerControl.addSubview(amountLabel)
+        amountStack.addArrangedSubview(dateLabel)
+        amountStack.addArrangedSubview(amountLabel)
+        headerControl.addSubview(amountStack)
         headerControl.addSubview(chevronView)
         contentView.addSubview(detailStack)
         contentView.addSubview(separator)
 
         headerControl.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.height.equalTo(52)
+            make.height.greaterThanOrEqualTo(48)
         }
-        dateLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(16)
-            make.centerY.equalToSuperview()
+        amountStack.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(8)
+            make.leading.equalToSuperview().inset(Spacing.md)
+            make.trailing.equalTo(chevronView.snp.leading).offset(-8)
         }
         chevronView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().offset(-16)
             make.centerY.equalToSuperview()
             make.size.equalTo(16)
-        }
-        amountLabel.snp.makeConstraints { make in
-            make.trailing.equalTo(chevronView.snp.leading).offset(-8)
-            make.centerY.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(dateLabel.snp.trailing).offset(12)
         }
         detailStack.snp.makeConstraints { make in
             make.top.equalTo(headerControl.snp.bottom)
@@ -140,46 +143,18 @@ final class LoanDueInstallmentCell: UITableViewCell {
         }
     }
 
-    @objc private func headerTapped() { onToggle?() }
-}
-
-private final class LoanDueDetailRowView: UIView {
-
-    init(title: String, value: String) {
-        super.init(frame: .zero)
-        let titleLabel = UILabel()
-        titleLabel.text = title
-        titleLabel.font = .systemFont(ofSize: 14)
-        titleLabel.textColor = .abankTextSecondary
-
-        let valueLabel = UILabel()
-        valueLabel.text = value
-        valueLabel.font = .systemFont(ofSize: 14)
-        valueLabel.textColor = .abankTextPrimary
-        valueLabel.textAlignment = .right
-
-        let line = UIView()
-        line.backgroundColor = .abankSeparator
-
-        addSubview(titleLabel)
-        addSubview(valueLabel)
-        addSubview(line)
-
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview()
-            make.top.equalToSuperview().offset(12)
-            make.bottom.equalToSuperview().offset(-12)
-        }
-        valueLabel.snp.makeConstraints { make in
-            make.trailing.equalToSuperview()
-            make.centerY.equalTo(titleLabel)
-            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(12)
-        }
-        line.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
-            make.height.equalTo(0.5)
-        }
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateLayout()
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    private func updateLayout() {
+        let large = traitCollection.preferredContentSizeCategory.isAccessibilityCategory
+        amountStack.axis = large ? .vertical : .horizontal
+        amountStack.alignment = large ? .fill : .firstBaseline
+        amountStack.spacing = large ? 4 : 12
+        amountLabel.textAlignment = large ? .left : .right
+    }
+
+    @objc private func headerTapped() { onToggle?() }
 }

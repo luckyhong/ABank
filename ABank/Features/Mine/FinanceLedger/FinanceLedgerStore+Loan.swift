@@ -187,7 +187,9 @@ extension FinanceLedgerStore {
         root.loanContracts[index].maturityDateText = LoanAmortization.maturityText(preview.maturityAfter)
         if contract.finalDueDate != nil {
             root.loanContracts[index].finalDueDate = preview.maturityAfter
-            root.loanContracts[index].expiryDate = preview.maturityAfter
+            if contract.expiryDate == contract.finalDueDate {
+                root.loanContracts[index].expiryDate = preview.maturityAfter
+            }
         }
         root.transactions.append(LedgerTransaction(
             id: "loan_" + numbers.id, accountId: account.id, date: dates.string(from: now),

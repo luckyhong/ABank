@@ -17,6 +17,7 @@ extension Notification.Name {
     static let demoSupplementBackupKey = "abank.financeLedger.backup.before20261116"
     static let demoDetailCorrectionBackupKey = "abank.financeLedger.backup.before20261116DetailCorrection"
     static let demoWeChatBackupKey = "abank.financeLedger.backup.before20261118WeChat"
+    static let demoContractDetailsBackupKey = "abank.financeLedger.backup.loan-contract-details"
     private let defaults: UserDefaults
     let dates: BankingDateContext
     private let encoder = JSONEncoder()
@@ -91,7 +92,8 @@ extension Notification.Name {
         case BankingDemoFixture.previousVersion: backupKey = Self.demoSupplementBackupKey
         case BankingDemoFixture.previousSupplementVersion: backupKey = Self.demoDetailCorrectionBackupKey
         case BankingDemoFixture.previousCorrectedVersion: backupKey = Self.demoWeChatBackupKey
-        default: backupKey = Self.demoBackupKey
+        default:
+            backupKey = updated.demoDataVersion == stored.demoDataVersion ? Self.demoContractDetailsBackupKey : Self.demoBackupKey
         }
         if defaults.data(forKey: backupKey) == nil { defaults.set(originalData, forKey: backupKey) }
         recalculate(&updated)
@@ -689,59 +691,30 @@ extension Notification.Name {
         contractId: String,
         filter: LoanRepaymentFilter
     ) -> LoanRepaymentPageData {
-        let contract = loanContract(id: contractId)
-        let contractNumber = contract?.contractNumber.isEmpty == false
-            ? (contract?.contractNumber ?? "")
-            : "—"
-
-        // 下一期之前保留历史种子；之后按当前本金与每期还款额由等额本息生成。
-        var allPlans = contract?.recordedRepayments?.map { repayment in
-            LoanRepaymentPlanItem(id: "plan_\(repayment.period)", contractNumber: contractNumber,
-                period: repayment.period, date: repayment.date,
-                repaymentAmount: TransferMoney.amount(repayment.principalInCents + repayment.interestInCents),
-                principal: TransferMoney.amount(repayment.principalInCents),
-                interest: TransferMoney.amount(repayment.interestInCents), balance: TransferMoney.amount(repayment.balanceInCents))
-        } ?? Self.seedRepaymentPlans(contractNumber: contractNumber)
-        if let contract {
-            let repaid = load().installmentRepayments.filter { $0.contractID == contractId }
-            let repaidPeriods = Set(repaid.map(\.period))
-            allPlans = allPlans.filter { $0.period < contract.nextPeriod && !repaidPeriods.contains($0.period) }
-            allPlans += repaid.map { repayment in
-                LoanRepaymentPlanItem(id: "plan_\(repayment.period)", contractNumber: contractNumber,
-                    period: repayment.period, date: repayment.dueDate, repaymentAmount: TransferMoney.amount(repayment.amount),
-                    principal: TransferMoney.amount(repayment.principal), interest: TransferMoney.amount(repayment.interest),
-                    balance: TransferMoney.amount(repayment.remainingPrincipal))
-            }
-            if let principal = TransferMoney.cents(from: contract.unpaidPrincipal),
-               let installment = TransferMoney.cents(from: contract.installmentAmount) {
-                allPlans += LoanAmortization.schedule(
-                    principalInCents: principal, installmentInCents: installment, terms: contract.remainingTerms,
-                    annualPercent: contract.annualRatePercent, firstPeriod: contract.nextPeriod,
-                    firstDueDate: contract.nextDueDate, contractNumber: contractNumber, dates: dates,
-                    finalDueDate: contract.finalDueDate
-                )
-            }
+        let record = load()
+        guard let contract = record.loanContracts.first(where: { $0.id == contractId }) else {
+            return LoanRepaymentPageData(planItems: [], detailItems: [])
         }
-        let plans = allPlans
+        let contractNumber = contract.contractNumber.isEmpty ? "—" : contract.contractNumber
+        let plans = pendingLoanPlans(for: contract)
             .filter { Self.isDate($0.date, in: filter) }
             .sorted { lhs, rhs in
-                filter.sortOrder == .nearToFar
-                    ? lhs.date > rhs.date || (lhs.date == rhs.date && lhs.period > rhs.period)
-                    : lhs.date < rhs.date || (lhs.date == rhs.date && lhs.period < rhs.period)
+                if lhs.date == rhs.date { return lhs.period < rhs.period }
+                return filter.sortOrder == .nearToFar ? lhs.date > rhs.date : lhs.date < rhs.date
             }
 
-        let prepaid = prepaymentRecords(contractId: contractId).map { record in
+        let prepaid = record.loanServiceRecords.filter { $0.kind == .prepayment && $0.contractID == contractId }.map { record in
             LoanRepaymentDetailItem(
                 id: "detail_" + record.id, contractNumber: contractNumber, date: String(record.createdAt.prefix(10)),
                 principal: TransferMoney.amount(record.amountInCents ?? 0), interest: 0, penalty: 0, compoundInterest: 0
             )
         }
-        let historicalDetails = contract?.recordedRepayments?.map { repayment in
+        let historicalDetails = (contract.recordedRepayments ?? []).map { repayment in
             LoanRepaymentDetailItem(id: "detail_\(repayment.period)", contractNumber: contractNumber,
                 date: repayment.date, principal: TransferMoney.amount(repayment.principalInCents),
                 interest: TransferMoney.amount(repayment.interestInCents), penalty: 0, compoundInterest: 0)
-        } ?? Self.seedRepaymentDetails(contractNumber: contractNumber)
-        let installments = load().installmentRepayments.filter { $0.contractID == contractId }.map { repayment in
+        }
+        let installments = record.installmentRepayments.filter { $0.contractID == contractId }.map { repayment in
             LoanRepaymentDetailItem(id: repayment.transactionID, contractNumber: contractNumber,
                 date: String(repayment.paidAt.prefix(10)), principal: TransferMoney.amount(repayment.principal),
                 interest: TransferMoney.amount(repayment.interest), penalty: 0, compoundInterest: 0)
@@ -749,7 +722,8 @@ extension Notification.Name {
         let details = (prepaid + historicalDetails + installments)
             .filter { Self.isDate($0.date, in: filter) }
             .sorted { lhs, rhs in
-                filter.sortOrder == .nearToFar ? lhs.date > rhs.date : lhs.date < rhs.date
+                if lhs.date == rhs.date { return lhs.id < rhs.id }
+                return filter.sortOrder == .nearToFar ? lhs.date > rhs.date : lhs.date < rhs.date
             }
 
         return LoanRepaymentPageData(planItems: plans, detailItems: details)
@@ -809,18 +783,22 @@ extension Notification.Name {
 
     func pendingLoanPlans(in record: FinanceLedgerRecord) -> [(contract: LoanContract, plan: LoanRepaymentPlanItem)] {
         record.loanContracts.flatMap { contract -> [(contract: LoanContract, plan: LoanRepaymentPlanItem)] in
-            guard let principal = TransferMoney.cents(from: contract.unpaidPrincipal), principal > 0,
-                  let installment = TransferMoney.cents(from: contract.installmentAmount) else { return [] }
-            return LoanAmortization.schedule(principalInCents: principal, installmentInCents: installment,
-                terms: contract.remainingTerms, annualPercent: contract.annualRatePercent,
-                firstPeriod: contract.nextPeriod, firstDueDate: contract.nextDueDate,
-                contractNumber: contract.contractNumber, dates: dates, finalDueDate: contract.finalDueDate)
-                .map { (contract: contract, plan: $0) }
+            pendingLoanPlans(for: contract).map { (contract: contract, plan: $0) }
         }.sorted { lhs, rhs in
             if lhs.plan.date != rhs.plan.date { return lhs.plan.date < rhs.plan.date }
             if lhs.contract.id != rhs.contract.id { return lhs.contract.id < rhs.contract.id }
             return lhs.plan.period < rhs.plan.period
         }
+    }
+
+    private func pendingLoanPlans(for contract: LoanContract) -> [LoanRepaymentPlanItem] {
+        guard let principal = TransferMoney.cents(from: contract.unpaidPrincipal), principal > 0,
+              let installment = TransferMoney.cents(from: contract.installmentAmount), installment > 0 else { return [] }
+        return LoanAmortization.schedule(principalInCents: principal, installmentInCents: installment,
+            terms: contract.remainingTerms, annualPercent: contract.annualRatePercent,
+            firstPeriod: contract.nextPeriod, firstDueDate: contract.nextDueDate,
+            contractNumber: contract.contractNumber.isEmpty ? "—" : contract.contractNumber, dates: dates,
+            finalDueDate: contract.finalDueDate)
     }
 
     func loanDuePeriod(for dueDate: String) -> LoanDuePeriod {
@@ -862,82 +840,6 @@ extension Notification.Name {
 
     private static func isDate(_ date: String, in filter: LoanRepaymentFilter) -> Bool {
         date >= filter.startDate && date <= filter.endDate
-    }
-
-    private static func seedRepaymentPlans(contractNumber: String) -> [LoanRepaymentPlanItem] {
-        let payment = 2_934.91
-        var balance = 334_420.99
-        var principal = 2_037.71
-        let calendar = Calendar(identifier: .gregorian)
-        var components = DateComponents(year: 2026, month: 6, day: 9)
-        var items: [LoanRepaymentPlanItem] = []
-
-        for period in 104...120 {
-            guard let date = calendar.date(from: components) else { break }
-            let roundedPrincipal = (principal * 100).rounded() / 100
-            let roundedInterest = ((payment - roundedPrincipal) * 100).rounded() / 100
-            balance = max(0, ((balance - roundedPrincipal) * 100).rounded() / 100)
-            items.append(
-                LoanRepaymentPlanItem(
-                    id: "plan_\(period)",
-                    contractNumber: contractNumber,
-                    period: period,
-                    date: LoanRepaymentFilter.string(from: date),
-                    repaymentAmount: payment,
-                    principal: roundedPrincipal,
-                    interest: roundedInterest,
-                    balance: balance
-                )
-            )
-            principal += 5.45
-            if let next = calendar.date(byAdding: .month, value: 1, to: date) {
-                components = calendar.dateComponents([.year, .month, .day], from: next)
-            }
-        }
-
-        let overrides: [(Int, String, Double, Double, Double, Double)] = [
-            (107, "2026-09-09", 2_934.91, 2_054.06, 880.85, 328_264.87),
-            (108, "2026-10-09", 2_934.91, 2_059.54, 875.37, 326_205.33),
-            (109, "2026-11-09", 2_934.91, 2_065.03, 869.88, 324_140.30)
-        ]
-        for item in overrides {
-            guard let idx = items.firstIndex(where: { $0.period == item.0 }) else { continue }
-            items[idx] = LoanRepaymentPlanItem(
-                id: items[idx].id,
-                contractNumber: contractNumber,
-                period: item.0,
-                date: item.1,
-                repaymentAmount: item.2,
-                principal: item.3,
-                interest: item.4,
-                balance: item.5
-            )
-        }
-        return items
-    }
-
-    private static func seedRepaymentDetails(contractNumber: String) -> [LoanRepaymentDetailItem] {
-        let rows: [(String, Double, Double)] = [
-            ("2026-03-09", 2_021.45, 913.46),
-            ("2026-04-09", 2_026.84, 908.07),
-            ("2026-05-09", 2_032.26, 902.65),
-            ("2026-06-09", 2_037.71, 897.20),
-            ("2026-07-09", 2_043.15, 891.76),
-            ("2026-08-09", 2_048.60, 886.31),
-            ("2025-12-09", 2_005.12, 929.79),
-            ("2025-09-09", 1_988.40, 946.51)
-        ]
-        return rows.enumerated().map { index, row in
-            LoanRepaymentDetailItem(
-                id: "detail_\(index)",
-                contractNumber: contractNumber,
-                date: row.0,
-                principal: row.1,
-                interest: row.2,
-                penalty: 0,
-                compoundInterest: 0
-            )
-        }
     }
 
     private static func seedUsageRecords() -> [LoanUsageRecord] {
@@ -1012,6 +914,31 @@ extension Notification.Name {
     }
 
     /// 旧快照仅用于识别/迁移及兼容性回归，不能再作为新安装默认数据。
+    static var legacyHousingContract: LoanContract {
+        LoanContract(
+            id: FinanceLedgerRecord.defaultLoanId,
+            name: "个人住房贷款",
+            unpaidPrincipal: 330_318.93,
+            contractLimit: 670_000,
+            expiryDate: "2047-09-14",
+            monthlyDue: 0,
+            availableLimit: 0,
+            isDetailExpanded: true,
+            contractNumber: "26135157700004774",
+            signingDate: "2017-09-15",
+            disbursementDateText: "2017年10月9日",
+            loanAmount: 670_000,
+            annualRatePercent: 3.2,
+            pricingMethod: "浮动利率",
+            pricingBenchmark: "LPR",
+            floatingRange: "-30bp",
+            repricingCycle: "3个月",
+            repricingDatesText: "1月9日,4月9日,7月9日,10月9日",
+            maturityDateText: "2037年10月8日",
+            statusText: "正常"
+        )
+    }
+
     static func makeLegacySeedRecord() -> FinanceLedgerRecord {
         let accountId = FinanceLedgerRecord.defaultAccountId
         var record = FinanceLedgerRecord(
@@ -1026,28 +953,7 @@ extension Notification.Name {
             ],
             transactions: seedTransactions(accountId: accountId),
             loanContracts: [
-                LoanContract(
-                    id: FinanceLedgerRecord.defaultLoanId,
-                    name: "个人住房贷款",
-                    unpaidPrincipal: 330_318.93,
-                    contractLimit: 670_000,
-                    expiryDate: "2047-09-14",
-                    monthlyDue: 0,
-                    availableLimit: 0,
-                    isDetailExpanded: true,
-                    contractNumber: "26135157700004774",
-                    signingDate: "2017-09-15",
-                    disbursementDateText: "2017年10月9日",
-                    loanAmount: 670_000,
-                    annualRatePercent: 3.2,
-                    pricingMethod: "浮动利率",
-                    pricingBenchmark: "LPR",
-                    floatingRange: "-30bp",
-                    repricingCycle: "3个月",
-                    repricingDatesText: "1月9日,4月9日,7月9日,10月9日",
-                    maturityDateText: "2037年10月8日",
-                    statusText: "正常"
-                )
+                legacyHousingContract
             ],
             assetLiabilityAnnouncement: "美好生活，从一点一滴存钱开始~",
             dataTimestamp: "2026-08-20 13:41:58"
