@@ -367,28 +367,30 @@ extension Notification.Name {
         }
     }
 
-    func mineAssetLiability() -> MineAssetLiability {
+    func mineAssetLiability(statement: MonthlyLedgerStatement? = nil) -> MineAssetLiability {
         MineAssetLiability(
             assets: totalAssets(),
             liabilities: totalLiabilities(),
-            billNotice: monthlyBillNotice
+            billNotice: (statement ?? monthlyStatement()).notice
         )
     }
 
-    var monthlyBillNotice: String {
-        let hasTransactions = load().transactions.contains { $0.date.hasPrefix(dates.previousMonth) && $0.includeInFlow }
-        return hasTransactions ? "您的\(dates.previousMonthTitle)账单已出" : "\(dates.previousMonthTitle)暂无收支记录"
+    func monthlyStatement(in record: FinanceLedgerRecord? = nil, asOf date: Date? = nil) -> MonthlyLedgerStatement {
+        let now = date ?? dates.now
+        let previous = dates.previousMonthStart(relativeTo: now)
+        let month = dates.string(from: previous, format: "yyyy-MM")
+        let hasTransactions = (record ?? load()).transactions.contains { $0.date.hasPrefix(month + "-") && $0.includeInFlow }
+        let closedOn = dates.string(from: now, format: "yyyy-MM") + "-01"
+        return MonthlyLedgerStatement(month: month, monthTitle: dates.monthTitle(for: previous, relativeTo: now),
+                                      closedOn: closedOn, hasTransactions: hasTransactions)
     }
 
     func mineMonthlyFlow(for month: String? = nil) -> MineMonthlyFlow {
-        let summary = monthlyFlow(for: month ?? dates.currentMonth)
-        return MineMonthlyFlow(
-            expense: summary.expense,
-            income: summary.income,
-            billSectionTitle: "月度账单",
-            billNotice: monthlyBillNotice,
-            hasBillBadge: false
-        )
+        let month = month ?? dates.currentMonth
+        let summary = monthlyFlow(for: month)
+        let day = dates.date(from: month + "-01")
+        let title = day.map { dates.string(from: $0, format: "M'月收支'") } ?? "本月收支"
+        return MineMonthlyFlow(expense: summary.expense, income: summary.income, title: title)
     }
 
     func assetLiabilityPageData() -> AssetLiabilityPageData {

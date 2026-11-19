@@ -212,17 +212,25 @@ final class HomeViewController: BankingDataViewController {
         noticeTicker.configure(with: notices)
 
         let benefits = BenefitsStore.shared
+        let points = "可用积分 \(benefits.balance(.points))"
+        let checkIn = benefits.hasCheckedInToday ? "今日已签到" : "签到可领取\(benefits.nextCheckInReward)小豆"
         let promoItems = pageData.promoBanners.map { item -> HomePromoBannerItem in
             var subtitle = item.subtitle
             switch item.route {
-            case .pointsMall: subtitle = "可用积分 \(benefits.balance(.points))"
-            case .beans:
-                subtitle = benefits.hasCheckedInToday ? "今日已签到" : "签到可领取\(benefits.nextCheckInReward)小豆"
+            case .pointsMall: subtitle = points
+            case .beans: subtitle = checkIn
             default: break
             }
             return HomePromoBannerItem(title: item.title, subtitle: subtitle, tone: item.tone, route: item.route)
         }
         promoBanner.configure(with: promoItems)
+        hotActivities.configure(
+            featured: HomeActivityFeaturedItem(title: "小豆乐园", subtitle: checkIn, route: .beans),
+            sides: [
+                HomeActivitySideItem(title: "积分商城", subtitle: points, actionTitle: "去兑换 ›", route: .pointsMall),
+                HomeActivitySideItem(title: "我的卡券", subtitle: "\(benefits.unusedCouponCount)张可用", actionTitle: "去查看 ›", route: .coupons)
+            ]
+        )
         refreshMarketQuotes()
         reloadBranchCard()
     }
@@ -301,7 +309,6 @@ final class HomeViewController: BankingDataViewController {
             featured: pageData.wealthFeatured,
             sides: pageData.wealthSides
         )
-        hotActivities.configure(featured: pageData.activityFeatured, sides: pageData.activitySides)
         pensionZone.configure(
             slogan: pageData.pensionSlogan,
             subtitle: pageData.pensionSubtitle,
@@ -361,6 +368,10 @@ final class HomeViewController: BankingDataViewController {
         }
         promoBanner.onItemTapped = { [weak self] item in
             guard let self, let route = item.route else { return }
+            self.router.open(route, from: self)
+        }
+        hotActivities.onAction = { [weak self] route in
+            guard let self else { return }
             self.router.open(route, from: self)
         }
 

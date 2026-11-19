@@ -8,13 +8,15 @@ import SnapKit
 
 final class HotActivitiesView: UIView {
 
-    private let header = SectionHeaderView(title: "热门活动")
-    private let featuredCard = UIView()
+    var onAction: ((AppRoute) -> Void)?
+
+    private let header = SectionHeaderView(title: "日常权益", showsChevron: false)
+    private let featuredCard = UIControl()
     private let sideStack = UIStackView()
     private let featuredTitle = UILabel()
     private let featuredSubtitle = UILabel()
     private let featuredArt = UIImageView()
-    private let featuredAd = AdTagLabel()
+    private var featuredRoute: AppRoute?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -28,7 +30,8 @@ final class HotActivitiesView: UIView {
     func configure(featured: HomeActivityFeaturedItem, sides: [HomeActivitySideItem]) {
         featuredTitle.text = featured.title
         featuredSubtitle.text = featured.subtitle
-        featuredAd.isHidden = !featured.isAd
+        featuredRoute = featured.route
+        featuredCard.accessibilityLabel = "\(featured.title)，\(featured.subtitle)"
 
         sideStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         sides.forEach { sideStack.addArrangedSubview(makeSideCard(item: $0)) }
@@ -42,6 +45,12 @@ final class HotActivitiesView: UIView {
         featuredCard.backgroundColor = UIColor(red: 1.0, green: 0.96, blue: 0.92, alpha: 1)
         featuredCard.layer.cornerRadius = CornerRadius.md
         featuredCard.clipsToBounds = true
+        featuredCard.isAccessibilityElement = true
+        featuredCard.accessibilityTraits = .button
+        featuredCard.addAction(UIAction { [weak self] _ in
+            guard let self, let route = self.featuredRoute else { return }
+            self.onAction?(route)
+        }, for: .touchUpInside)
 
         featuredTitle.font = .systemFont(ofSize: 15, weight: .semibold)
         featuredTitle.textColor = .abankTextPrimary
@@ -54,7 +63,7 @@ final class HotActivitiesView: UIView {
         addSubview(header)
         addSubview(featuredCard)
         addSubview(sideStack)
-        [featuredTitle, featuredSubtitle, featuredArt, featuredAd].forEach { featuredCard.addSubview($0) }
+        [featuredTitle, featuredSubtitle, featuredArt].forEach { featuredCard.addSubview($0) }
 
         header.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
@@ -84,19 +93,19 @@ final class HotActivitiesView: UIView {
             make.bottom.equalToSuperview().offset(-16)
             make.size.equalTo(48)
         }
-        featuredAd.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(12)
-            make.bottom.equalToSuperview().offset(-10)
-        }
     }
 
     private func makeSideCard(item: HomeActivitySideItem) -> UIView {
-        let card = UIView()
+        let card = UIControl()
         card.backgroundColor = .abankCardBackground
         card.layer.cornerRadius = CornerRadius.md
         card.clipsToBounds = true
         card.layer.borderWidth = 0.5
         card.layer.borderColor = UIColor.abankSeparator.cgColor
+        card.isAccessibilityElement = true
+        card.accessibilityTraits = .button
+        card.accessibilityLabel = "\(item.title)，\(item.subtitle)"
+        card.addAction(UIAction { [weak self] _ in self?.onAction?(item.route) }, for: .touchUpInside)
 
         let title = UILabel()
         title.text = item.title
@@ -113,17 +122,7 @@ final class HotActivitiesView: UIView {
         action.font = .systemFont(ofSize: 12, weight: .medium)
         action.textColor = .abankOrange
 
-        let ad = AdTagLabel()
-        ad.isHidden = !item.isAd
-
-        let deco = UIImageView()
-        if item.title == "茶影优惠享" {
-            deco.image = UIImage(systemName: "cup.and.saucer.fill")
-            deco.tintColor = UIColor(red: 0.55, green: 0.32, blue: 0.18, alpha: 1)
-            deco.contentMode = .scaleAspectFit
-        }
-
-        [title, subtitle, action, ad, deco].forEach { card.addSubview($0) }
+        [title, subtitle, action].forEach { card.addSubview($0) }
         title.snp.makeConstraints { make in
             make.top.leading.equalToSuperview().offset(10)
             make.trailing.equalToSuperview().offset(-10)
@@ -135,17 +134,6 @@ final class HotActivitiesView: UIView {
         action.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(10)
             make.bottom.equalToSuperview().offset(-10)
-        }
-        ad.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-8)
-            make.bottom.equalToSuperview().offset(-8)
-        }
-        if item.title == "茶影优惠享" {
-            deco.snp.makeConstraints { make in
-                make.trailing.equalToSuperview().offset(-10)
-                make.centerY.equalToSuperview().offset(4)
-                make.size.equalTo(28)
-            }
         }
         return card
     }

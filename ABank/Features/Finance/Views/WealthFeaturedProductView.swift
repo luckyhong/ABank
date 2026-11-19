@@ -16,14 +16,13 @@ final class WealthFeaturedProductView: UIView {
     private let nameLabel = UILabel()
     private let yieldLabel = UILabel()
     private let yieldTitleLabel = UILabel()
-    private let dateRangeLabel = UILabel()
+    private let rateNoteLabel = UILabel()
     private let riskLabel = UILabel()
     private let riskTitleLabel = UILabel()
     private let holdingLabel = UILabel()
     private let holdingTitleLabel = UILabel()
     private let buyButton = UIButton(type: .system)
     private let disclaimerLabel = UILabel()
-    private let adTag = UILabel()
 
     private var tabs: [WealthProductTab] = []
     private var selectedIndex = 0
@@ -66,18 +65,16 @@ final class WealthFeaturedProductView: UIView {
                 : .clear
             button.layer.cornerRadius = active ? 8 : 0
         }
-        guard let product = tabs[safe: index]?.displayProduct else { return }
+        guard let product = tabs[safe: index]?.product else {
+            nameLabel.text = "暂无可展示的理财产品"
+            buyButton.isEnabled = false
+            return
+        }
         nameLabel.text = product.name
-        yieldLabel.text = product.yieldRate
-        yieldTitleLabel.text = product.yieldLabel
-        dateRangeLabel.text = product.yieldDateRange
-        riskLabel.text = product.riskLevel
-        riskTitleLabel.text = product.riskLabel
-        holdingLabel.text = product.holdingPeriod
-        holdingTitleLabel.text = product.holdingLabel
-        buyButton.setTitle(product.actionTitle, for: .normal)
-        disclaimerLabel.text = product.disclaimer
-        adTag.isHidden = !product.isAd
+        yieldLabel.text = product.rateText
+        riskLabel.text = product.risk.title
+        holdingLabel.text = "最低持有\(product.minHoldDays)天"
+        buyButton.isEnabled = true
     }
 
     private func setupUI() {
@@ -95,19 +92,23 @@ final class WealthFeaturedProductView: UIView {
 
         yieldLabel.font = .systemFont(ofSize: 26, weight: .bold)
         yieldLabel.textColor = .abankHighlight
+        yieldTitleLabel.text = WealthProduct.rateLabel
         yieldTitleLabel.font = .systemFont(ofSize: 11)
         yieldTitleLabel.textColor = .abankTextTertiary
-        dateRangeLabel.font = .systemFont(ofSize: 11)
-        dateRangeLabel.numberOfLines = 0
-        dateRangeLabel.textColor = .abankTextTertiary
+        rateNoteLabel.text = "按持有天数估算"
+        rateNoteLabel.font = .systemFont(ofSize: 11)
+        rateNoteLabel.numberOfLines = 0
+        rateNoteLabel.textColor = .abankTextTertiary
 
         riskLabel.font = .systemFont(ofSize: 15, weight: .semibold)
         riskLabel.textColor = .abankTextPrimary
+        riskTitleLabel.text = "风险等级"
         riskTitleLabel.font = .systemFont(ofSize: 11)
         riskTitleLabel.textColor = .abankTextTertiary
 
         holdingLabel.font = .systemFont(ofSize: 14, weight: .medium)
         holdingLabel.textColor = .abankTextPrimary
+        holdingTitleLabel.text = "最短持有期限"
         holdingTitleLabel.font = .systemFont(ofSize: 11)
         holdingTitleLabel.textColor = .abankTextTertiary
 
@@ -117,18 +118,17 @@ final class WealthFeaturedProductView: UIView {
         buyButton.layer.cornerRadius = 22
         buyButton.addTarget(self, action: #selector(buyTapped), for: .touchUpInside)
 
+        buyButton.setTitle("查看产品", for: .normal)
+        buyButton.accessibilityIdentifier = "wealth.featured.open"
+        disclaimerLabel.text = "理财有风险，模拟参考年化用于演示估算。"
         disclaimerLabel.font = .systemFont(ofSize: 10)
         disclaimerLabel.textColor = .abankTextTertiary
         disclaimerLabel.numberOfLines = 2
 
-        adTag.text = "【广告】"
-        adTag.font = .systemFont(ofSize: 9)
-        adTag.textColor = .abankTextTertiary
-
         addSubview(card)
-        [tabStack, nameLabel, yieldLabel, yieldTitleLabel, dateRangeLabel,
+        [tabStack, nameLabel, yieldLabel, yieldTitleLabel, rateNoteLabel,
          riskLabel, riskTitleLabel, holdingLabel, holdingTitleLabel,
-         buyButton, disclaimerLabel, adTag].forEach { card.addSubview($0) }
+         buyButton, disclaimerLabel].forEach { card.addSubview($0) }
 
         card.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -142,7 +142,7 @@ final class WealthFeaturedProductView: UIView {
             make.leading.trailing.equalToSuperview().inset(Spacing.md)
         }
 
-        let col1 = makeMetricColumn(value: yieldLabel, title: yieldTitleLabel, extra: dateRangeLabel)
+        let col1 = makeMetricColumn(value: yieldLabel, title: yieldTitleLabel, extra: rateNoteLabel)
         let col2 = makeMetricColumn(value: riskLabel, title: riskTitleLabel, extra: nil)
         let col3 = makeMetricColumn(value: holdingLabel, title: holdingTitleLabel, extra: nil)
         let metricsRow = UIStackView(arrangedSubviews: [col1, col2, col3])
@@ -162,13 +162,8 @@ final class WealthFeaturedProductView: UIView {
         }
         disclaimerLabel.snp.makeConstraints { make in
             make.top.equalTo(buyButton.snp.bottom).offset(10)
-            make.leading.equalToSuperview().offset(Spacing.md)
-            make.trailing.equalTo(adTag.snp.leading).offset(-8)
+            make.leading.trailing.equalToSuperview().inset(Spacing.md)
             make.bottom.equalToSuperview().offset(-12)
-        }
-        adTag.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-Spacing.md)
-            make.bottom.equalTo(disclaimerLabel)
         }
     }
 

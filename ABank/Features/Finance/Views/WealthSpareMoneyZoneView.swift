@@ -10,7 +10,7 @@ final class WealthSpareMoneyZoneView: UIView {
 
     var onHeaderTapped: (() -> Void)?
     var onFeaturedTapped: (() -> Void)?
-    var onSideTapped: ((Int) -> Void)?
+    var onFundTapped: (() -> Void)?
 
     private let header = WealthSectionHeaderView(title: "活钱专区", subtitle: "闲钱打理 随用随赎")
     private let card = UIView()
@@ -26,12 +26,9 @@ final class WealthSpareMoneyZoneView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(featured: WealthSpareMoneyFeatured, sides: [WealthSpareMoneySide]) {
+    func configure(featured: WealthProduct?) {
         buildFeaturedCard(featured)
-        sideStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        sides.enumerated().forEach { index, side in
-            sideStack.addArrangedSubview(makeSideCard(side, index: index))
-        }
+        sideStack.addArrangedSubview(makeFundCard())
         updateCardHeightConstraints()
     }
 
@@ -74,20 +71,22 @@ final class WealthSpareMoneyZoneView: UIView {
         }
     }
 
-    private func buildFeaturedCard(_ item: WealthSpareMoneyFeatured) {
-        featuredCard.subviews.forEach { $0.removeFromSuperview() }
+    private func buildFeaturedCard(_ product: WealthProduct?) {
         styleInnerCard(featuredCard, imageName: "abc_wealth_spare_featured_background", bg: UIColor(red: 0.98, green: 0.97, blue: 0.94, alpha: 1))
 
         let title = UILabel()
-        title.text = item.title
+        title.text = product?.name ?? "现金管理类理财"
         title.font = .systemFont(ofSize: 15, weight: .semibold)
         title.textColor = .abankTextPrimary
+        title.numberOfLines = 2
 
-        let tag = WealthProductTagView(text: item.tag)
+        let tag = WealthProductTagView(text: "理财")
         let descStack = UIStackView()
         descStack.axis = .vertical
         descStack.spacing = 2
-        item.descriptions.forEach { text in
+        let details = product.map { ["最低持有\($0.minHoldDays)天", wealthPurchaseMinimumText($0.minPurchaseInCents)] }
+            ?? ["暂无可展示的产品"]
+        details.forEach { text in
             let label = UILabel()
             label.text = text
             label.font = .systemFont(ofSize: 11)
@@ -96,17 +95,19 @@ final class WealthSpareMoneyZoneView: UIView {
         }
 
         let yield = UILabel()
-        yield.text = item.yieldRate
+        yield.text = product?.rateText ?? "—"
         yield.font = .systemFont(ofSize: 28, weight: .bold)
         yield.textColor = .abankHighlight
 
         let yieldTitle = UILabel()
-        yieldTitle.text = item.yieldLabel
+        yieldTitle.text = product == nil ? "暂无数据" : WealthProduct.rateLabel
         yieldTitle.font = .systemFont(ofSize: 11)
         yieldTitle.textColor = .abankTextTertiary
 
         let button = UIButton(type: .system)
-        button.setTitle(item.actionTitle, for: .normal)
+        button.setTitle("查看详情", for: .normal)
+        button.isEnabled = product != nil
+        button.accessibilityIdentifier = "wealth.cash.open"
         button.setTitleColor(.abankOrange, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 13, weight: .medium)
         button.backgroundColor = UIColor.abankOrange.withAlphaComponent(0.15)
@@ -119,6 +120,7 @@ final class WealthSpareMoneyZoneView: UIView {
         }
         tag.snp.makeConstraints { make in
             make.leading.equalTo(title.snp.trailing).offset(6)
+            make.trailing.lessThanOrEqualToSuperview().offset(-10)
             make.centerY.equalTo(title)
             make.height.equalTo(16)
             make.width.greaterThanOrEqualTo(28)
@@ -143,44 +145,39 @@ final class WealthSpareMoneyZoneView: UIView {
         }
     }
 
-    private func makeSideCard(_ item: WealthSpareMoneySide, index: Int) -> UIView {
+    private func makeFundCard() -> UIView {
         let wrap = UIControl()
-        wrap.tag = index
-        wrap.addAction(UIAction { [weak self] _ in self?.onSideTapped?(index) }, for: .touchUpInside)
-        styleInnerCard(wrap, imageName: index == 0 ? "abc_wealth_spare_keb2_background" : "abc_wealth_spare_keb_background", bg: UIColor(red: 1.0, green: 0.98, blue: 0.94, alpha: 1))
+        wrap.addAction(UIAction { [weak self] _ in self?.onFundTapped?() }, for: .touchUpInside)
+        wrap.isAccessibilityElement = true
+        wrap.accessibilityTraits = .button
+        wrap.accessibilityLabel = SimulatedFund.name + "，" + wealthPurchaseMinimumText(SimulatedFund.minimumCents)
+        styleInnerCard(wrap, imageName: "abc_wealth_spare_keb2_background", bg: UIColor(red: 1.0, green: 0.98, blue: 0.94, alpha: 1))
 
         let title = UILabel()
-        title.text = item.title
+        title.text = SimulatedFund.name
         title.font = .systemFont(ofSize: 14, weight: .semibold)
         title.textColor = .abankTextPrimary
+        title.numberOfLines = 2
 
-        let tag = WealthProductTagView(text: item.tag)
+        let tag = WealthProductTagView(text: "基金")
         let subtitle = UILabel()
-        subtitle.text = item.subtitle
+        subtitle.text = "按次日模拟净值确认"
         subtitle.font = .systemFont(ofSize: 11)
         subtitle.textColor = .abankTextTertiary
+        subtitle.numberOfLines = 0
 
-        let yieldText = NSMutableAttributedString()
-        if let prefix = item.yieldPrefix {
-            yieldText.append(NSAttributedString(
-                string: prefix + " ",
-                attributes: [.font: UIFont.systemFont(ofSize: 11), .foregroundColor: UIColor.abankTextSecondary]
-            ))
-        }
-        yieldText.append(NSAttributedString(
-            string: item.yieldRate,
-            attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .semibold), .foregroundColor: UIColor.abankHighlight]
-        ))
+        let minimumLabel = UILabel()
+        minimumLabel.text = wealthPurchaseMinimumText(SimulatedFund.minimumCents)
+        minimumLabel.font = .systemFont(ofSize: 14, weight: .semibold)
+        minimumLabel.textColor = .abankHighlight
 
-        let yieldLabel = UILabel()
-        yieldLabel.attributedText = yieldText
-
-        [title, tag, subtitle, yieldLabel].forEach { wrap.addSubview($0) }
+        [title, tag, subtitle, minimumLabel].forEach { wrap.addSubview($0) }
         title.snp.makeConstraints { make in
             make.top.leading.equalToSuperview().offset(10)
         }
         tag.snp.makeConstraints { make in
             make.leading.equalTo(title.snp.trailing).offset(6)
+            make.trailing.lessThanOrEqualToSuperview().offset(-10)
             make.centerY.equalTo(title)
             make.height.equalTo(16)
             make.width.greaterThanOrEqualTo(28)
@@ -189,7 +186,7 @@ final class WealthSpareMoneyZoneView: UIView {
             make.top.equalTo(title.snp.bottom).offset(4)
             make.leading.trailing.equalToSuperview().inset(10)
         }
-        yieldLabel.snp.makeConstraints { make in
+        minimumLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(10)
             make.top.greaterThanOrEqualTo(subtitle.snp.bottom).offset(8)
             make.bottom.equalToSuperview().offset(-10)

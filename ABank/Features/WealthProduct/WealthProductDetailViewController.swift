@@ -43,7 +43,7 @@ final class WealthProductDetailViewController: WealthFlowViewController, RouteHo
         rate.text = product.rateText
         rate.font = .systemFont(ofSize: 32, weight: .semibold)
         rate.textColor = .abankHighlight
-        addCard([name, rate, branchCaption("年化收益率")])
+        addCard([name, rate, branchCaption(WealthProduct.rateLabel)])
 
         addGroup([
             TransferInfoRow("风险等级", value: "\(product.risk.shortTitle) \(product.risk.title)"),

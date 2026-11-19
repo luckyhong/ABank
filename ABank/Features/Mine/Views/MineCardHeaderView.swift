@@ -29,6 +29,8 @@ final class MineCardHeaderView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func setTitle(_ title: String) { titleLabel.text = title }
+
     func setAmountVisible(_ visible: Bool) {
         isAmountVisible = visible
         let icon = visible ? "eye" : "eye.slash"

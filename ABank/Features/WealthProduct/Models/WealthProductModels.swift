@@ -62,6 +62,8 @@ nonisolated enum HoldingPeriodFilter: CaseIterable {
 }
 
 nonisolated struct WealthProduct: Equatable {
+    static let rateLabel = "模拟参考年化"
+
     let id: String
     let name: String
     let category: WealthCategory

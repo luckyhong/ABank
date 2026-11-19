@@ -5,6 +5,19 @@ enum SimulatedFund {
     static let minimumCents: Int64 = 100
     static let risk: ProductRiskLevel = .r2
 
+    struct Quote: Equatable {
+        let day: String
+        let nav: Int64
+
+        var navText: String { SimulatedFund.decimalText(nav) }
+        var caption: String { "模拟净值 · \(day)" }
+    }
+
+    static func quote(dates: BankingDateContext) -> Quote {
+        let day = dates.string(from: dates.now)
+        return Quote(day: day, nav: nav(on: day, dates: dates))
+    }
+
     // Four decimal places in both NAV and units. The fixed cycle is independent of public quotes.
     static func nav(on day: String, dates: BankingDateContext) -> Int64 {
         let prices: [Int64] = [10_000, 10_120, 9_950, 10_250, 10_050]

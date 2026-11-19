@@ -2,6 +2,8 @@
 
 先核对实际 Git 状态，再读取对应任务。历史叙述不是当前代码证明。
 
+- [wealth-live-data-20261118](tasks/wealth-live-data-20261118.md)
+- [dashboard-live-data-20261118](tasks/dashboard-live-data-20261118.md)
 - [account-data-debug](tasks/account-data-debug.md)
 - [code-cleanup-20261118](tasks/code-cleanup-20261118.md)
 - [loan-ui-20261118](tasks/loan-ui-20261118.md)

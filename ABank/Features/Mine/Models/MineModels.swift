@@ -28,9 +28,18 @@ struct MineAssetLiability {
 struct MineMonthlyFlow {
     let expense: Double
     let income: Double
-    let billSectionTitle: String
-    let billNotice: String
-    let hasBillBadge: Bool
+    let title: String
+}
+
+struct MonthlyLedgerStatement {
+    let month: String
+    let monthTitle: String
+    let closedOn: String
+    let hasTransactions: Bool
+
+    var notice: String { hasTransactions ? "您的\(monthTitle)账单已出" : "\(monthTitle)暂无收支记录" }
+    var messageID: String { "bill_" + month }
+    var route: AppRoute { .monthlyStatement(month: month) }
 }
 
 struct MineGridItem {
@@ -53,11 +62,6 @@ struct MineCustomerManager {
 }
 
 struct MinePageData {
-    let profile: MineProfileInfo
-    let assetStats: [MineAssetStat]
-    let assetLiability: MineAssetLiability
-    let monthlyFlow: MineMonthlyFlow
-    let branch: MineBranchInfo
     let securityItems: [MineGridItem]
     let customerManager: MineCustomerManager
 }

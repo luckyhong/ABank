@@ -82,14 +82,14 @@ struct HomeWealthSideItem {
 struct HomeActivityFeaturedItem {
     let title: String
     let subtitle: String
-    let isAd: Bool
+    let route: AppRoute
 }
 
 struct HomeActivitySideItem {
     let title: String
     let subtitle: String
     let actionTitle: String
-    let isAd: Bool
+    let route: AppRoute
 }
 
 struct HomePensionServiceItem {
@@ -137,8 +137,6 @@ struct HomePageData {
     let promoBanners: [HomePromoBannerItem]
     let wealthFeatured: HomeWealthFeaturedItem
     let wealthSides: [HomeWealthSideItem]
-    let activityFeatured: HomeActivityFeaturedItem
-    let activitySides: [HomeActivitySideItem]
     let pensionSlogan: String
     let pensionSubtitle: String
     let pensionServices: [HomePensionServiceItem]

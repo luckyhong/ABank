@@ -20,6 +20,7 @@ import Foundation
         try corruptLedgerKeepsBytes()
         try writeFailureIsAtomic()
         catalogLinks()
+        simulatedFundQuotes()
         print("Wealth checks passed")
     }
 
@@ -507,10 +508,18 @@ import Foundation
     }
 
     @MainActor static func catalogLinks() {
-        for id in ["w.tiantianli2", "w.piaoxi", "w.lingdong180"] {
+        for id in ["w.tiantianli2", "w.piaoxi", "w.lingdong180", "w.shishifu"] {
             precondition(WealthProductCatalog.product(id: id) != nil, "wealth tab product \(id)")
         }
         precondition(AppRoute.wealthProductDetail(productID: "w.piaoxi") != AppRoute.wealthProductDetail(productID: "w.tiantianli2"))
         precondition(AppRoute.wealthOrderDetail(orderID: "a", justPurchased: true) != AppRoute.wealthOrderDetail(orderID: "a", justPurchased: false))
+    }
+
+    @MainActor static func simulatedFundQuotes() {
+        let before = SimulatedFund.quote(dates: clock(utc: "2026-11-18T15:59:59Z"))
+        let after = SimulatedFund.quote(dates: clock(utc: "2026-11-18T16:00:00Z"))
+        precondition(before.day == "2026-11-18" && before.nav == 10_000 && before.navText == "1.0000")
+        precondition(after.day == "2026-11-19" && after.nav == 10_120 && after.navText == "1.0120")
+        precondition(after.caption == "模拟净值 · 2026-11-19")
     }
 }

@@ -13,7 +13,8 @@ extension FinanceLedgerStore {
         guard !requestID.isEmpty else { throw TransferError.invalidRequest }
         var root = try loadForTransfer()
         if let existing = root.termDeposits.first(where: { $0.requestID == requestID }) { return existing }
-        guard let product = DepositProduct.all.first(where: { $0.id == productID }), (5_000...50_000_000).contains(amount) else { throw TransferError.invalidAmount }
+        guard let product = DepositProduct.all.first(where: { $0.id == productID }),
+              (DepositProduct.minimumInCents...50_000_000).contains(amount) else { throw TransferError.invalidAmount }
         let account = try retailPayer(root, accountID: accountID, amount: amount)
         let now = dates.now
         let maturity = dates.calendar.date(byAdding: .month, value: product.months, to: now)!

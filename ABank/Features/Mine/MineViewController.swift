@@ -31,29 +31,38 @@ final class MineViewController: BankingDataViewController {
     private let customerManagerCard = MineCustomerManagerCardView()
     private let security: SecuritySettingsStore = .shared
     private let benefits: BenefitsStore = .shared
+    private let ledger = FinanceLedgerStore.shared
+    private let messages = BankMessageStore.shared
     private var assetStats: [MineAssetStat] = []
+    private var displayedStatement: MonthlyLedgerStatement?
 
     override var prefersNavigationBarHidden: Bool { true }
 
-    private func refreshFinanceCardsFromStore() {
-        assetLiabilityCard.configure(with: FinanceLedgerStore.shared.mineAssetLiability())
-        monthlyFlowCard.configure(with: FinanceLedgerStore.shared.mineMonthlyFlow())
+    @objc private func refreshFinanceCardsFromStore() {
+        let now = ledger.dates.now
+        let statement = ledger.monthlyStatement(asOf: now)
+        displayedStatement = statement
+        assetLiabilityCard.configure(with: ledger.mineAssetLiability(statement: statement))
+        let month = ledger.dates.string(from: now, format: "yyyy-MM")
+        let isUnread = statement.hasTransactions && !messages.isRead(id: statement.messageID)
+        monthlyFlowCard.configure(with: ledger.mineMonthlyFlow(for: month), statement: statement, isUnread: isUnread)
     }
 
     private func refreshProfileFromStore() {
         let record = CustomerInfoStore.shared.load()
-        let profile = pageData.profile
+        let lastLogin = CustomerSessionStore.shared.lastLogin
         profileHeader.configure(with: MineProfileInfo(
             displayName: record.maskedName,
-            lastLoginDevice: profile.lastLoginDevice,
-            lastLoginTime: profile.lastLoginTime,
+            lastLoginDevice: "当前设备 " + UIDevice.current.model,
+            lastLoginTime: lastLogin.isEmpty ? "欢迎回来" : lastLogin,
             vipLevel: benefits.level.title,
-            benefitsTitle: profile.benefitsTitle
+            benefitsTitle: "权益中心"
         ))
     }
 
     private func refreshAssetStats() {
-        assetStats = MineAssetStats.make(benefits: benefits, accountCount: FinanceLedgerStore.shared.load().accounts.count + FinanceLedgerStore.shared.load().creditCards.count)
+        let record = ledger.load()
+        assetStats = MineAssetStats.make(benefits: benefits, accountCount: record.accounts.count + record.creditCards.count)
         assetStatsCard.configure(with: assetStats)
     }
 
@@ -168,11 +177,6 @@ final class MineViewController: BankingDataViewController {
     }
 
     private func bindData() {
-        profileHeader.configure(with: pageData.profile)
-        refreshAssetStats()
-        assetLiabilityCard.configure(with: FinanceLedgerStore.shared.mineAssetLiability())
-        monthlyFlowCard.configure(with: FinanceLedgerStore.shared.mineMonthlyFlow())
-        branchCard.configure(with: pageData.branch)
         securityCard.configure(with: pageData.securityItems)
         customerManagerCard.configure(with: pageData.customerManager)
     }
@@ -182,6 +186,8 @@ final class MineViewController: BankingDataViewController {
                                                name: SecuritySettingsStore.didChangeNotification, object: security)
         NotificationCenter.default.addObserver(self, selector: #selector(benefitsDidChange),
                                                name: BenefitsStore.didChangeNotification, object: benefits)
+        NotificationCenter.default.addObserver(self, selector: #selector(refreshFinanceCardsFromStore),
+                                               name: BankMessageStore.didChange, object: messages)
         assetStatsCard.onItemTapped = { [weak self] index in
             guard let self, let route = self.assetStats[safe: index]?.route else { return }
             self.router.open(route, from: self)
@@ -221,19 +227,13 @@ final class MineViewController: BankingDataViewController {
             guard let self else { return }
             self.router.open(.assetLiability, from: self)
         }
-        assetLiabilityCard.onBillTapped = { [weak self] in
-            guard let self else { return }
-            self.router.open(.ledgerAnalysis, from: self)
-        }
+        assetLiabilityCard.onBillTapped = { [weak self] in self?.openDisplayedStatement() }
 
         monthlyFlowCard.onTap = { [weak self] in
             guard let self else { return }
             self.router.open(.incomeExpense(accountID: nil), from: self)
         }
-        monthlyFlowCard.onBillTapped = { [weak self] in
-            guard let self else { return }
-            self.router.open(.ledgerAnalysis, from: self)
-        }
+        monthlyFlowCard.onBillTapped = { [weak self] in self?.openDisplayedStatement() }
 
         branchCard.onTap = { [weak self] in
             guard let self else { return }
@@ -244,7 +244,7 @@ final class MineViewController: BankingDataViewController {
             self?.showToast("已刷新")
         }
         branchCard.onItemTapped = { [weak self] index in
-            guard let self, let id = self.pageData.branch.services[safe: index]?.featureID else { return }
+            guard let self, let id = MockDataProvider.shared.mineBranchInfo().services[safe: index]?.featureID else { return }
             self.router.open(feature: id, from: self)
         }
 
@@ -265,6 +265,12 @@ final class MineViewController: BankingDataViewController {
         customerManagerCard.onWeChatTapped = { [weak self] in
             self?.showToast("联系客户经理")
         }
+    }
+
+    private func openDisplayedStatement() {
+        guard let statement = displayedStatement else { return }
+        if statement.hasTransactions { messages.markRead(ids: [statement.messageID]) }
+        router.open(statement.route, from: self)
     }
 }
 

@@ -45,14 +45,43 @@ import Foundation
         precondition(store.load() == original)
         precondition(store.incomeExpensePageData().dayGroups.isEmpty)
         precondition(store.mineMonthlyFlow().income == 0 && store.mineMonthlyFlow().expense == 0)
-        precondition(store.monthlyBillNotice == "您的9月份账单已出")
-        precondition(!store.mineMonthlyFlow().hasBillBadge, "No invented unread bill badge")
+        let messages = BankMessageStore(defaults: defaults)
+        let september = store.monthlyStatement()
+        precondition(september.notice == "您的9月份账单已出")
+        precondition(store.mineMonthlyFlow().title == "10月收支")
+        let septemberMessage = messages.messages(ledger: store).first!
+        precondition(septemberMessage.title == september.notice && septemberMessage.date == "2026-10-01")
+        precondition(septemberMessage.route == .monthlyStatement(month: "2026-09"))
+        precondition(!messages.isRead(id: september.messageID))
+        messages.markRead(ids: [september.messageID])
+        precondition(messages.isRead(septemberMessage) && messages.unreadCount(ledger: store) == 0)
         precondition(store.incomeExpensePageData(month: "2026-08").summary.expense == 20)
         precondition(defaults.data(forKey: "abank.financeLedger.record.v8") == persisted, "Reading must not rewrite the saved record")
 
+        now = iso.date(from: "2026-10-31T15:59:59Z")!
+        precondition(store.monthlyStatement().month == "2026-09")
+        now = iso.date(from: "2026-10-31T16:00:00Z")!
+        precondition(store.monthlyStatement().notice == "10月份暂无收支记录")
+        precondition(store.mineMonthlyFlow().title == "11月收支")
+        precondition(store.mineAssetLiability().billNotice == store.monthlyStatement().notice)
+        precondition(messages.messages(ledger: store).isEmpty)
+        var octoberEntry = LedgerTransaction(id: "october", accountId: "manual", date: "2026-10-31", time: "23:59:59",
+                                             title: "补录账单", direction: .expense, amount: 12, balanceAfter: 0,
+                                             iconKey: "pencil", categoryId: "other_expense", isManual: true, includeInFlow: false)
+        var updated = original
+        updated.transactions.append(octoberEntry)
+        try store.persist(updated)
+        precondition(!store.monthlyStatement().hasTransactions && messages.messages(ledger: store).isEmpty)
+        octoberEntry.includeInFlow = true
+        updated.transactions[updated.transactions.count - 1] = octoberEntry
+        try store.persist(updated)
+        let october = store.monthlyStatement()
+        precondition(october.notice == "您的10月份账单已出" && messages.unreadCount(ledger: store) == 1)
+        precondition(messages.messages(ledger: store).first?.route == october.route)
+        let january = store.monthlyStatement(asOf: iso.date(from: "2026-12-31T16:00:00Z")!)
+        precondition(january.notice == "2026年12月份暂无收支记录" && january.closedOn == "2027-01-01")
+        try store.persist(original)
         now = iso.date(from: "2026-11-01T00:00:00Z")!
-        precondition(store.monthlyBillNotice == "10月份暂无收支记录")
-        precondition(store.mineAssetLiability().billNotice == store.monthlyBillNotice)
         precondition(store.load() == original, "Advancing the clock must not regenerate transactions")
         precondition(store.incomeExpensePageData(month: "2026-08").summary.expense == 20)
 
@@ -69,7 +98,7 @@ import Foundation
         let restored = FinanceLedgerStore(defaults: defaults, dates: dates)
         precondition(restored.load() == store.load())
         precondition(restored.load().transactions.count == original.transactions.count)
-        print("PASS persisted v8 compatibility, current/empty/historical months, bill text, no generated transactions, edits and balance/timestamp projections")
+        print("PASS persisted v8 compatibility, month rollover, statement and unread state, no generated transactions, edits and balance/timestamp projections")
         #if DEBUG
         try checkDebugLedger(dates: dates, defaults: defaults)
         #endif

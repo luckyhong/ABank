@@ -69,7 +69,7 @@ final class WealthProductListViewController: WealthFlowViewController, RouteHost
                 self.router.open(self.accountID.map { .wealthAccount(accountID: $0, productID: product.id) } ?? .wealthProductDetail(productID: product.id), from: self)
             })
         }
-        addNotice("查看产品详情与购买条件")
+        addNotice("列表所示利率为\(WealthProduct.rateLabel)，可查看详情与购买条件。")
     }
 
     private func addBar(_ titles: [String], selected: Int, prefix: String, onChange: @escaping (Int) -> Void) {

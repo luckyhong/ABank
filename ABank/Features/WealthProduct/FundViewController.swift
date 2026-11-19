@@ -3,7 +3,8 @@ import UIKit
 final class FundViewController: WealthFlowViewController, RouteHosting {
     override var maximumContentWidth: CGFloat? { 560 }
 
-    private let amountRow = TransferInputRow("申购金额", placeholder: "1.00 元起", id: "fund.amount", keyboard: .decimalPad)
+    private let amountRow = TransferInputRow("申购金额", placeholder: wealthPurchaseMinimumText(SimulatedFund.minimumCents),
+                                             id: "fund.amount", keyboard: .decimalPad)
     private var accountID = FinanceLedgerRecord.defaultAccountId
     private var requestID = UUID().uuidString
     var hostedRoute: AppRoute? { .fund }
@@ -11,10 +12,12 @@ final class FundViewController: WealthFlowViewController, RouteHosting {
     override func refreshBankingData() {
         clearContent()
         title = "基金"
-        let today = dates.string(from: dates.now)
+        let quote = SimulatedFund.quote(dates: dates)
         let product = BankingPageStyle.text(SimulatedFund.name, style: .title3)
-        let nav = BankingPageStyle.text(SimulatedFund.decimalText(SimulatedFund.nav(on: today, dates: dates)), style: .title2, color: .abankMintInk)
-        let metadata = BankingPageStyle.text("模拟净值 · \(today)\nR2 中低风险", style: .footnote, color: .abankTextSecondary)
+        let nav = BankingPageStyle.text(quote.navText, style: .title2, color: .abankMintInk)
+        let productRisk = SimulatedFund.risk
+        let metadata = BankingPageStyle.text("\(quote.caption)\n\(productRisk.shortTitle) \(productRisk.title)",
+                                             style: .footnote, color: .abankTextSecondary)
         contentStack.addArrangedSubview(BankingPageStyle.surface([product, nav, metadata], spacing: Spacing.sm))
         addNotice("申购和全额赎回均按北京时间次日的模拟净值确认，免手续费。")
         addGroup([

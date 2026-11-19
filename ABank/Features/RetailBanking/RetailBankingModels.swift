@@ -1,6 +1,12 @@
 import Foundation
 
 struct DepositProduct: Identifiable {
+    static let minimumInCents: Int64 = 5_000
+    static var minimumText: String {
+        let cents = minimumInCents
+        return (cents % 100 == 0 ? String(cents / 100) : TransferMoney.text(cents)) + "元"
+    }
+
     let id: String
     let title: String
     let months: Int

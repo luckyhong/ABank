@@ -20,16 +20,21 @@ nonisolated struct BankingDateContext {
 
     var currentMonth: String { string(from: now, format: "yyyy-MM") }
 
-    var previousMonth: String {
-        let start = calendar.dateInterval(of: .month, for: now)!.start
-        return string(from: calendar.date(byAdding: .month, value: -1, to: start)!, format: "yyyy-MM")
-    }
+    var previousMonth: String { string(from: previousMonthStart(relativeTo: now), format: "yyyy-MM") }
 
     var previousMonthTitle: String {
-        let parts = previousMonth.split(separator: "-")
-        let month = Int(parts[1])!
-        return previousMonth.prefix(4) == currentMonth.prefix(4)
-            ? "\(month)月份" : "\(parts[0])年\(month)月份"
+        let reference = now
+        return monthTitle(for: previousMonthStart(relativeTo: reference), relativeTo: reference)
+    }
+
+    func previousMonthStart(relativeTo date: Date) -> Date {
+        let start = calendar.dateInterval(of: .month, for: date)!.start
+        return calendar.date(byAdding: .month, value: -1, to: start)!
+    }
+
+    func monthTitle(for month: Date, relativeTo reference: Date) -> String {
+        let sameYear = calendar.component(.year, from: month) == calendar.component(.year, from: reference)
+        return string(from: month, format: sameYear ? "M'月份'" : "yyyy'年'M'月份'")
     }
 
     func string(from date: Date, format: String = "yyyy-MM-dd") -> String {

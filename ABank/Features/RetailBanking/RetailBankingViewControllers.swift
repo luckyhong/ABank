@@ -15,7 +15,7 @@ final class DepositsViewController: TransferFlowViewController {
         if deposits.isEmpty { addNotice("暂无持有存款，可选择下方产品存入") }
         contentStack.addArrangedSubview(BankingPageStyle.section("整存整取"))
         for product in DepositProduct.all {
-            let row = BenefitsRow(title: product.title, subtitle: "年利率 \(product.rateText) · 50元起存", id: product.id, showsChevron: true)
+            let row = BenefitsRow(title: product.title, subtitle: "年利率 \(product.rateText) · \(DepositProduct.minimumText)起存", id: product.id, showsChevron: true)
             row.onTap = { [weak self] in self?.navigationController?.pushViewController(DepositPurchaseViewController(product: product), animated: true) }
             contentStack.addArrangedSubview(row)
         }
@@ -35,7 +35,8 @@ private final class DepositPurchaseViewController: TransferFlowViewController {
     private let product: DepositProduct
     private var accountID = FinanceLedgerRecord.defaultAccountId
     private let requestID = UUID().uuidString
-    private let amount = TransferInputRow("存入金额", placeholder: "50元起存", id: "deposit.amount", keyboard: .decimalPad)
+    private let amount = TransferInputRow("存入金额", placeholder: DepositProduct.minimumText + "起存",
+                                          id: "deposit.amount", keyboard: .decimalPad)
     init(product: DepositProduct) { self.product = product; super.init(nibName: nil, bundle: nil) }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     override func setupUI() { super.setupUI(); title = "存入定期" }
@@ -50,7 +51,10 @@ private final class DepositPurchaseViewController: TransferFlowViewController {
     }
     private func submit() {
         view.endEditing(true)
-        guard let cents = TransferMoney.parse(amount.field.text ?? ""), cents >= 5_000 else { showToast("请输入不少于50元的金额"); return }
+        guard let cents = TransferMoney.parse(amount.field.text ?? ""), cents >= DepositProduct.minimumInCents else {
+            showToast("请输入不少于\(DepositProduct.minimumText)的金额")
+            return
+        }
         let account = accountID
         let alert = UIAlertController(title: "确认存入？", message: "\(product.title)，金额\(TransferMoney.text(cents))元", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "取消", style: .cancel))

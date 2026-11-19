@@ -36,12 +36,12 @@ final class MineMonthlyFlowCardView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with data: MineMonthlyFlow) {
+    func configure(with data: MineMonthlyFlow, statement: MonthlyLedgerStatement, isUnread: Bool) {
         self.data = data
         updateAmounts()
-        billSectionLabel.text = data.billSectionTitle
-        billNoticeLabel.text = data.billNotice
-        billBadge.isHidden = !data.hasBillBadge
+        header.setTitle(data.title)
+        billNoticeLabel.text = statement.notice
+        billBadge.isHidden = !isUnread
         let total = data.expense + data.income
         let ratio = total > 0 ? data.expense / total : 0
         ratioBar.configure(leftRatio: ratio, isEmpty: total == 0)
@@ -69,6 +69,7 @@ final class MineMonthlyFlowCardView: UIView {
         card.addShadow(color: .black, opacity: 0.06, offset: CGSize(width: 0, height: 2), radius: 8)
 
         separator.backgroundColor = .abankSeparator
+        billSectionLabel.text = "月度账单"
         billSectionLabel.font = .systemFont(ofSize: 13)
         billSectionLabel.textColor = .abankTextSecondary
         billNoticeLabel.font = .systemFont(ofSize: 13)

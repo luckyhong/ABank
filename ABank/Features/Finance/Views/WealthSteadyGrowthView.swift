@@ -23,10 +23,10 @@ final class WealthSteadyGrowthView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with products: [WealthSteadyProduct]) {
+    func configure(with products: [WealthProduct]) {
         stack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         products.enumerated().forEach { index, product in
-            stack.addArrangedSubview(makeProductCard(product.displayProduct, index: index))
+            stack.addArrangedSubview(makeProductCard(product, index: index))
         }
     }
 
@@ -46,7 +46,7 @@ final class WealthSteadyGrowthView: UIView {
         }
     }
 
-    private func makeProductCard(_ product: WealthSteadyProduct, index: Int) -> UIView {
+    private func makeProductCard(_ product: WealthProduct, index: Int) -> UIView {
         let card = UIControl()
         card.tag = index
         card.addAction(UIAction { [weak self] _ in self?.onProductTapped?(index) }, for: .touchUpInside)
@@ -61,34 +61,34 @@ final class WealthSteadyGrowthView: UIView {
         nameLabel.numberOfLines = 2
 
         let yieldLabel = UILabel()
-        yieldLabel.text = product.yieldRate
+        yieldLabel.text = product.rateText
         yieldLabel.font = .systemFont(ofSize: 24, weight: .bold)
         yieldLabel.textColor = .abankHighlight
 
         let yieldTitle = UILabel()
-        yieldTitle.text = product.yieldLabel
+        yieldTitle.text = WealthProduct.rateLabel
         yieldTitle.font = .systemFont(ofSize: 11)
         yieldTitle.textColor = .abankTextTertiary
 
-        let dateLabel = UILabel()
-        dateLabel.text = product.yieldDateRange
-        dateLabel.font = .systemFont(ofSize: 11)
-        dateLabel.textColor = .abankTextTertiary
+        let rateNoteLabel = UILabel()
+        rateNoteLabel.text = "按持有天数估算"
+        rateNoteLabel.font = .systemFont(ofSize: 11)
+        rateNoteLabel.textColor = .abankTextTertiary
 
         let holdingLabel = UILabel()
-        holdingLabel.text = product.holdingPeriod
+        holdingLabel.text = "最低持有\(product.minHoldDays)天"
         holdingLabel.font = .systemFont(ofSize: 15, weight: .semibold)
         holdingLabel.textColor = .abankTextPrimary
 
         let purchaseLabel = UILabel()
-        purchaseLabel.text = product.purchaseInfo
+        purchaseLabel.text = "\(wealthPurchaseMinimumText(product.minPurchaseInCents)) · \(product.risk.title)"
         purchaseLabel.font = .systemFont(ofSize: 11)
         purchaseLabel.textColor = .abankTextTertiary
 
         card.addSubview(nameLabel)
         card.addSubview(yieldLabel)
         card.addSubview(yieldTitle)
-        card.addSubview(dateLabel)
+        card.addSubview(rateNoteLabel)
         card.addSubview(holdingLabel)
         card.addSubview(purchaseLabel)
 
@@ -103,7 +103,7 @@ final class WealthSteadyGrowthView: UIView {
             make.top.equalTo(yieldLabel.snp.bottom).offset(4)
             make.leading.equalTo(yieldLabel)
         }
-        dateLabel.snp.makeConstraints { make in
+        rateNoteLabel.snp.makeConstraints { make in
             make.top.equalTo(yieldTitle.snp.bottom).offset(2)
             make.leading.equalTo(yieldLabel)
         }
@@ -117,52 +117,8 @@ final class WealthSteadyGrowthView: UIView {
             make.trailing.equalTo(holdingLabel)
         }
 
-        if product.isHot {
-            let ribbon = UIImageView(image: UIImage(named: "abc_wealth_ribbon_hot"))
-            ribbon.contentMode = .scaleAspectFit
-            ribbon.isAccessibilityElement = true
-            ribbon.accessibilityLabel = "热销"
-            card.addSubview(ribbon)
-            ribbon.snp.makeConstraints { make in
-                make.top.trailing.equalToSuperview()
-                make.size.equalTo(42)
-            }
-        }
-
-        if let disclaimer = product.disclaimer {
-            let footer = UIView()
-            footer.backgroundColor = UIColor(white: 0.97, alpha: 1)
-            let disclaimerLabel = UILabel()
-            disclaimerLabel.text = disclaimer
-            disclaimerLabel.font = .systemFont(ofSize: 10)
-            disclaimerLabel.textColor = .abankTextTertiary
-            disclaimerLabel.numberOfLines = 1
-            let arrow = UIImageView(image: UIImage(systemName: "chevron.down"))
-            arrow.tintColor = .abankTextTertiary
-            arrow.contentMode = .scaleAspectFit
-            footer.addSubview(disclaimerLabel)
-            footer.addSubview(arrow)
-            card.addSubview(footer)
-
-            footer.snp.makeConstraints { make in
-                make.top.equalTo(dateLabel.snp.bottom).offset(12)
-                make.leading.trailing.bottom.equalToSuperview()
-                make.height.equalTo(32)
-            }
-            disclaimerLabel.snp.makeConstraints { make in
-                make.leading.equalToSuperview().offset(Spacing.md)
-                make.centerY.equalToSuperview()
-                make.trailing.lessThanOrEqualTo(arrow.snp.leading).offset(-8)
-            }
-            arrow.snp.makeConstraints { make in
-                make.trailing.equalToSuperview().offset(-Spacing.md)
-                make.centerY.equalToSuperview()
-                make.size.equalTo(12)
-            }
-        } else {
-            dateLabel.snp.makeConstraints { make in
-                make.bottom.equalToSuperview().offset(-Spacing.md)
-            }
+        rateNoteLabel.snp.makeConstraints { make in
+            make.bottom.equalToSuperview().offset(-Spacing.md)
         }
         return card
     }

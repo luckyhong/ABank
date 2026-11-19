@@ -21,6 +21,7 @@ enum AppRoute: Equatable {
     case accountDetail(accountID: String?, maskedNumber: String?)
     case incomeExpense(accountID: String?)
     case ledgerAnalysis
+    case monthlyStatement(month: String)
     case ledgerSearch
     case assetLiability
     case loanDue(LoanDuePeriod)

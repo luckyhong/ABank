@@ -165,24 +165,19 @@ final class WealthViewController: BankingDataViewController {
     }
 
     private func bindData() {
-        searchBar.configure(placeholder: pageData.searchPlaceholder, badgeCount: pageData.messageBadge)
         loginCard.configure(with: pageData.greeting)
         functionGrid.configure(with: pageData.gridItems)
         hotspotView.configure(with: pageData.hotspot)
         featuredProduct.configure(with: pageData.productTabs)
-        spareMoneyZone.configure(
-            featured: pageData.spareMoneyFeatured,
-            sides: pageData.spareMoneySides
-        )
+        spareMoneyZone.configure(featured: pageData.spareMoneyProduct)
         steadyGrowth.configure(with: pageData.steadyProducts)
-        incomeAdvance.configure(with: pageData.fundItems)
-        popularDeposit.configure(with: DepositProduct.all.map { WealthDepositItem(name: $0.title, rate: $0.rateText, rateLabel: "年利率", term: "\($0.months)个月", minPurchase: "50元起存") })
-        bondIndex.configure(with: pageData.bondIndex)
+        popularDeposit.configure(with: DepositProduct.all.map { WealthDepositItem(name: $0.title, rate: $0.rateText, rateLabel: "年利率", term: "\($0.months)个月", minPurchase: DepositProduct.minimumText + "起存") })
         studySection.configure(banner: pageData.studyBanner, cards: pageData.studyCards)
     }
 
     override func refreshBankingData() {
         searchBar.configure(placeholder: pageData.searchPlaceholder, badgeCount: BankMessageStore.shared.unreadCount())
+        incomeAdvance.configure(with: SimulatedFund.quote(dates: .system))
     }
 
     private func bindActions() {
@@ -218,33 +213,29 @@ final class WealthViewController: BankingDataViewController {
         }
         featuredProduct.onBuyTapped = { [weak self] in
             guard let self else { return }
-            if let id = self.pageData.productTabs[safe: self.selectedProductTab]?.productID {
+            if let id = self.pageData.productTabs[safe: self.selectedProductTab]?.product.id {
                 self.router.open(.wealthProductDetail(productID: id), from: self)
-            } else {
-                self.showToast("立即购买")
             }
         }
 
         spareMoneyZone.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.wealthProducts, from: self) }
         spareMoneyZone.onFeaturedTapped = { [weak self] in
-            guard let self else { return }; self.router.open(.wealthProductDetail(productID: "w.shishifu"), from: self)
+            guard let self, let product = self.pageData.spareMoneyProduct else { return }
+            self.router.open(.wealthProductDetail(productID: product.id), from: self)
         }
-        spareMoneyZone.onSideTapped = { [weak self] _ in
+        spareMoneyZone.onFundTapped = { [weak self] in
             guard let self else { return }; self.router.open(feature: .fund, from: self)
         }
 
         steadyGrowth.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.wealthProducts, from: self) }
         steadyGrowth.onProductTapped = { [weak self] index in
             guard let self else { return }
-            if let id = self.pageData.steadyProducts[safe: index]?.productID {
+            if let id = self.pageData.steadyProducts[safe: index]?.id {
                 self.router.open(.wealthProductDetail(productID: id), from: self)
-            } else {
-                self.showToast(self.pageData.steadyProducts[safe: index]?.name ?? "理财产品")
             }
         }
 
-        incomeAdvance.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(feature: .fund, from: self) }
-        incomeAdvance.onItemTapped = { [weak self] _ in
+        incomeAdvance.onTap = { [weak self] in
             guard let self else { return }; self.router.open(feature: .fund, from: self)
         }
         popularDeposit.onHeaderTapped = { [weak self] in guard let self else { return }; self.router.open(.deposits, from: self) }

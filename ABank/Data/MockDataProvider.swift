@@ -60,15 +60,6 @@ final class MockDataProvider {
                 HomeWealthSideItem(title: "银利多", tag: "存款", subtitle: "起存金额低、存期选择多", actionTitle: "去看看"),
                 HomeWealthSideItem(title: "存金通", tag: "贵金属", subtitle: "买黄金，到农行", actionTitle: "去查看")
             ],
-            activityFeatured: HomeActivityFeaturedItem(
-                title: "小豆乐园兑好礼",
-                subtitle: "精彩活动不容错过",
-                isAd: true
-            ),
-            activitySides: [
-                HomeActivitySideItem(title: "茶影优惠享", subtitle: "瑞幸低至6元起", actionTitle: "去查看 >", isAd: true),
-                HomeActivitySideItem(title: "天天返现", subtitle: "单笔满18元享随机返现", actionTitle: "去参与 >", isAd: true)
-            ],
             pensionSlogan: "岁月静好 悦享人生",
             pensionSubtitle: "开启银龄生活新篇章",
             pensionServices: [
@@ -128,9 +119,11 @@ final class MockDataProvider {
     // MARK: - 财富
 
     func getWealthPageData() -> WealthPageData {
-        WealthPageData(
+        let featured: [(title: String, productID: String)] = [
+            ("日日悦享", "w.tiantianli2"), ("低波稳健", "w.piaoxi"), ("业绩优选", "w.lingdong180")
+        ]
+        return WealthPageData(
             searchPlaceholder: "存款证明",
-            messageBadge: BankMessageStore.shared.unreadCount(),
             greeting: WealthGreeting(
                 message: "欢迎回来，查看您的资产与持仓",
                 loginTitle: "我的持仓"
@@ -151,123 +144,11 @@ final class MockDataProvider {
                 tag: "热点",
                 headline: "美国财政部宣布扩大国债回购规模，美债收益率显著下跌"
             ),
-            productTabs: [
-                WealthProductTab(
-                    title: "日日悦享",
-                    product: WealthFeaturedProduct(
-                        name: "农银理财农银匠心·天天利理财产品2号",
-                        yieldRate: "2.40%",
-                        yieldLabel: "成立以来年化 ⓘ",
-                        yieldDateRange: "2024/09/05-2026/08/19",
-                        riskLevel: "中低风险",
-                        riskLabel: "风险等级",
-                        holdingPeriod: "最低持有1天",
-                        holdingLabel: "最短持有期限",
-                        actionTitle: "立即购买",
-                        disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
-                        isAd: true
-                    ),
-                    productID: "w.tiantianli2"
-                ),
-                WealthProductTab(
-                    title: "低波稳健",
-                    product: WealthFeaturedProduct(
-                        name: "农银理财农银安心·天天利理财产品（票息优选）",
-                        yieldRate: "1.90%",
-                        yieldLabel: "成立以来年化 ⓘ",
-                        yieldDateRange: "2025/07/25-2026/08/19",
-                        riskLevel: "中低风险",
-                        riskLabel: "风险等级",
-                        holdingPeriod: "最低持有1天",
-                        holdingLabel: "最短持有期限",
-                        actionTitle: "立即购买",
-                        disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
-                        isAd: true
-                    ),
-                    productID: "w.piaoxi"
-                ),
-                WealthProductTab(
-                    title: "业绩优选",
-                    product: WealthFeaturedProduct(
-                        name: "农银理财农银匠心·灵动180天理财产品（量化多元增强）",
-                        yieldRate: "2.96%",
-                        yieldLabel: "成立以来年化 ⓘ",
-                        yieldDateRange: "2026/04/21-2026/08/18",
-                        riskLevel: "中低风险",
-                        riskLabel: "风险等级",
-                        holdingPeriod: "最低持有180天",
-                        holdingLabel: "最短持有期限",
-                        actionTitle: "立即购买",
-                        disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
-                        isAd: true
-                    ),
-                    productID: "w.lingdong180"
-                )
-            ],
-            spareMoneyFeatured: WealthSpareMoneyFeatured(
-                title: "农银时时付",
-                tag: "理财",
-                descriptions: ["现金管理类产品", "信用卡一键还款"],
-                yieldRate: "0.90%",
-                yieldLabel: "近7日年化",
-                actionTitle: "查看详情"
-            ),
-            spareMoneySides: [
-                WealthSpareMoneySide(title: SimulatedFund.name, tag: "基金", subtitle: "按次日模拟净值确认",
-                                    yieldPrefix: "", yieldRate: "1.00", yieldLabel: "元起购")
-            ],
-            steadyProducts: [
-                WealthSteadyProduct(
-                    name: "农银理财农银安心·天天利理财产品（票息优选）",
-                    yieldRate: "1.90%",
-                    yieldLabel: "成立以来年化 ⓘ",
-                    yieldDateRange: "2025/07/25-2026/08/19",
-                    holdingPeriod: "最低持有1天",
-                    purchaseInfo: "1.00元起购 | 中低风险",
-                    isHot: true,
-                    disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
-                    productID: "w.piaoxi"
-                ),
-                WealthSteadyProduct(
-                    name: "农银理财农银匠心·灵动180天理财产品（量化多元增强）",
-                    yieldRate: "2.96%",
-                    yieldLabel: "成立以来年化 ⓘ",
-                    yieldDateRange: "2026/04/21-2026/08/18",
-                    holdingPeriod: "最低持有180天",
-                    purchaseInfo: "1.00元起购 | 中低风险",
-                    isHot: false,
-                    disclaimer: "理财产品过往业绩不代表其未来表现，不等于理财产品实际收益，投资须谨慎",
-                    productID: "w.lingdong180"
-                )
-            ],
-            fundItems: [
-                WealthFundItem(name: SimulatedFund.name, yieldRate: "1.00", yieldLabel: "元起购",
-                               category: "混合型 · 模拟", isSelected: true)
-            ],
-            depositItems: [
-                WealthDepositItem(
-                    name: "金穗2026年第29期个人大额存单（可转让）",
-                    rate: "0.95%",
-                    rateLabel: "年利率",
-                    term: "6个月",
-                    minPurchase: "200,000.00元起购"
-                ),
-                WealthDepositItem(
-                    name: "金穗2026年第30期个人大额存单（可转让）",
-                    rate: "1.05%",
-                    rateLabel: "年利率",
-                    term: "1年",
-                    minPurchase: "200,000.00元起购"
-                )
-            ],
-            bondIndex: WealthBondIndex(
-                name: "中债-农行乡村振兴债券指数",
-                yieldRate: "1.55%",
-                yieldLabel: "收益率",
-                indexValue: "117.68",
-                indexLabel: "指数值",
-                asOfDate: "截至日期：2026-08-19"
-            ),
+            productTabs: featured.compactMap { item in
+                WealthProductCatalog.product(id: item.productID).map { WealthProductTab(title: item.title, product: $0) }
+            },
+            spareMoneyProduct: WealthProductCatalog.product(id: "w.shishifu"),
+            steadyProducts: ["w.piaoxi", "w.lingdong180"].compactMap(WealthProductCatalog.product(id:)),
             studyBanner: WealthStudyBanner(
                 title: "低价旅游背后的养老骗局",
                 brand: "农银汇理基金",
@@ -418,17 +299,6 @@ final class MockDataProvider {
 
     func getMinePageData() -> MinePageData {
         MinePageData(
-            profile: MineProfileInfo(
-                displayName: "*继宏",
-                lastLoginDevice: "当前设备 " + UIDevice.current.model,
-                lastLoginTime: CustomerSessionStore.shared.lastLogin.isEmpty ? "欢迎回来" : CustomerSessionStore.shared.lastLogin,
-                vipLevel: BenefitsStore.shared.level.title,
-                benefitsTitle: "权益中心"
-            ),
-            assetStats: MineAssetStats.make(benefits: .shared, accountCount: FinanceLedgerStore.shared.load().accounts.count + FinanceLedgerStore.shared.load().creditCards.count),
-            assetLiability: FinanceLedgerStore.shared.mineAssetLiability(),
-            monthlyFlow: FinanceLedgerStore.shared.mineMonthlyFlow(),
-            branch: mineBranchInfo(),
             securityItems: [
                 MineGridItem(title: "登录设置", imageName: "abc_mine_security_login", systemIcon: "door.left.hand.open", featureID: .loginSettings),
                 MineGridItem(title: "转账设置", imageName: "abc_mine_security_transfer", systemIcon: "shield.lefthalf.filled", featureID: .transferLimits),

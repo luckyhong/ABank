@@ -15,10 +15,16 @@ struct BankMessage: Identifiable {
     private let defaults: UserDefaults
     private let key = "abank.messages.read.v1"
     init(defaults: UserDefaults = .standard) { self.defaults = defaults }
-    func isRead(_ message: BankMessage) -> Bool { Set(defaults.stringArray(forKey: key) ?? []).contains(message.id) }
+    func isRead(_ message: BankMessage) -> Bool { isRead(id: message.id) }
+    func isRead(id: String) -> Bool { defaults.stringArray(forKey: key)?.contains(id) ?? false }
     func markRead(_ messages: [BankMessage]) {
+        markRead(ids: messages.map(\.id))
+    }
+    func markRead(ids messageIDs: [String]) {
         var ids = Set(defaults.stringArray(forKey: key) ?? [])
-        ids.formUnion(messages.map(\.id))
+        let previousCount = ids.count
+        ids.formUnion(messageIDs)
+        guard ids.count != previousCount else { return }
         defaults.set(ids.sorted(), forKey: key)
         NotificationCenter.default.post(name: Self.didChange, object: self)
     }
@@ -27,10 +33,11 @@ struct BankMessage: Identifiable {
         let ledger = ledger ?? .shared
         let root = ledger.load()
         var rows: [BankMessage] = []
-        if root.transactions.contains(where: { $0.date.hasPrefix(ledger.dates.previousMonth) && $0.includeInFlow }) {
-            rows.append(BankMessage(id: "bill_" + ledger.dates.previousMonth, title: "月度账单已出",
-                body: "您的\(ledger.dates.previousMonthTitle)账单已生成，可查看分类收支和月度趋势。",
-                date: ledger.dates.currentMonth + "-01", route: .ledgerAnalysis, category: "账户通知"))
+        let statement = ledger.monthlyStatement(in: root)
+        if statement.hasTransactions {
+            rows.append(BankMessage(id: statement.messageID, title: statement.notice,
+                body: "可查看\(statement.monthTitle)的分类收支和月度趋势。",
+                date: statement.closedOn, route: statement.route, category: "账户通知"))
         }
         let today = ledger.dates.string(from: ledger.dates.now)
         for order in root.scheduledTransfers where order.isPending && order.dueDate <= today {

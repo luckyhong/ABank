@@ -97,6 +97,8 @@ final class AppRouter: AppRouting {
             return IncomeExpenseViewController(accountId: accountID)
         case .ledgerAnalysis:
             return LedgerAnalysisViewController()
+        case .monthlyStatement(let month):
+            return LedgerAnalysisViewController(query: IncomeExpenseQuery(dateMode: .month(month)))
         case .ledgerSearch:
             return LedgerSearchViewController(
                 query: IncomeExpenseQuery(dateMode: .month(BankingDateContext.system.previousMonth))

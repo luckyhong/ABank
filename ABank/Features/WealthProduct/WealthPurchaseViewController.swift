@@ -55,7 +55,7 @@ final class WealthPurchaseViewController: WealthFlowViewController, RouteHosting
         name.font = .abankBodyMedium()
         name.textColor = .abankTextPrimary
         name.numberOfLines = 0
-        addCard([name, branchCaption("\(product.risk.shortTitle) \(product.risk.title) · 年化 \(product.rateText) · 最低持有 \(product.minHoldDays) 天")])
+        addCard([name, branchCaption("\(product.risk.shortTitle) \(product.risk.title) · \(WealthProduct.rateLabel) \(product.rateText) · 最低持有 \(product.minHoldDays) 天")])
 
         let account = ledger.load().accounts.first { $0.id == (accountID ?? FinanceLedgerRecord.defaultAccountId) }
         let balance = account.flatMap { TransferMoney.cents(from: $0.balance) } ?? 0
