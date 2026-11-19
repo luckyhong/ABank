@@ -11,6 +11,7 @@ sources=(
   ABank/Features/Mine/Models/AssetLiabilityModels.swift
   ABank/Features/MyAccount/Models/MyAccountModels.swift
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore.swift
+  ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Debug.swift
   ABank/Features/RetailBanking/RetailBankingModels.swift
   ABank/Features/Mine/FinanceLedger/FinanceLedgerStore+Retail.swift
   ABank/Features/Mine/FinanceLedger/LedgerBookkeeping.swift
@@ -101,8 +102,10 @@ for check in "${checks[@]}"; do
     check_file="scripts/check_${check}_data.swift"
   fi
   task_binary="${TMPDIR:-/private/tmp}/abank-${check}-data-checks"
+  flags=()
+  if [[ $check == banking ]]; then flags=(-D DEBUG); fi
   xcrun swiftc -module-cache-path /private/tmp/abank-banking-module-cache \
-    -swift-version 5 -default-isolation MainActor -parse-as-library \
+    -swift-version 5 -default-isolation MainActor -parse-as-library "${flags[@]}" \
     "${sources[@]}" "$check_file" -o "$task_binary"
   "$task_binary"
 done

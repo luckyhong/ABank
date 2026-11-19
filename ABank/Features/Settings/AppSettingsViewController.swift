@@ -8,7 +8,42 @@ final class AppSettingsViewController: UITableViewController {
     ]
     init() { super.init(style: .insetGrouped); hidesBottomBarWhenPushed = true }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-    override func viewDidLoad() { super.viewDidLoad(); title = "设置"; tableView.rowHeight = 56 }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "设置"
+        tableView.rowHeight = 56
+        #if DEBUG
+        let heading = UILabel()
+        heading.text = title
+        heading.font = .preferredFont(forTextStyle: .headline)
+        heading.adjustsFontForContentSizeCategory = true
+        heading.textAlignment = .center
+        heading.isUserInteractionEnabled = true
+        heading.isAccessibilityElement = true
+        heading.accessibilityTraits = .header
+        heading.accessibilityIdentifier = "settings.debugTitle"
+        heading.accessibilityCustomActions = [UIAccessibilityCustomAction(name: "打开账户数据调试") { [weak self] _ in
+            self?.openAccountDebug() ?? false
+        }]
+        heading.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+        heading.heightAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+        let taps = UITapGestureRecognizer(target: self, action: #selector(debugTitleTapped))
+        taps.numberOfTapsRequired = 5
+        heading.addGestureRecognizer(taps)
+        navigationItem.titleView = heading
+        #endif
+    }
+
+    #if DEBUG
+    @objc private func debugTitleTapped() { _ = openAccountDebug() }
+
+    private func openAccountDebug() -> Bool {
+        guard let navigationController, navigationController.topViewController === self,
+              presentedViewController == nil else { return false }
+        navigationController.pushViewController(AccountDebugViewController(), animated: true)
+        return true
+    }
+    #endif
     override func numberOfSections(in tableView: UITableView) -> Int { sections.count + 1 }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { section < sections.count ? sections[section].count : 2 }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

@@ -70,5 +70,112 @@ import Foundation
         precondition(restored.load() == store.load())
         precondition(restored.load().transactions.count == original.transactions.count)
         print("PASS persisted v8 compatibility, current/empty/historical months, bill text, no generated transactions, edits and balance/timestamp projections")
+        #if DEBUG
+        try checkDebugLedger(dates: dates, defaults: defaults)
+        #endif
     }
+
+    #if DEBUG
+    @MainActor private final class ChangeCount { var value = 0 }
+
+    @MainActor private static func checkDebugLedger(dates: BankingDateContext, defaults: UserDefaults) throws {
+        let store = FinanceLedgerStore(defaults: defaults, dates: dates)
+        let accountID = FinanceLedgerRecord.defaultAccountId
+        let otherID = "electronic_debug_test"
+        let key = "abank.financeLedger.record.v8"
+        var original = store.load()
+        original.accounts.append(LedgerAccount(id: otherID, tailNumber: "0022", currency: "人民币", balance: 0, openingBalance: 0))
+        try store.persist(original)
+        let initialBytes = defaults.data(forKey: key)
+        let changes = ChangeCount()
+        let observer = NotificationCenter.default.addObserver(forName: .financeLedgerDidChange, object: nil, queue: nil) { _ in
+            MainActor.assumeIsolated { changes.value += 1 }
+        }
+        defer { NotificationCenter.default.removeObserver(observer) }
+
+        func draft(_ operation: DebugLedgerDraft.Operation, _ cents: Int64, account: String = accountID,
+                   date: Date? = nil, include: Bool = true) -> DebugLedgerDraft {
+            DebugLedgerDraft(accountID: account, operation: operation, amountInCents: cents, date: date,
+                             summary: "", counterparty: "模拟对方", note: "调试备注", includeInFlow: include)
+        }
+        func post(_ draft: DebugLedgerDraft) throws -> String {
+            let preview = try store.previewDebugEntry(draft)
+            try store.saveDebugEntry(draft, requestID: UUID(), expected: preview)
+            return store.load().transactions.last!.id
+        }
+        func expectError<T, E: Error & Equatable>(_ expected: E, _ action: () throws -> T) {
+            do {
+                _ = try action()
+                preconditionFailure("Expected \(expected)")
+            } catch { precondition(error as? E == expected, "Unexpected error: \(error)") }
+        }
+
+        let backdated = draft(.transfer(.income), 1234, date: dates.date(from: "2026-08-15"))
+        let preview = try store.previewDebugEntry(backdated)
+        precondition(preview == DebugLedgerPreview(currentBalance: 107_000, newBalance: 108_234))
+        precondition(changes.value == 0 && defaults.data(forKey: key) == initialBytes)
+        let requestID = UUID()
+        try store.saveDebugEntry(backdated, requestID: requestID, expected: preview)
+        try store.saveDebugEntry(backdated, requestID: requestID, expected: preview)
+        precondition(changes.value == 1)
+        let historicalEntry = store.load().transactions.last!
+        precondition(FinanceLedgerStore.isDebugEntry(historicalEntry) && historicalEntry.counterpartyName == "模拟对方")
+        precondition(historicalEntry.note == "调试备注" && historicalEntry.balanceAfter == 982.34)
+        precondition(store.transaction(id: "previous")?.balanceAfter == 1082.34)
+        precondition(store.incomeExpensePageData(month: "2026-08").summary.income == 12.34)
+        precondition(store.widgetSnapshot()?.balanceInCents == 108_234 && store.widgetSnapshot()?.monthIncomeInCents == 0)
+        var filter = AccountDetailQueryFilter.default(referenceDate: dates.now)
+        filter.applyCustom(start: "2026-08-01", end: "2026-08-31")
+        let statement = store.accountDetailQueryPageData(accountId: accountID, filter: filter)
+        precondition(statement.transactions.map(\.id) == [historicalEntry.id, "history"])
+        precondition(FinanceLedgerStore(defaults: defaults, dates: dates).load() == store.load())
+        expectError(DebugLedgerError.missingEntry) { try store.removeDebugEntry(id: "history") }
+
+        let credit = try post(draft(.transfer(.income), 501, account: otherID))
+        let debit = try post(draft(.transfer(.expense), 1, account: otherID))
+        precondition(store.account(id: otherID)?.balance == 5 && store.account(id: accountID)?.balance == 1082.34)
+        let zero = draft(.targetBalance, 0, account: otherID, include: false)
+        let zeroID = try post(zero)
+        precondition(store.account(id: otherID)?.balance == 0)
+        precondition(store.monthlyFlow(for: dates.currentMonth).income == 5.01)
+        precondition(store.monthlyFlow(for: dates.currentMonth).expense == 0.01)
+        precondition(store.widgetSnapshot()?.monthExpenseInCents == 1)
+        let emptyPreview = try store.previewDebugEntry(zero)
+        precondition(emptyPreview.change == 0)
+        let beforeNoChange = changes.value
+        try store.saveDebugEntry(zero, requestID: UUID(), expected: emptyPreview)
+        precondition(changes.value == beforeNoChange)
+        expectError(DebugLedgerError.insufficientBalance) { try store.removeDebugEntry(id: credit) }
+        expectError(DebugLedgerError.insufficientBalance) { try store.previewDebugEntry(draft(.transfer(.expense), 1, account: otherID)) }
+        try store.removeDebugEntry(id: zeroID)
+        try store.removeDebugEntry(id: debit)
+        try store.removeDebugEntry(id: credit)
+        try store.removeDebugEntry(id: historicalEntry.id)
+        precondition(store.load().accounts == original.accounts && store.load().transactions == original.transactions)
+        precondition(store.totalAssets() == 1070 && store.assetLiabilityPageData().totalAssets == 1070)
+        precondition(store.load().transferRecords == original.transferRecords)
+
+        let oldPreview = try store.previewDebugEntry(zero)
+        _ = try post(draft(.transfer(.income), 1, account: otherID))
+        expectError(DebugLedgerError.balanceChanged) { try store.saveDebugEntry(zero, requestID: UUID(), expected: oldPreview) }
+        expectError(DebugLedgerError.invalidAmount) { try store.previewDebugEntry(draft(.transfer(.income), 0)) }
+        expectError(DebugLedgerError.invalidDate) { try store.previewDebugEntry(draft(.transfer(.income), 1, date: dates.now.addingTimeInterval(3600))) }
+        expectError(DebugLedgerError.missingAccount) { try store.previewDebugEntry(draft(.targetBalance, 0, account: "missing")) }
+        expectError(DebugLedgerError.insufficientBalance) {
+            try store.previewDebugEntry(draft(.transfer(.expense), 100_000, date: dates.date(from: "2026-08-15")))
+        }
+        let beforeFailure = defaults.data(forKey: key)
+        let failureCount = changes.value
+        let failingStore = FinanceLedgerStore(defaults: defaults, dates: dates, dataWriter: { _ in throw DebugLedgerError.persistence })
+        let latestPreview = try failingStore.previewDebugEntry(backdated)
+        expectError(DebugLedgerError.persistence) { try failingStore.saveDebugEntry(backdated, requestID: UUID(), expected: latestPreview) }
+        precondition(defaults.data(forKey: key) == beforeFailure && changes.value == failureCount)
+        let corrupt = Data([0x00, 0xff])
+        defaults.set(corrupt, forKey: key)
+        expectError(TransferError.corruptLedger) { try store.previewDebugEntry(backdated) }
+        expectError(TransferError.corruptLedger) { try store.saveDebugEntry(backdated, requestID: UUID(), expected: latestPreview) }
+        precondition(defaults.data(forKey: key) == corrupt && changes.value == failureCount)
+        print("PASS debug ledger previews, idempotency, historical balances, multiple accounts, projections, undo, stale balance and persistence failures")
+    }
+    #endif
 }
