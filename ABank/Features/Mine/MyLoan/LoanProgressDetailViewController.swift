@@ -12,9 +12,9 @@ final class LoanProgressDetailViewController: LoanStackPageViewController {
     private let item: LoanProgressItem
     private let store: FinanceLedgerStore
 
-    init(item: LoanProgressItem, store: FinanceLedgerStore = .shared) {
+    init(item: LoanProgressItem, store: FinanceLedgerStore? = nil) {
         self.item = item
-        self.store = store
+        self.store = store ?? .shared
         super.init(title: "办理进度")
     }
 

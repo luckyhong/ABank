@@ -2,6 +2,7 @@
 
 先核对实际 Git 状态，再读取对应任务。历史叙述不是当前代码证明。
 
+- [code-cleanup-20261118](tasks/code-cleanup-20261118.md)
 - [loan-ui-20261118](tasks/loan-ui-20261118.md)
 - [next-business-20261118](tasks/next-business-20261118.md)
 - [ledger-wechat-20261118](tasks/ledger-wechat-20261118.md)

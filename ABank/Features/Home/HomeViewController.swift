@@ -380,8 +380,9 @@ final class HomeViewController: BankingDataViewController {
             self?.showToast("已刷新")
         }
 
-        consumerProtection.onItemTapped = { [weak self] item in
-            guard let self else { return }; self.router.open(.assistant, from: self)
+        consumerProtection.onItemTapped = { [weak self] _ in
+            guard let self else { return }
+            self.router.open(.assistant, from: self)
         }
     }
 

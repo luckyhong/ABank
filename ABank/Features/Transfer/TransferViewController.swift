@@ -46,7 +46,6 @@ final class TransferViewController: BankingDataViewController {
     override func setupNavigationBar() {
         title = "转账"
 
-
         navigationItem.leftBarButtonItem = makeIconItem(
             systemName: "chevron.left",
             action: #selector(backTapped),

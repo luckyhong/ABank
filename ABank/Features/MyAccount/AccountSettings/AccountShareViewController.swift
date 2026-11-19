@@ -21,10 +21,10 @@ final class AccountShareViewController: TransferFlowViewController, RouteHosting
 
     var hostedRoute: AppRoute? { .accountShare(accountID: accountID) }
 
-    init(accountID: String, ledger: FinanceLedgerStore = .shared,
+    init(accountID: String, ledger: FinanceLedgerStore? = nil,
          card: MyAccountDebitCard? = nil, holderName: String? = nil) {
         self.accountID = accountID
-        self.ledger = ledger
+        self.ledger = ledger ?? .shared
         self.card = card ?? MockDataProvider.shared.getMyAccountPageData().debitCards.first { $0.accountId == accountID }
         self.holderName = AccountHolderName.masked(holderName ?? CustomerInfoStore.shared.load().name)
         super.init(nibName: nil, bundle: nil)

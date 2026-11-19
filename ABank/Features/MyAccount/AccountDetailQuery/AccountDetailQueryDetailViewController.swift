@@ -55,7 +55,8 @@ final class AccountDetailQueryDetailViewController: BankingDataViewController {
         amountContainer.snp.makeConstraints { $0.height.greaterThanOrEqualTo(44) }
         let gap = UIView(); gap.backgroundColor = UIColor(white: 0.96, alpha: 1)
         infoStack.axis = .vertical; infoStack.spacing = 0
-        infoRows = ["交易时间", "交易摘要", "对方户名", "对方账户", "收款银行", "交易类型", "交易渠道", "本次余额", "交易附言"].map(AccountDetailQueryInfoRow.init)
+        let titles = ["交易时间", "交易摘要", "对方户名", "对方账户", "收款银行", "交易类型", "交易渠道", "本次余额", "交易附言"]
+        infoRows = titles.map { AccountDetailQueryInfoRow(title: $0) }
         infoRows.forEach(infoStack.addArrangedSubview)
         view.addSubview(scrollView); scrollView.addSubview(contentView)
         [accountBar, amountContainer, gap, infoStack].forEach(contentView.addSubview)

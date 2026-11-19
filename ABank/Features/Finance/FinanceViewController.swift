@@ -260,9 +260,9 @@ final class WealthViewController: BankingDataViewController {
         studySection.onBannerTapped = { [weak self] in
             guard let self else { return }; self.router.open(.newsFeed, from: self)
         }
-        studySection.onCardTapped = { [weak self] index in
-            let title = self?.pageData.studyCards[safe: index]?.title ?? "文章"
-            guard let self else { return }; self.router.open(.newsFeed, from: self)
+        studySection.onCardTapped = { [weak self] _ in
+            guard let self else { return }
+            self.router.open(.newsFeed, from: self)
         }
     }
 

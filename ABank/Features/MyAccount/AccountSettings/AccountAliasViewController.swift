@@ -18,9 +18,9 @@ final class AccountAliasViewController: TransferFlowViewController, RouteHosting
 
     var hostedRoute: AppRoute? { .accountAlias(accountID: accountID) }
 
-    init(accountID: String, ledger: FinanceLedgerStore = .shared) {
+    init(accountID: String, ledger: FinanceLedgerStore? = nil) {
         self.accountID = accountID
-        self.ledger = ledger
+        self.ledger = ledger ?? .shared
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }

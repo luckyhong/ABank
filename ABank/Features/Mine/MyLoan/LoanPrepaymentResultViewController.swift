@@ -14,9 +14,9 @@ final class LoanPrepaymentResultViewController: BaseViewController {
     private let store: FinanceLedgerStore
     private let actionStack = UIStackView()
 
-    init(record: LoanServiceRecord, store: FinanceLedgerStore = .shared) {
+    init(record: LoanServiceRecord, store: FinanceLedgerStore? = nil) {
         self.record = record
-        self.store = store
+        self.store = store ?? .shared
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }
@@ -137,7 +137,7 @@ extension LoanServiceRecord {
                 rows.append(("末期还款额", "\(money(lastInstallmentBefore)) → \(money(lastInstallmentAfter))"))
             }
         }
-        rows.append(("贷款到期日", maturityAfter.map(LoanAmortization.maturityText) ?? "--"))
+        rows.append(("贷款到期日", maturityAfter.map { LoanAmortization.maturityText($0) } ?? "--"))
         rows.append(("付款账户", accountID.flatMap { store.account(id: $0)?.cardLabel } ?? "--"))
         return rows
     }

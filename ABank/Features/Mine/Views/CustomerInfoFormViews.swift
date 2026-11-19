@@ -294,13 +294,6 @@ final class CustomerInfoFormRowView: UIView, UITextFieldDelegate {
         }
     }
 
-    func textValue() -> String {
-        if isEditable {
-            return textField.text ?? ""
-        }
-        return valueLabel.text ?? ""
-    }
-
     private func setupTitle(_ title: String, required: Bool) {
         if required {
             let attributed = NSMutableAttributedString(
@@ -544,12 +537,6 @@ final class CustomerInfoPickerSheetView: UIView, UIPickerViewDataSource, UIPicke
 
     var selectedRows: [Int] {
         (0..<columns.count).map { picker.selectedRow(inComponent: $0) }
-    }
-
-    func selectedTitle(in component: Int) -> String {
-        let row = picker.selectedRow(inComponent: component)
-        guard columns.indices.contains(component), columns[component].indices.contains(row) else { return "" }
-        return columns[component][row]
     }
 
     var onColumnChanged: ((Int, Int, String) -> Void)?

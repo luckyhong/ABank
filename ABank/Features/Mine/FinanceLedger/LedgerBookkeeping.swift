@@ -119,7 +119,6 @@ extension LedgerTransaction {
     }
 }
 
-
 enum LedgerPurpose {
     static let options: [(String, String)] = [("food", "餐饮美食"), ("transport", "交通出行"), ("shopping", "购物消费"), ("housing", "居家生活"), ("health", "医疗健康"), ("education", "教育学习"), ("entertainment", "休闲娱乐"), ("travel", "旅行住宿"), ("other", "其他用途")]
     static func title(_ id: String?) -> String? { options.first { $0.0 == id }?.1 }

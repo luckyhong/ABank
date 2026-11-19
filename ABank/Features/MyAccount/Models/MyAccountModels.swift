@@ -116,10 +116,6 @@ struct AccountDetailQueryFilter: Equatable {
     static func string(from date: Date) -> String {
         BankingDateContext.system.string(from: date)
     }
-
-    static func date(from string: String) -> Date? {
-        BankingDateContext.system.date(from: string)
-    }
 }
 
 struct AccountDetailQueryPageData {

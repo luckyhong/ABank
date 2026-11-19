@@ -458,7 +458,6 @@ struct MonthlyFlowSummary {
 
 struct IncomeExpenseDayGroup: Equatable {
     let date: String
-    var day: Int { Int(date.suffix(2)) ?? 0 }
     let transactions: [LedgerTransaction]
 }
 
@@ -482,15 +481,6 @@ enum IncomeExpenseAccountFilter: Equatable {
     case excludeManual
     case debitCard(id: String)
     case manual
-
-    var displayTitle: String {
-        switch self {
-        case .all: return "全部账户"
-        case .excludeManual: return "不含手工记账"
-        case .debitCard: return "借记卡"
-        case .manual: return "手工记账"
-        }
-    }
 }
 
 struct IncomeExpenseCategoryOption: Equatable {

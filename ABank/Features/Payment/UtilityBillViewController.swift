@@ -16,7 +16,7 @@ final class UtilityBillViewController: PaymentFlowViewController, RouteHosting {
 
     var hostedRoute: AppRoute? { .utilityBill(billAccountID: billAccountID) }
 
-    init(billAccountID: String, ledger: FinanceLedgerStore = .shared,
+    init(billAccountID: String, ledger: FinanceLedgerStore? = nil,
          benefits: BenefitsStore = .shared, dates: BankingDateContext = .system) {
         self.billAccountID = billAccountID
         super.init(ledger: ledger, benefits: benefits, dates: dates)

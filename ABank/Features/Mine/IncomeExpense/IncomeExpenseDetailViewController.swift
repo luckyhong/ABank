@@ -494,7 +494,6 @@ final class IncomeExpenseDetailViewController: BaseViewController {
         view.endEditing(true)
     }
 
-
 }
 
 extension IncomeExpenseDetailViewController: UITextFieldDelegate {

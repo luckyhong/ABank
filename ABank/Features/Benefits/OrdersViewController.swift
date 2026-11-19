@@ -14,8 +14,8 @@ final class OrdersViewController: BenefitsFlowViewController, RouteHosting {
 
     var hostedRoute: AppRoute? { .orders }
 
-    init(ledger: FinanceLedgerStore = .shared, benefits: BenefitsStore = .shared, dates: BankingDateContext = .system) {
-        self.ledger = ledger
+    init(ledger: FinanceLedgerStore? = nil, benefits: BenefitsStore = .shared, dates: BankingDateContext = .system) {
+        self.ledger = ledger ?? .shared
         super.init(benefits: benefits, dates: dates)
     }
 

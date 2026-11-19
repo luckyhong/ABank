@@ -94,7 +94,7 @@ final class NewsStoryListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { stories.count }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NewsArticleCell.reuseId, for: indexPath) as! NewsArticleCell
-        if case .article(let article) = NewsDashboard.entry(stories[indexPath.row]) { cell.configure(with: article) }
+        cell.configure(with: NewsDashboard.article(stories[indexPath.row]))
         return cell
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

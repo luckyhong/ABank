@@ -13,8 +13,8 @@ class WealthFlowViewController: TransferFlowViewController {
     let risk: RiskAssessmentStore
     let dates: BankingDateContext
 
-    init(ledger: FinanceLedgerStore = .shared, risk: RiskAssessmentStore = .shared, dates: BankingDateContext = .system) {
-        self.ledger = ledger
+    init(ledger: FinanceLedgerStore? = nil, risk: RiskAssessmentStore = .shared, dates: BankingDateContext = .system) {
+        self.ledger = ledger ?? .shared
         self.risk = risk
         self.dates = dates
         super.init(nibName: nil, bundle: nil)
@@ -73,9 +73,5 @@ class WealthFlowViewController: TransferFlowViewController {
 
     func showError(_ error: Error) {
         showToast(error.localizedDescription)
-    }
-
-    func dateText(_ date: Date, format: String = "yyyy-MM-dd HH:mm") -> String {
-        dates.string(from: date, format: format)
     }
 }

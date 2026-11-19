@@ -124,8 +124,8 @@ final class AllFeaturesViewController: BaseViewController, RouteHosting {
 
     private func items(in section: Section) -> [FeatureDescriptor] {
         switch section {
-        case .favorites: return preferences.favorites.map(FeatureCatalog.descriptor)
-        case .recents: return preferences.recents.map(FeatureCatalog.descriptor)
+        case .favorites: return preferences.favorites.map { FeatureCatalog.descriptor($0) }
+        case .recents: return preferences.recents.map { FeatureCatalog.descriptor($0) }
         case .category(let category): return FeatureCatalog.features(in: category)
         }
     }

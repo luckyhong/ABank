@@ -14,7 +14,7 @@ final class PaymentOrderDetailViewController: PaymentFlowViewController, RouteHo
 
     var hostedRoute: AppRoute? { .paymentOrderDetail(orderID: orderID, justPaid: justPaid) }
 
-    init(orderID: String, justPaid: Bool, ledger: FinanceLedgerStore = .shared,
+    init(orderID: String, justPaid: Bool, ledger: FinanceLedgerStore? = nil,
          benefits: BenefitsStore = .shared, dates: BankingDateContext = .system) {
         self.orderID = orderID
         self.justPaid = justPaid

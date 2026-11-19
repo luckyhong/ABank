@@ -34,7 +34,6 @@ final class AccountDetailQueryViewController: BankingDataViewController {
     override func setupNavigationBar() {
         title = "明细查询"
 
-
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             image: UIImage.abankBackIndicator,
             style: .plain,

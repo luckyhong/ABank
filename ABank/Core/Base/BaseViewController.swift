@@ -16,26 +16,26 @@ class BaseViewController: UIViewController {
 
     /// 是否隐藏导航栏；由 ABankNavigationController 在转场前统一应用，页面不要直接调用 setNavigationBarHidden。
     var prefersNavigationBarHidden: Bool { false }
-    
+
     private lazy var loadingContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.black.withAlphaComponent(0.3)
         view.isHidden = true
         return view
     }()
-    
+
     private lazy var activityIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
         indicator.color = .white
         return indicator
     }()
-    
+
     deinit {
         #if DEBUG
         print("\(type(of: self)) deinit")
         #endif
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .abankBackground
@@ -44,12 +44,12 @@ class BaseViewController: UIViewController {
         setupNavigationBar()
         setupBindings()
     }
-    
+
     // MARK: - 模板方法（子类按需重写）
     func setupUI() { }
     func setupBindings() { }
     func setupNavigationBar() { }
-    
+
     // MARK: - Loading
     private func setupLoading() {
         view.addSubview(loadingContainerView)
@@ -61,17 +61,17 @@ class BaseViewController: UIViewController {
             make.center.equalToSuperview()
         }
     }
-    
+
     func showLoading() {
         loadingContainerView.isHidden = false
         activityIndicator.startAnimating()
     }
-    
+
     func hideLoading() {
         loadingContainerView.isHidden = true
         activityIndicator.stopAnimating()
     }
-    
+
     // MARK: - Toast（轻提示）
     func showToast(_ message: String, duration: TimeInterval = 2.0) {
         let label = PaddingLabel()
@@ -82,7 +82,7 @@ class BaseViewController: UIViewController {
         label.layer.cornerRadius = 8
         label.layer.masksToBounds = true
         label.numberOfLines = 0
-        
+
         view.addSubview(label)
         label.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -90,7 +90,7 @@ class BaseViewController: UIViewController {
             make.leading.greaterThanOrEqualTo(view.snp.leading).offset(Spacing.lg)
             make.trailing.lessThanOrEqualTo(view.snp.trailing).offset(-Spacing.lg)
         }
-        
+
         label.alpha = 0
         UIView.animate(withDuration: 0.2, animations: {
             label.alpha = 1
@@ -116,5 +116,3 @@ private final class PaddingLabel: UILabel {
                       height: size.height + insets.top + insets.bottom)
     }
 }
-
-

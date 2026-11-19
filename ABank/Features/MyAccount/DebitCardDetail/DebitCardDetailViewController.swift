@@ -35,7 +35,6 @@ final class DebitCardDetailViewController: BankingDataViewController {
     override func setupNavigationBar() {
         title = "借记卡详情"
 
-
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             image: UIImage.abankBackIndicator,
             style: .plain,

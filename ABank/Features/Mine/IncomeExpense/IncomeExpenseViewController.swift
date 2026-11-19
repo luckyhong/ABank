@@ -36,7 +36,6 @@ final class IncomeExpenseViewController: BankingDataViewController {
     override func setupNavigationBar() {
         title = "收支"
 
-
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             image: UIImage.abankBackIndicator,
             style: .plain,

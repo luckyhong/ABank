@@ -268,7 +268,7 @@ import Foundation
     }
 
     @MainActor static func failuresUnchanged() throws {
-        try withStore { store, defaults in
+        withStore { store, defaults in
             let before = Snapshot(store)
             expect(LoanError.insufficientBalance, {
                 _ = try store.submitPrepayment(contractID: loanID, amountInCents: 300_000, method: .shortenTerm, requestID: "a", expected: nil)

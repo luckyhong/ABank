@@ -45,11 +45,6 @@ final class AssetLiabilitySummaryCardView: UIView {
         updateTabAppearance()
     }
 
-    func setSelectedTab(_ tab: AssetLiabilityTab) {
-        selectedTab = tab
-        updateTabAppearance()
-    }
-
     private func setupUI() {
         card.backgroundColor = .white
         card.layer.cornerRadius = CornerRadius.md

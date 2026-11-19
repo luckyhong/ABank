@@ -15,9 +15,9 @@ final class AccountPermissionsViewController: TransferFlowViewController, RouteH
 
     var hostedRoute: AppRoute? { .accountPermissions(accountID: accountID) }
 
-    init(accountID: String, ledger: FinanceLedgerStore = .shared) {
+    init(accountID: String, ledger: FinanceLedgerStore? = nil) {
         self.accountID = accountID
-        self.ledger = ledger
+        self.ledger = ledger ?? .shared
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }

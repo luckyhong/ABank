@@ -14,7 +14,7 @@ final class WealthProductDetailViewController: WealthFlowViewController, RouteHo
 
     var hostedRoute: AppRoute? { .wealthProductDetail(productID: productID) }
 
-    init(productID: String, accountID: String? = nil, ledger: FinanceLedgerStore = .shared, risk: RiskAssessmentStore = .shared,
+    init(productID: String, accountID: String? = nil, ledger: FinanceLedgerStore? = nil, risk: RiskAssessmentStore = .shared,
          dates: BankingDateContext = .system) {
         self.productID = productID
         self.accountID = accountID

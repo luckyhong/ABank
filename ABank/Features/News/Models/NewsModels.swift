@@ -83,65 +83,10 @@ struct NewsArticleItem: Equatable {
     let id: String
     let title: String
     let source: String
-    let readCount: Int
     let date: String
     let thumbnailBackground: UIColor
-    let systemIcon: String
     let iconTint: UIColor
-    var thumbnailURL: URL? = nil
-}
-
-struct NewsFeedBannerItem: Equatable {
-    let id: String
-    let title: String
-    let subtitle: String?
-    let backgroundColor: UIColor
-    let systemIcon: String
-    let iconTint: UIColor
-}
-
-struct NewsFeedTopicItem: Equatable {
-    let id: String
-    let tag: String
-    let title: String
-    let bannerTitle: String
-    let bannerSubtitle: String?
-    let backgroundColor: UIColor
-    let systemIcon: String
-    let iconTint: UIColor
-}
-
-struct NewsFeedStripItem: Equatable {
-    let id: String
-    let brand: String
-    let headline: String
-    let brandColor: UIColor
-}
-
-struct NewsFeedVideoItem: Equatable {
-    let id: String
-    let title: String
-    let backgroundColor: UIColor
-    let systemIcon: String
-    let iconTint: UIColor
-}
-
-enum NewsFeedEntry: Equatable {
-    case article(NewsArticleItem)
-    case banner(NewsFeedBannerItem)
-    case topic(NewsFeedTopicItem)
-    case video(NewsFeedVideoItem)
-    case strip(NewsFeedStripItem)
-
-    var id: String {
-        switch self {
-        case .article(let item): return item.id
-        case .banner(let item): return item.id
-        case .topic(let item): return item.id
-        case .video(let item): return item.id
-        case .strip(let item): return item.id
-        }
-    }
+    let thumbnailURL: URL?
 }
 
 struct NewsPageData {
@@ -156,11 +101,4 @@ struct NewsPageData {
     let followSuggestions: [NewsFollowSuggestion]
     let trendingItems: [NewsTrendingItem]
     let pkPoll: NewsPKPoll
-    let initialFeed: [NewsFeedEntry]
-    let totalFeedPages: Int
-}
-
-struct NewsFeedPageResult {
-    let items: [NewsFeedEntry]
-    let hasMore: Bool
 }

@@ -10,8 +10,8 @@ import UIKit
 final class LoanHistoryViewController: LoanStackPageViewController {
     private let store: FinanceLedgerStore
 
-    init(store: FinanceLedgerStore = .shared) {
-        self.store = store
+    init(store: FinanceLedgerStore? = nil) {
+        self.store = store ?? .shared
         super.init(title: "历史贷款")
     }
 

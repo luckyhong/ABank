@@ -381,7 +381,7 @@ import Foundation
             precondition(balanceCents(store) == 0, "exact balance buys")
             expect(.insufficientBalance, { try buy(store, "w.tiantianli2", 100) }, "empty account")
         }
-        try withSuite { defaults in
+        withSuite { defaults in
             let store = ledgerStore(defaults, TestClock("2026-11-06 10:00"), RiskBox(validC2))
             expect(.insufficientBalance, { try buy(store, "w.tiantianli2", 149_967) }, "one cent short")
             precondition(balanceCents(store) == 149_966 && store.wealthOrders().isEmpty)

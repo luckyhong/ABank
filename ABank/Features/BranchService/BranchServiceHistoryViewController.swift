@@ -28,7 +28,11 @@ final class BranchServiceHistoryViewController: BranchFlowViewController, RouteH
             self?.refreshBankingData()
         }, for: .valueChanged)
         contentStack.addArrangedSubview(control)
-        segment == 0 ? addTickets() : addReservations()
+        if segment == 0 {
+            addTickets()
+        } else {
+            addReservations()
+        }
     }
 
     private func addTickets() {

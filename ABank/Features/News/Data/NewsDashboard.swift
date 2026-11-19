@@ -36,15 +36,20 @@ enum NewsDashboard {
                 NewsFollowSuggestion(isFollowed: followed.contains("房产"), name: "房产动态", systemIcon: "building.2", tintColor: .abankGold)
             ],
             trendingItems: Array(recent.prefix(3)).map { NewsTrendingItem(title: $0.title) },
-            pkPoll: NewsPKPoll(question: "阅读偏好 · 今天更想看哪类内容？", participantCount: 0, leftOption: "财经资讯", rightOption: "生活服务"),
-            initialFeed: Array(stories.prefix(20)).map { entry($0) }, totalFeedPages: max(1, (stories.count + 19) / 20)
+            pkPoll: NewsPKPoll(question: "阅读偏好 · 今天更想看哪类内容？", participantCount: 0, leftOption: "财经资讯", rightOption: "生活服务")
         )
     }
 
-    static func entry(_ story: NewsStory) -> NewsFeedEntry {
-        var item = NewsArticleItem(id: story.id, title: story.title, source: story.publisher, readCount: 0, date: dateText(story.publishedAt), thumbnailBackground: .abankSectionBackground, systemIcon: "newspaper", iconTint: .abankTextTertiary)
-        item.thumbnailURL = story.imageURL
-        return .article(item)
+    static func article(_ story: NewsStory) -> NewsArticleItem {
+        NewsArticleItem(
+            id: story.id,
+            title: story.title,
+            source: story.publisher,
+            date: dateText(story.publishedAt),
+            thumbnailBackground: .abankSectionBackground,
+            iconTint: .abankTextTertiary,
+            thumbnailURL: story.imageURL
+        )
     }
 
     static func dateText(_ date: Date?, now: Date = Date()) -> String {

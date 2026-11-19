@@ -112,7 +112,6 @@ nonisolated enum PaymentError: LocalizedError, Equatable {
     }
 }
 
-
 extension UtilityBill {
     // The local tariff and displayed consumption reproduce the already-stable bill amount.
     private var unitPrice: Int64 { account.kind == .water ? 320 : (account.kind == .electric ? 60 : 235) }

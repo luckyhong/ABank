@@ -443,12 +443,6 @@ final class MockDataProvider {
         )
     }
 
-    // MARK: - 资产负债
-
-    func getAssetLiabilityPageData() -> AssetLiabilityPageData {
-        FinanceLedgerStore.shared.assetLiabilityPageData()
-    }
-
     // MARK: - 我的账户
 
     func getMyAccountPageData() -> MyAccountPageData {
@@ -483,49 +477,6 @@ final class MockDataProvider {
             interestRateText: "0.05000%",
             openDateText: account?.openedOn?.replacingOccurrences(of: "-", with: "/") ?? (source.accountId == FinanceLedgerRecord.defaultAccountId ? "2017/08/09" : "—")
         )
-    }
-
-    // MARK: - 账户信息（其他模块复用）
-
-    struct AccountInfo {
-        let cardNumber: String
-        let balance: Double
-        let accountName: String
-    }
-
-    func getAccountInfo() -> AccountInfo {
-        let account = FinanceLedgerStore.shared.account(id: FinanceLedgerRecord.defaultAccountId)
-        return AccountInfo(
-            cardNumber: account?.fullCardNumber ?? "—",
-            balance: account?.balance ?? 0,
-            accountName: CustomerInfoStore.shared.load().name
-        )
-    }
-
-    // MARK: - 交易记录
-
-    struct Transaction {
-        let id: String
-        let title: String
-        let amount: Double
-        let date: Date
-        let type: TransactionType
-    }
-
-    enum TransactionType {
-        case income
-        case expense
-    }
-
-    func getTransactions(limit: Int = 20) -> [Transaction] {
-        let transactions: [Transaction] = [
-            Transaction(id: "1", title: "工资收入", amount: 12800.0, date: Date(), type: .income),
-            Transaction(id: "2", title: "转账-李四", amount: -2000.0, date: Date().addingTimeInterval(-86400), type: .expense),
-            Transaction(id: "3", title: "理财收益", amount: 186.32, date: Date().addingTimeInterval(-172800), type: .income),
-            Transaction(id: "4", title: "美团外卖", amount: -38.5, date: Date().addingTimeInterval(-259200), type: .expense),
-            Transaction(id: "5", title: "水电缴费", amount: -126.8, date: Date().addingTimeInterval(-345600), type: .expense)
-        ]
-        return Array(transactions.prefix(limit))
     }
 
     // MARK: - 转账

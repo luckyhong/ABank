@@ -27,8 +27,6 @@ extension UIColor {
     static let abankBackground = UIColor(red: 245 / 255, green: 246 / 255, blue: 248 / 255, alpha: 1)
     static let abankCardBackground = UIColor.white
     static let abankSectionBackground = UIColor(red: 248 / 255, green: 248 / 255, blue: 248 / 255, alpha: 1)
-    static let abankHeroStart = UIColor(red: 255 / 255, green: 176 / 255, blue: 120 / 255, alpha: 1)
-    static let abankHeroEnd = UIColor(red: 255 / 255, green: 220 / 255, blue: 190 / 255, alpha: 1)
 
     // MARK: - 文字颜色
     static let abankTextPrimary = UIColor(red: 34 / 255, green: 34 / 255, blue: 34 / 255, alpha: 1)

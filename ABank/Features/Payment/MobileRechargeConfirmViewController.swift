@@ -17,7 +17,7 @@ final class MobileRechargeConfirmViewController: PaymentFlowViewController, Rout
 
     var hostedRoute: AppRoute? { .mobileRechargeConfirm(phone: phone, faceInCents: faceInCents) }
 
-    init(phone: String, faceInCents: Int64, ledger: FinanceLedgerStore = .shared,
+    init(phone: String, faceInCents: Int64, ledger: FinanceLedgerStore? = nil,
          benefits: BenefitsStore = .shared, dates: BankingDateContext = .system) {
         self.phone = phone
         self.faceInCents = faceInCents

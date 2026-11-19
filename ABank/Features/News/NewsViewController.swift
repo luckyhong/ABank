@@ -43,7 +43,7 @@ final class NewsViewController: BaseViewController {
 
     private var currentTab: NewsPrimaryTab = .recommend
     private var selectedCategoryIndex = NewsDashboard.categories.firstIndex(of: UserDefaults.standard.string(forKey: "news.preferredCategory") ?? "热点") ?? 0
-    private var feedItems: [NewsFeedEntry] = []
+    private var feedItems: [NewsArticleItem] = []
     private var currentPage = 1
     private var hasMore = true
     private var isLoading = false
@@ -161,10 +161,6 @@ final class NewsViewController: BaseViewController {
         refreshControl.addTarget(self, action: #selector(manualRefresh), for: .valueChanged)
 
         tableView.register(NewsArticleCell.self, forCellReuseIdentifier: NewsArticleCell.reuseId)
-        tableView.register(NewsFeedBannerCell.self, forCellReuseIdentifier: NewsFeedBannerCell.reuseId)
-        tableView.register(NewsFeedTopicCell.self, forCellReuseIdentifier: NewsFeedTopicCell.reuseId)
-        tableView.register(NewsFeedVideoCell.self, forCellReuseIdentifier: NewsFeedVideoCell.reuseId)
-        tableView.register(NewsFeedStripCell.self, forCellReuseIdentifier: NewsFeedStripCell.reuseId)
 
         tableView.snp.makeConstraints { make in
             make.top.equalTo(headerContainer.snp.bottom)
@@ -195,7 +191,7 @@ final class NewsViewController: BaseViewController {
     private func reloadFeed(resetPage: Bool) {
         if resetPage { currentPage = 1 }
         let visible = visibleStories
-        feedItems = Array(visible.prefix(currentPage * 20)).map { NewsDashboard.entry($0) }
+        feedItems = Array(visible.prefix(currentPage * 20)).map { NewsDashboard.article($0) }
         hasMore = visible.count > feedItems.count
         isLoading = true
         footerState = hasMore ? .idle : .finished
@@ -216,7 +212,7 @@ final class NewsViewController: BaseViewController {
         guard start < end else { hasMore = false; updateLoadFooter(); return }
         isLoading = true
         currentPage += 1
-        feedItems.append(contentsOf: visible[start..<end].map { NewsDashboard.entry($0) })
+        feedItems.append(contentsOf: visible[start..<end].map { NewsDashboard.article($0) })
         hasMore = end < visible.count
         footerState = hasMore ? .idle : .finished
         tableView.performBatchUpdates {
@@ -550,29 +546,9 @@ extension NewsViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let entry = feedItems[indexPath.row]
-        switch entry {
-        case .article(let item):
-            let cell = tableView.dequeueReusableCell(withIdentifier: NewsArticleCell.reuseId, for: indexPath) as! NewsArticleCell
-            cell.configure(with: item)
-            return cell
-        case .banner(let item):
-            let cell = tableView.dequeueReusableCell(withIdentifier: NewsFeedBannerCell.reuseId, for: indexPath) as! NewsFeedBannerCell
-            cell.configure(with: item)
-            return cell
-        case .topic(let item):
-            let cell = tableView.dequeueReusableCell(withIdentifier: NewsFeedTopicCell.reuseId, for: indexPath) as! NewsFeedTopicCell
-            cell.configure(with: item)
-            return cell
-        case .video(let item):
-            let cell = tableView.dequeueReusableCell(withIdentifier: NewsFeedVideoCell.reuseId, for: indexPath) as! NewsFeedVideoCell
-            cell.configure(with: item)
-            return cell
-        case .strip(let item):
-            let cell = tableView.dequeueReusableCell(withIdentifier: NewsFeedStripCell.reuseId, for: indexPath) as! NewsFeedStripCell
-            cell.configure(with: item)
-            return cell
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: NewsArticleCell.reuseId, for: indexPath) as! NewsArticleCell
+        cell.configure(with: feedItems[indexPath.row])
+        return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

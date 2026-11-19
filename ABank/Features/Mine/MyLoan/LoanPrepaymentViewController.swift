@@ -25,9 +25,9 @@ final class LoanPrepaymentViewController: BankingDataViewController {
     private let messageLabel = UILabel()
     private let actionButton = UIButton(type: .system)
 
-    init(contractId: String, store: FinanceLedgerStore = .shared) {
+    init(contractId: String, store: FinanceLedgerStore? = nil) {
         self.contractId = contractId
-        self.store = store
+        self.store = store ?? .shared
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }

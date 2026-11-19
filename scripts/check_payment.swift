@@ -399,7 +399,7 @@ import Foundation
             precondition(balanceCents(store) == 0, "exact balance payable")
             expect(.insufficientBalance, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: nil, requestID: "b") }, "empty")
         }
-        try withSuite { defaults in
+        withSuite { defaults in
             let clock = TestClock("2026-11-06 10:00")
             let store = ledgerStore(defaults, clock, makeBenefits(defaults, clock), balance: 9.99)
             expect(.insufficientBalance, { _ = try store.submitMobileRecharge(phone: phone, faceInCents: 1000, couponID: nil, requestID: "a") }, "short by one cent")
@@ -539,7 +539,7 @@ import Foundation
             try store.submitUtilityPayment(billAccountID: electric.id, requestID: "a")
             precondition(balanceCents(store) == 0, "exact balance payable")
         }
-        try withSuite { defaults in
+        withSuite { defaults in
             let clock = TestClock("2026-11-06 10:00")
             let store = ledgerStore(defaults, clock, makeBenefits(defaults, clock), balance: Double(due - 1) / 100)
             expect(.insufficientBalance, { _ = try store.submitUtilityPayment(billAccountID: electric.id, requestID: "a") }, "short by one cent")

@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 protocol AppRouting: AnyObject {
     /// 打开指定路由；不记录最近使用（用于带上下文的直接跳转）。
     func open(_ route: AppRoute, from source: UIViewController)
@@ -27,9 +28,9 @@ final class AppRouter: AppRouting {
     private weak var lastPushed: UIViewController?
     private var lastRoute: AppRoute?
 
-    init(preferences: FeaturePreferencesStore = .shared, ledger: FinanceLedgerStore = .shared) {
+    init(preferences: FeaturePreferencesStore = .shared, ledger: FinanceLedgerStore? = nil) {
         self.preferences = preferences
-        self.ledger = ledger
+        self.ledger = ledger ?? .shared
     }
 
     func open(_ route: AppRoute, from source: UIViewController) {

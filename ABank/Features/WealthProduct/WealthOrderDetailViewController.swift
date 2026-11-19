@@ -14,7 +14,7 @@ final class WealthOrderDetailViewController: WealthFlowViewController, RouteHost
 
     var hostedRoute: AppRoute? { .wealthOrderDetail(orderID: orderID, justPurchased: justPurchased) }
 
-    init(orderID: String, justPurchased: Bool, ledger: FinanceLedgerStore = .shared,
+    init(orderID: String, justPurchased: Bool, ledger: FinanceLedgerStore? = nil,
          risk: RiskAssessmentStore = .shared, dates: BankingDateContext = .system) {
         self.orderID = orderID
         self.justPurchased = justPurchased

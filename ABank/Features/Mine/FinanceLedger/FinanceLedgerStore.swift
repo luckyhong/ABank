@@ -667,13 +667,6 @@ extension Notification.Name {
         }
     }
 
-    func updateLoanUnpaidPrincipal(id: String, amount: Double) {
-        update { record in
-            guard let index = record.loanContracts.firstIndex(where: { $0.id == id }) else { return }
-            record.loanContracts[index].unpaidPrincipal = amount
-        }
-    }
-
     func loanContract(id: String) -> LoanContract? {
         load().loanContracts.first(where: { $0.id == id })
     }

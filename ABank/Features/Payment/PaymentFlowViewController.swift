@@ -14,8 +14,8 @@ class PaymentFlowViewController: TransferFlowViewController {
     let benefits: BenefitsStore
     let dates: BankingDateContext
 
-    init(ledger: FinanceLedgerStore = .shared, benefits: BenefitsStore = .shared, dates: BankingDateContext = .system) {
-        self.ledger = ledger
+    init(ledger: FinanceLedgerStore? = nil, benefits: BenefitsStore = .shared, dates: BankingDateContext = .system) {
+        self.ledger = ledger ?? .shared
         self.benefits = benefits
         self.dates = dates
         super.init(nibName: nil, bundle: nil)
@@ -75,10 +75,6 @@ class PaymentFlowViewController: TransferFlowViewController {
     func showError(_ error: Error) {
         if presentPermissionBlockedIfNeeded(error, router: router) { return }
         showToast(error.localizedDescription)
-    }
-
-    func dateText(_ date: Date, format: String = "yyyy-MM-dd HH:mm") -> String {
-        dates.string(from: date, format: format)
     }
 
     /// 默认付款账户（当前账本仅一张人民币借记卡）及其可用余额（分）。

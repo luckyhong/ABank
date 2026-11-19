@@ -206,7 +206,6 @@ private final class HeroBannerCell: UICollectionViewCell {
     }
 }
 
-
 private final class HeroArtworkView: UIImageView {
     private let verticalMask = CAGradientLayer()
     private let horizontalMask = CAGradientLayer()
